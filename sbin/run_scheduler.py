@@ -10,6 +10,8 @@ import sys
 # script directory
 __dir__ = os.path.dirname(os.path.abspath(__file__))
 
+version = int(subprocess.check_output(["subl","--version"]).decode('utf8').strip()[-4])
+
 # sublime package directory
 if sys.platform == "darwin":
     sublime_package = os.path.expanduser("~/Library/Application Support/Sublime Text %d/Packages" % version)
@@ -20,8 +22,6 @@ sys.path.append(os.path.join(sublime_package, "UnitTesting"))
 from jsonio import *
 
 package = sys.argv[1] if len(sys.argv)>1 else "UnitTesting"
-
-version = int(subprocess.check_output(["subl","--version"]).decode('utf8').strip()[-4])
 
 outdir = os.path.join(sublime_package, "User", "UnitTesting", "tests_output")
 outfile = os.path.join(outdir, package)
