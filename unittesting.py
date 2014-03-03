@@ -6,8 +6,10 @@ import os
 
 # script directory
 __dir__ = os.path.dirname(os.path.abspath(__file__))
+version = sublime.version()
 
-class OutputPanelPrintCommand(sublime_plugin.TextCommand):
+
+class OutputPanelInsertCommand(sublime_plugin.TextCommand):
     def run(self, edit, characters):
         self.view.set_read_only(False)
         self.view.insert(edit, self.view.size(), characters)
@@ -15,19 +17,14 @@ class OutputPanelPrintCommand(sublime_plugin.TextCommand):
         self.view.show(self.view.size())
 
 class OutputPanel:
-# from plugin-unittest-harness: https://bitbucket.org/klorenz/sublimepluginunittestharness
-    r'''create an output panel and mimic an output stream for writing'''
-
     def __init__(self, name, file_regex='', line_regex = '', base_dir = None, word_wrap = False, line_numbers = False,
         gutter = False, scroll_past_end = False, syntax = 'Packages/Text/Plain text.tmLanguage'):
 
         self.name = name
-
         self.window = sublime.active_window()
-
         self.output_view = self.window.get_output_panel(name)
 
-        # Default the to the current files directory if no working directory was given
+        # default to the current file directory
         if (not base_dir and self.window.active_view() and self.window.active_view().file_name()):
             base_dir = os.path.dirname(self.window.active_view().file_name())
 
@@ -38,11 +35,11 @@ class OutputPanel:
         self.output_view.settings().set("line_numbers", line_numbers)
         self.output_view.settings().set("gutter", gutter)
         self.output_view.settings().set("scroll_past_end", scroll_past_end)
-        # self.output_view.assign_syntax(syntax)
+        self.output_view.settings().set("syntax", syntax)
 
     def write(self, s):
         args = {'characters': s}
-        f = lambda: self.output_view.run_command('output_panel_print', args)
+        f = lambda: self.output_view.run_command('output_panel_insert', args)
         sublime.set_timeout(f, 100)
 
     def flush(self):
@@ -73,12 +70,17 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand):
                 if os.path.exists(outfile): os.remove(outfile)
                 stream = open(outfile, "w")
 
-            # run unittest in second thread for gui synchronization, this may be tricky for st2
-            module = imp.load_module("tests", *imp.find_module("tests", [os.path.join(sublime.packages_path(),package)]))
-
             loader = TestLoader()
-            test = loader.loadTestsFromModule(module)
-            # test = loader.loadTestsFromName("UnitTesting.tests")
+            test = None
+            try:
+                if version >= "3000":
+                    # this is st3 only, st2 doesn't support discover
+                    test = loader.discover(os.path.join(sublime.packages_path(),package, "tests"))
+                else:
+                    module = imp.load_module("tests", *imp.find_module("tests", [os.path.join(sublime.packages_path(),package)]))
+                    test = loader.loadTestsFromModule(module)
+            except:
+                stream.write("\nERROR")
 
             testRunner = TextTestRunner(stream, verbosity=2)
             testRunner.run(test)

@@ -1,5 +1,7 @@
 [
-	{ "caption": "UnitTesting", 
-	  "command": "unit_testing",
-      "args": {"output":"panel"}}
+  {
+    "caption": "UnitTesting",
+    "command": "unit_testing",
+    "args": {"output": "panel"}
+  }
 ]
