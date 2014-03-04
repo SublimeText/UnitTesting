@@ -79,21 +79,25 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand):
                 stream = open(outfile, "w")
 
             loader = TestLoader()
-            module = imp.load_module(tests_dir, *imp.find_module(tests_dir, [os.path.join(sublime.packages_path(),package)]))
-            test = loader.loadTestsFromModule(module)
             try:
-                # todo: name comflict
-                pass
-            except:
+                module = imp.load_module(tests_dir, *imp.find_module(tests_dir, [os.path.join(sublime.packages_path(),package)]))
+                test = loader.loadTestsFromModule(module)
+            except Exception as e:
                 if version >= "3000":
                     # this is st3 only, st2 doesn't support discover
-                    test = loader.discover(os.path.join(sublime.packages_path(),package, tests_dir))
+                    try:
+                        test = loader.discover(os.path.join(sublime.packages_path(),package, tests_dir))
+                    except Exception as e:
+                        stream.write("ERROR: %s" % e)
 
-            testRunner = TextTestRunner(stream, verbosity=2)
-            testRunner.run(test)
+                else:
+                    stream.write("ERROR: %s" % e)
+            else:
+                testRunner = TextTestRunner(stream, verbosity=2)
+                testRunner.run(test)
+
             stream.close()
-            # except Exception as e:
-            #     stream.write("\nERROR : %s" % e)
+
         else:
             sublime.active_window().show_input_panel('Package:', self.oldpackage,
                 lambda x: sublime.run_command("unit_testing", {"package":x, "output":output}), None, None )
