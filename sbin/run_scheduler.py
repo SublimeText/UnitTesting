@@ -47,6 +47,7 @@ else:
 # wait until the file has something
 while (not os.path.exists(outfile) or os.stat(outfile).st_size == 0):
     sys.stdout.write('.')
+    sys.stdout.flush()
     time.sleep(1)
 
 print("\nstart to read output")
