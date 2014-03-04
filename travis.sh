@@ -27,7 +27,10 @@ if [ ! -d $STP/$PACKAGE ]; then
     ln -s $PWD $STP/$PACKAGE
 fi
 
-if [ ! -d $STP/UnitTesting ]; then
-    echo download UnitTesting 0.1.0
-    git clone --branch 0.1.0 https://github.com/randy3k/UnitTesting $STP/UnitTesting
+if [ ! -d $STP/Success ]; then
+    ln -s $STP/UnitTesting/tests/Success $STP/Success
+fi
+
+if [ ! -d $STP/Failure ]; then
+    ln -s $STP/UnitTesting/tests/Failure $STP/Failure
 fi
