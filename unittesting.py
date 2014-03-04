@@ -89,15 +89,15 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand):
                         stream.write("Using unittest.TestLoader.discover()\n")
                         test = loader.discover(os.path.join(sublime.packages_path(),package, tests_dir))
                     except Exception as e:
-                        stream.write("ERROR: %s" % e)
+                        stream.write("ERROR: %s\n" % e)
 
                 else:
-                    stream.write("ERROR: %s" % e)
+                    stream.write("ERROR: %s\n" % e)
             try:
                 testRunner = TextTestRunner(stream, verbosity=2)
                 testRunner.run(test)
             except Exception as e:
-                stream.write("ERROR: %s" % e)
+                stream.write("ERROR: %s\n" % e)
             stream.close()
 
         else:
