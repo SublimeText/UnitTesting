@@ -79,12 +79,12 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand):
                 else:
                     module = imp.load_module("tests", *imp.find_module("tests", [os.path.join(sublime.packages_path(),package)]))
                     test = loader.loadTestsFromModule(module)
-            except:
-                stream.write("\nERROR")
 
-            testRunner = TextTestRunner(stream, verbosity=2)
-            testRunner.run(test)
-            stream.close()
+                testRunner = TextTestRunner(stream, verbosity=2)
+                testRunner.run(test)
+                stream.close()
+            except Exception as e:
+                stream.write("\nERROR : %s" % e)
         else:
             sublime.active_window().show_input_panel('Package:', 'UnitTesting-example',
                 lambda x: sublime.run_command("unit_testing", {"package":x, "output":output}), None, None )
