@@ -45,9 +45,13 @@ else:
     subprocess.Popen(["subl"])
 
 # wait until the file has something
+startt = time.time()
 while (not os.path.exists(outfile) or os.stat(outfile).st_size == 0):
     sys.stdout.write('.')
     sys.stdout.flush()
+    if time.time()-startt > 60:
+        print("Timeout: Sublime Text is not responding")
+        sys.exit(1)
     time.sleep(1)
 
 print("\nstart to read output")
