@@ -20,5 +20,5 @@ class TestNull(TestCase):
         sublime.run_command("unit_testing", {"package":"Failure"})
         with open(os.path.join(outputdir, "Failure"), 'r') as f:
             txt = f.read()
-        m = re.search('^FAILED (failures=1)',txt, re.MULTILINE)
+        m = re.search('^FAILED \(failures=1\)',txt, re.MULTILINE)
         self.assertEqual(hasattr(m,"group"),True)
