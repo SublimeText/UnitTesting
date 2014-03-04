@@ -9,7 +9,7 @@ class TestNull(TestCase):
 
     def test_success(self):
 
-        sublime.run_command("unit_testing", {"package":"Success"})
+        sublime.run_command("unit_testing", {"package":"Success.tests1"})
         with open(os.path.join(outputdir, "Success"), 'r') as f:
             txt = f.read()
         m = re.search('^OK',txt, re.MULTILINE)
@@ -17,7 +17,7 @@ class TestNull(TestCase):
 
     def test_failure(self):
 
-        sublime.run_command("unit_testing", {"package":"Failure"})
+        sublime.run_command("unit_testing", {"package":"Failure.tests1"})
         with open(os.path.join(outputdir, "Failure"), 'r') as f:
             txt = f.read()
         m = re.search('^FAILED \(failures=1\)',txt, re.MULTILINE)

@@ -3,6 +3,7 @@ import sublime, sublime_plugin
 import threading
 import imp
 import os
+import re
 
 # script directory
 __dir__ = os.path.dirname(os.path.abspath(__file__))
@@ -52,8 +53,15 @@ class OutputPanel:
         pass
 
 class UnitTestingCommand(sublime_plugin.ApplicationCommand):
+    oldpackage = 'UnitTesting'
     def run(self, package=None, output=None):
         if package:
+            self.oldpackage = package
+            tests_dir = 'tests'
+            m = re.match("(.*)\.([^\.]*)$", package)
+            if m:
+                package, tests_dir = m.groups()
+
             if output=="panel":
                 output_panel = OutputPanel('unittests', file_regex = r'File "([^"]*)", line (\d+)')
                 output_panel.show()
@@ -71,14 +79,15 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand):
                 stream = open(outfile, "w")
 
             loader = TestLoader()
-            test = None
-            # try:
-            if version >= "3000":
-                # this is st3 only, st2 doesn't support discover
-                test = loader.discover(os.path.join(sublime.packages_path(),package, "tests"))
-            else:
-                module = imp.load_module("tests", *imp.find_module("tests", [os.path.join(sublime.packages_path(),package)]))
-                test = loader.loadTestsFromModule(module)
+            module = imp.load_module(tests_dir, *imp.find_module(tests_dir, [os.path.join(sublime.packages_path(),package)]))
+            test = loader.loadTestsFromModule(module)
+            try:
+                # todo: name comflict
+                pass
+            except:
+                if version >= "3000":
+                    # this is st3 only, st2 doesn't support discover
+                    test = loader.discover(os.path.join(sublime.packages_path(),package, tests_dir))
 
             testRunner = TextTestRunner(stream, verbosity=2)
             testRunner.run(test)
@@ -86,6 +95,6 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand):
             # except Exception as e:
             #     stream.write("\nERROR : %s" % e)
         else:
-            sublime.active_window().show_input_panel('Package:', 'UnitTesting-example',
+            sublime.active_window().show_input_panel('Package:', self.oldpackage,
                 lambda x: sublime.run_command("unit_testing", {"package":x, "output":output}), None, None )
 

@@ -28,9 +28,9 @@ if [ ! -d $STP/$PACKAGE ]; then
 fi
 
 if [ ! -d $STP/Success ]; then
-    ln -s $STP/UnitTesting/tests/Success $STP/Success
+    ln -s $PWD/tests/Success $STP/Success
 fi
 
 if [ ! -d $STP/Failure ]; then
-    ln -s $STP/UnitTesting/tests/Failure $STP/Failure
+    ln -s $PWD/tests/Failure $STP/Failure
 fi
