@@ -53,7 +53,7 @@ class OutputPanel:
         pass
 
 class UnitTestingCommand(sublime_plugin.ApplicationCommand):
-    oldpackage = 'UnitTesting'
+    oldpackage = 'Package Name'
     def run(self, package=None, output=None):
         if package:
             self.oldpackage = package
@@ -99,6 +99,6 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand):
             stream.close()
 
         else:
-            sublime.active_window().show_input_panel('Package:', self.oldpackage,
+            view = sublime.active_window().show_input_panel('Package:', self.oldpackage,
                 lambda x: sublime.run_command("unit_testing", {"package":x, "output":output}), None, None )
-
+            view.run_command("select_all")
