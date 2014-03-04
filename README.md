@@ -1,5 +1,7 @@
 UnitTesting
 ===================
+[![Build Status](https://travis-ci.org/randy3k/UnitTesting.png?branch=master)](https://travis-ci.org/randy3k/UnitTesting)
+
 There are at least 3 testing frameworks for Sublime Text in town: 
 
 1. https://github.com/guillermooo/AAAPT
