@@ -11,7 +11,7 @@ env:
         - SUBLIME_TEXT_VERSION="3"
 
 install:
-    - sh -e sbin/travis.sh $SUBLIME_TEXT_VERSION $PACKAGE
+    - sh -e travis.sh $SUBLIME_TEXT_VERSION $PACKAGE
 
 before_script:
     - export DISPLAY=:99.0
