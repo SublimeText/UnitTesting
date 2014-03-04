@@ -86,16 +86,18 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand):
                 if version >= "3000":
                     # this is st3 only, st2 doesn't support discover
                     try:
+                        stream.write("Using unittest.TestLoader.discover()\n")
                         test = loader.discover(os.path.join(sublime.packages_path(),package, tests_dir))
                     except Exception as e:
                         stream.write("ERROR: %s" % e)
 
                 else:
                     stream.write("ERROR: %s" % e)
-            else:
+            try:
                 testRunner = TextTestRunner(stream, verbosity=2)
                 testRunner.run(test)
-
+            except Exception as e:
+                stream.write("ERROR: %s" % e)
             stream.close()
 
         else:

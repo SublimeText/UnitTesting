@@ -26,11 +26,3 @@ if [ ! -d $STP/$PACKAGE ]; then
     echo symlink the package to sublime package directory
     ln -s $PWD $STP/$PACKAGE
 fi
-
-if [ ! -d $STP/Success ]; then
-    ln -s $PWD/tests/Success $STP/Success
-fi
-
-if [ ! -d $STP/Failure ]; then
-    ln -s $PWD/tests/Failure $STP/Failure
-fi

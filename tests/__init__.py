@@ -6,8 +6,8 @@
 
 import imp
 # make sure newest version of the module is loaded
-from . import test_null
-imp.reload(test_null)
+from . import test
+imp.reload(test)
 
 # load testcases
-from .test_null import *
+from .test import *
