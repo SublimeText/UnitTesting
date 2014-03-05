@@ -1,4 +1,9 @@
-from unittest import TestLoader, TextTestRunner
+from unittest import  TextTestRunner
+try:
+    from .loader import TestLoader
+except:
+    from loader import TestLoader
+
 import sublime, sublime_plugin
 import threading
 import imp
@@ -79,20 +84,13 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand):
                 stream = open(outfile, "w")
 
             loader = TestLoader()
+                # module = imp.load_module(tests_dir, *imp.find_module(tests_dir, [os.path.join(sublime.packages_path(),package)]))
+                # test = loader.loadTestsFromModule(module)
             try:
-                module = imp.load_module(tests_dir, *imp.find_module(tests_dir, [os.path.join(sublime.packages_path(),package)]))
-                test = loader.loadTestsFromModule(module)
+                # stream.write("Using TestLoader.discover()\n")
+                test = loader.discover(os.path.join(sublime.packages_path(),package, tests_dir))
             except Exception as e:
-                if version >= "3000":
-                    # this is st3 only, st2 doesn't support discover
-                    try:
-                        stream.write("Using unittest.TestLoader.discover()\n")
-                        test = loader.discover(os.path.join(sublime.packages_path(),package, tests_dir))
-                    except Exception as e:
-                        stream.write("ERROR: %s\n" % e)
-
-                else:
-                    stream.write("ERROR: %s\n" % e)
+                stream.write("ERROR: %s\n" % e)
             try:
                 testRunner = TextTestRunner(stream, verbosity=2)
                 testRunner.run(test)
