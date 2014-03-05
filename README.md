@@ -8,6 +8,8 @@ There are at least 3 testing frameworks for Sublime Text in town:
 2. https://bitbucket.org/klorenz/sublimepluginunittestharness
 3. https://github.com/twolfson/sublime-plugin-tests
 
-They all have their own pros and cons. `AAAPT` and `pluginunittestharness` work natively in Sublime, but they are ST3 only and do not work with travis-ci. On the other hard, `sublime-plugin-tests` is better in that sense and supports travis-ci, however tests are not run natively in Sublime. After playing with all those frameworks, I decided to write my own framework.
+They all have their own pros and cons. `AAAPT` and `pluginunittestharness` work natively in Sublime, but they are ST3 only and do not work with travis-ci. On the other hard, `sublime-plugin-tests` is better in that sense and supports travis-ci, however testing is not natively conducted in Sublime and it creates a lot of confusion. After playing with all these frameworks, I decided to write my own framework.
 
 It is hard to explain the usage without an example, so I have created an getting start example here: [UnitTesting-example](https://github.com/randy3k/UnitTesting-example).
+
+Note: don't try to learn how to write tests from this repo. The tests in this repo are written to test this testing plugin and they are not helping in regular situation. Go to the getting start example instead.
