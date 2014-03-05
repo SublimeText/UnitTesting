@@ -1,10 +1,11 @@
 import sublime, sublime_plugin
 import time
-import threading
+import threading, os
+
 try:
-    from .jsonio import *
+    from .jsonio import JsonIO
 except:
-    from jsonio import *
+    from jsonio import JsonIO
 
 class Unit:
     def __init__(self, package):
@@ -16,7 +17,7 @@ class Unit:
 class Scheduler:
     def __init__(self):
         self.units = []
-        self.j = jsonio(os.path.join(sublime.packages_path(), 'User', 'UnitTesting','schedule.json'))
+        self.j = JsonIO(os.path.join(sublime.packages_path(), 'User', 'UnitTesting','schedule.json'))
 
     def load_schedule(self):
         self.schedule = self.j.load()

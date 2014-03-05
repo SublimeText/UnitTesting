@@ -1,7 +1,7 @@
 import os, codecs
 import json
 
-class jsonio:
+class JsonIO:
     def __init__(self, fpath, encoding="utf-8"):
         self.encoding = encoding
         self.fpath = fpath

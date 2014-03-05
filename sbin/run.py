@@ -19,7 +19,7 @@ elif "linux" in sys.platform:
     sublime_package = os.path.expanduser("~/.config/sublime-text-%d/Packages" % version)
 
 sys.path.append(os.path.join(sublime_package, "UnitTesting"))
-from jsonio import *
+from jsonio import JsonIO
 
 package = sys.argv[1] if len(sys.argv)>1 else "UnitTesting"
 
@@ -30,7 +30,7 @@ if os.path.exists(outfile): os.unlink(outfile)
 
 # add schedule
 jpath = os.path.join(sublime_package, "User", "UnitTesting", "schedule.json")
-j = jsonio(jpath)
+j = JsonIO(jpath)
 schedule = j.load()
 if not any([s['package']==package for s in schedule]):
     schedule.append({'package': package})
@@ -61,7 +61,7 @@ with open(outfile, 'r') as f:
     while True:
         result = f.read()
         m = re.search("^(OK|FAILED|ERROR)", result, re.MULTILINE)
-        # break when OK or Failed
+        # break when OK, Failed or error
         if m: break
         time.sleep(0.2)
     f.seek(0)
