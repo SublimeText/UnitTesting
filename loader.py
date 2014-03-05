@@ -48,6 +48,7 @@ class TestLoader(object):
     and returning them wrapped in a TestSuite
     """
     testMethodPrefix = 'test'
+    sortTestMethodsUsing = three_way_cmp
     suiteClass = TestSuite
     _top_level_dir = None
 
@@ -88,6 +89,8 @@ class TestLoader(object):
             return attrname.startswith(prefix) and \
                 callable(getattr(testCaseClass, attrname))
         testFnNames = list(filter(isTestMethod, dir(testCaseClass)))
+        if self.sortTestMethodsUsing:
+            testFnNames.sort(key=functools.cmp_to_key(self.sortTestMethodsUsing))
         return testFnNames
 
     def discover(self, start_dir, pattern='test*.py', top_level_dir=None):
@@ -240,3 +243,8 @@ class TestLoader(object):
                     except Exception as e:
                         yield _make_failed_load_tests(package.__name__, e,
                                                       self.suiteClass)
+
+
+def three_way_cmp(x, y):
+    """Return -1 if x < y, 0 if x == y and 1 if x > y"""
+    return (x > y) - (x < y)
