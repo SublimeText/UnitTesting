@@ -14,7 +14,6 @@ import re
 __dir__ = os.path.dirname(os.path.abspath(__file__))
 version = sublime.version()
 
-
 class OutputPanelInsertCommand(sublime_plugin.TextCommand):
     def run(self, edit, characters):
         self.view.set_read_only(False)
@@ -44,9 +43,7 @@ class OutputPanel:
         self.output_view.settings().set("syntax", syntax)
 
     def write(self, s):
-        args = {'characters': s}
-        f = lambda: self.output_view.run_command('output_panel_insert', args)
-        sublime.set_timeout(f, 100)
+        self.output_view.run_command('output_panel_insert', {'characters': s})
 
     def flush(self):
         pass
@@ -61,11 +58,7 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand):
     oldpackage = 'Package Name'
     def run(self, package=None, output=None):
         if package:
-            self.oldpackage = package
             tests_dir = 'tests'
-            m = re.match("(.*)\.([^\.]*)$", package)
-            if m:
-                package, tests_dir = m.groups()
 
             if output=="panel":
                 output_panel = OutputPanel('unittests', file_regex = r'File "([^"]*)", line (\d+)')
@@ -83,20 +76,18 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand):
                 if os.path.exists(outfile): os.remove(outfile)
                 stream = open(outfile, "w")
 
-            loader = TestLoader()
-                # module = imp.load_module(tests_dir, *imp.find_module(tests_dir, [os.path.join(sublime.packages_path(),package)]))
-                # test = loader.loadTestsFromModule(module)
             try:
-                # stream.write("Using TestLoader.discover()\n")
+                # use custom loader which support ST2 and reloading modules
+                loader = TestLoader()
                 test = loader.discover(os.path.join(sublime.packages_path(),package, tests_dir))
-            except Exception as e:
-                stream.write("ERROR: %s\n" % e)
-            try:
                 testRunner = TextTestRunner(stream, verbosity=2)
                 testRunner.run(test)
             except Exception as e:
                 stream.write("ERROR: %s\n" % e)
+
             stream.close()
+            # save the package name
+            self.oldpackage = package
 
         else:
             view = sublime.active_window().show_input_panel('Package:', self.oldpackage,
