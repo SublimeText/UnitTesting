@@ -42,6 +42,10 @@ def _import(module):
     if module in sys.modules: del sys.modules[module]
     __import__(module)
 
+def three_way_cmp(x, y):
+    """Return -1 if x < y, 0 if x == y and 1 if x > y"""
+    return (x > y) - (x < y)
+
 class TestLoader(object):
     """
     This class is responsible for loading tests according to various criteria
@@ -243,8 +247,3 @@ class TestLoader(object):
                     except Exception as e:
                         yield _make_failed_load_tests(package.__name__, e,
                                                       self.suiteClass)
-
-
-def three_way_cmp(x, y):
-    """Return -1 if x < y, 0 if x == y and 1 if x > y"""
-    return (x > y) - (x < y)
