@@ -1,5 +1,6 @@
-# This is basically a copy of loader.py from python 3.3.4 to give python 2.6 support of TestLoader.discover
-# __import__ is replaced by _import to make sure new version of modules will be loaded
+# This is basically a copy of unittest/loader.py from python 3.3.4
+# It gives python 2.6 support of TestLoader.discover
+# __import__ is replaced by _import to reload modules
 
 import os
 import re
