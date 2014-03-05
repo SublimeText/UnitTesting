@@ -12,24 +12,24 @@ class TestUnitTesting(TestCase):
             shutil.copytree(os.path.join(__dir__, "_Success"), os.path.join(sublime.packages_path(),"_Success"))
         except:
             pass
-        sublime.run_command("unit_testing", {"package":"_Success.tests1"})
+        sublime.run_command("unit_testing", {"package":"_Success"})
         with open(os.path.join(outputdir, "_Success"), 'r') as f:
             txt = f.read()
         m = re.search('^OK',txt, re.MULTILINE)
         shutil.rmtree(os.path.join(sublime.packages_path(),"_Success"))
-        self.assertEqual(hasattr(m,"group"),True)
+        self.assertEqual(hasattr(m,"group"), True)
 
     def test_failure(self):
         try:
             shutil.copytree(os.path.join(__dir__, "_Failure"), os.path.join(sublime.packages_path(),"_Failure"))
         except:
             pass
-        sublime.run_command("unit_testing", {"package":"_Failure.tests1"})
+        sublime.run_command("unit_testing", {"package":"_Failure"})
         with open(os.path.join(outputdir, "_Failure"), 'r') as f:
             txt = f.read()
         m = re.search('^FAILED \(failures=1\)',txt, re.MULTILINE)
         shutil.rmtree(os.path.join(sublime.packages_path(),"_Failure"))
-        self.assertEqual(hasattr(m,"group"),True)
+        self.assertEqual(hasattr(m,"group"), True)
 
     def test_error(self):
         # Run unittesting for an non existing package
@@ -37,4 +37,4 @@ class TestUnitTesting(TestCase):
         with open(os.path.join(outputdir, "_Error"), 'r') as f:
             txt = f.read()
         m = re.search('^ERROR',txt, re.MULTILINE)
-        self.assertEqual(hasattr(m,"group"),True)
+        self.assertEqual(hasattr(m,"group"), True)

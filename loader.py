@@ -1,13 +1,10 @@
-# This is basically a copy of loader.py from python 3.3.4 to allow TestLoader.discover for python 2.6
-# plus the feature to reload the module every time discover is called.
+# This is basically a copy of loader.py from python 3.3.4 to give python 2.6 support of TestLoader.discover
+# __import__ is replaced by _import to make sure new version of modules will be loaded
 
 import os
 import re
 import sys
 import traceback
-import types
-import functools
-import imp
 
 from fnmatch import fnmatch
 
@@ -41,6 +38,9 @@ def _jython_aware_splitext(path):
         return path[:-9]
     return os.path.splitext(path)[0]
 
+def _import(module):
+    if module in sys.modules: del sys.modules[module]
+    __import__(module)
 
 class TestLoader(object):
     """
@@ -137,7 +137,7 @@ class TestLoader(object):
         else:
             # support for discovery from dotted module names
             try:
-                __import__(start_dir)
+                _import(start_dir)
             except ImportError:
                 is_not_importable = True
             else:
@@ -177,7 +177,7 @@ class TestLoader(object):
         return name
 
     def _get_module_from_name(self, name):
-        __import__(name)
+        _import(name)
         return sys.modules[name]
 
     def _match_path(self, path, full_path, pattern):
