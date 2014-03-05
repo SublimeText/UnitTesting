@@ -13,7 +13,7 @@ try:
     TestSuite = suite.TestSuite
     TestCase = case.TestCase
 except:
-    from unittest import *
+    from unittest import TestSuite, TestCase
 
 VALID_MODULE_NAME = re.compile(r'[_a-z]\w*\.py$', re.IGNORECASE)
 
