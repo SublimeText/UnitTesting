@@ -12,7 +12,7 @@ import re
 
 # script directory
 __dir__ = os.path.dirname(os.path.abspath(__file__))
-version = sublime.version()
+__oldpackage__ = 'Package Name'
 
 class OutputPanelInsertCommand(sublime_plugin.TextCommand):
     def run(self, edit, characters):
@@ -55,7 +55,6 @@ class OutputPanel:
         pass
 
 class UnitTestingCommand(sublime_plugin.ApplicationCommand):
-    oldpackage = 'Package Name'
     def run(self, package=None, output=None):
         if package:
             tests_dir = 'tests'
@@ -87,9 +86,10 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand):
 
             stream.close()
             # save the package name
-            self.oldpackage = package
+            global __oldpackage__
+            __oldpackage__ = package
 
         else:
-            view = sublime.active_window().show_input_panel('Package:', self.oldpackage,
+            view = sublime.active_window().show_input_panel('Package:', __oldpackage__,
                 lambda x: sublime.run_command("unit_testing", {"package":x, "output":output}), None, None )
             view.run_command("select_all")
