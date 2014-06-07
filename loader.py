@@ -125,12 +125,14 @@ class TestLoader(object):
 
         top_level_dir = os.path.abspath(top_level_dir)
 
-        if not top_level_dir in sys.path:
-            # all test modules must be importable from the top level directory
-            # should we *unconditionally* put the start directory in first
-            # in sys.path to minimise likelihood of conflicts between installed
-            # modules and development versions?
-            sys.path.insert(0, top_level_dir)
+
+        # all test modules must be importable from the top level directory
+        # should we *unconditionally* put the start directory in first
+        # in sys.path to minimise likelihood of conflicts between installed
+        # modules and development versions?
+        if top_level_dir in sys.path:
+            sys.path.remove(top_level_dir)
+        sys.path.insert(0, top_level_dir)
         self._top_level_dir = top_level_dir
 
         is_not_importable = False
