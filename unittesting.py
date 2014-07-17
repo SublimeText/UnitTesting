@@ -92,6 +92,6 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand):
             sublime.save_settings(settingsFileName)
         else:
             recent_package = settings.get(settingsName, "Package Name")
-            view = sublime.active_window().show_input_panel('Package:', recent_unittesting_package,
+            view = sublime.active_window().show_input_panel('Package:', recent_package,
                 lambda x: sublime.run_command("unit_testing", {"package":x, "output":output}), None, None )
             view.run_command("select_all")
