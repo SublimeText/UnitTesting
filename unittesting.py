@@ -12,7 +12,6 @@ import re
 
 # script directory
 __dir__ = os.path.dirname(os.path.abspath(__file__))
-__oldpackage__ = 'Package Name'
 
 class OutputPanelInsertCommand(sublime_plugin.TextCommand):
     def run(self, edit, characters):
@@ -56,6 +55,9 @@ class OutputPanel:
 
 class UnitTestingCommand(sublime_plugin.ApplicationCommand):
     def run(self, package=None, output=None):
+        settingsFileName = "Preferences.sublime-settings"
+        settingsName = "currentUnitTestingPackage"
+        settings = sublime.load_settings(settingsFileName)
         if package:
             tests_dir = 'tests'
 
@@ -86,10 +88,10 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand):
 
             stream.close()
             # save the package name
-            global __oldpackage__
-            __oldpackage__ = package
-
+            settings.set(settingsName, package)
+            sublime.save_settings(settingsFileName)
         else:
-            view = sublime.active_window().show_input_panel('Package:', __oldpackage__,
+            currentUnitTestingPackage = settings.get(settingsName, "Package Name")
+            view = sublime.active_window().show_input_panel('Package:', currentUnitTestingPackage,
                 lambda x: sublime.run_command("unit_testing", {"package":x, "output":output}), None, None )
             view.run_command("select_all")
