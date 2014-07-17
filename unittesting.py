@@ -55,8 +55,8 @@ class OutputPanel:
 
 class UnitTestingCommand(sublime_plugin.ApplicationCommand):
     def run(self, package=None, output=None):
-        settingsFileName = "Preferences.sublime-settings"
-        settingsName = "currentUnitTestingPackage"
+        settingsFileName = "UnitTesting.sublime-settings"
+        settingsName = "recent_package"
         settings = sublime.load_settings(settingsFileName)
         if package:
             tests_dir = 'tests'
@@ -91,7 +91,7 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand):
             settings.set(settingsName, package)
             sublime.save_settings(settingsFileName)
         else:
-            currentUnitTestingPackage = settings.get(settingsName, "Package Name")
-            view = sublime.active_window().show_input_panel('Package:', currentUnitTestingPackage,
+            recent_package = settings.get(settingsName, "Package Name")
+            view = sublime.active_window().show_input_panel('Package:', recent_unittesting_package,
                 lambda x: sublime.run_command("unit_testing", {"package":x, "output":output}), None, None )
             view.run_command("select_all")
