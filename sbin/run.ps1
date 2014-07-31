@@ -1,35 +1,36 @@
-param([string]$PackageToTest='UnitTesting')
+param([string]$PackageToTest="UnitTesting")
 
-$script:thisDir = split-path $MyInvocation.MyCommand.Path -parent
+# todo(guillermooo): Make this configurable.
+$packagesPath = 'c:\st\Data\Packages'
+$stPath = 'c:\st\sublime_text.exe'
 
-version = 3
-
-$SublimePackage = 'path/to/sublime/data'
-
-$package = $PackageToTest
-
-$outDir = "$SublimePackage\User\UnitTesting\tests_output"
-$outFile = "$outDir\$package"
+$outDir = "$packagesPath\User\UnitTesting\tests_output"
+$outFile = "$outDir\$PackageToTest"
+[void] (new-item -itemtype "f" $outFile -force)
 
 remove-item $outFile -force -erroraction silentlycontinue
 
-$jpath = "$SublimePackage\User\UnitTesting\schedule.json"
-$jdata = convertfrom-json $jpath
-
-# ===
-# if not any([s['package']==package for s in schedule]):
-#     schedule.append({'package': package})
-# j.save(schedule)
-# ===
-
-$IsSTRunning = (get-process "sublime_text") -ne $null
-
-if ($IsSTRunning) {
-    start-process "sublime_text" -ArgumentList "--command", "unit_testing_run_scheduler"
+# Configure packages to be tested.
+$jpath = "$packagesPath\User\UnitTesting\schedule.json"
+if (test-path $jpath) {
+    $schedule = convertfrom-json "$(get-content $jpath)"
 }
 else {
-    start-process "sublime_text"
+    [void] (new-item -itemtype "f" -path $jpath -force)
+    # todo(guillermooo): use a UTF8 encoding that doesn't add a preamble.
+    # Use ascii to avoid UTF8 preamble issues with python's json module.
+    "[]" | out-file -encoding "ascii" -FilePath $jpath -force
+    $schedule = convertfrom-json "$(get-content $jpath)"
 }
+
+$found = (@($schedule | foreach-object { $_.package }) -eq $PackageToTest).length
+if ($found -eq 0) {
+    $schedule += @{"package" = $PackageToTest}
+}
+convertto-json $schedule | out-file -filepath $jpath -encoding "ascii"
+
+# XXX(guillermooo): we cannot start the editor minimized?
+start-process $stPath -ArgumentList "--command", "unit_testing_run_scheduler"
 
 $startTime = Get-date
 while (-not (test-path $outFile) -or (get-item $outFile).length -eq 0) {
@@ -41,21 +42,27 @@ while (-not (test-path $outFile) -or (get-item $outFile).length -eq 0) {
     start-sleep -seconds 1
 }
 
-"start to read output"
+write-output "start to read output"
 
-
-$lines = @()
-$f = [IO.File]::OpenText($outFile)
+$copy = "$outfile.copy"
+$read = 0
 while ($true) {
-    $line = $f.ReadLine()
-    $lines.Add($line)
-    $m = $line -match "^(OK|FAILED|ERROR)"
-    if (m) { break }
+    # XXX(guillermooo): We can't open a file already opened by another
+    # process. By copying the file first, we can work around this. (But if
+    # we can copy it we should be able to read it too?).
+    # Powershell's `get-content $path -tail 1 -wait` is in fact able to read
+    # from an already opened file. Perhaps it uses the same workaround as we
+    # do here?
+    copy-item $outfile $copy -force
+
+    $lines = (get-content $copy)
+    write-output $lines[$read..$lines.length]
+    $read += ($lines.length - $read)
+
+    $m = $lines[-1] -match "^(OK|FAILED|ERROR)"
+    if ($m) { break }
     start-sleep -milliseconds 200
 }
-$f.Close()
-
-[String]::Join("`n", $lines)
 
 if ($matches[1] -ne "OK") {
     exit 1
