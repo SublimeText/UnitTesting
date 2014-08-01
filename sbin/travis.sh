@@ -39,7 +39,7 @@ Bootstrap() {
 RunTests() {
     STP="$HOME/.config/sublime-text-$SUBLIME_TEXT_VERSION/Packages"
     UT="$STP/UnitTesting"
-    python "$UT/sbin/run.py" $PACKAGE
+    python "$UT/sbin/run.py" "$PACKAGE"
 }
 
 COMMAND=$1
