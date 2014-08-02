@@ -19,7 +19,7 @@ Bootstrap() {
             fi
             # I don't know why I have to open sublime first to make command "subl" work
             # some delay for sublime to open
-            sleep 5
+            sleep 10
         fi
     else
         STP="$HOME/.config/sublime-text-$SUBLIME_TEXT_VERSION/Packages"
