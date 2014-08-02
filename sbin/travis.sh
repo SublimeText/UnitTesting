@@ -34,6 +34,9 @@ Bootstrap() {
         TAG=`git ls-remote --tags https://github.com/randy3k/UnitTesting | sed 's|.*/\([^/]*$\)|\1|' | sort -r -t . -n | head -1`
         git clone --branch $TAG https://github.com/randy3k/UnitTesting $STP/UnitTesting
     fi
+
+    export DISPLAY=:99.0
+    sh -e /etc/init.d/xvfb start
 }
 
 RunTests() {
