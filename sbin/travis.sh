@@ -37,8 +37,10 @@ Bootstrap() {
 }
 
 RunTests() {
-    export DISPLAY=:99.0
-    sh -e /etc/init.d/xvfb start
+    if [ -z $DISPLAY ]; then
+        export DISPLAY=:99.0
+        sh -e /etc/init.d/xvfb start
+    fi
     STP="$HOME/.config/sublime-text-$SUBLIME_TEXT_VERSION/Packages"
     UT="$STP/UnitTesting"
     python "$UT/sbin/run.py" "$PACKAGE"
