@@ -12,7 +12,7 @@ class TestUnitTesting(TestCase):
             shutil.copytree(os.path.join(__dir__, "_Success"), os.path.join(sublime.packages_path(),"_Success"))
         except:
             pass
-        sublime.run_command("unit_testing", {"package":"_Success"})
+        sublime.run_command("unit_testing", {"package":"_Success", "async":False})
         with open(os.path.join(outputdir, "_Success"), 'r') as f:
             txt = f.read()
         m = re.search('^OK',txt, re.MULTILINE)
@@ -24,7 +24,7 @@ class TestUnitTesting(TestCase):
             shutil.copytree(os.path.join(__dir__, "_Failure"), os.path.join(sublime.packages_path(),"_Failure"))
         except:
             pass
-        sublime.run_command("unit_testing", {"package":"_Failure"})
+        sublime.run_command("unit_testing", {"package":"_Failure", "async":False})
         with open(os.path.join(outputdir, "_Failure"), 'r') as f:
             txt = f.read()
         m = re.search('^FAILED \(failures=1\)',txt, re.MULTILINE)
@@ -33,7 +33,7 @@ class TestUnitTesting(TestCase):
 
     def test_error(self):
         # Run unittesting for an non existing package
-        sublime.run_command("unit_testing", {"package":"_Error"})
+        sublime.run_command("unit_testing", {"package":"_Error", "async":False})
         with open(os.path.join(outputdir, "_Error"), 'r') as f:
             txt = f.read()
         m = re.search('^ERROR',txt, re.MULTILINE)
