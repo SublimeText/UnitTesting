@@ -55,8 +55,8 @@ Bootstrap() {
 RunTests() {
     if [ $(uname) = 'Darwin' ]; then
         STP="$HOME/Library/Application Support/Sublime Text $SUBLIME_TEXT_VERSION/Packages"
-        # I don't know why I have to open sublime first to make command "subl" work
-        # some delay for sublime to open
+        # st cannot be launched by `subl`, may be related to this http://www.sublimetext.com/forum/viewtopic.php?f=3&t=15124
+        # open sublime
         if [ $SUBLIME_TEXT_VERSION -eq 2 ]; then
             open "$HOME/Applications/Sublime Text 2.app"
         elif [ $SUBLIME_TEXT_VERSION -eq 3 ]; then
