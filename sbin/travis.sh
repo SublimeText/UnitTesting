@@ -10,16 +10,11 @@ Bootstrap() {
             if [ $SUBLIME_TEXT_VERSION -eq 2 ]; then
                 echo installing sublime 2
                 brew cask install sublime-text
-                open "$HOME/Applications/Sublime Text 2.app"
             elif [ $SUBLIME_TEXT_VERSION -eq 3 ]; then
                 echo installing sublime 3
                 brew tap caskroom/versions
                 brew cask install sublime-text3
-                open "$HOME/Applications/Sublime Text.app"
             fi
-            # I don't know why I have to open sublime first to make command "subl" work
-            # some delay for sublime to open
-            sleep 10
         fi
     else
         STP="$HOME/.config/sublime-text-$SUBLIME_TEXT_VERSION/Packages"
@@ -58,15 +53,23 @@ Bootstrap() {
 }
 
 RunTests() {
-    if  [ $(uname) != 'Darwin' ] && [ -z $DISPLAY ]; then
-        export DISPLAY=:99.0
-        sh -e /etc/init.d/xvfb start
-    fi
-
     if [ $(uname) = 'Darwin' ]; then
         STP="$HOME/Library/Application Support/Sublime Text $SUBLIME_TEXT_VERSION/Packages"
+        # I don't know why I have to open sublime first to make command "subl" work
+        # some delay for sublime to open
+        if [ $SUBLIME_TEXT_VERSION -eq 2 ]; then
+            open "$HOME/Applications/Sublime Text 2.app"
+        elif [ $SUBLIME_TEXT_VERSION -eq 3 ]; then
+            open "$HOME/Applications/Sublime Text.app"
+        fi
+        # some delay for sublime to open
+        sleep 10
     else
         STP="$HOME/.config/sublime-text-$SUBLIME_TEXT_VERSION/Packages"
+        if [ -z $DISPLAY ]; then
+            export DISPLAY=:99.0
+            sh -e /etc/init.d/xvfb start
+        fi
     fi
     UT="$STP/UnitTesting"
     python "$UT/sbin/run.py" "$PACKAGE"
