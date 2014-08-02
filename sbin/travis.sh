@@ -17,6 +17,9 @@ Bootstrap() {
                 brew cask install sublime-text3
                 open "$HOME/Applications/Sublime Text.app"
             fi
+            # I don't know why I have to open sublime first to make command "subl" work
+            # some delay for sublime to open
+            sleep 5
         fi
     else
         STP="$HOME/.config/sublime-text-$SUBLIME_TEXT_VERSION/Packages"
