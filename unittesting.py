@@ -6,12 +6,13 @@ except:
 
 import sublime, sublime_plugin
 import threading
-import imp
 import os
 import re
 
-# script directory
-__dir__ = os.path.dirname(os.path.abspath(__file__))
+version = sublime.version()
+
+# todo: customable
+tests_dir = 'tests'
 
 class OutputPanelInsertCommand(sublime_plugin.TextCommand):
     def run(self, edit, characters):
@@ -59,7 +60,9 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand):
         settingsName = "recent_package"
         settings = sublime.load_settings(settingsFileName)
         if package:
-            tests_dir = 'tests'
+            # save the package name
+            settings.set(settingsName, package)
+            sublime.save_settings(settingsFileName)
 
             if output=="panel":
                 output_panel = OutputPanel('unittests', file_regex = r'File "([^"]*)", line (\d+)')
@@ -77,21 +80,25 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand):
                 if os.path.exists(outfile): os.remove(outfile)
                 stream = open(outfile, "w")
 
-            try:
-                # use custom loader which support ST2 and reloading modules
-                loader = TestLoader()
-                test = loader.discover(os.path.join(sublime.packages_path(),package, tests_dir))
-                testRunner = TextTestRunner(stream, verbosity=2)
-                testRunner.run(test)
-            except Exception as e:
-                stream.write("ERROR: %s\n" % e)
+            if version<'4000':
+                self.test(package, stream)
+            else:
+                sublime.set_timeout_async(lambda: self.test(package, stream), 100)
 
-            stream.close()
-            # save the package name
-            settings.set(settingsName, package)
-            sublime.save_settings(settingsFileName)
         else:
             recent_package = settings.get(settingsName, "Package Name")
             view = sublime.active_window().show_input_panel('Package:', recent_package,
                 lambda x: sublime.run_command("unit_testing", {"package":x, "output":output}), None, None )
             view.run_command("select_all")
+
+    def test(self, package, stream):
+        try:
+            # use custom loader which support ST2 and reloading modules
+            loader = TestLoader()
+            test = loader.discover(os.path.join(sublime.packages_path(),package, tests_dir))
+            testRunner = TextTestRunner(stream, verbosity=2)
+            testRunner.run(test)
+        except Exception as e:
+            stream.write("ERROR: %s\n" % e)
+        finally:
+            stream.close()
