@@ -55,7 +55,7 @@ class OutputPanel:
         pass
 
 class UnitTestingCommand(sublime_plugin.ApplicationCommand):
-    def run(self, package=None, output=None):
+    def run(self, package=None, output=None, async=True):
         settingsFileName = "UnitTesting.sublime-settings"
         settingsName = "recent_package"
         settings = sublime.load_settings(settingsFileName)
@@ -80,7 +80,7 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand):
                 if os.path.exists(outfile): os.remove(outfile)
                 stream = open(outfile, "w")
 
-            if version<'3000':
+            if version<'3000' or not async:
                 self.test(package, stream)
             else:
                 sublime.set_timeout_async(lambda: self.test(package, stream), 100)
