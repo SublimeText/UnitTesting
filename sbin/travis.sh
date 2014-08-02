@@ -57,9 +57,12 @@ RunTests() {
     if  [ $(uname) != 'Darwin' ] && [ -z $DISPLAY ]; then
         export DISPLAY=:99.0
         sh -e /etc/init.d/xvfb start
-        STP="$HOME/.config/sublime-text-$SUBLIME_TEXT_VERSION/Packages"
-    elif [ $(uname) == 'Darwin' ]; then
+    fi
+
+    if [ $(uname) == 'Darwin' ]; then
         STP="$HOME/Library/Application Support/Sublime Text $SUBLIME_TEXT_VERSION/Packages"
+    else
+        STP="$HOME/.config/sublime-text-$SUBLIME_TEXT_VERSION/Packages"
     fi
     UT="$STP/UnitTesting"
     python "$UT/sbin/run.py" "$PACKAGE"
