@@ -80,7 +80,7 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand):
                 if os.path.exists(outfile): os.remove(outfile)
                 stream = open(outfile, "w")
 
-            if version<'4000':
+            if version<'3000':
                 self.test(package, stream)
             else:
                 sublime.set_timeout_async(lambda: self.test(package, stream), 100)
