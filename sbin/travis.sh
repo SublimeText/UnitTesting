@@ -62,7 +62,7 @@ RunTests() {
         sh -e /etc/init.d/xvfb start
     fi
 
-    if [ $(uname) == 'Darwin' ]; then
+    if [ $(uname) = 'Darwin' ]; then
         STP="$HOME/Library/Application Support/Sublime Text $SUBLIME_TEXT_VERSION/Packages"
     else
         STP="$HOME/.config/sublime-text-$SUBLIME_TEXT_VERSION/Packages"
