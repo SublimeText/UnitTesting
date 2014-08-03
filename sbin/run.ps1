@@ -32,10 +32,10 @@ convertto-json $schedule | out-file -filepath $jpath -encoding "ascii"
 # XXX(guillermooo): we cannot start the editor minimized?
 start-process $stPath -ArgumentList "--command", "unit_testing_run_scheduler"
 
-$startTime = Get-date
+$startTime = get-date
 while (-not (test-path $outFile) -or (get-item $outFile).length -eq 0) {
     "."
-    if (((get-date) - $startTime).seconds -ge 60) {
+    if (((get-date) - $startTime).totalseconds -ge 60) {
         "Timeout: Sublime Text is not responding."
         exit 1
     }
