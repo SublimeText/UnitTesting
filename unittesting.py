@@ -37,7 +37,7 @@ class OutputPanel:
 
     def write(self, s):
         self.output_view.set_read_only(False)
-        self.output_view.run_command('insert', {'characters': s})
+        self.output_view.run_command('append', {'characters': s})
         self.output_view.set_read_only(True)
         self.output_view.show(self.output_view.size())
 
