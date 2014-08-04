@@ -7,6 +7,14 @@ outputdir = os.path.join(sublime.packages_path(), 'User', 'UnitTesting', "tests_
 
 class TestUnitTesting(TestCase):
 
+    def setUp(self):
+        self.view = sublime.active_window().new_file()
+
+    def tearDown(self):
+        if self.view and len(sublime.active_window().views())>1:
+            self.view.set_scratch(True)
+            self.view.window().run_command("close_file")
+
     def test_success(self):
         try:
             shutil.copytree(os.path.join(__dir__, "_Success"), os.path.join(sublime.packages_path(),"_Success"))
