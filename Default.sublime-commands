@@ -2,6 +2,6 @@
   {
     "caption": "UnitTesting",
     "command": "unit_testing",
-    "args": {"output": "panel"}
+    "args": {"output": "panel", "async": true}
   }
 ]

@@ -51,7 +51,7 @@ class OutputPanel:
         pass
 
 class UnitTestingCommand(sublime_plugin.ApplicationCommand):
-    def run(self, package=None, output=None, async=True):
+    def run(self, package=None, output=None, async=False):
         settingsFileName = "UnitTesting.sublime-settings"
         settingsName = "recent_package"
         settings = sublime.load_settings(settingsFileName)
