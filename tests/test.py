@@ -11,7 +11,7 @@ class TestUnitTesting(TestCase):
         self.view = sublime.active_window().new_file()
 
     def tearDown(self):
-        if self.view and len(sublime.active_window().views())>1:
+        if self.view:
             self.view.set_scratch(True)
             self.view.window().run_command("close_file")
 

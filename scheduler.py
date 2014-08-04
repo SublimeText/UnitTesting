@@ -12,7 +12,7 @@ class Unit:
         self.package = package
 
     def run(self):
-        sublime.run_command("unit_testing", {"package": self.package})
+        sublime.run_command("unit_testing", {"package": self.package, "async":False})
 
 class Scheduler:
     def __init__(self):
