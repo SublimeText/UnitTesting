@@ -14,13 +14,6 @@ version = sublime.version()
 # todo: customable
 tests_dir = 'tests'
 
-class OutputPanelInsertCommand(sublime_plugin.TextCommand):
-    def run(self, edit, characters):
-        self.view.set_read_only(False)
-        self.view.insert(edit, self.view.size(), characters)
-        self.view.set_read_only(True)
-        self.view.show(self.view.size())
-
 class OutputPanel:
     def __init__(self, name, file_regex='', line_regex = '', base_dir = None, word_wrap = False, line_numbers = False,
         gutter = False, scroll_past_end = False, syntax = 'Packages/Text/Plain text.tmLanguage'):
@@ -43,7 +36,10 @@ class OutputPanel:
         self.output_view.settings().set("syntax", syntax)
 
     def write(self, s):
-        self.output_view.run_command('output_panel_insert', {'characters': s})
+        self.output_view.set_read_only(False)
+        self.output_view.run_command('insert', {'characters': s})
+        self.output_view.set_read_only(True)
+        self.output_view.show(self.output_view.size())
 
     def flush(self):
         pass
