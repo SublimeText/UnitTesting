@@ -36,8 +36,7 @@ $startTime = get-date
 while (-not (test-path $outFile) -or (get-item $outFile).length -eq 0) {
     "."
     if (((get-date) - $startTime).totalseconds -ge 60) {
-        "Timeout: Sublime Text is not responding."
-        exit 1
+        throw "Timeout: Sublime Text is not responding."
     }
     start-sleep -seconds 1
 }
@@ -65,5 +64,5 @@ while ($true) {
 }
 
 if ($matches[1] -ne "OK") {
-    exit 1
+    throw "FAILED"
 }
