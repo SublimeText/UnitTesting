@@ -62,13 +62,11 @@ print("\nstart to read output")
 with open(outfile, 'r') as f:
     while True:
         result = f.read()
+        sys.stdout.write(result)
         m = re.search("^(OK|FAILED|ERROR)", result, re.MULTILINE)
         # break when OK, Failed or error
         if m: break
         time.sleep(0.2)
-    f.seek(0)
-    result = f.read()
-print(result)
 success = m.group(0)=="OK"
 
 if not success:
