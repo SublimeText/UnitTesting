@@ -50,16 +50,27 @@ class OutputPanel:
     def close(self):
         pass
 
+def input_parser(package):
+    m = re.match(r'([^/]+)/(.+)', package)
+    if m:
+        return m.groups()
+    else:
+        return (package, "test*.py")
+
 class UnitTestingCommand(sublime_plugin.ApplicationCommand):
     def run(self, package=None, output=None, async=False):
         settingsFileName = "UnitTesting.sublime-settings"
         settingsName = "recent_package"
         settings = sublime.load_settings(settingsFileName)
+
+        # pattern is a regex of filenames to be tested
+
         if package:
             # save the package name
             settings.set(settingsName, package)
             sublime.save_settings(settingsFileName)
 
+            (package, pattern) = input_parser(package)
             if output=="panel":
                 output_panel = OutputPanel('unittests', file_regex = r'File "([^"]*)", line (\d+)')
                 output_panel.show()
@@ -77,9 +88,9 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand):
                 stream = open(outfile, "w")
 
             if version<'3000' or not async:
-                self.test(package, stream)
+                self.testing(package, pattern, stream)
             else:
-                sublime.set_timeout_async(lambda: self.test(package, stream), 100)
+                sublime.set_timeout_async(lambda: self.testing(package, pattern, stream), 100)
 
         else:
             recent_package = settings.get(settingsName, "Package Name")
@@ -87,11 +98,11 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand):
                 lambda x: sublime.run_command("unit_testing", {"package":x, "output":output, "async":async}), None, None )
             view.run_command("select_all")
 
-    def test(self, package, stream):
+    def testing(self, package, pattern, stream):
         try:
             # use custom loader which support ST2 and reloading modules
             loader = TestLoader()
-            test = loader.discover(os.path.join(sublime.packages_path(),package, tests_dir))
+            test = loader.discover(os.path.join(sublime.packages_path(),package, tests_dir), pattern)
             testRunner = TextTestRunner(stream, verbosity=2)
             testRunner.run(test)
         except Exception as e:
