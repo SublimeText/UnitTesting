@@ -1,11 +1,12 @@
 UnitTesting
 ===================
-**Plaform** | **Status**
+Linux & OSX | Windows
 ------------|------------
-Linux & OSX | [![Build Status](http://img.shields.io/travis/randy3k/UnitTesting/master.svg)](https://travis-ci.org/randy3k/UnitTesting)
-Windows | [![Build status](http://img.shields.io/appveyor/ci/randy3k/UnitTesting/branch/master.svg)](https://ci.appveyor.com/project/randy3k/unittesting/branch/master)
+ [![Build Status](http://img.shields.io/travis/randy3k/UnitTesting/master.svg)](https://travis-ci.org/randy3k/UnitTesting) | [![Build status](http://img.shields.io/appveyor/ci/randy3k/UnitTesting/branch/master.svg)](https://ci.appveyor.com/project/randy3k/UnitTesting/branch/master)
 
 This is a testing framework for Sublime Text 2 and 3. It works on local machines or via CI services such as [travis-ci](https://travis-ci.org) and [appveyor](http://www.appveyor.com).
+
+If you like it, you could send me some tips via [![](http://img.shields.io/gittip/randy3k.svg)](https://www.gittip.com/randy3k).
 
 ### Introduction
 
