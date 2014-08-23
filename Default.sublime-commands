@@ -2,11 +2,11 @@
   {
     "caption": "UnitTesting",
     "command": "unit_testing",
-    "args": {"output": "panel", "async": true}
+    "args": {"output": "panel", "async": false}
   },
   {
-    "caption": "UnitTesting (Sync)",
+    "caption": "UnitTesting (Async)",
     "command": "unit_testing",
-    "args": {"output": "panel", "async": false}
+    "args": {"output": "panel", "async": true}
   }
 ]
