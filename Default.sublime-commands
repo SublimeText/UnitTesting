@@ -3,5 +3,10 @@
     "caption": "UnitTesting",
     "command": "unit_testing",
     "args": {"output": "panel", "async": true}
+  },
+  {
+    "caption": "UnitTesting (Sync)",
+    "command": "unit_testing",
+    "args": {"output": "panel", "async": false}
   }
 ]
