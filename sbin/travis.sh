@@ -56,15 +56,15 @@ Bootstrap() {
 RunTests() {
     if [ $(uname) = 'Darwin' ]; then
         STP="$HOME/Library/Application Support/Sublime Text $SUBLIME_TEXT_VERSION/Packages"
-        # st cannot be launched by `subl`, may be related to this http://www.sublimetext.com/forum/viewtopic.php?f=3&t=15124
-        # open sublime
+        # for some unknown reasons, st cannot be launched by `subl` immediately
+        # launch sublime once
         if [ $SUBLIME_TEXT_VERSION -eq 2 ]; then
             open "$HOME/Applications/Sublime Text 2.app"
+            osascript -e 'tell application "Sublime Text 2" to quit'
         elif [ $SUBLIME_TEXT_VERSION -eq 3 ]; then
             open "$HOME/Applications/Sublime Text.app"
+            osascript -e 'tell application "Sublime Text" to quit'
         fi
-        # some delay for sublime to open
-        sleep 10
     else
         STP="$HOME/.config/sublime-text-$SUBLIME_TEXT_VERSION/Packages"
         if [ -z $DISPLAY ]; then
