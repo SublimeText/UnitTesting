@@ -29,18 +29,26 @@ if ($found -eq 0) {
 }
 convertto-json $schedule | out-file -filepath $jpath -encoding "ascii"
 
+# launch sublime
+$sublimeIsRunning = Get-Process sublime_text -ErrorAction SilentlyContinue
+
 # XXX(guillermooo): we cannot start the editor minimized?
-start-process $stPath -ArgumentList "--command", "unit_testing_run_scheduler"
+if($sublimeIsRunning -eq $null) {
+    start-process $stPath
+} else {
+    start-process $stPath -ArgumentList "--command", "unit_testing_run_scheduler"
+}
 
 $startTime = get-date
 while (-not (test-path $outFile) -or (get-item $outFile).length -eq 0) {
-    "."
+    write-host -nonewline "."
     if (((get-date) - $startTime).totalseconds -ge 60) {
         throw "Timeout: Sublime Text is not responding."
     }
     start-sleep -seconds 1
 }
 
+write-host ""
 write-output "start to read output"
 
 $copy = "$outfile.copy"
@@ -64,5 +72,5 @@ while ($true) {
 }
 
 if ($matches[1] -ne "OK") {
-    throw "FAILED"
+    throw "FAILED or ERROR"
 }
