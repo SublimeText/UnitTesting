@@ -1,11 +1,37 @@
 import sublime, sublime_plugin
 import time
 import threading, os
+import json, codecs
 
-try:
-    from .jsonio import JsonIO
-except:
-    from jsonio import JsonIO
+class Jfile:
+    def __init__(self, fpath, encoding="utf-8"):
+        self.encoding = encoding
+        self.fpath = fpath
+
+    def load(self, default=[]):
+        self.fdir = os.path.dirname(self.fpath)
+        if not os.path.isdir(self.fdir):
+            os.makedirs(self.fdir)
+        if os.path.exists(self.fpath):
+            f = codecs.open(self.fpath, "r+", encoding=self.encoding)
+            try:
+                data = json.load(f)
+            except:
+                data = default
+            f.close()
+        else:
+            f = codecs.open(self.fpath, "w+", encoding=self.encoding)
+            data = default
+            f.close()
+        return data
+
+    def save(self, data, indent=4):
+        f = codecs.open(self.fpath, "w+", encoding=self.encoding)
+        f.write(json.dumps(data, ensure_ascii=False, indent=indent))
+        f.close()
+
+    def remove(self):
+        if os.path.exists(self.fpath): os.remove(self.fpath)
 
 class Unit:
     def __init__(self, package):
@@ -17,7 +43,7 @@ class Unit:
 class Scheduler:
     def __init__(self):
         self.units = []
-        self.j = JsonIO(os.path.join(sublime.packages_path(), 'User', 'UnitTesting','schedule.json'))
+        self.j = Jfile(os.path.join(sublime.packages_path(), 'User', 'UnitTesting','schedule.json'))
 
     def load_schedule(self):
         self.schedule = self.j.load()
