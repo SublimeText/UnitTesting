@@ -41,15 +41,15 @@ if($sublimeIsRunning -eq $null) {
 
 $startTime = get-date
 while (-not (test-path $outFile) -or (get-item $outFile).length -eq 0) {
-    write-output -nonewline "."
+    write-host -nonewline "."
     if (((get-date) - $startTime).totalseconds -ge 60) {
         throw "Timeout: Sublime Text is not responding."
     }
     start-sleep -seconds 1
 }
 
-write-output ""
-write-output "start to read output"
+write-verbose ""
+write-verbose "start to read output"
 
 $copy = "$outfile.copy"
 $read = 0
