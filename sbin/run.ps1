@@ -6,7 +6,7 @@ $stPath = 'c:\st\sublime_text.exe'
 
 $outDir = "$packagesPath\User\UnitTesting\tests_output"
 $outFile = "$outDir\$PackageToTest"
-[void] (new-item -itemtype "f" $outFile -force)
+[void] (new-item -itemtype file $outFile -force)
 
 remove-item $outFile -force -erroraction silentlycontinue
 
@@ -16,10 +16,10 @@ if (test-path $jpath) {
     $schedule = convertfrom-json "$(get-content $jpath)"
 }
 else {
-    [void] (new-item -itemtype "f" -path $jpath -force)
+    [void] (new-item -itemtype file -path $jpath -force)
     # todo(guillermooo): use a UTF8 encoding that doesn't add a preamble.
     # Use ascii to avoid UTF8 preamble issues with python's json module.
-    "[]" | out-file -encoding "ascii" -FilePath $jpath -force
+    "[]" | out-file -encoding ascii -FilePath $jpath -force
     $schedule = convertfrom-json "$(get-content $jpath)"
 }
 
@@ -27,28 +27,28 @@ $found = (@($schedule | foreach-object { $_.package }) -eq $PackageToTest).lengt
 if ($found -eq 0) {
     $schedule += @{"package" = $PackageToTest}
 }
-convertto-json $schedule | out-file -filepath $jpath -encoding "ascii"
+convertto-json $schedule | out-file -filepath $jpath -encoding 'ascii'
 
 # launch sublime
-$sublimeIsRunning = Get-Process sublime_text -ErrorAction SilentlyContinue
+$sublimeIsRunning = get-process 'sublime_text' -erroraction silentlycontinue
 
 # XXX(guillermooo): we cannot start the editor minimized?
 if($sublimeIsRunning -eq $null) {
     start-process $stPath
 } else {
-    start-process $stPath -ArgumentList "--command", "unit_testing_run_scheduler"
+    start-process $stPath -argumentlist '--command', "unit_testing_run_scheduler"
 }
 
 $startTime = get-date
 while (-not (test-path $outFile) -or (get-item $outFile).length -eq 0) {
-    write-host -nonewline "."
+    write-output -nonewline "."
     if (((get-date) - $startTime).totalseconds -ge 60) {
         throw "Timeout: Sublime Text is not responding."
     }
     start-sleep -seconds 1
 }
 
-write-host ""
+write-output ""
 write-output "start to read output"
 
 $copy = "$outfile.copy"
