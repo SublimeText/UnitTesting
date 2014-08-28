@@ -15,4 +15,8 @@ install:
 build: off
 
 test_script:
-    - ps: .\sbin\appveyor.ps1 "run_tests"
+    - ps: |
+        $default = $VerbosePreference
+        $VerbosePreference = 'continue'
+        .\sbin\appveyor.ps1 "run_tests"
+        $VerbosePreference = $default

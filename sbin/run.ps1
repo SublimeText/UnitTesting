@@ -27,7 +27,7 @@ $found = (@($schedule | foreach-object { $_.package }) -eq $PackageToTest).lengt
 if ($found -eq 0) {
     $schedule += @{"package" = $PackageToTest}
 }
-convertto-json $schedule | out-file -filepath $jpath -encoding 'ascii'
+convertto-json $schedule | out-file -filepath $jpath -encoding ascii
 
 # launch sublime
 $sublimeIsRunning = get-process 'sublime_text' -erroraction silentlycontinue
