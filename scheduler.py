@@ -26,6 +26,9 @@ class Jfile:
         return data
 
     def save(self, data, indent=4):
+        self.fdir = os.path.dirname(self.fpath)
+        if not os.path.isdir(self.fdir):
+            os.makedirs(self.fdir)
         f = codecs.open(self.fpath, "w+", encoding=self.encoding)
         f.write(json.dumps(data, ensure_ascii=False, indent=indent))
         f.close()
