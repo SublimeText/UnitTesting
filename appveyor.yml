@@ -15,6 +15,7 @@ install:
 build: off
 
 test_script:
+    # make a change here -- checking
     - ps: |
         $default = $VerbosePreference
         $VerbosePreference = 'continue'
