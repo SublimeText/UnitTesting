@@ -48,8 +48,8 @@ while (-not (test-path $outFile) -or (get-item $outFile).length -eq 0) {
     start-sleep -seconds 1
 }
 
-write-verbose ""
-write-verbose "start to read output"
+write-output ""
+write-output "start to read output"
 
 $copy = "$outfile.copy"
 $read = 0
