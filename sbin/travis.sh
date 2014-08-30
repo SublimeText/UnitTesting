@@ -46,7 +46,6 @@ Bootstrap() {
     if [ ! -d "$STP/UnitTesting" ]; then
         echo download latest UnitTesting release
         if [ -z $TAG ]; then
-            # TAG=`git ls-remote --tags https://github.com/randy3k/UnitTesting | sed 's|.*/\([^/]*$\)|\1|' | sort -r -t . -n | head -1`
             TAG="master"
         fi
         git clone --branch $TAG https://github.com/randy3k/UnitTesting "$STP/UnitTesting"
