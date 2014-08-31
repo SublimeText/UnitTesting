@@ -17,7 +17,8 @@ Function Bootstrap {
     copy * -recurse -force "C:\st\Data\Packages\${env:PACKAGE}"
     if ( ${env:TAG} -eq $null ){
         # the latest tag
-        $TAG = (invoke-restmethod https://api.github.com/repos/randy3k/UnitTesting/tags) | select -expandproperty "name" -first 1
+        # $TAG = (invoke-restmethod https://api.github.com/repos/randy3k/UnitTesting/tags) | select -expandproperty "name" -first 1
+        $TAG = "master"
     }else{
         $TAG = ${env:TAG}
     }

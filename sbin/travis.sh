@@ -47,7 +47,8 @@ Bootstrap() {
         echo download latest UnitTesting release
         if [ -z $TAG ]; then
             # latest tag
-            TAG=$(curl -s https://api.github.com/repos/randy3k/UnitTesting/tags | grep '"name":' | head -n1 | sed 's/.*"\(.*\)",/\1/')
+            # TAG=$(curl -s https://api.github.com/repos/randy3k/UnitTesting/tags | grep '"name":' | head -n1 | sed 's/.*"\(.*\)",/\1/')
+            TAG="master"
         fi
         git clone --branch $TAG https://github.com/randy3k/UnitTesting "$STP/UnitTesting"
     fi
