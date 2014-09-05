@@ -18,7 +18,8 @@ Function Bootstrap {
     if ( ${env:TAG} -eq $null ){
         # the latest tag
         # $TAG = (invoke-restmethod https://api.github.com/repos/randy3k/UnitTesting/tags) | select -expandproperty "name" -first 1
-        $TAG = "master"
+        # $TAG = "master"
+        $TAG = git ls-remote --tags https://github.com/randy3k/UnitTesting |  %{$_ -replace ".*/(.*)$", '$1'} | %{[System.Version]$_}|sort | select-object -last 1 | %{[string] $_}
     }else{
         $TAG = ${env:TAG}
     }
