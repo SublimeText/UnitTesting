@@ -62,10 +62,14 @@ RunTests() {
         # launch sublime once
         if [ $SUBLIME_TEXT_VERSION -eq 2 ]; then
             open "$HOME/Applications/Sublime Text 2.app"
+            sleep 2
             osascript -e 'tell application "Sublime Text 2" to quit'
+            sleep 2
         elif [ $SUBLIME_TEXT_VERSION -eq 3 ]; then
             open "$HOME/Applications/Sublime Text.app"
+            sleep 2
             osascript -e 'tell application "Sublime Text" to quit'
+            sleep 2
         fi
     else
         STP="$HOME/.config/sublime-text-$SUBLIME_TEXT_VERSION/Packages"
