@@ -1,4 +1,9 @@
+[CmdletBinding()]
 param([string]$PackageToTest="UnitTesting")
+
+# UTF8 encoding without preamble (default in .NET is with preamble).
+new-variable -name 'UTF8Encoding' -option CONSTANT -scope 'script' `
+             -value (new-object System.Text.UTF8Encoding -argumentlist $false)
 
 # todo(guillermooo): Make this configurable.
 $packagesPath = 'c:\st\Data\Packages'
@@ -17,9 +22,8 @@ if (test-path $jpath) {
 }
 else {
     [void] (new-item -itemtype file -path $jpath -force)
-    # todo(guillermooo): use a UTF8 encoding that doesn't add a preamble.
-    # Use ascii to avoid UTF8 preamble issues with python's json module.
-    "[]" | out-file -encoding ascii -FilePath $jpath -force
+    # Only way of using encoding object.
+    [System.IO.File]::WriteAllText($jpath, "[]", $UTF8Encoding)
     $schedule = convertfrom-json "$(get-content $jpath)"
 }
 
@@ -27,7 +31,9 @@ $found = (@($schedule | foreach-object { $_.package }) -eq $PackageToTest).lengt
 if ($found -eq 0) {
     $schedule += @{"package" = $PackageToTest}
 }
-convertto-json $schedule | out-file -filepath $jpath -encoding 'ascii'
+
+[System.IO.File]::WriteAllText(
+    $jpath, (convertto-json $schedule), $UTF8Encoding)
 
 # launch sublime
 $sublimeIsRunning = get-process 'sublime_text' -erroraction silentlycontinue
@@ -47,9 +53,9 @@ while (-not (test-path $outFile) -or (get-item $outFile).length -eq 0) {
     }
     start-sleep -seconds 1
 }
+write-host
 
-write-output ""
-write-output "start to read output"
+write-verbose "start to read output"
 
 $copy = "$outfile.copy"
 $read = 0
