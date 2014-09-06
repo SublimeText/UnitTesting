@@ -10,9 +10,9 @@ environment:
         - SUBLIME_TEXT_VERSION : "3"
 
 install:
-    - ps: .\sbin\appveyor.ps1 "bootstrap"
+    - ps: .\sbin\appveyor.ps1 "bootstrap" -verbose
 
 build: off
 
 test_script:
-    - ps: .\sbin\appveyor.ps1 "run_tests"
+    - ps: .\sbin\appveyor.ps1 "run_tests" -verbose
