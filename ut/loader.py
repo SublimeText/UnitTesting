@@ -1,6 +1,7 @@
 # This is basically a copy of unittest/loader.py from python 3.3.4
 # It gives python 2.6 support of TestLoader.discover
 # __import__ is replaced by _import to reload modules
+# use deferred testsuite and testcase if deferred is true
 
 import os
 import re
@@ -9,12 +10,13 @@ import traceback
 
 from fnmatch import fnmatch
 
+from unittest import TestCase
+from unittest import TestSuite
+#  st3 only
 try:
-    from unittest import suite, case
-    TestSuite = suite.TestSuite
-    TestCase = case.TestCase
+    from .suite import DeferrableSuite
 except:
-    from unittest import TestSuite, TestCase
+    pass
 
 VALID_MODULE_NAME = re.compile(r'[_a-z]\w*\.py$', re.IGNORECASE)
 
@@ -48,14 +50,23 @@ class TestLoader(object):
     This class is responsible for loading tests according to various criteria
     and returning them wrapped in a TestSuite
     """
+
     testMethodPrefix = 'test'
     # sortTestMethodsUsing = staticmethod(three_way_cmp)
-    suiteClass = TestSuite
     _top_level_dir = None
+
+    def __init__(self, deferred=False):
+        if deferred:
+            self.TestSuite = DeferrableSuite
+            self.suiteClass = DeferrableSuite
+        else:
+            self.TestSuite = TestSuite
+            self.suiteClass = TestSuite
+
 
     def loadTestsFromTestCase(self, testCaseClass):
         """Return a suite of all tests cases contained in testCaseClass"""
-        if issubclass(testCaseClass, TestSuite):
+        if issubclass(testCaseClass, self.TestSuite):
             raise TypeError("Test cases should not be derived from TestSuite." \
                                 " Maybe you meant to derive from TestCase?")
         testCaseNames = self.getTestCaseNames(testCaseClass)

@@ -1,15 +1,16 @@
-from unittest import  TextTestRunner
-try:
-    from .loader import TestLoader
-except:
-    from loader import TestLoader
-
 import sublime, sublime_plugin
-import threading
 import os
 import re
+import sys
 
 version = sublime.version()
+
+from unittest import TextTestRunner
+if version >= '3000':
+    from .ut import TestLoader
+    from .ut import DeferringTextTestRunner
+else:
+    from ut import TestLoader
 
 # todo: customable
 tests_dir = 'tests'
@@ -34,6 +35,7 @@ class OutputPanel:
         self.output_view.settings().set("gutter", gutter)
         self.output_view.settings().set("scroll_past_end", scroll_past_end)
         self.output_view.settings().set("syntax", syntax)
+        self.closed = False
 
     def write(self, s):
         self.output_view.set_read_only(False)
@@ -48,6 +50,7 @@ class OutputPanel:
         self.window.run_command("show_panel", {"panel": "output."+self.name})
 
     def close(self):
+        self.closed = True
         pass
 
 def input_parser(package):
@@ -58,7 +61,7 @@ def input_parser(package):
         return (package, "test*.py")
 
 class UnitTestingCommand(sublime_plugin.ApplicationCommand):
-    def run(self, package=None, output=None, async=False):
+    def run(self, package=None, output=None, async=False, deferred=False):
         settingsFileName = "UnitTesting.sublime-settings"
         settingsName = "recent_package"
         settings = sublime.load_settings(settingsFileName)
@@ -87,25 +90,37 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand):
                 if os.path.exists(outfile): os.remove(outfile)
                 stream = open(outfile, "w")
 
-            if version<'3000' or not async:
-                self.testing(package, pattern, stream)
+            if version<'3000':
+                deferred = False
+                async = False
+
+            if async:
+                sublime.set_timeout_async(lambda: self.testing(package, pattern, stream, False), 100)
             else:
-                sublime.set_timeout_async(lambda: self.testing(package, pattern, stream), 100)
+                self.testing(package, pattern, stream, deferred)
 
         else:
             recent_package = settings.get(settingsName, "Package Name")
             view = sublime.active_window().show_input_panel('Package:', recent_package,
-                lambda x: sublime.run_command("unit_testing", {"package":x, "output":output, "async":async}), None, None )
+                lambda x: sublime.run_command("unit_testing", {
+                        "package":x, "output":output, "async":async, "deferred":deferred
+                    }), None, None )
             view.run_command("select_all")
 
-    def testing(self, package, pattern, stream):
+    def testing(self, package, pattern, stream, deferred=False):
         try:
-            # use custom loader which support ST2 and reloading modules
-            loader = TestLoader()
+            # and use custom loader which support ST2 and reloading modules
+            loader = TestLoader(deferred)
             test = loader.discover(os.path.join(sublime.packages_path(),package, tests_dir), pattern)
-            testRunner = TextTestRunner(stream, verbosity=2)
+            # use deferred test runner or default test runner
+            if deferred:
+                testRunner = DeferringTextTestRunner(stream, verbosity=2)
+            else:
+                testRunner = TextTestRunner(stream, verbosity=2)
             testRunner.run(test)
         except Exception as e:
-            stream.write("ERROR: %s\n" % e)
+            if not stream.closed:
+                stream.write("ERROR: %s\n" % e)
         finally:
-            stream.close()
+            if not stream.closed:
+                stream.close()
