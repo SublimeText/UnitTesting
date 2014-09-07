@@ -15,6 +15,13 @@ else:
 # todo: customable
 tests_dir = 'tests'
 
+class OutputPanelInsert(sublime_plugin.TextCommand):
+    def run(self, edit, characters):
+        self.view.set_read_only(False)
+        self.view.insert(edit, self.view.size(), characters)
+        self.view.set_read_only(True)
+        self.view.show(self.view.size())
+
 class OutputPanel:
     def __init__(self, name, file_regex='', line_regex = '', base_dir = None, word_wrap = False, line_numbers = False,
         gutter = False, scroll_past_end = False, syntax = 'Packages/Text/Plain text.tmLanguage'):
@@ -38,10 +45,7 @@ class OutputPanel:
         self.closed = False
 
     def write(self, s):
-        self.output_view.set_read_only(False)
-        self.output_view.run_command('append', {'characters': s})
-        self.output_view.set_read_only(True)
-        self.output_view.show(self.output_view.size())
+        self.output_view.run_command('output_panel_insert', {'characters': s})
 
     def flush(self):
         pass
@@ -62,16 +66,15 @@ def input_parser(package):
 
 class UnitTestingCommand(sublime_plugin.ApplicationCommand):
     def run(self, package=None, output=None, async=False, deferred=False):
-        settingsFileName = "UnitTesting.sublime-settings"
-        settingsName = "recent_package"
-        settings = sublime.load_settings(settingsFileName)
+        self.settingsFileName = "UnitTesting.sublime-settings"
+        self.s = sublime.load_settings(self.settingsFileName)
 
         # pattern is a regex of filenames to be tested
 
         if package:
             # save the package name
-            settings.set(settingsName, package)
-            sublime.save_settings(settingsFileName)
+            self.s.set("recent_package", package)
+            sublime.save_settings(self.settingsFileName)
 
             (package, pattern) = input_parser(package)
             if output=="panel":
@@ -100,7 +103,7 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand):
                 self.testing(package, pattern, stream, deferred)
 
         else:
-            recent_package = settings.get(settingsName, "Package Name")
+            recent_package = self.s.get("recent_package", "Package Name")
             view = sublime.active_window().show_input_panel('Package:', recent_package,
                 lambda x: sublime.run_command("unit_testing", {
                         "package":x, "output":output, "async":async, "deferred":deferred
