@@ -37,11 +37,13 @@ class Jfile:
         if os.path.exists(self.fpath): os.remove(self.fpath)
 
 class Unit:
-    def __init__(self, package):
+    def __init__(self, package, async=False, deferred=False):
         self.package = package
+        self.async = async
+        self.deferred = deferred
 
     def run(self):
-        sublime.run_command("unit_testing", {"package": self.package, "async":False})
+        sublime.run_command("unit_testing", {"package": self.package, "async": self.async, "deferred": self.deferred})
 
 class Scheduler:
     def __init__(self):
@@ -51,7 +53,7 @@ class Scheduler:
     def load_schedule(self):
         self.schedule = self.j.load()
         for s in self.schedule:
-            self.units.append(Unit(s['package']))
+            self.units.append(Unit(s['package'], s.get('async', False), s.get('deferred', False)))
 
     def run(self):
         self.load_schedule()

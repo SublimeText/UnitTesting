@@ -7,10 +7,10 @@ version = sublime.version()
 
 from unittest import TextTestRunner
 if version >= '3000':
-    from .ut import TestLoader
-    from .ut import DeferringTextTestRunner
+    from .unittesting import TestLoader
+    from .unittesting import DeferringTextTestRunner
 else:
-    from ut import TestLoader
+    from unittesting import TestLoader
 
 # todo: customable
 tests_dir = 'tests'
@@ -124,6 +124,5 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand):
         except Exception as e:
             if not stream.closed:
                 stream.write("ERROR: %s\n" % e)
-        finally:
-            if not stream.closed:
-                stream.close()
+        if not deferred:
+            stream.close()

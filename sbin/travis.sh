@@ -79,7 +79,11 @@ RunTests() {
         fi
     fi
     UT="$STP/UnitTesting"
-    python "$UT/sbin/run.py" "$PACKAGE"
+    if [ -z "$1" ]; then
+        python "$UT/sbin/run.py" "$PACKAGE"
+    else
+        python "$UT/sbin/run.py" "$1" "$PACKAGE"
+    fi
 }
 
 COMMAND=$1
@@ -87,9 +91,9 @@ echo "Running command: ${COMMAND}"
 shift
 case $COMMAND in
     "bootstrap")
-        Bootstrap
+        Bootstrap "$@"
         ;;
     "run_tests")
-        RunTests
+        RunTests "$@"
         ;;
 esac

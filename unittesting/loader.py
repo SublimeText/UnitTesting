@@ -1,7 +1,7 @@
 # This is basically a copy of unittest/loader.py from python 3.3.4
 # It gives python 2.6 support of TestLoader.discover
 # __import__ is replaced by _import to reload modules
-# use deferred testsuite and testcase if deferred is true
+# use deferred testsuite if deferred is true
 
 import os
 import re
