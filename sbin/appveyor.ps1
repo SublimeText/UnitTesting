@@ -1,5 +1,7 @@
 [CmdletBinding()]
-param([string]$command)
+param([string]$command,
+    [Parameter(ValueFromRemainingArguments = $true)] [Object[]]$MyArgs
+)
 
 Function Bootstrap {
     if ( ${env:SUBLIME_TEXT_VERSION} -eq "3" ){
@@ -30,10 +32,10 @@ Function Bootstrap {
 }
 
 Function RunTests {
-    & "C:\st\Data\Packages\UnitTesting\sbin\run.ps1" "${env:PACKAGE}" -verbose
+    invoke-expression "C:\st\Data\Packages\UnitTesting\sbin\run.ps1 $MyArgs `"${env:PACKAGE}`" -verbose"
 }
 
 switch ($command){
     "bootstrap" { Bootstrap }
-    "run_tests" { RunTests }
+    "run_tests" { RunTests}
 }
