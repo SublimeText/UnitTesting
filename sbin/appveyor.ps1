@@ -6,7 +6,6 @@ param(
 )
 
 function getDownloadUrl {
-    $url = $null
     foreach ( $link in (Invoke-WebRequest "http://www.sublimetext.com/3").Links ) {
         if ( $link.href.endsWith("x64.zip") ) {
            [System.Web.HttpUtility]::UrlDecode($link.href)
