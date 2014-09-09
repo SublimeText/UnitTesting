@@ -7,8 +7,8 @@ Function Bootstrap {
     if ( ${env:SUBLIME_TEXT_VERSION} -eq "3" ){
         write-verbose "installing sublime text 3"
         # read the url from sublime website
-        $url = ((Invoke-WebRequest "http://www.sublimetext.com/3").Links | where href -match "x64\.zip").href | select-object -first 1
-        $filename = $url | %{$_ -replace ".*/(.*)$", '$1'}
+        $url = ((Invoke-WebRequest "http://www.sublimetext.com/3").Links | where href -match "x64\.zip").href | select-object -first 1 | %{$_ -replace " ", '%20'}
+        $filename = "$url" | %{$_ -replace ".*/(.*)$", '$1'}
         start-filedownload "$url"
         write-verbose "installing $filename"
         7z.exe x "$filename" -o"C:\st" > $null
