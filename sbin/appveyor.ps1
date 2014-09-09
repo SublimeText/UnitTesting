@@ -22,12 +22,12 @@ Function Bootstrap {
         # the latest tag
         # $TAG = (invoke-restmethod https://api.github.com/repos/randy3k/UnitTesting/tags) | select -expandproperty "name" -first 1
         # $TAG = "master"
-        $TAG = git ls-remote --tags https://github.com/randy3k/UnitTesting |  %{$_ -replace ".*/(.*)$", '$1'} | %{[System.Version]$_}|sort | select-object -last 1 | %{[string] $_}
+        $TAG = git ls-remote --tags https://github.com/randy3k/UnitTesting |  %{$_ -replace ".*/(.*)$", '$1'} | %{[System.Version]$_}|sort | select-object -last 1 | %{ "$_" }
     }else{
         $TAG = ${env:TAG}
     }
     if(!(Test-Path -Path "C:\st\Data\Packages\UnitTesting")){
-        git clone -q --branch=$TAG https://github.com/randy3k/UnitTesting.git "C:\st\Data\Packages\UnitTesting"
+        git clone -q --branch=$TAG https://github.com/randy3k/UnitTesting.git "C:\st\Data\Packages\UnitTesting" 2>&1
     }
 }
 
