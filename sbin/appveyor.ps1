@@ -1,16 +1,31 @@
 [CmdletBinding()]
-param([string]$command,
-    [Parameter(ValueFromRemainingArguments = $true)] [Object[]]$remainingArgs
+param(
+    [string]$Command,
+    [Parameter(ValueFromRemainingArguments=$true)]
+    [Object[]]$RemainingArgs
 )
 
-Function Bootstrap {
+function getDownloadUrl {
+    $url = $null
+    foreach ( $link in (Invoke-WebRequest "http://www.sublimetext.com/3").Links ) {
+        if ( $link.href.endsWith("x64.zip") ) {
+           [System.Web.HttpUtility]::UrlDecode($link.href)
+           break
+        }
+    }
+}
+
+function Bootstrap {
     if ( ${env:SUBLIME_TEXT_VERSION} -eq "3" ){
         write-verbose "installing sublime text 3"
-        # read the url from sublime website
-        $url = ((Invoke-WebRequest "http://www.sublimetext.com/3").Links | where href -match "x64\.zip").href | select-object -first 1 | %{$_ -replace " ", '%20'}
-        $filename = "$url" | %{$_ -replace ".*/(.*)$", '$1'}
-        start-filedownload "$url"
+        $url = getDownloadUrl
+        if (-not $url) {
+            throw ( "could not download Sublime Text binary")
+        }
+        $filename = split-path $url -leaf
+        start-filedownload $url
         write-verbose "installing $filename"
+        # TODO(guillermooo): use ZipFile class in .NET 4.5.
         7z.exe x "$filename" -o"C:\st" > $null
     }elseif ( ${env:SUBLIME_TEXT_VERSION} -eq "2" ){
         write-verbose "installing sublime text 2"
@@ -19,7 +34,7 @@ Function Bootstrap {
         7z.exe x "Sublime%20Text%202.0.2%20x64.zip" -o"C:\st" > $null
     }
 
-    mkdir "C:\st\Data\Packages\${env:PACKAGE}" -force > $null
+    new-item -itemtype directory "C:\st\Data\Packages\${env:PACKAGE}" -force > $null
     copy * -recurse -force "C:\st\Data\Packages\${env:PACKAGE}"
     if ( ${env:TAG} -eq $null ){
         # the latest tag
@@ -32,8 +47,8 @@ Function Bootstrap {
     }
 }
 
-Function RunTests {
-    invoke-expression "C:\st\Data\Packages\UnitTesting\sbin\run.ps1 $remainingArgs `"${env:PACKAGE}`" -verbose"
+function RunTests {
+    & "C:\st\Data\Packages\UnitTesting\sbin\run.ps1" $remainingArgs "${env:PACKAGE}" -verbose
 }
 
 switch ($command){
