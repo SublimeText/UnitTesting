@@ -19,7 +19,7 @@ function Bootstrap {
         write-verbose "installing sublime text 3"
         $url = getDownloadUrl
         if (-not $url) {
-            throw ( "could not download Sublime Text binary")
+            throw "could not download Sublime Text binary"
         }
         $filename = split-path $url -leaf
         start-filedownload $url
