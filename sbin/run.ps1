@@ -29,7 +29,7 @@ else {
 
 $found = (@($schedule | foreach-object { $_.package }) -eq $PackageToTest).length
 if ($found -eq 0) {
-    $schedule += @{"package" = $PackageToTest; "async" = $Async; "deferred" = $Deferred}
+    $schedule += @{"package" = $PackageToTest; "async" = $Async.IsPresent; "deferred" = $Deferred.IsPresent}
 }
 
 [System.IO.File]::WriteAllText(
