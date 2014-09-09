@@ -8,7 +8,7 @@ param(
 function getDownloadUrl {
     foreach ( $link in (Invoke-WebRequest "http://www.sublimetext.com/3").Links ) {
         if ( $link.href.endsWith("x64.zip") ) {
-           [System.Net.WebUtility]::UrlDecode($link.href)
+           $link.href
            break
         }
     }
@@ -21,7 +21,7 @@ function Bootstrap {
         if (-not $url) {
             throw "could not download Sublime Text binary"
         }
-        $filename = split-path $url -leaf
+        $filename = split-path $url -leaf | %{$_ -replace " ", '%20'}
         start-filedownload $url
         write-verbose "installing $filename"
         # TODO(guillermooo): use ZipFile class in .NET 4.5.
