@@ -21,7 +21,9 @@ function Bootstrap {
         if (-not $url) {
             throw "could not download Sublime Text binary"
         }
-        $filename = split-path $url -leaf | %{$_ -replace " ", '%20'}
+        # Replaces spaces by %20 -- note that other .Net methods in
+        # System.Net and System.Web convert spaces to + instead.
+        $filename = [System.Uri]::EscapeUriString((split-path $url -leaf))
         start-filedownload $url
         write-verbose "installing $filename"
         # TODO(guillermooo): use ZipFile class in .NET 4.5.
