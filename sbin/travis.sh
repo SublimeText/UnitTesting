@@ -8,10 +8,10 @@ Bootstrap() {
         if [ -z $(which subl) ]; then
             brew install caskroom/cask/brew-cask
             if [ $SUBLIME_TEXT_VERSION -eq 2 ]; then
-                echo installing sublime 2
+                echo installing sublime text 2
                 brew cask install sublime-text
             elif [ $SUBLIME_TEXT_VERSION -eq 3 ]; then
-                echo installing sublime 3
+                echo installing sublime text 3
                 brew tap caskroom/versions
                 brew cask install sublime-text3
             fi
@@ -20,12 +20,12 @@ Bootstrap() {
         STP="$HOME/.config/sublime-text-$SUBLIME_TEXT_VERSION/Packages"
         if [ -z $(which subl) ]; then
             if [ $SUBLIME_TEXT_VERSION -eq 2 ]; then
-                echo installing sublime 2
+                echo installing sublime text 2
                 sudo add-apt-repository ppa:webupd8team/sublime-text-2 -y
                 sudo apt-get update
                 sudo apt-get install sublime-text -y
             elif [ $SUBLIME_TEXT_VERSION -eq 3 ]; then
-                echo installing sublime 3
+                echo installing sublime text 3
                 sudo add-apt-repository ppa:webupd8team/sublime-text-3 -y
                 sudo apt-get update
                 sudo apt-get install sublime-text-installer -y
@@ -44,9 +44,9 @@ Bootstrap() {
     fi
 
     if [ ! -d "$STP/UnitTesting" ]; then
-        echo download latest UnitTesting release
         if [ -z $TAG ]; then
             # latest tag
+            echo download latest UnitTesting tag
             TAG=$(git ls-remote --tags https://github.com/randy3k/UnitTesting.git | sed 's|.*/\(.*\)$|\1|' | sort -t. -k1,1nr -k2,2nr -k3,3nr | head -n1)
         fi
         git clone --branch $TAG https://github.com/randy3k/UnitTesting "$STP/UnitTesting"

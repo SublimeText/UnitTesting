@@ -4,7 +4,9 @@ import re
 import getopt, sys
 import json
 
+# todo: allow different sublime versions
 
+# usage
 # cd ~/.config/sublime-text-3/Packages/UnitTesting
 # python sbin/run.py PACKAGE
 
