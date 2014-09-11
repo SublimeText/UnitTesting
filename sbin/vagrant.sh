@@ -9,7 +9,6 @@ Provision() {
         apt-get update
         apt-get install python-software-properties -y
         apt-get install git -y
-        apt-get install curl -y
         apt-get install xvfb libgtk2.0-0 -y
         if [ $SUBLIME_TEXT_VERSION -eq 2 ]; then
             echo installing sublime 2
@@ -38,7 +37,7 @@ Provision() {
 
     if [ ! -f /etc/init.d/xvfb ]; then
         echo installing xvfb controller
-        curl https://gist.githubusercontent.com/randy3k/9337122/raw/xvfb | sudo tee /etc/init.d/xvfb > /dev/null
+        wget -O /etc/init.d/xvfb https://gist.githubusercontent.com/randy3k/9337122/raw/xvfb
         chmod +x /etc/init.d/xvfb
     fi
 
