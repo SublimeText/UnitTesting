@@ -1,9 +1,15 @@
-import sublime, sublime_plugin
+import os
 import time
-import threading, os
-import json, codecs
+import json
+import codecs
+import threading
+
+import sublime
+import sublime_plugin
+
 
 class Jfile:
+
     def __init__(self, fpath, encoding="utf-8"):
         self.encoding = encoding
         self.fpath = fpath
@@ -34,26 +40,43 @@ class Jfile:
         f.close()
 
     def remove(self):
-        if os.path.exists(self.fpath): os.remove(self.fpath)
+        if os.path.exists(self.fpath):
+            os.remove(self.fpath)
+
 
 class Unit:
+
     def __init__(self, package, async=False, deferred=False):
         self.package = package
         self.async = async
         self.deferred = deferred
 
     def run(self):
-        sublime.run_command("unit_testing", {"package": self.package, "async": self.async, "deferred": self.deferred})
+        sublime.run_command(
+            "unit_testing", {
+                "package": self.package,
+                "async": self.async,
+                "deferred": self.deferred
+            }
+        )
+
 
 class Scheduler:
+
     def __init__(self):
         self.units = []
-        self.j = Jfile(os.path.join(sublime.packages_path(), 'User', 'UnitTesting','schedule.json'))
+        self.j = Jfile(os.path.join(
+            sublime.packages_path(),
+            'User', 'UnitTesting',
+            'schedule.json')
+        )
 
     def load_schedule(self):
         self.schedule = self.j.load()
         for s in self.schedule:
-            self.units.append(Unit(s['package'], s.get('async', False), s.get('deferred', False)))
+            self.units.append(Unit(
+                s['package'], s.get('async', False), s.get('deferred', False))
+            )
 
     def run(self):
         self.load_schedule()
@@ -62,14 +85,20 @@ class Scheduler:
         self.clean_schedule()
 
     def clean_schedule(self):
-        self.schedule = [s for s in self.schedule if "expire" in s and s["expire"] == "never"]
+        self.schedule = [
+            s for s in self.schedule
+            if "expire" in s and s["expire"] == "never"
+        ]
         self.j.save(self.schedule)
 
+
 class UnitTestingRunSchedulerCommand(sublime_plugin.ApplicationCommand):
+
     def run(self):
         DeferredRun.shouldrun()
         my_scheduler = Scheduler()
         my_scheduler.run()
+
 
 class DeferredRun(threading.Thread):
     loaded = False
@@ -85,7 +114,8 @@ class DeferredRun(threading.Thread):
 
     def run(self):
         while not DeferredRun.loaded:
-            sublime.set_timeout(lambda: sublime.run_command(self.command, self.args), 1)
+            sublime.set_timeout(
+                lambda: sublime.run_command(self.command, self.args), 1)
             if DeferredRun.loaded:
                 break
             else:

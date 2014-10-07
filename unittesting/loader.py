@@ -22,12 +22,16 @@ VALID_MODULE_NAME = re.compile(r'[_a-z]\w*\.py$', re.IGNORECASE)
 
 
 def _make_failed_import_test(name, suiteClass):
-    message = 'Failed to import test module: %s\n%s' % (name, traceback.format_exc())
-    return _make_failed_test('ModuleImportFailure', name, ImportError(message),
-                             suiteClass)
+    message = 'Failed to import test module: {}\n{}'.format(
+        name, traceback.format_exc()
+    )
+    return _make_failed_test(
+        'ModuleImportFailure', name, ImportError(message), suiteClass)
+
 
 def _make_failed_load_tests(name, exception, suiteClass):
     return _make_failed_test('LoadTestsFailure', name, exception, suiteClass)
+
 
 def _make_failed_test(classname, methodname, exception, suiteClass):
     def testFailure(self):
@@ -36,16 +40,22 @@ def _make_failed_test(classname, methodname, exception, suiteClass):
     TestClass = type(classname, (TestCase,), attrs)
     return suiteClass((TestClass(methodname),))
 
+
 def _jython_aware_splitext(path):
     if path.lower().endswith('$py.class'):
         return path[:-9]
     return os.path.splitext(path)[0]
 
+
 def _import(module):
-    if module in sys.modules: del sys.modules[module]
+    if module in sys.modules:
+        del sys.modules[module]
+
     __import__(module)
 
+
 class TestLoader(object):
+
     """
     This class is responsible for loading tests according to various criteria
     and returning them wrapped in a TestSuite
@@ -63,12 +73,14 @@ class TestLoader(object):
             self.TestSuite = TestSuite
             self.suiteClass = TestSuite
 
-
     def loadTestsFromTestCase(self, testCaseClass):
         """Return a suite of all tests cases contained in testCaseClass"""
         if issubclass(testCaseClass, self.TestSuite):
-            raise TypeError("Test cases should not be derived from TestSuite." \
-                                " Maybe you meant to derive from TestCase?")
+            raise TypeError(
+                'Test cases should not be derived from TestSuite. '
+                'Maybe you meant to derive from TestCase?'
+            )
+
         testCaseNames = self.getTestCaseNames(testCaseClass)
         if not testCaseNames and hasattr(testCaseClass, 'runTest'):
             testCaseNames = ['runTest']
@@ -116,11 +128,11 @@ class TestLoader(object):
         level directory must be specified separately.
 
         If a test package name (directory with '__init__.py') matches the
-        pattern then the package will be checked for a 'load_tests' function. If
-        this exists then it will be called with loader, tests, pattern.
+        pattern then the package will be checked for a 'load_tests' function.
+        If this exists then it will be called with loader, tests, pattern.
 
-        If load_tests exists then discovery does  *not* recurse into the package,
-        load_tests is responsible for loading all tests in the package.
+        If load_tests exists then discovery does  *not* recurse into the
+        package, load_tests is responsible for loading all tests in the package
 
         The pattern is deliberately not stored as a loader attribute so that
         packages can continue discovery themselves. top_level_dir is stored so
@@ -128,14 +140,13 @@ class TestLoader(object):
         """
         set_implicit_top = False
         if top_level_dir is None and self._top_level_dir is not None:
-            # make top_level_dir optional if called from load_tests in a package
+            # make top_level_dir optional if called from load_tests in package
             top_level_dir = self._top_level_dir
         elif top_level_dir is None:
             set_implicit_top = True
             top_level_dir = start_dir
 
         top_level_dir = os.path.abspath(top_level_dir)
-
 
         # all test modules must be importable from the top level directory
         # should we *unconditionally* put the start directory in first
@@ -150,7 +161,8 @@ class TestLoader(object):
         if os.path.isdir(os.path.abspath(start_dir)):
             start_dir = os.path.abspath(start_dir)
             if start_dir != top_level_dir:
-                is_not_importable = not os.path.isfile(os.path.join(start_dir, '__init__.py'))
+                isfile = os.path.isfile(os.path.join(start_dir, '__init__.py'))
+                is_not_importable = not isfile
         else:
             # support for discovery from dotted module names
             try:
@@ -160,13 +172,16 @@ class TestLoader(object):
             else:
                 the_module = sys.modules[start_dir]
                 top_part = start_dir.split('.')[0]
-                start_dir = os.path.abspath(os.path.dirname((the_module.__file__)))
+                start_dir = os.path.abspath(
+                    os.path.dirname((the_module.__file__)))
                 if set_implicit_top:
-                    self._top_level_dir = self._get_directory_containing_module(top_part)
+                    top_level = self._get_directory_containing_module(top_part)
+                    self._top_level_dir = top_level
                     sys.path.remove(top_level_dir)
 
         if is_not_importable:
-            raise ImportError('Start directory is not importable: %r' % start_dir)
+            raise ImportError(
+                'Start directory is not importable: %r' % start_dir)
 
         tests = list(self._find_tests(start_dir, pattern))
         return self.suiteClass(tests)
@@ -220,16 +235,28 @@ class TestLoader(object):
                 except:
                     yield _make_failed_import_test(name, self.suiteClass)
                 else:
-                    mod_file = os.path.abspath(getattr(module, '__file__', full_path))
-                    realpath = _jython_aware_splitext(os.path.realpath(mod_file))
-                    fullpath_noext = _jython_aware_splitext(os.path.realpath(full_path))
+                    mod_file = os.path.abspath(
+                        getattr(module, '__file__', full_path)
+                    )
+                    realpath = _jython_aware_splitext(
+                        os.path.realpath(mod_file)
+                    )
+                    fullpath_noext = _jython_aware_splitext(
+                        os.path.realpath(full_path)
+                    )
                     if realpath.lower() != fullpath_noext.lower():
                         module_dir = os.path.dirname(realpath)
-                        mod_name = _jython_aware_splitext(os.path.basename(full_path))
+                        mod_name = _jython_aware_splitext(
+                            os.path.basename(full_path)
+                        )
                         expected_dir = os.path.dirname(full_path)
-                        msg = ("%r module incorrectly imported from %r. Expected %r. "
-                               "Is this module globally installed?")
-                        raise ImportError(msg % (mod_name, module_dir, expected_dir))
+                        msg = (
+                            '{!r} module incorrectly imported from {!r}. '
+                            'Expected {!r}. Is this mofule globally installed?'
+                        )
+                        raise ImportError(
+                            msg.format(mod_name, module_dir, expected_dir))
+
                     yield self.loadTestsFromModule(module)
             elif os.path.isdir(full_path):
                 if not os.path.isfile(os.path.join(full_path, '__init__.py')):
@@ -238,11 +265,14 @@ class TestLoader(object):
                 load_tests = None
                 tests = None
                 if fnmatch(path, pattern):
-                    # only check load_tests if the package directory itself matches the filter
+                    # only check load_tests if the package directory
+                    # itself matches the filter
                     name = self._get_name_from_path(full_path)
                     package = self._get_module_from_name(name)
                     load_tests = getattr(package, 'load_tests', None)
-                    tests = self.loadTestsFromModule(package, use_load_tests=False)
+                    tests = self.loadTestsFromModule(
+                        package, use_load_tests=False
+                    )
 
                 if load_tests is None:
                     if tests is not None:
@@ -255,5 +285,5 @@ class TestLoader(object):
                     try:
                         yield load_tests(self, tests, pattern)
                     except Exception as e:
-                        yield _make_failed_load_tests(package.__name__, e,
-                                                      self.suiteClass)
+                        yield _make_failed_load_tests(
+                            package.__name__, e, self.suiteClass)
