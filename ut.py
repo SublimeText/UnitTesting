@@ -8,11 +8,12 @@ version = sublime.version()
 
 from unittest import TextTestRunner
 if version >= '3000':
-    from .utils import settings as plugin_setings
     from .unittesting import TestLoader
+    from .utils import settings as plugin_settings
     from .unittesting import DeferringTextTestRunner
 else:
     from unittesting import TestLoader
+    from utils import settings as plugin_settings
 
 
 class OutputPanelInsert(sublime_plugin.TextCommand):
@@ -129,7 +130,7 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand):
     def testing(self, package, pattern, stream, deferred=False):
         try:
             # and use custom loader which support ST2 and reloading modules
-            tests_dir = plugin_setings.get(
+            tests_dir = plugin_settings.get(
                 sublime.active_window().active_view(), 'tests_dir', 'tests')
             print(tests_dir)
             loader = TestLoader(deferred)
