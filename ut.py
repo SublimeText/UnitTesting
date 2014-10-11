@@ -132,7 +132,6 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand):
             # and use custom loader which support ST2 and reloading modules
             tests_dir = plugin_settings.get(
                 sublime.active_window().active_view(), 'tests_dir', 'tests')
-            print(tests_dir)
             loader = TestLoader(deferred)
             test = loader.discover(os.path.join(
                 sublime.packages_path(), package, tests_dir), pattern
