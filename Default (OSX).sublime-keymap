@@ -1,7 +1,0 @@
-[
-    {
-        "command": "unit_testing",
-        "args": {"output": "panel", "current_project": true},
-        "keys": ["super+alt+u", "super+alt+c"]
-    }
-]

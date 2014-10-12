@@ -12,7 +12,7 @@ def get(view, key, default=None):
     """
 
     if view is None:
-        return None
+        return default
 
     plugin_settings = sublime.load_settings('UnitTesting.sublime-settings')
     return view.settings().get(key, plugin_settings.get(key, default))
