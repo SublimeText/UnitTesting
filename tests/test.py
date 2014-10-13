@@ -5,12 +5,25 @@ from unittest import TestCase
 
 import sublime
 
+version = sublime.version()
+
+if version >= '3000':
+    from UnitTesting.utils import recent as recent_package
+else:
+    from utils import recent as recent_package
+
 __dir__ = os.path.dirname(os.path.abspath(__file__))
 outputdir = os.path.join(
     sublime.packages_path(), 'User', 'UnitTesting', "tests_output")
 
 
 class TestUnitTesting(TestCase):
+
+    def tearDown(self):
+        recently_used_file = "UnitTesting.recent-package"
+        recently_used = sublime.load_settings(recently_used_file)
+        recently_used.set("recent_package", "UnitTesting")
+        sublime.save_settings(recently_used_file)
 
     def test_success(self):
         try:

@@ -9,13 +9,16 @@ version = sublime.version()
 from unittest import TextTestRunner
 if version >= '3000':
     from .unittesting import TestLoader
-    from .utils import settings as plugin_settings
     from .unittesting import DeferringTextTestRunner
+    from .utils import settings as plugin_settings
+    from .utils import recent as recent_package
 else:
     from unittesting import TestLoader
     from utils import settings as plugin_settings
+    from utils import recent as recent_package
 
 
+# st3 has append command, it is needed for st2.
 class OutputPanelInsert(sublime_plugin.TextCommand):
 
     def run(self, edit, characters):
@@ -93,30 +96,51 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand):
 
     def run(self, package=None, output=None,
             async=False, deferred=False, current_project=False):
-        """Run the different variants of the unit tesst command
-        """
 
         if current_project is True:
             if self.project_name is not None:
-                return self._execute(
-                    self.project_name, output, async, deferred
-                )
+                package = self.project_name
 
-        recently_used_file = "UnitTesting.recently-used"
-        recently_used = sublime.load_settings(recently_used_file)
-
-        # pattern is a regex of filenames to be tested
         if package:
-            # save the package name
-            recently_used.set("recent_package", package)
-            sublime.save_settings(recently_used_file)
-            self._execute(package, output, async, deferred)
+
+            recent_package.set(package)
+
+            package, pattern = input_parser(package)
+            if output == "panel":
+                output_panel = OutputPanel(
+                    'unittests', file_regex=r'File "([^"]*)", line (\d+)')
+                output_panel.show()
+                stream = output_panel
+            else:
+                if output:
+                    outfile = output
+                else:
+                    outputdir = os.path.join(
+                        sublime.packages_path(),
+                        'User', 'UnitTesting', "tests_output"
+                    )
+                    if not os.path.isdir(outputdir):
+                        os.makedirs(outputdir)
+                    outfile = os.path.join(outputdir, package)
+
+                if os.path.exists(outfile):
+                    os.remove(outfile)
+                stream = open(outfile, "w")
+
+            if version < '3000':
+                deferred = False
+                async = False
+
+            if async:
+                sublime.set_timeout_async(
+                    lambda: self.testing(package, pattern, stream, False), 100)
+            else:
+                self.testing(package, pattern, stream, deferred)
+
         else:
-            recent_package = recently_used.get(
-                "recent_package", "Package Name"
-            )
+            # bootstrap run() with package input
             view = sublime.active_window().show_input_panel(
-                'Package:', recent_package,
+                'Package:', recent_package.get(),
                 lambda x: sublime.run_command(
                     "unit_testing", {
                         "package": x,
@@ -147,39 +171,3 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand):
                 stream.write("ERROR: %s\n" % e)
         if not deferred:
             stream.close()
-
-    def _execute(self, package, output, async, deferred):
-        """Execute the test suite
-        """
-
-        package, pattern = input_parser(package)
-        if output == "panel":
-            output_panel = OutputPanel(
-                'unittests', file_regex=r'File "([^"]*)", line (\d+)')
-            output_panel.show()
-            stream = output_panel
-        else:
-            if output:
-                outfile = output
-            else:
-                outputdir = os.path.join(
-                    sublime.packages_path(),
-                    'User', 'UnitTesting', "tests_output"
-                )
-                if not os.path.isdir(outputdir):
-                    os.makedirs(outputdir)
-                outfile = os.path.join(outputdir, package)
-
-            if os.path.exists(outfile):
-                os.remove(outfile)
-            stream = open(outfile, "w")
-
-        if version < '3000':
-            deferred = False
-            async = False
-
-        if async:
-            sublime.set_timeout_async(
-                lambda: self.testing(package, pattern, stream, False), 100)
-        else:
-            self.testing(package, pattern, stream, deferred)
