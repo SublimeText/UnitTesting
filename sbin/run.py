@@ -71,11 +71,15 @@ print("\nstart to read output")
 # todo: use notification instead of polling
 with open(outfile, 'r') as f:
     while True:
+        where = f.tell()
         result = f.read()
         sys.stdout.write(result)
         m = re.search("^(OK|FAILED|ERROR)", result, re.MULTILINE)
         # break when OK, Failed or error
-        if m: break
+        if m:
+            break
+        elif not result:
+            f.seek(where)
         time.sleep(0.2)
 success = m.group(0)=="OK"
 
