@@ -46,8 +46,9 @@ class Jfile:
 
 class Unit:
 
-    def __init__(self, package, async=False, deferred=False):
+    def __init__(self, package, tests_dir="tests", async=False, deferred=False):
         self.package = package
+        self.tests_dir = tests_dir
         self.async = async
         self.deferred = deferred
 
@@ -55,6 +56,7 @@ class Unit:
         sublime.run_command(
             "unit_testing", {
                 "package": self.package,
+                "tests_dir": self.tests_dir,
                 "async": self.async,
                 "deferred": self.deferred
             }
@@ -75,7 +77,8 @@ class Scheduler:
         self.schedule = self.j.load()
         for s in self.schedule:
             self.units.append(Unit(
-                s['package'], s.get('async', False), s.get('deferred', False))
+                s['package'], s.get('tests_dir', 'tests'),
+                s.get('async', False), s.get('deferred', False))
             )
 
     def run(self):
