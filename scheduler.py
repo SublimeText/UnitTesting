@@ -7,58 +7,21 @@ import threading
 import sublime
 import sublime_plugin
 
+version = sublime.version()
 
-class Jfile:
-
-    def __init__(self, fpath, encoding="utf-8"):
-        self.encoding = encoding
-        self.fpath = fpath
-
-    def load(self, default=[]):
-        self.fdir = os.path.dirname(self.fpath)
-        if not os.path.isdir(self.fdir):
-            os.makedirs(self.fdir)
-        if os.path.exists(self.fpath):
-            f = codecs.open(self.fpath, "r+", encoding=self.encoding)
-            try:
-                data = json.load(f)
-            except:
-                data = default
-            f.close()
-        else:
-            f = codecs.open(self.fpath, "w+", encoding=self.encoding)
-            data = default
-            f.close()
-        return data
-
-    def save(self, data, indent=4):
-        self.fdir = os.path.dirname(self.fpath)
-        if not os.path.isdir(self.fdir):
-            os.makedirs(self.fdir)
-        f = codecs.open(self.fpath, "w+", encoding=self.encoding)
-        f.write(json.dumps(data, ensure_ascii=False, indent=indent))
-        f.close()
-
-    def remove(self):
-        if os.path.exists(self.fpath):
-            os.remove(self.fpath)
+if version >= '3000':
+    from .utils import Jfile
+else:
+    from utils import Jfile
 
 
 class Unit:
 
-    def __init__(self, package, async=False, deferred=False):
+    def __init__(self, package):
         self.package = package
-        self.async = async
-        self.deferred = deferred
 
     def run(self):
-        sublime.run_command(
-            "unit_testing", {
-                "package": self.package,
-                "async": self.async,
-                "deferred": self.deferred
-            }
-        )
+        sublime.run_command("unit_testing", {"package": self.package})
 
 
 class Scheduler:
@@ -74,9 +37,7 @@ class Scheduler:
     def load_schedule(self):
         self.schedule = self.j.load()
         for s in self.schedule:
-            self.units.append(Unit(
-                s['package'], s.get('async', False), s.get('deferred', False))
-            )
+            self.units.append(Unit(s['package']))
 
     def run(self):
         self.load_schedule()

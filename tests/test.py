@@ -5,6 +5,13 @@ from unittest import TestCase
 
 import sublime
 
+version = sublime.version()
+
+if version >= '3000':
+    from UnitTesting.utils import settings as plugin_settings
+else:
+    from utils import settings as plugin_settings
+
 __dir__ = os.path.dirname(os.path.abspath(__file__))
 outputdir = os.path.join(
     sublime.packages_path(), 'User', 'UnitTesting', "tests_output")
@@ -12,12 +19,19 @@ outputdir = os.path.join(
 
 class TestUnitTesting(TestCase):
 
+    def tearDown(self):
+        plugin_settings.set("recent-package", "UnitTesting")
+
     def test_success(self):
         try:
             shutil.copytree(
                 os.path.join(__dir__, "_Success"),
                 os.path.join(sublime.packages_path(), "_Success")
             )
+        except:
+            pass
+        try:
+            os.unlink(os.path.join(outputdir, "_Success"))
         except:
             pass
         sublime.run_command("unit_testing", {"package": "_Success"})
@@ -35,6 +49,10 @@ class TestUnitTesting(TestCase):
             )
         except:
             pass
+        try:
+            os.unlink(os.path.join(outputdir, "_Failure"))
+        except:
+            pass
         sublime.run_command("unit_testing", {"package": "_Failure"})
         with open(os.path.join(outputdir, "_Failure"), 'r') as f:
             txt = f.read()
@@ -44,6 +62,10 @@ class TestUnitTesting(TestCase):
 
     def test_error(self):
         # Run unittesting for an non existing package
+        try:
+            os.unlink(os.path.join(outputdir, "_Error"))
+        except:
+            pass
         sublime.run_command("unit_testing", {"package": "_Error"})
         with open(os.path.join(outputdir, "_Error"), 'r') as f:
             txt = f.read()

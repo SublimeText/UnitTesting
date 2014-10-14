@@ -5,28 +5,8 @@
     "args": {"output": "panel"}
   },
   {
-    "caption": "UnitTesting: Run any project test suite (Async)",
-    "command": "unit_testing",
-    "args": {"output": "panel", "async": true}
-  },
-  {
-    "caption": "UnitTesting: Run any project test suite (Deferred)",
-    "command": "unit_testing",
-    "args": {"output": "panel", "deferred": true}
-  },
-  {
     "caption": "UnitTesting: Run current project test suite",
     "command": "unit_testing",
-    "args": {"output": "panel", "current_project": true}
-  },
-  {
-    "caption": "UnitTesting: Run current project test suite (Async)",
-    "command": "unit_testing",
-    "args": {"output": "panel", "async": true, "current_project": true}
-  },
-  {
-    "caption": "UnitTesting: Run current project test suite (Deferred)",
-    "command": "unit_testing",
-    "args": {"output": "panel", "deferred": true, "current_project": true}
-  },
+    "args": {"package": "<current>", "output": "panel"}
+  }
 ]

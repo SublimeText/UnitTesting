@@ -9,13 +9,16 @@ version = sublime.version()
 from unittest import TextTestRunner
 if version >= '3000':
     from .unittesting import TestLoader
-    from .utils import settings as plugin_settings
     from .unittesting import DeferringTextTestRunner
+    from .utils import settings as plugin_settings
+    from .utils import Jfile
 else:
     from unittesting import TestLoader
     from utils import settings as plugin_settings
+    from utils import Jfile
 
 
+# st3 has append command, it is needed for st2.
 class OutputPanelInsert(sublime_plugin.TextCommand):
 
     def run(self, edit, characters):
@@ -91,47 +94,70 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand):
 
         return project_name
 
-    def run(self, package=None, output=None,
-            async=False, deferred=False, current_project=False):
-        """Run the different variants of the unit tesst command
-        """
+    def run(self, package=None, output=None):
 
-        if current_project is True:
-            if self.project_name is not None:
-                return self._execute(
-                    self.project_name, output, async, deferred
-                )
-
-        recently_used_file = "UnitTesting.recently-used"
-        recently_used = sublime.load_settings(recently_used_file)
-
-        # pattern is a regex of filenames to be tested
         if package:
-            # save the package name
-            recently_used.set("recent_package", package)
-            sublime.save_settings(recently_used_file)
-            self._execute(package, output, async, deferred)
+            if package == "<current>":
+                package = self.project_name
+            plugin_settings.set("recent-package", package)
+
+            package, pattern = input_parser(package)
+
+            jfile = os.path.join(sublime.packages_path(), package, "unittesting.json")
+            if os.path.exists(jfile):
+                ss = Jfile(jfile).load()
+                tests_dir = ss.get("tests_dir", "tests")
+                async = ss.get("async", False)
+                deferred = ss.get("deferred", False)
+            else:
+                tests_dir, async, deferred = "tests", False, False
+
+            if version < '3000':
+                deferred = False
+                async = False
+
+            if output == "panel":
+                output_panel = OutputPanel(
+                    'unittests', file_regex=r'File "([^"]*)", line (\d+)')
+                output_panel.show()
+                stream = output_panel
+            else:
+                if output:
+                    outfile = output
+                else:
+                    outputdir = os.path.join(
+                        sublime.packages_path(),
+                        'User', 'UnitTesting', "tests_output"
+                    )
+                    if not os.path.isdir(outputdir):
+                        os.makedirs(outputdir)
+                    outfile = os.path.join(outputdir, package)
+
+                if os.path.exists(outfile):
+                    os.remove(outfile)
+                stream = open(outfile, "w")
+
+            if async:
+                sublime.set_timeout_async(
+                    lambda: self.testing(package, tests_dir, pattern, stream, False), 100)
+            else:
+                self.testing(package, tests_dir, pattern, stream, deferred)
+
         else:
-            recent_package = recently_used.get(
-                "recent_package", "Package Name"
-            )
+            # bootstrap run() with package input
             view = sublime.active_window().show_input_panel(
-                'Package:', recent_package,
+                'Package:', plugin_settings.get("recent-package", "Package Name"),
                 lambda x: sublime.run_command(
                     "unit_testing", {
                         "package": x,
-                        "output": output,
-                        "async": async,
-                        "deferred": deferred
+                        "output": output
                     }), None, None
                 )
             view.run_command("select_all")
 
-    def testing(self, package, pattern, stream, deferred=False):
+    def testing(self, package, tests_dir, pattern, stream, deferred=False):
         try:
-            # and use custom loader which support ST2 and reloading modules
-            tests_dir = plugin_settings.get(
-                sublime.active_window().active_view(), 'tests_dir', 'tests')
+            # use custom loader which support ST2 and reloading modules
             loader = TestLoader(deferred)
             test = loader.discover(os.path.join(
                 sublime.packages_path(), package, tests_dir), pattern
@@ -147,39 +173,3 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand):
                 stream.write("ERROR: %s\n" % e)
         if not deferred:
             stream.close()
-
-    def _execute(self, package, output, async, deferred):
-        """Execute the test suite
-        """
-
-        package, pattern = input_parser(package)
-        if output == "panel":
-            output_panel = OutputPanel(
-                'unittests', file_regex=r'File "([^"]*)", line (\d+)')
-            output_panel.show()
-            stream = output_panel
-        else:
-            if output:
-                outfile = output
-            else:
-                outputdir = os.path.join(
-                    sublime.packages_path(),
-                    'User', 'UnitTesting', "tests_output"
-                )
-                if not os.path.isdir(outputdir):
-                    os.makedirs(outputdir)
-                outfile = os.path.join(outputdir, package)
-
-            if os.path.exists(outfile):
-                os.remove(outfile)
-            stream = open(outfile, "w")
-
-        if version < '3000':
-            deferred = False
-            async = False
-
-        if async:
-            sublime.set_timeout_async(
-                lambda: self.testing(package, pattern, stream, False), 100)
-        else:
-            self.testing(package, pattern, stream, deferred)

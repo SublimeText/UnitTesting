@@ -10,10 +10,8 @@ import json
 # cd ~/.config/sublime-text-3/Packages/UnitTesting
 # python sbin/run.py PACKAGE
 
-opts, args = getopt.getopt(sys.argv[1:], "ad", ["async", "deferred"])
+opts, args = getopt.getopt(sys.argv[1:], "ad", ["tests_dir=", "async", "deferred"])
 
-async = any([o in ['-a', '--async'] for o,a in opts])
-deferred = any([o in ['-d', '--deferred'] for o,a in opts])
 package = args[0] if len(args)>0 else "UnitTesting"
 
 version = int(subprocess.check_output(["subl","--version"]).decode('utf8').strip()[-4])
@@ -41,7 +39,7 @@ try:
 except:
     schedule = []
 if not any([s['package']==package for s in schedule]):
-    schedule.append({'package': package, 'async': async, 'deferred': deferred})
+    schedule.append({'package': package})
 with open(jpath, 'w') as f:
     f.write(json.dumps(schedule, ensure_ascii=False, indent=True))
 
@@ -69,11 +67,15 @@ print("\nstart to read output")
 # todo: use notification instead of polling
 with open(outfile, 'r') as f:
     while True:
+        where = f.tell()
         result = f.read()
         sys.stdout.write(result)
         m = re.search("^(OK|FAILED|ERROR)", result, re.MULTILINE)
         # break when OK, Failed or error
-        if m: break
+        if m:
+            break
+        elif not result:
+            f.seek(where)
         time.sleep(0.2)
 success = m.group(0)=="OK"
 
