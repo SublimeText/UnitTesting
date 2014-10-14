@@ -92,25 +92,27 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand):
 
         return project_name
 
-    def run(self, package=None, output=None,
-            async=False, deferred=False, current_project=False, tests_dir=None):
-
-        if current_project is True:
-            if self.project_name is not None:
-                package = self.project_name
+    def run(self, package=None, tests_dir=None, output=None,
+            async=False, deferred=False):
 
         if package:
 
+            if package == "<current>":
+                package = self.project_name
             plugin_settings.set("recent-package", package)
 
             package, pattern = input_parser(package)
 
             if not tests_dir:
-                if version >= '3000':
-                    project_settings = sublime.active_window().project_data().get("settings", {})
-                else:
-                    project_settings = sublime.active_window().active_view().settings()
-                tests_dir = project_settings.get("tests_dir", "tests")
+                try:
+                    # the following code may fail when blocked
+                    if version >= '3000':
+                        project_settings = sublime.active_window().project_data().get("settings", {})
+                    else:
+                        project_settings = sublime.active_window().active_view().settings()
+                    tests_dir = project_settings.get("tests_dir", "tests")
+                except:
+                    tests_dir = "tests"
 
             if output == "panel":
                 output_panel = OutputPanel(
