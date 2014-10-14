@@ -109,8 +109,9 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand):
                 tests_dir = ss.get("tests_dir", "tests")
                 async = ss.get("async", False)
                 deferred = ss.get("deferred", False)
+                verbosity = ss.get("verbosity", 2)
             else:
-                tests_dir, async, deferred = "tests", False, False
+                tests_dir, async, deferred, verbosity = "tests", False, False, 2
 
             if version < '3000':
                 deferred = False
@@ -139,9 +140,11 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand):
 
             if async:
                 sublime.set_timeout_async(
-                    lambda: self.testing(package, tests_dir, pattern, stream, False), 100)
+                    lambda: self.testing(
+                        package, tests_dir, pattern, stream, False, verbosity
+                    ), 100)
             else:
-                self.testing(package, tests_dir, pattern, stream, deferred)
+                self.testing(package, tests_dir, pattern, stream, deferred, verbosity)
 
         else:
             # bootstrap run() with package input
@@ -155,7 +158,7 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand):
                 )
             view.run_command("select_all")
 
-    def testing(self, package, tests_dir, pattern, stream, deferred=False):
+    def testing(self, package, tests_dir, pattern, stream, deferred=False, verbosity=2):
         try:
             # use custom loader which support ST2 and reloading modules
             loader = TestLoader(deferred)
@@ -164,9 +167,9 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand):
             )
             # use deferred test runner or default test runner
             if deferred:
-                testRunner = DeferringTextTestRunner(stream, verbosity=2)
+                testRunner = DeferringTextTestRunner(stream, verbosity=verbosity)
             else:
-                testRunner = TextTestRunner(stream, verbosity=2)
+                testRunner = TextTestRunner(stream, verbosity=verbosity)
             testRunner.run(test)
         except Exception as e:
             if not stream.closed:
