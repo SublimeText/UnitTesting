@@ -77,7 +77,7 @@ while ($true) {
 
     $lines = (get-content $copy)
     write-output $lines[$read..$lines.length]
-    $read += ($lines.length - $read)
+    $read = $lines.length
 
     $m = $lines[-1] -match "^(OK|FAILED|ERROR)"
     if ($m) { break }
