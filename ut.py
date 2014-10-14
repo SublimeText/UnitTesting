@@ -11,9 +11,11 @@ if version >= '3000':
     from .unittesting import TestLoader
     from .unittesting import DeferringTextTestRunner
     from .utils import settings as plugin_settings
+    from .utils import Jfile
 else:
     from unittesting import TestLoader
     from utils import settings as plugin_settings
+    from utils import Jfile
 
 
 # st3 has append command, it is needed for st2.
@@ -92,27 +94,27 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand):
 
         return project_name
 
-    def run(self, package=None, tests_dir=None, output=None,
-            async=False, deferred=False):
+    def run(self, package=None, output=None):
 
         if package:
-
             if package == "<current>":
                 package = self.project_name
             plugin_settings.set("recent-package", package)
 
             package, pattern = input_parser(package)
 
-            if not tests_dir:
-                try:
-                    # the following code may fail when blocked
-                    if version >= '3000':
-                        project_settings = sublime.active_window().project_data().get("settings", {})
-                    else:
-                        project_settings = sublime.active_window().active_view().settings()
-                    tests_dir = project_settings.get("tests_dir", "tests")
-                except:
-                    tests_dir = "tests"
+            jfile = os.path.join(sublime.packages_path(), package, "unittesting.json")
+            if os.path.exists(jfile):
+                ss = Jfile(jfile).load()
+                tests_dir = ss.get("tests_dir", "tests")
+                async = ss.get("async", False)
+                deferred = ss.get("deferred", False)
+            else:
+                tests_dir, async, deferred = "tests", False, False
+
+            if version < '3000':
+                deferred = False
+                async = False
 
             if output == "panel":
                 output_panel = OutputPanel(
@@ -135,10 +137,6 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand):
                     os.remove(outfile)
                 stream = open(outfile, "w")
 
-            if version < '3000':
-                deferred = False
-                async = False
-
             if async:
                 sublime.set_timeout_async(
                     lambda: self.testing(package, tests_dir, pattern, stream, False), 100)
@@ -152,10 +150,7 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand):
                 lambda x: sublime.run_command(
                     "unit_testing", {
                         "package": x,
-                        "tests_dir": tests_dir,
-                        "output": output,
-                        "async": async,
-                        "deferred": deferred
+                        "output": output
                     }), None, None
                 )
             view.run_command("select_all")
