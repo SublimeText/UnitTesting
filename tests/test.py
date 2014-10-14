@@ -30,7 +30,10 @@ class TestUnitTesting(TestCase):
             )
         except:
             pass
-        os.unlink(os.path.join(outputdir, "_Success"))
+        try:
+            os.unlink(os.path.join(outputdir, "_Success"))
+        except:
+            pass
         sublime.run_command("unit_testing", {"package": "_Success"})
         with open(os.path.join(outputdir, "_Success"), 'r') as f:
             txt = f.read()
@@ -46,7 +49,10 @@ class TestUnitTesting(TestCase):
             )
         except:
             pass
-        os.unlink(os.path.join(outputdir, "_Failure"))
+        try:
+            os.unlink(os.path.join(outputdir, "_Failure"))
+        except:
+            pass
         sublime.run_command("unit_testing", {"package": "_Failure"})
         with open(os.path.join(outputdir, "_Failure"), 'r') as f:
             txt = f.read()
@@ -56,7 +62,10 @@ class TestUnitTesting(TestCase):
 
     def test_error(self):
         # Run unittesting for an non existing package
-        os.unlink(os.path.join(outputdir, "_Error"))
+        try:
+            os.unlink(os.path.join(outputdir, "_Error"))
+        except:
+            pass
         sublime.run_command("unit_testing", {"package": "_Error"})
         with open(os.path.join(outputdir, "_Error"), 'r') as f:
             txt = f.read()
