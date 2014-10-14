@@ -70,7 +70,7 @@ class OutputPanel:
 
 
 def input_parser(package):
-    m = re.match(r'([^/]+)/(.+)', package)
+    m = re.match(r'([^:]+):(.+)', package)
     if m:
         return m.groups()
     else:
