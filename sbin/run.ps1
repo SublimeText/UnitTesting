@@ -1,5 +1,11 @@
 [CmdletBinding()]
-param([switch]$Async, [switch]$Deferred, [string]$PackageToTest="UnitTesting")
+param(
+    [switch]$Async,
+    [switch]$Deferred,
+    [string]$tests_dir="tests",
+    [Parameter(Mandatory = $true, Position = 0)]
+    [string]$PackageToTest="UnitTesting"
+)
 
 # UTF8 encoding without preamble (default in .NET is with preamble).
 new-variable -name 'UTF8Encoding' -option CONSTANT -scope 'script' `
@@ -29,7 +35,8 @@ else {
 
 $found = (@($schedule | foreach-object { $_.package }) -eq $PackageToTest).length
 if ($found -eq 0) {
-    $schedule += @{"package" = $PackageToTest; "async" = $Async.IsPresent; "deferred" = $Deferred.IsPresent}
+    $schedule += @{"package" = $PackageToTest; "tests_dir" = $tests_dir;
+    "async" = $Async.IsPresent; "deferred" = $Deferred.IsPresent}
 }
 
 [System.IO.File]::WriteAllText(

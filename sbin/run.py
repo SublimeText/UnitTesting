@@ -10,8 +10,9 @@ import json
 # cd ~/.config/sublime-text-3/Packages/UnitTesting
 # python sbin/run.py PACKAGE
 
-opts, args = getopt.getopt(sys.argv[1:], "ad", ["async", "deferred"])
+opts, args = getopt.getopt(sys.argv[1:], "ad", ["tests_dir=", "async", "deferred"])
 
+tests_dir = ([a for o,a in opts if o == "--tests_dir"] + ["tests"])[0]
 async = any([o in ['-a', '--async'] for o,a in opts])
 deferred = any([o in ['-d', '--deferred'] for o,a in opts])
 package = args[0] if len(args)>0 else "UnitTesting"
@@ -41,7 +42,8 @@ try:
 except:
     schedule = []
 if not any([s['package']==package for s in schedule]):
-    schedule.append({'package': package, 'async': async, 'deferred': deferred})
+    schedule.append({'package': package, 'tests_dir': tests_dir,
+        'async': async, 'deferred': deferred})
 with open(jpath, 'w') as f:
     f.write(json.dumps(schedule, ensure_ascii=False, indent=True))
 
