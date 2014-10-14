@@ -72,11 +72,10 @@ while ($true) {
     copy-item $outfile $copy -force
 
     $lines = (get-content $copy)
-    $sublines = $lines.substring($read)
-    write-output $sublines
-    $read = $lines.length-1
+    write-output $lines[$read..$lines.length]
+    $read = $lines.length
 
-    $m = ($sublines -match "^(OK|FAILED|ERROR)")
+    $m = $lines[-1] -match "^(OK|FAILED|ERROR)"
     if ($m) { break }
     start-sleep -milliseconds 200
 }
