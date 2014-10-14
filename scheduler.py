@@ -56,7 +56,7 @@ class Scheduler:
 class UnitTestingRunSchedulerCommand(sublime_plugin.ApplicationCommand):
 
     def run(self):
-        DeferredRun.shouldrun()
+        DeferredRun.load()
         my_scheduler = Scheduler()
         my_scheduler.run()
 
@@ -70,7 +70,7 @@ class DeferredRun(threading.Thread):
         self.args = args
 
     @staticmethod
-    def shouldrun():
+    def load():
         DeferredRun.loaded = True
 
     def run(self):
