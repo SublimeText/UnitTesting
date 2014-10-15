@@ -1,8 +1,5 @@
 [CmdletBinding()]
 param(
-    [switch]$Async,
-    [switch]$Deferred,
-    [string]$tests_dir="tests",
     [Parameter(Mandatory = $true, Position = 0)]
     [string]$PackageToTest="UnitTesting"
 )
@@ -35,8 +32,7 @@ else {
 
 $found = (@($schedule | foreach-object { $_.package }) -eq $PackageToTest).length
 if ($found -eq 0) {
-    $schedule += @{"package" = $PackageToTest; "tests_dir" = $tests_dir;
-    "async" = $Async.IsPresent; "deferred" = $Deferred.IsPresent}
+    $schedule += @{"package" = $PackageToTest}
 }
 
 [System.IO.File]::WriteAllText(
