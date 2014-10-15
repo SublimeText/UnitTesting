@@ -1,5 +1,8 @@
 [CmdletBinding()]
 param(
+    [switch]$Async,
+    [switch]$Deferred,
+    [string]$tests_dir="tests",
     [Parameter(Mandatory = $true, Position = 0)]
     [string]$PackageToTest="UnitTesting"
 )
@@ -32,7 +35,8 @@ else {
 
 $found = (@($schedule | foreach-object { $_.package }) -eq $PackageToTest).length
 if ($found -eq 0) {
-    $schedule += @{"package" = $PackageToTest}
+    $schedule += @{"package" = $PackageToTest; "tests_dir" = $tests_dir;
+    "async" = $Async.IsPresent; "deferred" = $Deferred.IsPresent}
 }
 
 [System.IO.File]::WriteAllText(
@@ -62,6 +66,7 @@ write-verbose "start to read output"
 
 $copy = "$outfile.copy"
 $read = 0
+$done = $false
 while ($true) {
     # XXX(guillermooo): We can't open a file already opened by another
     # process. By copying the file first, we can work around this. (But if
@@ -72,14 +77,22 @@ while ($true) {
     copy-item $outfile $copy -force
 
     $lines = (get-content $copy)
-    write-output $lines[$read..$lines.length]
-    $read = $lines.length
-
-    $m = $lines[-1] -match "^(OK|FAILED|ERROR)"
-    if ($m) { break }
-    start-sleep -milliseconds 200
+    $content = $lines -join "`n"
+    if ($content.length -gt $read) {
+        $subcontent = $content.substring($read, $content.length-$read)
+        write-output $subcontent
+        $read = $content.length
+        foreach ($l in $lines){
+            if ($l -match "^(OK|FAILED|ERROR)") {
+                $done = $matches[1]
+                break
+            }
+        }
+        if ($done) { break }
+    }
+    start-sleep -milliseconds 1000
 }
 
-if ($matches[1] -ne "OK") {
+if ($done -ne "OK") {
     throw "FAILED or ERROR"
 }
