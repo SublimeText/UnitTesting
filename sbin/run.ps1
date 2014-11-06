@@ -73,17 +73,21 @@ while ($true) {
     copy-item $outfile $copy -force
 
     $lines = (get-content $copy)
-    $content = $lines[0..($lines.length-2)] -join "`n"
-    if ($content.length -gt $read) {
-        write-output $content.substring($read, $content.length-$read)
-        $read = $content.length + 1
-        foreach ($l in $lines){
+    $lines = $lines | select-object -skip $read
+    $count = $lines.count
+    if ($count -gt 0){
+        foreach ($i in 0..($count-1)){
+            $l = $lines | select-object -index $i
+            if ($i -lt $count-1){
+                write-output $l
+            }
             if ($l -match "^(OK|FAILED|ERROR)") {
                 $done = $matches[1]
-                write-output $lines[$lines.length-1]
+                write-output $l
                 break
             }
         }
+        $read = $read + $count - 1
         if ($done) { break }
     }
     start-sleep -milliseconds 200
