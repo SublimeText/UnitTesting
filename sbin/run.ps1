@@ -73,20 +73,20 @@ while ($true) {
     copy-item $outfile $copy -force
 
     $lines = (get-content $copy)
-    $content = $lines -join "`n"
+    $content = $lines[0..($lines.length-2)] -join "`n"
     if ($content.length -gt $read) {
-        $subcontent = $content.substring($read, $content.length-$read)
-        write-output $subcontent
-        $read = $content.length
+        write-output $content.substring($read, $content.length-$read)
+        $read = $content.length + 1
         foreach ($l in $lines){
             if ($l -match "^(OK|FAILED|ERROR)") {
                 $done = $matches[1]
+                write-output $lines[$lines.length-1]
                 break
             }
         }
         if ($done) { break }
     }
-    start-sleep -milliseconds 1000
+    start-sleep -milliseconds 200
 }
 
 if ($done -ne "OK") {
