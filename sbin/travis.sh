@@ -47,7 +47,7 @@ Bootstrap() {
         if [ -z $TAG ]; then
             # latest tag
             echo download latest UnitTesting tag
-            TAG=$(git ls-remote --tags https://github.com/randy3k/UnitTesting.git | sed 's|.*/\(.*\)$|\1|' | sort -t. -k1,1nr -k2,2nr -k3,3nr | head -n1)
+            TAG=$(git ls-remote --tags https://github.com/randy3k/UnitTesting.git | sed 's|.*/\(.*\)$|\1|' | grep -v '\^' | sort -t. -k1,1nr -k2,2nr -k3,3nr | head -n1)
         fi
         git clone --branch $TAG https://github.com/randy3k/UnitTesting "$STP/UnitTesting"
     fi

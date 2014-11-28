@@ -33,7 +33,7 @@ function Bootstrap {
     if ( ${env:TAG} -eq $null ){
         # the latest tag
         write-verbose "download latest UnitTesting tag"
-        $TAG = git ls-remote --tags https://github.com/randy3k/UnitTesting |  %{$_ -replace ".*/(.*)$", '$1'} | %{[System.Version]$_}|sort | select-object -last 1 | %{ "$_" }
+        $TAG = git ls-remote --tags https://github.com/randy3k/UnitTesting | %{$_ -replace ".*/(.*)$", '$1'} | where-object {$_ -notmatch "\^"} |%{[System.Version]$_}|sort | select-object -last 1 | %{ "$_" }
     }else{
         $TAG = ${env:TAG}
     }
