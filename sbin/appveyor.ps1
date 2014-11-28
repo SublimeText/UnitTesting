@@ -1,8 +1,6 @@
 [CmdletBinding()]
 param(
-    [string]$command,
-    [Parameter(ValueFromRemainingArguments=$true)]
-    [Object[]]$remainingArgs
+    [string]$command
 )
 
 function getDownloadUrl($version) {
@@ -45,7 +43,7 @@ function Bootstrap {
 }
 
 function RunTests {
-    invoke-expression "C:\st\Data\Packages\UnitTesting\sbin\run.ps1 $remainingArgs `"${env:PACKAGE}`" -verbose"
+    & "C:\st\Data\Packages\UnitTesting\sbin\run.ps1" "${env:PACKAGE}" -verbose
 }
 
 switch ($command){
