@@ -99,7 +99,11 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand):
         if package:
             if package == "<current>":
                 package = self.project_name
-            plugin_settings.set("recent-package", package)
+            if package:
+                plugin_settings.set("recent-package", package)
+            else:
+                sublime.message_dialog("Cannot find current package.")
+                return
 
             package, pattern = input_parser(package)
 
@@ -148,15 +152,17 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand):
 
         else:
             # bootstrap run() with package input
-            view = sublime.active_window().show_input_panel(
-                'Package:', plugin_settings.get("recent-package", "Package Name"),
-                lambda x: sublime.run_command(
-                    "unit_testing", {
-                        "package": x,
-                        "output": output
-                    }), None, None
-                )
-            view.run_command("select_all")
+            package = plugin_settings.get("recent-package", "Package Name")
+            if package:
+                view = sublime.active_window().show_input_panel(
+                    'Package:', package,
+                    lambda x: sublime.run_command(
+                        "unit_testing", {
+                            "package": x,
+                            "output": output
+                        }), None, None
+                    )
+                view.run_command("select_all")
 
     def testing(self, package, tests_dir, pattern, stream, deferred=False, verbosity=2):
         try:
