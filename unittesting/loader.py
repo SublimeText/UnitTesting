@@ -22,7 +22,7 @@ VALID_MODULE_NAME = re.compile(r'[_a-z]\w*\.py$', re.IGNORECASE)
 
 
 def _make_failed_import_test(name, suiteClass):
-    message = 'Failed to import test module: {}\n{}'.format(
+    message = 'Failed to import test module: {0}\n{1}'.format(
         name, traceback.format_exc()
     )
     return _make_failed_test(
