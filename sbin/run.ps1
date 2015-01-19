@@ -84,7 +84,6 @@ while ($true) {
             if ($l -match "^(OK|FAILED|ERROR)") {
                 $done = $matches[1]
                 write-output $l
-                break
             }
         }
         $read = $read + $count - 1
