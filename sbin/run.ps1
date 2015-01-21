@@ -4,6 +4,18 @@ param(
     [string]$PackageToTest="UnitTesting"
 )
 
+function ConvertFrom-PsObjectToHashtable {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
+        [psobject] $psobject
+    )
+
+    $h = @{}
+    $psobject.psobject.properties | Foreach { $h[$_.Name] = $_.Value } 
+    return $h   
+}
+
 # UTF8 encoding without preamble (default in .NET is with preamble).
 new-variable -name 'UTF8Encoding' -option CONSTANT -scope 'script' `
              -value (new-object System.Text.UTF8Encoding -argumentlist $false)
@@ -21,13 +33,13 @@ remove-item $outFile -force -erroraction silentlycontinue
 # Configure packages to be tested.
 $jpath = "$packagesPath\User\UnitTesting\schedule.json"
 if (test-path $jpath) {
-    $schedule = convertfrom-json "$(get-content $jpath)"
+    $schedule = cat -raw $jpath | convertfrom-json | ConvertFrom-PsObjectToHashtable
 }
 else {
     [void] (new-item -itemtype file -path $jpath -force)
     # Only way of using encoding object.
     [System.IO.File]::WriteAllText($jpath, "[]", $UTF8Encoding)
-    $schedule = convertfrom-json "$(get-content $jpath)"
+    $schedule = @{}
 }
 
 $found = (@($schedule | foreach-object { $_.package }) -eq $PackageToTest).length
