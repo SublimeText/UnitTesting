@@ -29,7 +29,7 @@
 from unittest import suite
 
 
-class DeferrableSuite(suite.TestSuite):
+class DeferrableTestSuite(suite.TestSuite):
 
     r'''Deferrable test suite.
 

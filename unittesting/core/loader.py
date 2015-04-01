@@ -12,11 +12,7 @@ from fnmatch import fnmatch
 
 from unittest import TestCase
 from unittest import TestSuite
-#  st3 only
-try:
-    from .suite import DeferrableSuite
-except:
-    pass
+from . import DeferrableTestSuite
 
 VALID_MODULE_NAME = re.compile(r'[_a-z]\w*\.py$', re.IGNORECASE)
 
@@ -67,8 +63,8 @@ class TestLoader(object):
 
     def __init__(self, deferred=False):
         if deferred:
-            self.TestSuite = DeferrableSuite
-            self.suiteClass = DeferrableSuite
+            self.TestSuite = DeferrableTestSuite
+            self.suiteClass = DeferrableTestSuite
         else:
             self.TestSuite = TestSuite
             self.suiteClass = TestSuite

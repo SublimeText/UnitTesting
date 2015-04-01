@@ -8,11 +8,10 @@ version = sublime.version()
 
 from unittest import TextTestRunner
 from ..core import TestLoader
+from ..core import DeferringTextTestRunner
 from ..utils import settings as plugin_settings
 from ..utils import Jfile
 
-if version >= "3000":
-    from ..core import DeferringTextTestRunner
 
 # st3 has append command, it is needed for st2.
 class OutputPanelInsert(sublime_plugin.TextCommand):
@@ -80,7 +79,11 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand):
         """Return back the project name of the current project
         """
 
-        project_name = sublime.active_window().project_file_name()
+        if version >= "3000":
+            project_name = sublime.active_window().project_file_name()
+        else:
+            project_name = None
+
         if project_name is None:
             folders = sublime.active_window().folders()
             if len(folders) > 0:
@@ -114,7 +117,6 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand):
                 tests_dir, async, deferred, verbosity = "tests", False, False, 2
 
             if version < '3000':
-                deferred = False
                 async = False
 
             if output == "panel":
