@@ -2,6 +2,7 @@ import os
 import codecs
 import json
 
+
 class Jfile:
 
     def __init__(self, fpath, encoding="utf-8"):
