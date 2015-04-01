@@ -3,7 +3,7 @@ import codecs
 import json
 
 
-class Jfile:
+class JsonFile:
 
     def __init__(self, fpath, encoding="utf-8"):
         self.encoding = encoding

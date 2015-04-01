@@ -8,9 +8,9 @@ import sublime
 version = sublime.version()
 
 if version >= '3000':
-    from UnitTesting.unittesting.utils import settings as plugin_settings
+    from UnitTesting.unittesting.utils import UTSetting
 else:
-    from unittesting.utils import settings as plugin_settings
+    from unittesting.utils import UTSetting
 
 __dir__ = os.path.dirname(os.path.abspath(__file__))
 outputdir = os.path.join(
@@ -20,7 +20,7 @@ outputdir = os.path.join(
 class TestUnitTesting(TestCase):
 
     def tearDown(self):
-        plugin_settings.set("recent-package", "UnitTesting")
+        UTSetting.set("recent-package", "UnitTesting")
 
     def test_success(self):
         try:

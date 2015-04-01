@@ -9,59 +9,9 @@ version = sublime.version()
 from unittest import TextTestRunner
 from ..core import TestLoader
 from ..core import DeferringTextTestRunner
-from ..utils import settings as plugin_settings
-from ..utils import Jfile
-
-
-# st3 has append command, it is needed for st2.
-class OutputPanelInsert(sublime_plugin.TextCommand):
-
-    def run(self, edit, characters):
-        self.view.set_read_only(False)
-        self.view.insert(edit, self.view.size(), characters)
-        self.view.set_read_only(True)
-        self.view.show(self.view.size())
-
-
-class OutputPanel:
-
-    def __init__(
-        self, name, file_regex='', line_regex='', base_dir=None,
-        word_wrap=False, line_numbers=False, gutter=False,
-        scroll_past_end=False, syntax='Packages/Text/Plain text.tmLanguage'
-    ):
-        self.name = name
-        self.window = sublime.active_window()
-        self.output_view = self.window.get_output_panel(name)
-
-        # default to the current file directory
-        if (not base_dir and self.window.active_view()
-                and self.window.active_view().file_name()):
-            base_dir = os.path.dirname(self.window.active_view().file_name())
-
-        settings = self.output_view.settings()
-        settings.set("result_file_regex", file_regex)
-        settings.set("result_line_regex", line_regex)
-        settings.set("result_base_dir", base_dir)
-        settings.set("word_wrap", word_wrap)
-        settings.set("line_numbers", line_numbers)
-        settings.set("gutter", gutter)
-        settings.set("scroll_past_end", scroll_past_end)
-        settings.set("syntax", syntax)
-        self.closed = False
-
-    def write(self, s):
-        self.output_view.run_command('output_panel_insert', {'characters': s})
-
-    def flush(self):
-        pass
-
-    def show(self):
-        self.window.run_command("show_panel", {"panel": "output." + self.name})
-
-    def close(self):
-        self.closed = True
-        pass
+from ..utils import UTSetting
+from ..utils import OutputPanel
+from ..utils import JsonFile
 
 
 def input_parser(package):
@@ -99,7 +49,7 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand):
             if package == "<current>":
                 package = self.project_name
             if package:
-                plugin_settings.set("recent-package", package)
+                UTSetting.set("recent-package", package)
             else:
                 sublime.message_dialog("Cannot find current package.")
                 return
@@ -108,7 +58,7 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand):
 
             jfile = os.path.join(sublime.packages_path(), package, "unittesting.json")
             if os.path.exists(jfile):
-                ss = Jfile(jfile).load()
+                ss = JsonFile(jfile).load()
                 tests_dir = ss.get("tests_dir", "tests")
                 async = ss.get("async", False)
                 deferred = ss.get("deferred", False)
@@ -150,7 +100,7 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand):
 
         else:
             # bootstrap run() with package input
-            package = plugin_settings.get("recent-package", "Package Name")
+            package = UTSetting.get("recent-package", "Package Name")
             if package:
                 view = sublime.active_window().show_input_panel(
                     'Package:', package,

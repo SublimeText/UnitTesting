@@ -7,7 +7,7 @@ import sublime_plugin
 
 version = sublime.version()
 
-from ..utils import Jfile
+from ..utils import JsonFile
 
 
 class Unit:
@@ -23,7 +23,7 @@ class Scheduler:
 
     def __init__(self):
         self.units = []
-        self.j = Jfile(os.path.join(
+        self.j = JsonFile(os.path.join(
             sublime.packages_path(),
             'User', 'UnitTesting',
             'schedule.json')
@@ -51,12 +51,12 @@ class Scheduler:
 class UnitTestingRunSchedulerCommand(sublime_plugin.ApplicationCommand):
 
     def run(self):
-        DeferredRun.load()
+        DeferredThread.load()
         my_scheduler = Scheduler()
         my_scheduler.run()
 
 
-class DeferredRun(threading.Thread):
+class DeferredThread(threading.Thread):
     loaded = False
 
     def __init__(self, command, args=None):
@@ -66,16 +66,18 @@ class DeferredRun(threading.Thread):
 
     @staticmethod
     def load():
-        DeferredRun.loaded = True
+        DeferredThread.loaded = True
 
     def run(self):
-        while not DeferredRun.loaded:
+        while not DeferredThread.loaded:
             sublime.set_timeout(
                 lambda: sublime.run_command(self.command, self.args), 1)
-            if DeferredRun.loaded:
+            if DeferredThread.loaded:
                 break
             else:
                 time.sleep(0.1)
 
-# run the schedule in later time to ensure all packages are loaded
-DeferredRun("unit_testing_run_scheduler").start()
+
+def deferred_run(command, args=None):
+    th = DeferredThread(command, args)
+    th.start()
