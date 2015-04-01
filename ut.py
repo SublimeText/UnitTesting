@@ -9,7 +9,6 @@ if version >= "3000":
         UnitTestingCommand,
         OutputPanelInsertCommand
     )
-
 else:
     from unittesting import (
         deferred_run,
