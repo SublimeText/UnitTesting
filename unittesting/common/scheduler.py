@@ -1,7 +1,5 @@
 import os
 import time
-import json
-import codecs
 import threading
 
 import sublime
@@ -9,11 +7,7 @@ import sublime_plugin
 
 version = sublime.version()
 
-if version >= '3000':
-    from .utils import Jfile
-else:
-    from utils import Jfile
-
+from ..utils import Jfile
 
 class Unit:
 

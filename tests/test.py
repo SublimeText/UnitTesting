@@ -8,9 +8,9 @@ import sublime
 version = sublime.version()
 
 if version >= '3000':
-    from UnitTesting.utils import settings as plugin_settings
+    from UnitTesting.unittesting.utils import settings as plugin_settings
 else:
-    from utils import settings as plugin_settings
+    from unittesting.utils import settings as plugin_settings
 
 __dir__ = os.path.dirname(os.path.abspath(__file__))
 outputdir = os.path.join(
