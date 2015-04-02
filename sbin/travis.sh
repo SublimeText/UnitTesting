@@ -3,7 +3,7 @@
 set -e
 
 Bootstrap() {
-    if [ $(uname) == 'Darwin'  ]; then
+    if [ $(uname) = 'Darwin'  ]; then
         STP="$HOME/Library/Application Support/Sublime Text $SUBLIME_TEXT_VERSION/Packages"
         if [ -z $(which subl) ]; then
             brew install caskroom/cask/brew-cask
