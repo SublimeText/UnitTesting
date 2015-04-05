@@ -6,7 +6,7 @@ Linux & OSX | Windows
 
 This is a unittest framework for Sublime Text 2 and 3. It helps in running Sublime Text plugins' tests on local machines or via CI services such as [travis-ci](https://travis-ci.org) and [appveyor](http://www.appveyor.com).
 
-If you like it, you could send me some tips via [![](http://img.shields.io/gittip/randy3k.svg)](https://www.gittip.com/randy3k).
+If you like it, you could send me some tips via [![](http://img.shields.io/gratipay/randy3k.svg)](https://gratipay.com/randy3k/).
 
 ### Introduction
 
