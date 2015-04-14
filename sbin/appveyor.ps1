@@ -38,7 +38,7 @@ function Bootstrap {
         $TAG = ${env:TAG}
     }
     if(!(test-path -path "C:\st\Data\Packages\UnitTesting")){
-        git clone -q --branch=$TAG https://github.com/randy3k/UnitTesting.git "C:\st\Data\Packages\UnitTesting" 2>$null
+        git clone --quiet --depth 1 --branch=$TAG https://github.com/randy3k/UnitTesting.git "C:\st\Data\Packages\UnitTesting" 2>$null
     }
 }
 
