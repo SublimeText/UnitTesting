@@ -1,12 +1,12 @@
 [
   {
-    "caption": "UnitTesting: Run any project test suite",
+    "caption": "UnitTesting",
     "command": "unit_testing",
-    "args": {"output": "panel"}
+    "args": {"output":"<panel>", "override": true}
   },
   {
-    "caption": "UnitTesting: Run current project test suite",
+    "caption": "UnitTesting: Quick Run",
     "command": "unit_testing",
-    "args": {"package": "<current>", "output": "panel"}
+    "args": {"package": "<current>", "output":"<panel>", "override": true}
   }
 ]

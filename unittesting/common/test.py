@@ -43,74 +43,79 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand):
 
         return project_name
 
-    def run(self, package=None, output=None):
+    def default_output(self, package):
+        outputdir = os.path.join(
+            sublime.packages_path(),
+            'User', 'UnitTesting', "tests_output"
+        )
+        if not os.path.isdir(outputdir):
+            os.makedirs(outputdir)
+        outfile = os.path.join(outputdir, package)
+        return outfile
 
-        if package:
-            if package == "<current>":
-                package = self.project_name
-            if package:
-                UTSetting.set("recent-package", package)
-            else:
-                sublime.message_dialog("Cannot find current package.")
-                return
+    def prompt_package(self, package, output, override):
+        view = sublime.active_window().show_input_panel(
+            'Package:', package,
+            lambda x: sublime.run_command(
+                "unit_testing", {
+                    "package": x,
+                    "output": output,
+                    "override": override
+                }), None, None
+            )
+        view.run_command("select_all")
 
-            package, pattern = input_parser(package)
+    def run(self, package=None, output=None, override=False):
 
-            jfile = os.path.join(sublime.packages_path(), package, "unittesting.json")
-            if os.path.exists(jfile):
-                ss = JsonFile(jfile).load()
-                tests_dir = ss.get("tests_dir", "tests")
-                async = ss.get("async", False)
-                deferred = ss.get("deferred", False)
-                verbosity = ss.get("verbosity", 2)
-            else:
-                tests_dir, async, deferred, verbosity = "tests", False, False, 2
-
-            if version < '3000':
-                async = False
-
-            if output == "panel":
-                output_panel = OutputPanel(
-                    'unittests', file_regex=r'File "([^"]*)", line (\d+)')
-                output_panel.show()
-                stream = output_panel
-            else:
-                if output:
-                    outfile = output
-                else:
-                    outputdir = os.path.join(
-                        sublime.packages_path(),
-                        'User', 'UnitTesting', "tests_output"
-                    )
-                    if not os.path.isdir(outputdir):
-                        os.makedirs(outputdir)
-                    outfile = os.path.join(outputdir, package)
-
-                if os.path.exists(outfile):
-                    os.remove(outfile)
-                stream = open(outfile, "w")
-
-            if async:
-                sublime.set_timeout_async(
-                    lambda: self.testing(
-                        package, tests_dir, pattern, stream, False, verbosity
-                    ), 100)
-            else:
-                self.testing(package, tests_dir, pattern, stream, deferred, verbosity)
-
-        else:
+        if not package:
             # bootstrap run() with package input
             package = UTSetting.get("recent-package", "Package Name")
-            if package:
-                view = sublime.active_window().show_input_panel(
-                    'Package:', package,
-                    lambda x: sublime.run_command(
-                        "unit_testing", {
-                            "package": x,
-                            "output": output
-                        }), None, None
-                    )
-                view.run_command("select_all")
+            self.prompt_package(package, output, override)
+            return
+
+        if package == "<current>":
+            package = self.project_name
+        if package:
+            UTSetting.set("recent-package", package)
+        else:
+            sublime.message_dialog("Cannot find current package.")
+            return
+
+        package, pattern = input_parser(package)
+
+        jfile = os.path.join(sublime.packages_path(), package, "unittesting.json")
+        if os.path.exists(jfile):
+            ss = JsonFile(jfile).load()
+            tests_dir = ss.get("tests_dir", "tests")
+            async = ss.get("async", False)
+            deferred = ss.get("deferred", False)
+            verbosity = ss.get("verbosity", 2)
+            if override:
+                output = ss.get("output", output)
+        else:
+            tests_dir, async, deferred, verbosity = "tests", False, False, 2
+
+        if version < '3000':
+            async = False
+
+        if output == "<panel>":
+            output_panel = OutputPanel(
+                'unittests', file_regex=r'File "([^"]*)", line (\d+)')
+            output_panel.show()
+            stream = output_panel
+        else:
+            outfile = output if output else self.default_output(package)
+            if os.path.exists(outfile):
+                os.remove(outfile)
+            stream = open(outfile, "w")
+
+        if async:
+            sublime.set_timeout_async(
+                lambda: self.testing(
+                    package, tests_dir, pattern, stream, False, verbosity
+                ), 100)
+        else:
+            self.testing(package, tests_dir, pattern, stream, deferred, verbosity)
 
     def testing(self, package, tests_dir, pattern, stream, deferred=False, verbosity=2):
         try:
