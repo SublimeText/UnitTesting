@@ -1,10 +1,9 @@
 import os
 import codecs
-import json
+import sublime
 
 
 class JsonFile:
-
     def __init__(self, fpath, encoding="utf-8"):
         self.encoding = encoding
         self.fpath = fpath
@@ -15,9 +14,12 @@ class JsonFile:
             os.makedirs(self.fdir)
         if os.path.exists(self.fpath):
             f = codecs.open(self.fpath, "r+", encoding=self.encoding)
+            content = f.read()
             try:
-                data = json.load(f)
+                data = sublime.decode_value(content)
             except:
+                raise
+            if not data:
                 data = default
             f.close()
         else:
@@ -31,7 +33,7 @@ class JsonFile:
         if not os.path.isdir(self.fdir):
             os.makedirs(self.fdir)
         f = codecs.open(self.fpath, "w+", encoding=self.encoding)
-        f.write(json.dumps(data, ensure_ascii=False, indent=indent))
+        f.write(sublime.encode_value(data, True))
         f.close()
 
     def remove(self):

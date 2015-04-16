@@ -3,5 +3,5 @@
     "async": false,
     "deferred": false,
     "verbosity": 2,
-    "output": "<tempfile>"
+    "output": "<panel>"
 }
