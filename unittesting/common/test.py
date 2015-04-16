@@ -109,6 +109,8 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand):
                 outfile = tempfile.mkstemp()[1]
             else:
                 outfile = output if output else self.default_output(package)
+                if not os.path.isabs(outfile):
+                    outfile = os.path.join(sublime.packages_path(), package, outfile)
 
             if os.path.exists(outfile):
                 os.remove(outfile)
