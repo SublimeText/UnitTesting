@@ -1,5 +1,6 @@
 import os
 import re
+import tempfile
 
 import sublime
 import sublime_plugin
@@ -104,10 +105,21 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand):
             output_panel.show()
             stream = output_panel
         else:
-            outfile = output if output else self.default_output(package)
+            if output == "<tempfile>":
+                outfile = tempfile.mkstemp()[1]
+            else:
+                outfile = output if output else self.default_output(package)
+
             if os.path.exists(outfile):
                 os.remove(outfile)
+
             stream = open(outfile, "w")
+
+            if output == "<tempfile>":
+                window = sublime.active_window()
+                view = window.active_view()
+                window.open_file(outfile)
+                window.focus_view(view)
 
         if async:
             sublime.set_timeout_async(
