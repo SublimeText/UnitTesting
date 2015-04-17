@@ -104,26 +104,21 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand):
                 'unittests', file_regex=r'File "([^"]*)", line (\d+)')
             output_panel.show()
             stream = output_panel
+        elif output == "<tempfile>":
+            stream = tempfile.NamedTemporaryFile(mode="w", delete=False)
+            window = sublime.active_window()
+            view = window.active_view()
+            window.open_file(stream.name)
+            window.focus_view(view)
         else:
-            if output == "<tempfile>":
-                outfile = tempfile.mkstemp()[1]
-            else:
-                outfile = output if output else self.default_output(package)
-                if not os.path.isabs(outfile):
-                    if sublime.platform() == "windows":
-                        outfile.replace("/", "\\")
-                    outfile = os.path.join(sublime.packages_path(), package, outfile)
-
+            outfile = output if output else self.default_output(package)
+            if not os.path.isabs(outfile):
+                if sublime.platform() == "windows":
+                    outfile.replace("/", "\\")
+                outfile = os.path.join(sublime.packages_path(), package, outfile)
             if os.path.exists(outfile):
                 os.remove(outfile)
-
             stream = open(outfile, "w")
-
-            if output == "<tempfile>":
-                window = sublime.active_window()
-                view = window.active_view()
-                window.open_file(outfile)
-                window.focus_view(view)
 
         if async:
             sublime.set_timeout_async(
@@ -149,5 +144,6 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand):
         except Exception as e:
             if not stream.closed:
                 stream.write("ERROR: %s\n" % e)
+        # DeferringTextTestRunner will close the stream when testing is completed.
         if not deferred:
             stream.close()
