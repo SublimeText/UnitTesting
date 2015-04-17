@@ -24,12 +24,10 @@ Provision() {
     fi
 
     if [ ! -d $STP ]; then
-        mkdir -p $STP
+        mkdir -p "$STP/User"
+        # disable update check
+        echo '{"update_check": false }' > "$STP/User/Preferences.sublime-settings"
     fi
-
-    # disable update check
-    echo '{"update_check": false }' > "$STP/User/Preferences.sublime-settings"
-
 
     if [ ! -d $STP/$PACKAGE ]; then
         ln -s /vagrant $STP/$PACKAGE
