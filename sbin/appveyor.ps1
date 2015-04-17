@@ -30,6 +30,7 @@ function Bootstrap {
     new-item -itemtype directory "C:\st\Data\Packages\${env:PACKAGE}" -force >$null
     copy * -recurse -force "C:\st\Data\Packages\${env:PACKAGE}"
 
+    new-item -itemtype directory "C:\st\Data\Packages\User" -force >$null
     "{`"update_check`": false }" | out-file -filepath "C:\st\Data\Packages\User\Preferences.sublime-settings"
 
     if ( ${env:TAG} -eq $null ){
