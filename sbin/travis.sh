@@ -35,7 +35,9 @@ Bootstrap() {
 
     if [ ! -d "$STP" ]; then
         echo creating sublime package directory
-        mkdir -p "$STP"
+        mkdir -p "$STP/User"
+        # disable update check
+        echo '{"update_check": false }' > "$STP/User/Preferences.sublime-settings"
     fi
 
     if [ ! -d "$STP/$PACKAGE" ]; then
@@ -57,16 +59,17 @@ RunTests() {
     if [ $(uname) = 'Darwin' ]; then
         STP="$HOME/Library/Application Support/Sublime Text $SUBLIME_TEXT_VERSION/Packages"
         # for some unknown reasons, st cannot be launched by `subl` immediately
-        # we have to open sublime first
+        # we have to open sublime once
         if [ $SUBLIME_TEXT_VERSION -eq 2 ]; then
             open "$HOME/Applications/Sublime Text 2.app"
+            sleep 2
+            osascript -e 'tell application "Sublime Text 2" to quit'
             sleep 2
         elif [ $SUBLIME_TEXT_VERSION -eq 3 ]; then
             echo "about to open"
             open "$HOME/Applications/Sublime Text.app"
             sleep 2
-            # to cancel update sublime message window
-            osascript -e 'tell application "System Events" to key code 53'
+            osascript -e 'tell application "Sublime Text" to quit'
             sleep 2
         fi
     else

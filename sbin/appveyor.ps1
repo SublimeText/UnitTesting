@@ -30,6 +30,8 @@ function Bootstrap {
     new-item -itemtype directory "C:\st\Data\Packages\${env:PACKAGE}" -force >$null
     copy * -recurse -force "C:\st\Data\Packages\${env:PACKAGE}"
 
+    "{`"update_check`": false }" | out-file -filepath "C:\st\Data\Packages\User\Preferences.sublime-settings"
+
     if ( ${env:TAG} -eq $null ){
         # the latest tag
         write-verbose "download latest UnitTesting tag"
