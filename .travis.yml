@@ -5,6 +5,8 @@ os:
     - linux
     - osx
 
+sudo: required
+
 env:
     global:
         - PACKAGE="UnitTesting"
