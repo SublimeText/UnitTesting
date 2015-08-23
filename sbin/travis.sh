@@ -66,7 +66,6 @@ RunTests() {
             osascript -e 'tell application "Sublime Text 2" to quit'
             sleep 2
         elif [ $SUBLIME_TEXT_VERSION -eq 3 ]; then
-            echo "about to open"
             open "$HOME/Applications/Sublime Text.app"
             sleep 2
             osascript -e 'tell application "Sublime Text" to quit'
