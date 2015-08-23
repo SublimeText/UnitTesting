@@ -99,8 +99,6 @@ class TestBasic(DeferrableTestCase):
 
     def setUp(self):
         self.view = sublime.active_window().new_file()
-        self.view.settings().set("auto_wrap", True)
-        self.view.settings().set("auto_wrap_width", 80)
 
     def tearDown(self):
         if self.view:
