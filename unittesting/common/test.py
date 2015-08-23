@@ -20,7 +20,7 @@ def input_parser(package):
     if m:
         return m.groups()
     else:
-        return (package, "test*.py")
+        return (package, None)
 
 
 class UnitTestingCommand(sublime_plugin.ApplicationCommand):
@@ -91,10 +91,15 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand):
             async = ss.get("async", False)
             deferred = ss.get("deferred", False)
             verbosity = ss.get("verbosity", 2)
+            if pattern is None:
+                pattern = ss.get("pattern", pattern)
             if override:
                 output = ss.get("output", output)
         else:
             tests_dir, async, deferred, verbosity = "tests", False, False, 2
+
+        if pattern is None:
+            pattern = "test*.py"
 
         if version < '3000':
             async = False
