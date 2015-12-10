@@ -6,7 +6,8 @@ Bootstrap() {
     if [ $(uname) = 'Darwin'  ]; then
         STP="$HOME/Library/Application Support/Sublime Text $SUBLIME_TEXT_VERSION/Packages"
         if [ -z $(which subl) ]; then
-            brew install caskroom/cask/brew-cask
+            brew update
+            brew tap caskroom/cask
             if [ $SUBLIME_TEXT_VERSION -eq 2 ]; then
                 echo installing sublime text 2
                 brew cask install sublime-text
