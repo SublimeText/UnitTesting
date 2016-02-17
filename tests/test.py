@@ -87,7 +87,7 @@ class TestUnitTesting(TestCase):
             os.unlink(os.path.join(sublime.packages_path(), "_Output", "tests", "result"))
         except:
             pass
-        sublime.run_command("unit_testing", {"package": "_Output", "override": True})
+        sublime.run_command("unit_testing", {"package": "_Output"})
         with open(os.path.join(sublime.packages_path(), "_Output", "tests", "result"), 'r') as f:
             txt = f.read()
         m = re.search('^OK', txt, re.MULTILINE)

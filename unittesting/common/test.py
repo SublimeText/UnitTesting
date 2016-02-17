@@ -54,24 +54,23 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand):
         outfile = os.path.join(outputdir, package)
         return outfile
 
-    def prompt_package(self, package, output, override):
+    def prompt_package(self, package, output):
         view = sublime.active_window().show_input_panel(
             'Package:', package,
             lambda x: sublime.run_command(
                 "unit_testing", {
                     "package": x,
-                    "output": output,
-                    "override": override
+                    "output": output
                 }), None, None
             )
         view.run_command("select_all")
 
-    def run(self, package=None, output=None, override=False):
+    def run(self, package=None, output=None):
 
         if not package:
             # bootstrap run() with package input
             package = UTSetting.get("recent-package", "Package Name")
-            self.prompt_package(package, output, override)
+            self.prompt_package(package, output)
             return
 
         if package == "<current>":
@@ -93,8 +92,8 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand):
             verbosity = ss.get("verbosity", 2)
             if pattern is None:
                 pattern = ss.get("pattern", pattern)
-            if override:
-                output = ss.get("output", output)
+            if not output:
+                output = ss.get("output", "<panel>")
         else:
             tests_dir, async, deferred, verbosity = "tests", False, False, 2
 
@@ -116,7 +115,10 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand):
             window.open_file(stream.name)
             window.focus_view(view)
         else:
-            outfile = output if output else self.default_output(package)
+            if not output or output == "<file>":
+                outfile = self.default_output(package)
+            else:
+                outfile = output
             if not os.path.isabs(outfile):
                 if sublime.platform() == "windows":
                     outfile.replace("/", "\\")

@@ -1,12 +1,11 @@
 [
   {
-    "caption": "UnitTesting",
-    "command": "unit_testing",
-    "args": {"output":"<panel>", "override": true}
+    "caption": "UnitTesting", 
+    "command": "unit_testing"
   },
   {
     "caption": "UnitTesting: Quick Run",
     "command": "unit_testing",
-    "args": {"package": "<current>", "output":"<panel>", "override": true}
+    "args": {"package": "<current>"}
   }
 ]
