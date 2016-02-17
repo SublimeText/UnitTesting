@@ -50,7 +50,7 @@ function RunTests {
     param(
         [switch] $syntax_test
     )
-    if ( $syntax_test ){
+    if ( $syntax_test.IsPresent ){
         & "C:\st\Data\Packages\UnitTesting\sbin\run.ps1" "${env:PACKAGE}" -verbose -syntax_test
     }else{
         & "C:\st\Data\Packages\UnitTesting\sbin\run.ps1" "${env:PACKAGE}" -verbose
@@ -60,4 +60,5 @@ function RunTests {
 switch ($command){
     "bootstrap" { Bootstrap }
     "run_tests" { RunTests }
+    "run_syntax_tests" { RunTests -syntax_test}
 }
