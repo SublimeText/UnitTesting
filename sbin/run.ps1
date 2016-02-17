@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param(
-    [Parameter(Mandatory = $true, Position = 0)]
+    [Parameter(Mandatory = $false, Position = 0)]
     [string]$PackageToTest="UnitTesting",
     [Parameter(Mandatory = $false, Position = 1)]
     [switch] $syntax_test
@@ -34,7 +34,10 @@ else {
 
 $found = (@($schedule | foreach-object { $_.package }) -eq $PackageToTest).length
 if ($found -eq 0) {
-    $schedule += @{"package" = $PackageToTest, "syntax_test" = $syntax_test}
+    $schedule += @{
+        "package" = $PackageToTest;
+        "syntax_test" = $syntax_test
+    }
 }
 
 [System.IO.File]::WriteAllText(
