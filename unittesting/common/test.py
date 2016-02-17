@@ -4,9 +4,11 @@ import tempfile
 
 import sublime
 import sublime_plugin
-import sublime_api
 
 version = sublime.version()
+
+if version >= "3103":
+    import sublime_api
 
 from unittest import TextTestRunner
 from ..core import TestLoader
