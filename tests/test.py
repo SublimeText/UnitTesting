@@ -95,7 +95,71 @@ class TestUnitTesting(TestCase):
         self.assertEqual(hasattr(m, "group"), True)
 
 
-class TestBasic(DeferrableTestCase):
+if version >= '3000':
+    class TestSyntax(DeferrableTestCase):
+
+        def test_fail_syntax(self):
+            # Testing custom test output
+            try:
+                shutil.copytree(
+                    os.path.join(__dir__, "_Syntax"),
+                    os.path.join(sublime.packages_path(), "_Syntax")
+                )
+            except:
+                pass
+            try:
+                shutil.copyfile(os.path.join(sublime.packages_path(), "_Syntax", "fail.c++"),
+                    os.path.join(sublime.packages_path(), "_Syntax", "syntax_test.c++"))
+            except:
+                pass
+            yield 1000
+            sublime.run_command("unit_testing", {"package": "_Syntax", "syntax_test": True})
+            with open(os.path.join(outputdir, "_Syntax"), 'r') as f:
+                txt = f.read()
+            m = re.search('^FAILED: 1 of 21 assertions in 1 files failed', txt, re.MULTILINE)
+            shutil.rmtree(os.path.join(sublime.packages_path(), "_Syntax"))
+            self.assertEqual(hasattr(m, "group"), True)
+
+        def test_success_syntax(self):
+            # Testing custom test output
+            try:
+                shutil.copytree(
+                    os.path.join(__dir__, "_Syntax"),
+                    os.path.join(sublime.packages_path(), "_Syntax")
+                )
+            except:
+                pass
+            try:
+                shutil.copyfile(os.path.join(sublime.packages_path(), "_Syntax", "success.c++"),
+                    os.path.join(sublime.packages_path(), "_Syntax", "syntax_test.c++"))
+            except:
+                pass
+            yield 1000
+            sublime.run_command("unit_testing", {"package": "_Syntax", "syntax_test": True})
+            with open(os.path.join(outputdir, "_Syntax"), 'r') as f:
+                txt = f.read()
+            m = re.search('^OK', txt, re.MULTILINE)
+            shutil.rmtree(os.path.join(sublime.packages_path(), "_Syntax"))
+            self.assertEqual(hasattr(m, "group"), True)
+
+        def test_error_syntax(self):
+            # Testing custom test output
+            try:
+                shutil.copytree(
+                    os.path.join(__dir__, "_Syntax"),
+                    os.path.join(sublime.packages_path(), "_Syntax")
+                )
+            except:
+                pass
+            yield 1000
+            sublime.run_command("unit_testing", {"package": "_Syntax", "syntax_test": True})
+            with open(os.path.join(outputdir, "_Syntax"), 'r') as f:
+                txt = f.read()
+            m = re.search('^ERROR: No syntax_test', txt, re.MULTILINE)
+            shutil.rmtree(os.path.join(sublime.packages_path(), "_Syntax"))
+            self.assertEqual(hasattr(m, "group"), True)
+
+class TestDeferrable(DeferrableTestCase):
 
     def setUp(self):
         self.view = sublime.active_window().new_file()

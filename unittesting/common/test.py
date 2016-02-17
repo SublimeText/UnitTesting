@@ -4,6 +4,7 @@ import tempfile
 
 import sublime
 import sublime_plugin
+import sublime_api
 
 version = sublime.version()
 
@@ -54,23 +55,24 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand):
         outfile = os.path.join(outputdir, package)
         return outfile
 
-    def prompt_package(self, package, output):
+    def prompt_package(self, package, output, syntax_test):
         view = sublime.active_window().show_input_panel(
             'Package:', package,
             lambda x: sublime.run_command(
                 "unit_testing", {
                     "package": x,
-                    "output": output
+                    "output": output,
+                    "syntax_test": syntax_test
                 }), None, None
             )
         view.run_command("select_all")
 
-    def run(self, package=None, output=None):
+    def run(self, package=None, output=None, syntax_test=False):
 
         if not package:
             # bootstrap run() with package input
             package = UTSetting.get("recent-package", "Package Name")
-            self.prompt_package(package, output)
+            self.prompt_package(package, output, syntax_test)
             return
 
         if package == "<current>":
@@ -127,13 +129,16 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand):
                 os.remove(outfile)
             stream = open(outfile, "w")
 
-        if async:
-            sublime.set_timeout_async(
-                lambda: self.testing(
-                    package, tests_dir, pattern, stream, False, verbosity
-                ), 100)
+        if syntax_test:
+            self.syntax_testing(package, stream)
         else:
-            self.testing(package, tests_dir, pattern, stream, deferred, verbosity)
+            if async:
+                sublime.set_timeout_async(
+                    lambda: self.testing(
+                        package, tests_dir, pattern, stream, False, verbosity
+                    ), 100)
+            else:
+                self.testing(package, tests_dir, pattern, stream, deferred, verbosity)
 
     def testing(self, package, tests_dir, pattern, stream, deferred=False, verbosity=2):
         try:
@@ -154,3 +159,39 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand):
         # DeferringTextTestRunner will close the stream when testing is completed.
         if not deferred:
             stream.close()
+
+    def syntax_testing(self, package, stream):
+        output = ""
+        total_assertions = 0
+        failed_assertions = 0
+
+        if version < "3103":
+            stream.write("Warning: Syntax test is only avaliable on Sublime Text >3103.\n")
+            stream.write("OK\n")
+            stream.close()
+            return
+
+        try:
+            tests = sublime.find_resources("syntax_test*")
+            tests = [t for t in tests if t.startswith("Packages/%s/" % package)]
+            if not tests:
+                raise RuntimeError("No syntax_test files are found in %s!" % package)
+            for t in tests:
+                assertions, test_output_lines = sublime_api.run_syntax_test(t)
+                total_assertions += assertions
+                if len(test_output_lines) > 0:
+                    failed_assertions += len(test_output_lines)
+                    for line in test_output_lines:
+                        stream.write(line + "\n")
+            if failed_assertions > 0:
+                stream.write("FAILED: %d of %d assertions in %d files failed\n" %
+                    (failed_assertions, total_assertions, len(tests)))
+            else:
+                stream.write("Success: %d assertions in %s files passed\n" %
+                    (total_assertions, len(tests)))
+                stream.write("OK\n")
+        except Exception as e:
+            if not stream.closed:
+                stream.write("ERROR: %s\n" % e)
+
+        stream.close()

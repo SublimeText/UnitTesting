@@ -1,7 +1,9 @@
 [CmdletBinding()]
 param(
     [Parameter(Mandatory = $true, Position = 0)]
-    [string]$PackageToTest="UnitTesting"
+    [string]$PackageToTest="UnitTesting",
+    [Parameter(Mandatory = $false, Position = 1)]
+    [switch] $syntax_test
 )
 
 # UTF8 encoding without preamble (default in .NET is with preamble).
@@ -32,7 +34,7 @@ else {
 
 $found = (@($schedule | foreach-object { $_.package }) -eq $PackageToTest).length
 if ($found -eq 0) {
-    $schedule += @{"package" = $PackageToTest}
+    $schedule += @{"package" = $PackageToTest, "syntax_test" = $syntax_test}
 }
 
 [System.IO.File]::WriteAllText(

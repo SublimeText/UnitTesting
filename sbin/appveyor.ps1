@@ -46,7 +46,15 @@ function Bootstrap {
 }
 
 function RunTests {
-    & "C:\st\Data\Packages\UnitTesting\sbin\run.ps1" "${env:PACKAGE}" -verbose
+    [CmdletBinding()]
+    param(
+        [switch] $syntax_test
+    )
+    if ( $syntax_test ){
+        & "C:\st\Data\Packages\UnitTesting\sbin\run.ps1" "${env:PACKAGE}" -verbose -syntax_test
+    }else{
+        & "C:\st\Data\Packages\UnitTesting\sbin\run.ps1" "${env:PACKAGE}" -verbose
+    }
 }
 
 switch ($command){
