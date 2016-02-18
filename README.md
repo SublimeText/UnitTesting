@@ -4,7 +4,7 @@ Linux & OSX | Windows
 ------------|------------
 [![Build Status](https://travis-ci.org/randy3k/UnitTesting.svg?branch=master)](https://travis-ci.org/randy3k/UnitTesting) | [![Build status](https://ci.appveyor.com/api/projects/status/9nnjlnj6tetbxuqd/branch/master?svg=true)](https://ci.appveyor.com/project/randy3k/unittesting/branch/master)
 
-This is a unittest framework for Sublime Text 2 and 3. It helps in running Sublime Text plugins' tests on local machines or via CI services such as [travis-ci](https://travis-ci.org) and [appveyor](http://www.appveyor.com).
+This is a unittest framework for Sublime Text 2 and 3. It helps in running Sublime Text plugins' tests on local machines or via CI services such as [travis-ci](https://travis-ci.org) and [appveyor](http://www.appveyor.com). It also supports testing syntax_test files for the new [sublime-syntax](https://www.sublimetext.com/docs/3/syntax.html) format.
 
 If you like it, you could send me some tips via [paypal](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=YAPVT8VB6RR9C&lc=US&item_name=tips&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donateCC_LG%2egif%3aNonHosted) or [gratipay](https://gratipay.com/~randy3k/).
 
