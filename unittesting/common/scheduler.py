@@ -12,11 +12,16 @@ from ..utils import JsonFile
 
 class Unit:
 
-    def __init__(self, package):
-        self.package = package
+    def __init__(self, s):
+        self.package = s['package']
+        self.syntax_test = s['syntax_test']
 
     def run(self):
-        sublime.run_command("unit_testing", {"package": self.package, "output": "<file>"})
+        sublime.run_command("unit_testing", {
+            "package": self.package,
+            "output": "<file>",
+            "syntax_test": self.syntax_test
+        })
 
 
 class Scheduler:
@@ -32,7 +37,7 @@ class Scheduler:
     def load_schedule(self):
         self.schedule = self.j.load()
         for s in self.schedule:
-            self.units.append(Unit(s['package']))
+            self.units.append(Unit(s))
 
     def run(self):
         self.load_schedule()

@@ -97,4 +97,7 @@ case $COMMAND in
     "run_tests")
         RunTests "$@"
         ;;
+    "run_syntax_tests")
+        RunTests "--syntax-test" "$@"
+        ;;
 esac

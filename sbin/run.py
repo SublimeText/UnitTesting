@@ -1,8 +1,9 @@
 import subprocess
 import time, os
 import re
-import getopt, sys
+import sys
 import json
+import optparse
 
 # todo: allow different sublime versions
 
@@ -10,9 +11,14 @@ import json
 # cd ~/.config/sublime-text-3/Packages/UnitTesting
 # python sbin/run.py PACKAGE
 
-opts, args = getopt.getopt(sys.argv[1:], "ad", ["tests_dir=", "async", "deferred"])
+import optparse
 
-package = args[0] if len(args)>0 else "UnitTesting"
+parser = optparse.OptionParser()
+parser.add_option('--syntax-test', action="store_true", default=False)
+options, remainder = parser.parse_args()
+
+syntax_test = options.syntax_test
+package = remainder[0] if len(remainder)>0 else "UnitTesting"
 
 version = int(subprocess.check_output(["subl","--version"]).decode('utf8').strip()[-4])
 
@@ -39,7 +45,7 @@ try:
 except:
     schedule = []
 if not any([s['package']==package for s in schedule]):
-    schedule.append({'package': package})
+    schedule.append({'package': package, 'syntax_test': syntax_test})
 with open(jpath, 'w') as f:
     f.write(json.dumps(schedule, ensure_ascii=False, indent=True))
 
