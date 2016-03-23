@@ -67,26 +67,54 @@ Bootstrap() {
 	curl "$PC_URL" -o "$STIP/$PC_PKG"
 }
 
-CycleSubl() {
+OpenSubl() {
     if [ $(uname) = 'Darwin' ]; then
         if [ $SUBLIME_TEXT_VERSION -eq 2 ]; then
             open "$HOME/Applications/Sublime Text 2.app"
-            sleep 15
-            osascript -e 'tell application "Sublime Text 2" to quit'
-            sleep 2
         elif [ $SUBLIME_TEXT_VERSION -eq 3 ]; then
             open "$HOME/Applications/Sublime Text.app"
-            sleep 15
-            osascript -e 'tell application "Sublime Text" to quit'
-            sleep 2
         fi
     else
 		subl &
-		sleep 15
-		pkill subl
-		sleep 2
 	fi
+	sleep 2
+}
 
+CloseSubl(){
+    if [ $(uname) = 'Darwin' ]; then
+        if [ $SUBLIME_TEXT_VERSION -eq 2 ]; then
+            osascript -e 'tell application "Sublime Text 2" to quit'
+        elif [ $SUBLIME_TEXT_VERSION -eq 3 ]; then
+            osascript -e 'tell application "Sublime Text" to quit'
+        fi
+    else
+		pkill subl
+	fi
+	sleep 2
+}
+
+CycleUntil() {
+	echo Opening Sublime until Package Control installs...
+	until eval "$1 2>/dev/null"; do
+		echo Opening...
+		OpenSubl
+		echo Opened
+
+		TOUT=0
+		until eval "$1 2>/dev/null" || [ $TOUT -ge 30 ]; do
+			sleep 1
+			TOUT=$(( TOUT++ ))
+		done
+		if [ $TOUT -ge 30 ]; then
+			echo Timed out after 30s. Retrying...
+		else
+			echo Package Control finished installing
+		fi
+
+		echo Closing...
+		CloseSubl
+		echo Closed
+	done
 }
 
 RunTests() {
@@ -115,14 +143,13 @@ RunTests() {
 
 	# Install dependencies through Package Control
 	if [ -n $PCDEPS ]; then
-		echo "Cycling ST"
-		CycleSubl
-		echo "Cycling ST"
-		CycleSubl
+		CycleUntil "awk '/installed_packages/,/]/' \
+			'$STP/User/Package Control.sublime-settings' | grep -q 'Package Control'"
 		echo "Installing dependencies"
 		subl -b --command install_local_dependency &
-		sleep 20
-		echo "Done installing dependencies... hopefully"
+		CycleUntil "! awk '/in_process_packages/,/]/' \
+			'$STP/User/Package Control.sublime-settings' | tail -n +2 | grep -q \""
+		echo "Finished installing dependencies"
 	fi
 
 	echo "Running tests now..."
