@@ -71,28 +71,12 @@ OpenSubl() {
 	# Do not open if already open
 	ps aux | grep -iqE 'subl[^/]*(\s|$)' && return
 
-    if [ $(uname) = 'Darwin' ]; then
-        if [ $SUBLIME_TEXT_VERSION -eq 2 ]; then
-            open "$HOME/Applications/Sublime Text 2.app $@"
-        elif [ $SUBLIME_TEXT_VERSION -eq 3 ]; then
-            open "$HOME/Applications/Sublime Text.app $@"
-        fi
-    else
-		subl $@ &
-	fi
+	subl $@ &
 	sleep 2
 }
 
 CloseSubl(){
-    if [ $(uname) = 'Darwin' ]; then
-        if [ $SUBLIME_TEXT_VERSION -eq 2 ]; then
-            osascript -e 'tell application "Sublime Text 2" to quit' || true
-        elif [ $SUBLIME_TEXT_VERSION -eq 3 ]; then
-            osascript -e 'tell application "Sublime Text" to quit' || true
-        fi
-    else
-		pkill subl
-	fi
+	pkill -n '[sS]ubl'
 	sleep 2
 }
 
@@ -171,6 +155,7 @@ RunTests() {
     fi
 }
 
+	echo "Command: $*"
 COMMAND=$1
 echo "Running command: ${COMMAND}"
 shift
