@@ -67,6 +67,28 @@ Bootstrap() {
 	curl "$PC_URL" -o "$STIP/$PC_PKG"
 }
 
+CycleSubl() {
+    if [ $(uname) = 'Darwin' ]; then
+        if [ $SUBLIME_TEXT_VERSION -eq 2 ]; then
+            open "$HOME/Applications/Sublime Text 2.app"
+            sleep 15
+            osascript -e 'tell application "Sublime Text 2" to quit'
+            sleep 2
+        elif [ $SUBLIME_TEXT_VERSION -eq 3 ]; then
+            open "$HOME/Applications/Sublime Text.app"
+            sleep 15
+            osascript -e 'tell application "Sublime Text" to quit'
+            sleep 2
+        fi
+    else
+		subl
+		sleep 15
+		pkill subl
+		sleep 2
+	fi
+
+}
+
 RunTests() {
     if [ $(uname) = 'Darwin' ]; then
         STP="$HOME/Library/Application Support/Sublime Text $SUBLIME_TEXT_VERSION/Packages"
@@ -93,13 +115,17 @@ RunTests() {
 
 	# Install dependencies through Package Control
 	if [ -n $PCDEPS ]; then
-		subl -b --command satisfy_dependencies
-		sleep 10
-		subl -b --command upgrade_all_packages
-		sleep 10
+		echo "Cycling ST"
+		CycleSubl
+		echo "Cycling ST"
+		CycleSubl
+		echo "Installing dependencies"
 		subl -b --command install_local_dependency
-		sleep 10
+		sleep 20
+		echo "Done installing dependencies... hopefully"
 	fi
+
+	echo "Running tests now..."
 
 	# Run tests
     UT="$STP/UnitTesting"
