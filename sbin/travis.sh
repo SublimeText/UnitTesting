@@ -54,6 +54,17 @@ Bootstrap() {
         fi
         git clone --quiet --depth 1 --branch $TAG https://github.com/randy3k/UnitTesting "$STP/UnitTesting"
     fi
+
+	STIP="${STP%/*}/Installed Packages"
+	if [ ! -d "$STIP" ]; then
+		echo creating sublime installed package directory
+		mkdir -p "$STIP"
+	fi
+
+	# Install PackageControl
+	PC_URL="https://packagecontrol.io/Package Control.sublime-package"
+	PC_PKG="${PC_URL##*/}"
+	curl "$PC_URL" -o "$STIP/$PC_PKG"
 }
 
 RunTests() {
@@ -79,6 +90,18 @@ RunTests() {
             sh -e /etc/init.d/xvfb start
         fi
     fi
+
+	# Install dependencies through Package Control
+	if [ -n $PCDEPS ]; then
+		subl -b --command satisfy_dependencies
+		sleep 10
+		subl -b --command upgrade_all_packages
+		sleep 10
+		subl -b --command install_local_dependency
+		sleep 10
+	fi
+
+	# Run tests
     UT="$STP/UnitTesting"
     if [ -z "$1" ]; then
         python "$UT/sbin/run.py" "$PACKAGE"
