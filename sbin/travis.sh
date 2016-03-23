@@ -86,9 +86,9 @@ OpenSubl() {
 CloseSubl(){
     if [ $(uname) = 'Darwin' ]; then
         if [ $SUBLIME_TEXT_VERSION -eq 2 ]; then
-            osascript -e 'tell application "Sublime Text 2" to quit'
+            osascript -e 'tell application "Sublime Text 2" to quit' || true
         elif [ $SUBLIME_TEXT_VERSION -eq 3 ]; then
-            osascript -e 'tell application "Sublime Text" to quit'
+            osascript -e 'tell application "Sublime Text" to quit' || true
         fi
     else
 		pkill subl
@@ -125,12 +125,12 @@ RunTests() {
         if [ $SUBLIME_TEXT_VERSION -eq 2 ]; then
             open "$HOME/Applications/Sublime Text 2.app"
             sleep 2
-            osascript -e 'tell application "Sublime Text 2" to quit'
+            osascript -e 'tell application "Sublime Text 2" to quit' || true
             sleep 2
         elif [ $SUBLIME_TEXT_VERSION -eq 3 ]; then
             open "$HOME/Applications/Sublime Text.app"
             sleep 2
-            osascript -e 'tell application "Sublime Text" to quit'
+            osascript -e 'tell application "Sublime Text" to quit' || true
             sleep 2
         fi
     else
@@ -144,7 +144,7 @@ RunTests() {
 	# Install dependencies through Package Control
 	if [ -n $PCDEPS ]; then
 		finished="! awk '/in_process_packages/,/]/' \
-			'$STP/User/Package Control.sublime-settings' | tail -n +2 | grep -q \""
+			'$STP/User/Package Control.sublime-settings' | tail -n +2 | grep -q \\\""
 
 		echo Installing Package Control...
 		CycleUntil "[ -f '$STP/User/Package Control.sublime-settings' ] && $finished"
