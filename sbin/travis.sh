@@ -120,7 +120,7 @@ RunTests() {
 		echo "Cycling ST"
 		CycleSubl
 		echo "Installing dependencies"
-		subl -b --command install_local_dependency
+		subl -b --command install_local_dependency &
 		sleep 20
 		echo "Done installing dependencies... hopefully"
 	fi
