@@ -68,14 +68,17 @@ Bootstrap() {
 }
 
 OpenSubl() {
+	# Do not open if already open
+	ps aux | grep -iqE 'subl[^/]*(\s|$)' && return
+
     if [ $(uname) = 'Darwin' ]; then
         if [ $SUBLIME_TEXT_VERSION -eq 2 ]; then
-            open "$HOME/Applications/Sublime Text 2.app"
+            open "$HOME/Applications/Sublime Text 2.app $@"
         elif [ $SUBLIME_TEXT_VERSION -eq 3 ]; then
-            open "$HOME/Applications/Sublime Text.app"
+            open "$HOME/Applications/Sublime Text.app $@"
         fi
     else
-		subl &
+		subl $@ &
 	fi
 	sleep 2
 }
@@ -106,8 +109,6 @@ CycleUntil() {
 		done
 		if [ $TOUT -ge 30 ]; then
 			echo Timed out after 30s. Retrying...
-		else
-			echo Package Control finished installing
 		fi
 
 		echo Closing...
@@ -142,15 +143,20 @@ RunTests() {
 
 	# Install dependencies through Package Control
 	if [ -n $PCDEPS ]; then
-		echo Installing Package Control...
-		CycleUntil "[ -f '$STP/User/Package Control.sublime-settings' ]"
-		echo Opening Sublime until Package Control installs...
-		CycleUntil "awk '/installed_packages/,/]/' \
-			'$STP/User/Package Control.sublime-settings' | grep -q 'Package Control'"
-		echo Installing dependencies...
-		subl -b --command install_local_dependency &
-		CycleUntil "! awk '/in_process_packages/,/]/' \
+		finished="! awk '/in_process_packages/,/]/' \
 			'$STP/User/Package Control.sublime-settings' | tail -n +2 | grep -q \""
+
+		echo Installing Package Control...
+		CycleUntil "[ -f '$STP/User/Package Control.sublime-settings' ] && $finished"
+
+		echo Opening Sublime until Package Control installs...
+		CycleUntil "[ -d '$STP/bz2' ] && $finished"
+
+		echo Installing dependencies...
+		OpenSubl -b --command install_local_dependency
+		sleep 5
+		CycleUntil "$finished"
+
 		echo Finished installing dependencies
 	fi
 
