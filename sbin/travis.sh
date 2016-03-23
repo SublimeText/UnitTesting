@@ -94,7 +94,6 @@ CloseSubl(){
 }
 
 CycleUntil() {
-	echo Opening Sublime until Package Control installs...
 	until eval "$1 2>/dev/null"; do
 		echo Opening...
 		OpenSubl
@@ -103,7 +102,7 @@ CycleUntil() {
 		TOUT=0
 		until eval "$1 2>/dev/null" || [ $TOUT -ge 30 ]; do
 			sleep 1
-			TOUT=$(( TOUT++ ))
+			TOUT=`expr $TOUT + 1`
 		done
 		if [ $TOUT -ge 30 ]; then
 			echo Timed out after 30s. Retrying...
@@ -143,13 +142,16 @@ RunTests() {
 
 	# Install dependencies through Package Control
 	if [ -n $PCDEPS ]; then
+		echo Installing Package Control...
+		CycleUntil "[ -f '$STP/User/Package Control.sublime-settings' ]"
+		echo Opening Sublime until Package Control installs...
 		CycleUntil "awk '/installed_packages/,/]/' \
 			'$STP/User/Package Control.sublime-settings' | grep -q 'Package Control'"
-		echo "Installing dependencies"
+		echo Installing dependencies...
 		subl -b --command install_local_dependency &
 		CycleUntil "! awk '/in_process_packages/,/]/' \
 			'$STP/User/Package Control.sublime-settings' | tail -n +2 | grep -q \""
-		echo "Finished installing dependencies"
+		echo Finished installing dependencies
 	fi
 
 	echo "Running tests now..."
