@@ -81,7 +81,7 @@ CycleSubl() {
             sleep 2
         fi
     else
-		subl
+		subl &
 		sleep 15
 		pkill subl
 		sleep 2
