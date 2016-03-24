@@ -54,17 +54,6 @@ Bootstrap() {
         fi
         git clone --quiet --depth 1 --branch $TAG https://github.com/randy3k/UnitTesting "$STP/UnitTesting"
     fi
-
-	STIP="${STP%/*}/Installed Packages"
-	if [ ! -d "$STIP" ]; then
-		echo creating sublime installed package directory
-		mkdir -p "$STIP"
-	fi
-
-	# Install PackageControl
-	PC_URL="https://packagecontrol.io/Package Control.sublime-package"
-	PC_PKG="${PC_URL##*/}"
-	curl "$PC_URL" -o "$STIP/$PC_PKG"
 }
 
 OpenSubl() {
@@ -127,6 +116,18 @@ RunTests() {
 
 	# Install dependencies through Package Control
 	if [ -n $PCDEPS ]; then
+		STIP="${STP%/*}/Installed Packages"
+		if [ ! -d "$STIP" ]; then
+			echo creating sublime installed package directory
+			mkdir -p "$STIP"
+		fi
+	
+		# Install PackageControl
+		PC_URL="https://packagecontrol.io/Package Control.sublime-package"
+		PC_PKG="${PC_URL##*/}"
+		curl "$PC_URL" -o "$STIP/$PC_PKG"
+
+		# Cycle ST to complete installation
 		finished="! awk '/in_process_packages/,/]/' \
 			'$STP/User/Package Control.sublime-settings' | tail -n +2 | grep -q \\\""
 
