@@ -13,6 +13,10 @@ env:
     matrix:
         - SUBLIME_TEXT_VERSION="2"
         - SUBLIME_TEXT_VERSION="3"
+        - PCDEPS="true"
+          SUBLIME_TEXT_VERSION="2"
+        - PCDEPS="true"
+          SUBLIME_TEXT_VERSION="3"
 
 install:
     - sh sbin/travis.sh bootstrap
