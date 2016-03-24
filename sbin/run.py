@@ -55,19 +55,18 @@ def sublime_is_running():
     out, err = subprocess.Popen(['pgrep','[s|S]ubl'], stdout=PIPE, stderr=PIPE).communicate()
     return not err and len(out) > 0
 
-if not sublime_is_running():
+if sublime_is_running():
+    subprocess.Popen(["subl", "-b", "--command", "unit_testing_run_scheduler"])
+else:
     subprocess.Popen(["subl"])
-
-startt = time.time()
-while(not sublime_is_running()):
-    sys.stdout.write('.')
-    sys.stdout.flush()
-    if time.time()-startt > 60:
-        print("Timeout: Sublime Text is not responding")
-        sys.exit(1)
-    time.sleep(1)
-
-subprocess.Popen(["subl", "-b", "--command", "unit_testing_run_scheduler"])
+    startt = time.time()
+    while(not sublime_is_running()):
+        sys.stdout.write('.')
+        sys.stdout.flush()
+        if time.time()-startt > 60:
+            print("Timeout: Sublime Text is not responding")
+            sys.exit(1)
+        time.sleep(1)
 
 # wait until the file has something
 startt = time.time()
