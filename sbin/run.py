@@ -50,19 +50,23 @@ with open(jpath, 'w') as f:
     f.write(json.dumps(schedule, ensure_ascii=False, indent=True))
 
 # launch scheduler
-tasks = subprocess.check_output(['ps', 'xw']).decode('utf8')
-sublime_is_running = "Sublime" in tasks or "sublime_text" in tasks
+def sublime_is_running():
+    PIPE = subprocess.PIPE
+    out, err = subprocess.Popen(['pgrep','[s|S]ubl'], stdout=PIPE, stderr=PIPE).communicate()
+    return not err and len(out) > 0
 
-if not sublime_is_running:
+if not sublime_is_running():
     subprocess.Popen(["subl"])
-    startt = time.time()
-    while(not any([subl in task for subl in ["Sublime", "sublime_text"] for task in tasks])):
-        sys.stdout.write('.')
-        sys.stdout.flush()
-        if time.time()-startt > 60:
-            print("Timeout: Sublime Text is not responding")
-            sys.exit(1)
-        time.sleep(1)
+
+startt = time.time()
+while(not sublime_is_running()):
+    sys.stdout.write('.')
+    sys.stdout.flush()
+    if time.time()-startt > 60:
+        print("Timeout: Sublime Text is not responding")
+        sys.exit(1)
+    time.sleep(1)
+
 subprocess.Popen(["subl", "-b", "--command", "unit_testing_run_scheduler"])
 
 # wait until the file has something
