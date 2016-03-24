@@ -115,7 +115,7 @@ RunTests() {
     fi
 
 	# Install dependencies through Package Control
-	if [ -n $PCDEPS ]; then
+	if [ -n "$PCDEPS" ]; then
 		STIP="${STP%/*}/Installed Packages"
 		if [ ! -d "$STIP" ]; then
 			echo creating sublime installed package directory
