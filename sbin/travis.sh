@@ -156,7 +156,6 @@ RunTests() {
     fi
 }
 
-	echo "Command: $*"
 COMMAND=$1
 echo "Running command: ${COMMAND}"
 shift
