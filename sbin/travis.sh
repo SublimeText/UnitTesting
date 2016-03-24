@@ -133,15 +133,8 @@ RunTests() {
 
 		echo Installing Package Control...
 		CycleUntil "[ -f '$STP/User/Package Control.sublime-settings' ] && $finished"
-
-		echo Opening Sublime until Package Control installs...
-		CycleUntil "[ -d '$STP/bz2' ] && $finished"
-
 		echo Installing dependencies...
-		OpenSubl -b --command install_local_dependency
-		sleep 5
-		CycleUntil "$finished"
-
+		CycleUntil "[ -d '$STP/bz2' ] && $finished"
 		echo Finished installing dependencies
 	fi
 

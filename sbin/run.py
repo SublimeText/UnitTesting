@@ -53,20 +53,17 @@ with open(jpath, 'w') as f:
 tasks = subprocess.check_output(['ps', 'xw']).decode('utf8')
 sublime_is_running = "Sublime" in tasks or "sublime_text" in tasks
 
-print("Running? %s" % sublime_is_running)
-if sublime_is_running:
-    subprocess.Popen(["subl", "-b", "--command", "unit_testing_run_scheduler"])
-else:
+if not sublime_is_running:
     subprocess.Popen(["subl"])
     startt = time.time()
-    while("Sublime" not in tasks and "sublime_text" not in task):
+    while(not any([subl in task for subl in ["Sublime", "sublime_text"] for task in tasks])):
         sys.stdout.write('.')
         sys.stdout.flush()
         if time.time()-startt > 60:
             print("Timeout: Sublime Text is not responding")
             sys.exit(1)
         time.sleep(1)
-    subprocess.Popen(["subl", "-b", "--command", "unit_testing_run_scheduler"])
+subprocess.Popen(["subl", "-b", "--command", "unit_testing_run_scheduler"])
 
 # wait until the file has something
 startt = time.time()
