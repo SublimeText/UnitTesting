@@ -56,6 +56,40 @@ Bootstrap() {
     fi
 }
 
+OpenSubl() {
+	# Do not open if already open
+	ps aux | grep -iqE 'subl[^/]*(\s|$)' && return
+
+	subl $@ &
+	sleep 2
+}
+
+CloseSubl(){
+	pkill -n '[sS]ubl'
+	sleep 2
+}
+
+CycleUntil() {
+	until eval "$1 2>/dev/null"; do
+		echo Opening...
+		OpenSubl
+		echo Opened
+
+		TOUT=0
+		until eval "$1 2>/dev/null" || [ $TOUT -ge 30 ]; do
+			sleep 1
+			TOUT=`expr $TOUT + 1`
+		done
+		if [ $TOUT -ge 30 ]; then
+			echo Timed out after 30s. Retrying...
+		fi
+
+		echo Closing...
+		CloseSubl
+		echo Closed
+	done
+}
+
 RunTests() {
     if [ $(uname) = 'Darwin' ]; then
         STP="$HOME/Library/Application Support/Sublime Text $SUBLIME_TEXT_VERSION/Packages"
@@ -64,12 +98,12 @@ RunTests() {
         if [ $SUBLIME_TEXT_VERSION -eq 2 ]; then
             open "$HOME/Applications/Sublime Text 2.app"
             sleep 2
-            osascript -e 'tell application "Sublime Text 2" to quit'
+            osascript -e 'tell application "Sublime Text 2" to quit' || true
             sleep 2
         elif [ $SUBLIME_TEXT_VERSION -eq 3 ]; then
             open "$HOME/Applications/Sublime Text.app"
             sleep 2
-            osascript -e 'tell application "Sublime Text" to quit'
+            osascript -e 'tell application "Sublime Text" to quit' || true
             sleep 2
         fi
     else
@@ -79,6 +113,34 @@ RunTests() {
             sh -e /etc/init.d/xvfb start
         fi
     fi
+
+	# Install dependencies through Package Control
+	if [ -n "$PCDEPS" ]; then
+		STIP="${STP%/*}/Installed Packages"
+		if [ ! -d "$STIP" ]; then
+			echo creating sublime installed package directory
+			mkdir -p "$STIP"
+		fi
+	
+		# Install PackageControl
+		PC_URL="https://packagecontrol.io/Package Control.sublime-package"
+		PC_PKG="${PC_URL##*/}"
+		curl "$PC_URL" -o "$STIP/$PC_PKG"
+
+		# Cycle ST to complete installation
+		finished="! awk '/in_process_packages/,/]/' \
+			'$STP/User/Package Control.sublime-settings' | tail -n +2 | grep -q \\\""
+
+		echo Installing Package Control...
+		CycleUntil "[ -f '$STP/User/Package Control.sublime-settings' ] && $finished"
+		echo Installing dependencies...
+		CycleUntil "[ -d '$STP/bz2' ] && $finished"
+		echo Finished installing dependencies
+	fi
+
+	echo "Running tests now..."
+
+	# Run tests
     UT="$STP/UnitTesting"
     if [ -z "$1" ]; then
         python "$UT/sbin/run.py" "$PACKAGE"
