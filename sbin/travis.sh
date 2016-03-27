@@ -2,7 +2,7 @@
 
 set -e
 
-if [ "$TRAVIS_OS_NAME" == "osx" ]; then
+if [ "$TRAVIS_OS_NAME" = "osx" ]; then
     STP="$HOME/Library/Application Support/Sublime Text $SUBLIME_TEXT_VERSION/Packages"
 else
     STP="$HOME/.config/sublime-text-$SUBLIME_TEXT_VERSION/Packages"
@@ -43,7 +43,7 @@ InstallPackageControl() {
 }
 
 RunTests() {
-    if [ "$TRAVIS_OS_NAME" == "linux" ] && [ -z $DISPLAY ]; then
+    if [ "$TRAVIS_OS_NAME" = "linux" ] && [ -z $DISPLAY ]; then
         export DISPLAY=:99.0
         sh -e /etc/init.d/xvfb start
     fi
