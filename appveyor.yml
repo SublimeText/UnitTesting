@@ -8,11 +8,16 @@ environment:
     matrix:
         - SUBLIME_TEXT_VERSION : "2"
         - SUBLIME_TEXT_VERSION : "3"
+        - SUBLIME_TEXT_VERSION : "2"
+          PCINSTALL: true
+        - SUBLIME_TEXT_VERSION : "3"
+          PCINSTALL: true
+
+build: off
 
 install:
     - ps: .\sbin\appveyor.ps1 "bootstrap" -verbose
-
-build: off
+    - ps: if (${env:PCINSTALL} -eq $true) { .\sbin\appveyor.ps1 "install_package_control" -verbose }
 
 test_script:
     - ps: .\sbin\appveyor.ps1 "run_tests" -verbose

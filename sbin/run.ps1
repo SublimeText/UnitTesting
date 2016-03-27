@@ -57,6 +57,7 @@ $startTime = get-date
 while (-not (test-path $outFile) -or (get-item $outFile).length -eq 0) {
     write-host -nonewline "."
     if (((get-date) - $startTime).totalseconds -ge 60) {
+        write-host
         throw "Timeout: Sublime Text is not responding."
     }
     start-sleep -seconds 1

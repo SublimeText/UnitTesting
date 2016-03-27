@@ -3,46 +3,41 @@ param(
     [string]$command
 )
 
-function getDownloadUrl($version) {
-    $url = $null
-    foreach ( $link in (invoke-webrequest "http://www.sublimetext.com/$version").Links ) {
-        if ( $link.href.endsWith("x64.zip") ) {
-           $url = $link.href
-           break
-        }
-    }
-    if (-not $url) {
-        throw "could not download Sublime Text binary"
-    }
-    # Replaces spaces by %20 -- note that other .Net methods in
-    # System.Net and System.Web convert spaces to + instead.
-    [System.Uri]::EscapeUriString($url)
-}
+$STP = "C:\st\Data\Packages"
 
 function Bootstrap {
-    write-verbose "installing sublime text ${env:SUBLIME_TEXT_VERSION}"
-    $url = getDownloadUrl ${env:SUBLIME_TEXT_VERSION}
-    $filename = split-path $url -leaf
-    start-filedownload $url
-    # TODO(guillermooo): use ZipFile class in .NET 4.5.
-    7z.exe x "$filename" -o"C:\st" >$null
+    $STI_URL = "https://github.com/randy3k/sublime_text_installer"
+    git clone --quiet --depth 1 --branch master "$STI_URL" "C:\sublime_text_installer"
 
-    new-item -itemtype directory "C:\st\Data\Packages\${env:PACKAGE}" -force >$null
-    copy * -recurse -force "C:\st\Data\Packages\${env:PACKAGE}"
+    & "C:\sublime_text_installer\install_sublime_text.ps1" -verbose
 
-    new-item -itemtype directory "C:\st\Data\Packages\User" -force >$null
-    "{`"update_check`": false }" | out-file -filepath "C:\st\Data\Packages\User\Preferences.sublime-settings" -encoding ascii
+    new-item -itemtype directory "$STP\${env:PACKAGE}" -force >$null
+    copy * -recurse -force "$STP\${env:PACKAGE}"
+
+    $UT_URL = "https://github.com/randy3k/UnitTesting"
 
     if ( ${env:TAG} -eq $null ){
         # the latest tag
         write-verbose "download latest UnitTesting tag"
-        $TAG = git ls-remote --tags https://github.com/randy3k/UnitTesting | %{$_ -replace ".*/(.*)$", '$1'} | where-object {$_ -notmatch "\^"} |%{[System.Version]$_}|sort | select-object -last 1 | %{ "$_" }
+        $TAG = git ls-remote --tags $UT_URL | %{$_ -replace ".*/(.*)$", '$1'} `
+                | where-object {$_ -notmatch "\^"} |%{[System.Version]$_} `
+                | sort | select-object -last 1 | %{ "$_" }
     }else{
         $TAG = ${env:TAG}
     }
-    if(!(test-path -path "C:\st\Data\Packages\UnitTesting")){
-        git clone --quiet --depth 1 --branch=$TAG https://github.com/randy3k/UnitTesting.git "C:\st\Data\Packages\UnitTesting" 2>$null
+
+    if(!(test-path -path "$STP\UnitTesting")){
+        git clone --quiet --depth 1 --branch=$TAG $UT_URL "$STP\UnitTesting" 2>$null
     }
+}
+
+function InstallPackageControl {
+    $STI_URL = "https://github.com/randy3k/sublime_text_installer"
+    if(!(test-path -path "C:\sublime_text_installer")){
+        git clone --quiet --depth 1 --branch master "$STI_URL" "C:\sublime_text_installer"
+    }
+
+    & "C:\sublime_text_installer\install_package_control.ps1" -verbose
 }
 
 function RunTests {
@@ -50,15 +45,21 @@ function RunTests {
     param(
         [switch] $syntax_test
     )
+
     if ( $syntax_test.IsPresent ){
-        & "C:\st\Data\Packages\UnitTesting\sbin\run.ps1" "${env:PACKAGE}" -verbose -syntax_test
+        & "$STP\UnitTesting\sbin\run.ps1" "${env:PACKAGE}" -verbose -syntax_test
     }else{
-        & "C:\st\Data\Packages\UnitTesting\sbin\run.ps1" "${env:PACKAGE}" -verbose
+        & "$STP\UnitTesting\sbin\run.ps1" "${env:PACKAGE}" -verbose
     }
 }
 
-switch ($command){
-    "bootstrap" { Bootstrap }
-    "run_tests" { RunTests }
-    "run_syntax_tests" { RunTests -syntax_test}
+try{
+    switch ($command){
+        "bootstrap" { Bootstrap }
+        "install_package_control" { InstallPackageControl }
+        "run_tests" { RunTests }
+        "run_syntax_tests" { RunTests -syntax_test}
+    }
+}catch {
+    throw $_
 }
