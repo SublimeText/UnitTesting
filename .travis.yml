@@ -30,4 +30,6 @@ script:
     - sh sbin/travis.sh run_tests
 
 notifications:
-    email: false
+    email:
+        on_success: change
+        on_failure: change
