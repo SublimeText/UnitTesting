@@ -1,4 +1,5 @@
 import sublime
+import sys
 
 version = sublime.version()
 
@@ -9,6 +10,7 @@ if version >= "3000":
         UnitTestingCommand,
         OutputPanelInsertCommand
     )
+    sys.modules['unittesting'] = sys.modules['UnitTesting.unittesting']
 else:
     from unittesting import (
         deferred_run,

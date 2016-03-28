@@ -2,17 +2,11 @@ import os
 import re
 import shutil
 from unittest import TestCase
-
+from unittesting.utils import UTSetting
+from unittesting import DeferrableTestCase
 import sublime
 
 version = sublime.version()
-
-if version >= '3000':
-    from UnitTesting.unittesting.utils import UTSetting
-    from UnitTesting.unittesting import DeferrableTestCase
-else:
-    from unittesting.utils import UTSetting
-    from unittesting import DeferrableTestCase
 
 __dir__ = os.path.dirname(os.path.abspath(__file__))
 outputdir = os.path.join(
@@ -158,6 +152,7 @@ if version >= '3000':
             m = re.search('^ERROR: No syntax_test', txt, re.MULTILINE)
             shutil.rmtree(os.path.join(sublime.packages_path(), "_Syntax"))
             self.assertEqual(hasattr(m, "group"), True)
+
 
 class TestDeferrable(DeferrableTestCase):
 
