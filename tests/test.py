@@ -30,7 +30,7 @@ class TestUnitTesting(TestCase):
             os.unlink(os.path.join(outputdir, "_Success"))
         except:
             pass
-        sublime.run_command("unit_testing", {"package": "_Success"})
+        sublime.run_command("unit_testing", {"package": "_Success", "output": "<file>"})
         with open(os.path.join(outputdir, "_Success"), 'r') as f:
             txt = f.read()
         m = re.search('^OK', txt, re.MULTILINE)
@@ -49,7 +49,7 @@ class TestUnitTesting(TestCase):
             os.unlink(os.path.join(outputdir, "_Failure"))
         except:
             pass
-        sublime.run_command("unit_testing", {"package": "_Failure"})
+        sublime.run_command("unit_testing", {"package": "_Failure", "output": "<file>"})
         with open(os.path.join(outputdir, "_Failure"), 'r') as f:
             txt = f.read()
         m = re.search('^FAILED \(failures=1\)', txt, re.MULTILINE)
@@ -62,7 +62,7 @@ class TestUnitTesting(TestCase):
             os.unlink(os.path.join(outputdir, "_Error"))
         except:
             pass
-        sublime.run_command("unit_testing", {"package": "_Error"})
+        sublime.run_command("unit_testing", {"package": "_Error", "output": "<file>"})
         with open(os.path.join(outputdir, "_Error"), 'r') as f:
             txt = f.read()
         m = re.search('^ERROR', txt, re.MULTILINE)
@@ -107,7 +107,10 @@ if version >= '3000':
             except:
                 pass
             yield 1000
-            sublime.run_command("unit_testing", {"package": "_Syntax", "syntax_test": True})
+            sublime.run_command("unit_testing", {
+                "package": "_Syntax",
+                "output": "<file>",
+                "syntax_test": True})
             with open(os.path.join(outputdir, "_Syntax"), 'r') as f:
                 txt = f.read()
             m = re.search('^FAILED: 1 of 21 assertions in 1 files failed', txt, re.MULTILINE)
@@ -124,12 +127,16 @@ if version >= '3000':
             except:
                 pass
             try:
-                shutil.copyfile(os.path.join(sublime.packages_path(), "_Syntax", "success.c++"),
+                shutil.copyfile(
+                    os.path.join(sublime.packages_path(), "_Syntax", "success.c++"),
                     os.path.join(sublime.packages_path(), "_Syntax", "syntax_test.c++"))
             except:
                 pass
             yield 1000
-            sublime.run_command("unit_testing", {"package": "_Syntax", "syntax_test": True})
+            sublime.run_command("unit_testing", {
+                "package": "_Syntax",
+                "output": "<file>",
+                "syntax_test": True})
             with open(os.path.join(outputdir, "_Syntax"), 'r') as f:
                 txt = f.read()
             m = re.search('^OK', txt, re.MULTILINE)
@@ -146,7 +153,10 @@ if version >= '3000':
             except:
                 pass
             yield 1000
-            sublime.run_command("unit_testing", {"package": "_Syntax", "syntax_test": True})
+            sublime.run_command("unit_testing", {
+                "package": "_Syntax",
+                "output": "<file>",
+                "syntax_test": True})
             with open(os.path.join(outputdir, "_Syntax"), 'r') as f:
                 txt = f.read()
             m = re.search('^ERROR: No syntax_test', txt, re.MULTILINE)

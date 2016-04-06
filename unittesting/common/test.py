@@ -100,6 +100,8 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand):
                 output = ss.get("output", "<panel>")
         else:
             tests_dir, async, deferred, verbosity = "tests", False, False, 2
+            if output is None:
+                output = "<panel>"
 
         if pattern is None:
             pattern = "test*.py"
