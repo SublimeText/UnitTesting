@@ -150,7 +150,7 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand):
 
     def testing(self, package, tests_dir, pattern, stream, deferred=False, verbosity=2):
 
-        log_handler = logging.StreamHandler(stream=stream)
+        log_handler = logging.StreamHandler(stream)
         logger.addHandler(log_handler)
 
         try:

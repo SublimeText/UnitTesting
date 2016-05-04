@@ -5,8 +5,12 @@ from unittest import TestCase
 from unittesting.utils import UTSetting
 from unittesting import DeferrableTestCase
 import sublime
+import logging
 
 version = sublime.version()
+logger = logging.getLogger('UnitTesting')
+logger.setLevel(logging.DEBUG)
+
 
 __dir__ = os.path.dirname(os.path.abspath(__file__))
 outputdir = os.path.join(
@@ -35,6 +39,7 @@ class TestUnitTesting(TestCase):
             txt = f.read()
         m = re.search('^OK', txt, re.MULTILINE)
         shutil.rmtree(os.path.join(sublime.packages_path(), "_Success"))
+        logger.info("hello")
         self.assertEqual(hasattr(m, "group"), True)
 
     def test_failure(self):
