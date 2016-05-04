@@ -1,6 +1,7 @@
 import os
 import re
 import tempfile
+import logging
 
 import sublime
 import sublime_plugin
@@ -16,6 +17,9 @@ from ..core import DeferringTextTestRunner
 from ..utils import UTSetting
 from ..utils import OutputPanel
 from ..utils import JsonFile
+
+
+logger = logging.getLogger('UnitTesting')
 
 
 def input_parser(package):
@@ -145,6 +149,10 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand):
                 self.testing(package, tests_dir, pattern, stream, deferred, verbosity)
 
     def testing(self, package, tests_dir, pattern, stream, deferred=False, verbosity=2):
+
+        log_handler = logging.StreamHandler(stream=stream)
+        logger.addHandler(log_handler)
+
         try:
             # use custom loader which support ST2 and reloading modules
             loader = TestLoader(deferred)
@@ -154,18 +162,22 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand):
             # use deferred test runner or default test runner
             if deferred:
                 testRunner = DeferringTextTestRunner(stream, verbosity=verbosity)
+                testRunner.log_handler = log_handler
             else:
                 testRunner = TextTestRunner(stream, verbosity=verbosity)
+
             testRunner.run(test)
+
         except Exception as e:
             if not stream.closed:
                 stream.write("ERROR: %s\n" % e)
-        # DeferringTextTestRunner will close the stream when testing is completed.
+        # DeferringTextTestRunner will remove the log handler and
+        # close the stream when testing is completed.
         if not deferred:
+            logger.removeHandler(log_handler)
             stream.close()
 
     def syntax_testing(self, package, stream):
-        output = ""
         total_assertions = 0
         failed_assertions = 0
 
