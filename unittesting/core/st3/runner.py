@@ -131,4 +131,9 @@ class DeferringTextTestRunner(runner.TextTestRunner):
                 _stop_testing()
                 self.stream.close()
 
+            except Exception as e:
+                if not self.stream.closed:
+                    self.stream.write("\nERROR: %s\n" % e)
+                self.stream.close()
+
         sublime.set_timeout(_continue_testing, 10)

@@ -1,7 +1,13 @@
 import os
 import re
 import tempfile
-import logging
+
+from unittest import TextTestRunner
+from ..core import TestLoader
+from ..core import DeferringTextTestRunner
+from ..utils import UTSetting
+from ..utils import OutputPanel
+from ..utils import JsonFile
 
 import sublime
 import sublime_plugin
@@ -10,13 +16,6 @@ version = sublime.version()
 
 if version >= "3103":
     import sublime_api
-
-from unittest import TextTestRunner
-from ..core import TestLoader
-from ..core import DeferringTextTestRunner
-from ..utils import UTSetting
-from ..utils import OutputPanel
-from ..utils import JsonFile
 
 
 def input_parser(package):
@@ -70,8 +69,7 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand):
             )
         view.run_command("select_all")
 
-    def run(self, package=None, output=None, syntax_test=False):
-
+    def load_package(self, package, output, syntax_test):
         if not package:
             # bootstrap run() with package input
             package = UTSetting.get("recent-package", "Package Name")
@@ -86,8 +84,9 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand):
             sublime.message_dialog("Cannot find current package.")
             return
 
-        package, pattern = input_parser(package)
+        return input_parser(package)
 
+    def load_settings(self, package, pattern, output):
         jfile = os.path.join(sublime.packages_path(), package, "unittesting.json")
         if os.path.exists(jfile):
             ss = JsonFile(jfile).load()
@@ -101,9 +100,12 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand):
                 output = ss.get("output", "<panel>")
             capture_stdio = ss.get("capture_stdio", False)
         else:
-            tests_dir, async, deferred, verbosity = "tests", False, False, 2
+            tests_dir = "tests"
+            async = False
+            deferred = False
+            verbosity = 2
             capture_stdio = False
-            if output is None:
+            if not output:
                 output = "<panel>"
 
         if pattern is None:
@@ -112,6 +114,17 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand):
         if version < '3000':
             async = False
 
+        return {
+            "tests_dir": tests_dir,
+            "async": async,
+            "deferred": deferred,
+            "verbosity": verbosity,
+            "pattern": pattern,
+            "output": output,
+            "capture_stdio": capture_stdio
+        }
+
+    def load_stream(self, package, output):
         if output == "<panel>":
             output_panel = OutputPanel(
                 'unittests', file_regex=r'File "([^"]*)", line (\d+)')
@@ -136,41 +149,47 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand):
                 os.remove(outfile)
             stream = open(outfile, "w")
 
+        return stream
+
+    def run(self, package=None, output=None, syntax_test=False):
+
+        package, pattern = self.load_package(package, output, syntax_test)
+        settings = self.load_settings(package, pattern, output)
+        stream = self.load_stream(package, settings["output"])
+
         if syntax_test:
-            self.syntax_testing(package, stream)
+            self.syntax_testing(stream, package)
         else:
-            if async:
+            if settings["async"]:
                 sublime.set_timeout_async(
-                    lambda: self.testing(
-                        package, tests_dir, pattern, stream, False, verbosity
-                    ), 100)
+                    lambda: self.unit_testing(stream, package, settings), 100)
             else:
-                self.testing(package, tests_dir, pattern, stream, deferred, verbosity)
+                self.unit_testing(stream, package, settings)
 
-    def testing(self, package, tests_dir, pattern, stream, deferred=False, verbosity=2):
-
+    def unit_testing(self, stream, package, settings):
         try:
             # use custom loader which support ST2 and reloading modules
-            loader = TestLoader(deferred)
+            loader = TestLoader(settings["deferred"])
             test = loader.discover(os.path.join(
-                sublime.packages_path(), package, tests_dir), pattern
+                sublime.packages_path(), package, settings["tests_dir"]), settings["pattern"]
             )
             # use deferred test runner or default test runner
-            if deferred:
-                testRunner = DeferringTextTestRunner(stream, verbosity=verbosity)
+            if settings["deferred"]:
+                testRunner = DeferringTextTestRunner(stream, verbosity=settings["verbosity"])
             else:
-                testRunner = TextTestRunner(stream, verbosity=verbosity)
+                testRunner = TextTestRunner(stream, verbosity=settings["verbosity"])
 
             testRunner.run(test)
 
         except Exception as e:
             if not stream.closed:
                 stream.write("ERROR: %s\n" % e)
-        # DeferringTextTestRunner will close the stream when testing is completed.
-        if not deferred:
+
+        # DeferringTextTestRunner will close the stream after the tests are finished
+        if not settings["deferred"]:
             stream.close()
 
-    def syntax_testing(self, package, stream):
+    def syntax_testing(self, stream, package):
         total_assertions = 0
         failed_assertions = 0
 
@@ -194,10 +213,10 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand):
                         stream.write(line + "\n")
             if failed_assertions > 0:
                 stream.write("FAILED: %d of %d assertions in %d files failed\n" %
-                    (failed_assertions, total_assertions, len(tests)))
+                             (failed_assertions, total_assertions, len(tests)))
             else:
                 stream.write("Success: %d assertions in %s files passed\n" %
-                    (total_assertions, len(tests)))
+                             (total_assertions, len(tests)))
                 stream.write("OK\n")
         except Exception as e:
             if not stream.closed:
