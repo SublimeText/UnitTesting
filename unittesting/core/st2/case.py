@@ -9,7 +9,6 @@ class DeferrableTestCase(TestCase):
         try:
             try:
                 deferred = self.setUp()
-                print("deferred ", deferred is not None)
                 if deferred is not None:
                     for x in deferred:
                         yield x
