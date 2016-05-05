@@ -43,6 +43,7 @@ class DeferringTextTestRunner(runner.TextTestRunner):
 
     def run(self, test):
         "Run the given test case or test suite."
+        self.finished = False
         result = self._makeResult()
         runner.registerResult(result)
         result.failfast = self.failfast
@@ -129,11 +130,11 @@ class DeferringTextTestRunner(runner.TextTestRunner):
                     stopTestRun()
 
                 _stop_testing()
-                self.stream.close()
+                self.finished = True
 
             except Exception as e:
                 if not self.stream.closed:
                     self.stream.write("\nERROR: %s\n" % e)
-                self.stream.close()
+                self.finished = True
 
         sublime.set_timeout(_continue_testing, 10)

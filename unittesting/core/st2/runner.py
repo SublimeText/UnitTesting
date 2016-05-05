@@ -6,6 +6,7 @@ from unittest import TextTestRunner
 class DeferringTextTestRunner(TextTestRunner):
     def run(self, test):
         "Run the given test case or test suite."
+        self.finished = False
         result = self._makeResult()
         startTime = time.time()
         deferred = test(result)
@@ -59,11 +60,11 @@ class DeferringTextTestRunner(TextTestRunner):
 
             except StopIteration:
                 _stop_testing()
-                self.stream.close()
+                self.finished = True
 
             except Exception as e:
                 if not self.stream.closed:
                     self.stream.write("\nERROR: %s\n" % e)
-                self.stream.close()
+                self.finished = True
 
         sublime.set_timeout(_continue_testing, 10)

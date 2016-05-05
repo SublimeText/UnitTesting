@@ -1,3 +1,4 @@
+import sys
 import os
 import re
 import tempfile
@@ -98,13 +99,13 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand):
                 pattern = ss.get("pattern", pattern)
             if not output:
                 output = ss.get("output", "<panel>")
-            capture_stdio = ss.get("capture_stdio", False)
+            caputre_console = ss.get("caputre_console", False)
         else:
             tests_dir = "tests"
             async = False
             deferred = False
             verbosity = 2
-            capture_stdio = False
+            caputre_console = False
             if not output:
                 output = "<panel>"
 
@@ -121,7 +122,7 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand):
             "verbosity": verbosity,
             "pattern": pattern,
             "output": output,
-            "capture_stdio": capture_stdio
+            "caputre_console": caputre_console
         }
 
     def load_stream(self, package, output):
@@ -167,6 +168,14 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand):
                 self.unit_testing(stream, package, settings)
 
     def unit_testing(self, stream, package, settings):
+        stdout = sys.stdout
+        stderr = sys.stderr
+        if settings["caputre_console"]:
+            sys.stdout = stream
+            sys.stderr = stream
+
+        testRunner = None
+
         try:
             # use custom loader which support ST2 and reloading modules
             loader = TestLoader(settings["deferred"])
@@ -185,9 +194,20 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand):
             if not stream.closed:
                 stream.write("ERROR: %s\n" % e)
 
-        # DeferringTextTestRunner will close the stream after the tests are finished
-        if not settings["deferred"]:
+        self.cleanup_testing(testRunner, stream, stdout, stderr, settings)
+
+    def cleanup_testing(self, testRunner, stream, stdout, stderr, settings):
+        if not testRunner and settings["caputre_console"]:
+            sys.stdout = stdout
+            sys.stderr = stderr
+        if not settings["deferred"] or testRunner.finished:
             stream.close()
+            if settings["caputre_console"]:
+                sys.stdout = stdout
+                sys.stderr = stderr
+        else:
+            sublime.set_timeout_async(
+                lambda: self.cleanup_testing(testRunner, stream, stdout, stderr, settings), 500)
 
     def syntax_testing(self, stream, package):
         total_assertions = 0
