@@ -206,7 +206,7 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand):
                 sys.stdout = stdout
                 sys.stderr = stderr
         else:
-            sublime.set_timeout_async(
+            sublime.set_timeout(
                 lambda: self.cleanup_testing(testRunner, stream, stdout, stderr, settings), 500)
 
     def syntax_testing(self, stream, package):
