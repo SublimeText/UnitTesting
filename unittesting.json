@@ -4,5 +4,6 @@
     "async": false,
     "deferred": true,
     "verbosity": 2,
-    "output": "<panel>"
+    "output": "<panel>",
+    "capture_stdio": true
 }

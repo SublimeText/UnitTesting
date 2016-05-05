@@ -19,9 +19,6 @@ from ..utils import OutputPanel
 from ..utils import JsonFile
 
 
-logger = logging.getLogger('UnitTesting')
-
-
 def input_parser(package):
     m = re.match(r'([^:]+):(.+)', package)
     if m:
@@ -102,8 +99,10 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand):
                 pattern = ss.get("pattern", pattern)
             if not output:
                 output = ss.get("output", "<panel>")
+            capture_stdio = ss.get("capture_stdio", False)
         else:
             tests_dir, async, deferred, verbosity = "tests", False, False, 2
+            capture_stdio = False
             if output is None:
                 output = "<panel>"
 
@@ -150,9 +149,6 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand):
 
     def testing(self, package, tests_dir, pattern, stream, deferred=False, verbosity=2):
 
-        log_handler = logging.StreamHandler(stream)
-        logger.addHandler(log_handler)
-
         try:
             # use custom loader which support ST2 and reloading modules
             loader = TestLoader(deferred)
@@ -162,7 +158,6 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand):
             # use deferred test runner or default test runner
             if deferred:
                 testRunner = DeferringTextTestRunner(stream, verbosity=verbosity)
-                testRunner.log_handler = log_handler
             else:
                 testRunner = TextTestRunner(stream, verbosity=verbosity)
 
@@ -171,10 +166,8 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand):
         except Exception as e:
             if not stream.closed:
                 stream.write("ERROR: %s\n" % e)
-        # DeferringTextTestRunner will remove the log handler and
-        # close the stream when testing is completed.
+        # DeferringTextTestRunner will close the stream when testing is completed.
         if not deferred:
-            logger.removeHandler(log_handler)
             stream.close()
 
     def syntax_testing(self, package, stream):

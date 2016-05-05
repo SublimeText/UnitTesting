@@ -28,7 +28,6 @@
 
 import time
 from unittest import runner
-import logging
 
 import sublime
 
@@ -130,7 +129,6 @@ class DeferringTextTestRunner(runner.TextTestRunner):
                     stopTestRun()
 
                 _stop_testing()
-                logging.getLogger('UnitTesting').removeHandler(self.log_handler)
                 self.stream.close()
 
         sublime.set_timeout(_continue_testing, 10)

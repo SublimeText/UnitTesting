@@ -1,7 +1,6 @@
 import time
 import sublime
 from unittest import TextTestRunner
-import logging
 
 
 class DeferringTextTestRunner(TextTestRunner):
@@ -60,7 +59,6 @@ class DeferringTextTestRunner(TextTestRunner):
 
             except StopIteration:
                 _stop_testing()
-                logging.getLogger('UnitTesting').removeHandler(self.log_handler)
                 self.stream.close()
 
         sublime.set_timeout(_continue_testing, 10)
