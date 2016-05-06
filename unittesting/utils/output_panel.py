@@ -43,6 +43,10 @@ class OutputPanel:
     def write(self, s):
         self.output_view.run_command('output_panel_insert', {'characters': s})
 
+    def writeln(self, s):
+        self.write(s)
+        self.output_view.run_command('output_panel_insert', {'characters': "\n"})
+
     def flush(self):
         pass
 
