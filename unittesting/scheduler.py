@@ -1,13 +1,9 @@
 import os
-import time
 import threading
-
+import time
 import sublime
 import sublime_plugin
-
-version = sublime.version()
-
-from ..utils import JsonFile
+from .utils import JsonFile
 
 
 class Unit:
@@ -54,35 +50,24 @@ class Scheduler:
 
 
 class UnitTestingRunSchedulerCommand(sublime_plugin.ApplicationCommand):
+    ready = False
 
     def run(self):
-        DeferredThread.load()
-        my_scheduler = Scheduler()
-        my_scheduler.run()
+        UnitTestingRunSchedulerCommand.ready = True
+        scheduler = Scheduler()
+        scheduler.run()
 
 
-class DeferredThread(threading.Thread):
-    loaded = False
-
-    def __init__(self, command, args=None):
-        threading.Thread.__init__(self)
-        self.command = command
-        self.args = args
-
-    @staticmethod
-    def load():
-        DeferredThread.loaded = True
-
-    def run(self):
-        while not DeferredThread.loaded:
-            sublime.set_timeout(
-                lambda: sublime.run_command(self.command, self.args), 1)
-            if DeferredThread.loaded:
-                break
-            else:
-                time.sleep(0.1)
+def try_running_scheduler():
+    while not UnitTestingRunSchedulerCommand.ready:
+        sublime.set_timeout(
+            lambda: sublime.run_command("unit_testing_run_scheduler"), 100)
+        if UnitTestingRunSchedulerCommand.ready:
+            break
+        else:
+            time.sleep(0.2)
 
 
-def deferred_run(command, args=None):
-    th = DeferredThread(command, args)
+def run_scheduler():
+    th = threading.Thread(target=try_running_scheduler)
     th.start()

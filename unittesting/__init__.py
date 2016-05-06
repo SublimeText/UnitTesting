@@ -1,8 +1,10 @@
-__all__ = [
-    "DeferrableTestCase", "OutputPanelInsertCommand",
-    "UnitTestingRunSchedulerCommand", "deferred_run", "UnitTestingCommand"
-]
-
-from .common import UnitTestingRunSchedulerCommand, deferred_run, UnitTestingCommand
 from .core import DeferrableTestCase
 from .utils import OutputPanelInsertCommand
+from .scheduler import UnitTestingRunSchedulerCommand, run_scheduler
+from .test_runner import UnitTestingCommand
+
+__all__ = [
+    "DeferrableTestCase", "OutputPanelInsertCommand",
+    "UnitTestingRunSchedulerCommand", "run_scheduler",
+    "UnitTestingCommand",
+]

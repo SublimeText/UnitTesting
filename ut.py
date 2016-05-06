@@ -5,18 +5,19 @@ version = sublime.version()
 
 if version >= "3000":
     from .unittesting import (
-        deferred_run,
         UnitTestingRunSchedulerCommand,
         UnitTestingCommand,
-        OutputPanelInsertCommand
+        OutputPanelInsertCommand,
+        run_scheduler
     )
     sys.modules['unittesting'] = sys.modules['UnitTesting.unittesting']
 else:
     from unittesting import (
-        deferred_run,
         UnitTestingRunSchedulerCommand,
         UnitTestingCommand,
-        OutputPanelInsertCommand
+        OutputPanelInsertCommand,
+        run_scheduler
     )
-# run the schedule using deferred_run, it will ensure all packages are loaded
-deferred_run("unit_testing_run_scheduler")
+
+# run the schedule
+run_scheduler()

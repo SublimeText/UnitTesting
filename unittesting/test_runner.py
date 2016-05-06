@@ -4,11 +4,11 @@ import re
 import tempfile
 
 from unittest import TextTestRunner
-from ..core import TestLoader
-from ..core import DeferringTextTestRunner
-from ..utils import UTSetting
-from ..utils import OutputPanel
-from ..utils import JsonFile
+from .core import TestLoader
+from .core import DeferringTextTestRunner
+from .utils import UTSetting
+from .utils import OutputPanel
+from .utils import JsonFile
 
 import sublime
 import sublime_plugin
@@ -99,13 +99,13 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand):
                 pattern = ss.get("pattern", pattern)
             if not output:
                 output = ss.get("output", "<panel>")
-            caputre_console = ss.get("caputre_console", False)
+            capture_console = ss.get("capture_console", False)
         else:
             tests_dir = "tests"
             async = False
             deferred = False
             verbosity = 2
-            caputre_console = False
+            capture_console = False
             if not output:
                 output = "<panel>"
 
@@ -122,7 +122,7 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand):
             "verbosity": verbosity,
             "pattern": pattern,
             "output": output,
-            "caputre_console": caputre_console
+            "capture_console": capture_console
         }
 
     def load_stream(self, package, output):
@@ -170,7 +170,7 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand):
     def unit_testing(self, stream, package, settings):
         stdout = sys.stdout
         stderr = sys.stderr
-        if settings["caputre_console"]:
+        if settings["capture_console"]:
             sys.stdout = stream
             sys.stderr = stream
 
@@ -197,13 +197,13 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand):
         self.cleanup_testing(testRunner, stream, stdout, stderr, settings)
 
     def cleanup_testing(self, testRunner, stream, stdout, stderr, settings):
-        if not testRunner and settings["caputre_console"]:
+        if not testRunner and settings["capture_console"]:
             sys.stdout = stdout
             sys.stderr = stderr
         if not settings["deferred"] or testRunner.finished:
             stream.write("\nUnitTesting: Bye!\n")
             stream.close()
-            if settings["caputre_console"]:
+            if settings["capture_console"]:
                 sys.stdout = stdout
                 sys.stderr = stderr
         else:
