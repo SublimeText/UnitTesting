@@ -201,6 +201,7 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand):
             sys.stdout = stdout
             sys.stderr = stderr
         if not settings["deferred"] or testRunner.finished:
+            stream.write("\nUnitTesting: Bye!\n")
             stream.close()
             if settings["caputre_console"]:
                 sys.stdout = stdout

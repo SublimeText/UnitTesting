@@ -79,11 +79,12 @@ with open(outfile, 'r') as f:
         sys.stdout.write(result)
         m = re.search("^(OK|FAILED|ERROR)", result, re.MULTILINE)
         # break when OK, Failed or error
-        if m:
+        if re.search("^UnitTesting: Bye!", result, re.MULTILINE):
             break
         elif not result:
             f.seek(where)
         time.sleep(0.2)
+
 success = m.group(0) == "OK"
 
 if not success:

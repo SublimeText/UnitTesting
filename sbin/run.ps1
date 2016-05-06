@@ -84,12 +84,17 @@ while ($true) {
     if ($count -gt 0){
         foreach ($i in 0..($count-1)){
             $l = $lines | select-object -index $i
+            # do not print the last line, may be incomplete
             if ($i -lt $count-1){
                 write-output $l
             }
             if ($l -match "^(OK|FAILED|ERROR)") {
-                $done = $matches[1]
+                $m = $matches[1]
+            }
+            if ($l -match "^UnitTesting: Bye!") {
                 write-output $l
+                $done = $true
+                break
             }
         }
         $read = $read + $count - 1
@@ -98,6 +103,6 @@ while ($true) {
     start-sleep -milliseconds 200
 }
 
-if ($done -ne "OK") {
+if ($m -ne "OK") {
     throw "FAILED or ERROR"
 }
