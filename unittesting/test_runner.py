@@ -222,7 +222,8 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand):
 
         if version < "3103":
             stream.write("Warning: Syntax test is only avaliable on Sublime Text >=3103.\n")
-            stream.write("OK\n")
+            stream.write("\n")
+            stream.write(BYE_STRING)
             stream.close()
             return
 
