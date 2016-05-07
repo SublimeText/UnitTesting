@@ -88,10 +88,10 @@ while ($true) {
             if ($i -lt $count-1){
                 write-output $l
             }
-            if ($l -match "^(OK|FAILED|ERROR)") {
-                $m = $matches[1]
+            if ($l -match "^(OK|FAILED|ERROR)\b") {
+                $success = ($matches[1] -eq "OK")
             }
-            if ($l -match "^UnitTesting: Bye!") {
+            if ($l -match "^UnitTesting: Bye!$") {
                 write-output $l
                 $done = $true
                 break
@@ -103,6 +103,6 @@ while ($true) {
     start-sleep -milliseconds 200
 }
 
-if ($m -ne "OK") {
-    throw "FAILED or ERROR"
+if (!$success) {
+    throw
 }

@@ -77,15 +77,15 @@ with open(outfile, 'r') as f:
         where = f.tell()
         result = f.read()
         sys.stdout.write(result)
-        m = re.search("^(OK|FAILED|ERROR)", result, re.MULTILINE)
+        m = re.search("^(OK|FAILED|ERROR)\\b", result, re.MULTILINE)
+        if m:
+            success = m.group(0) == "OK"
         # break when OK, Failed or error
-        if re.search("^UnitTesting: Bye!", result, re.MULTILINE):
+        if re.search("^UnitTesting: Bye!$", result, re.MULTILINE):
             break
         elif not result:
             f.seek(where)
         time.sleep(0.2)
-
-success = m.group(0) == "OK"
 
 if not success:
     sys.exit(1)
