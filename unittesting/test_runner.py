@@ -196,22 +196,20 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand):
             if not stream.closed:
                 stream.write("ERROR: %s\n" % e)
 
-        self.cleanup_testing(testRunner, stream, stdout, stderr, handler, settings)
+        self.clean_up(testRunner, stream, stdout, stderr, handler, settings)
 
-    def cleanup_testing(self, testRunner, stream, stdout, stderr, handler, settings):
-        if not settings["deferred"] or (testRunner and testRunner.finished):
+    def clean_up(self, testRunner, stream, stdout, stderr, handler, settings):
+        if not settings["deferred"] or not testRunner or testRunner.finished:
             stream.write("\nUnitTesting: Bye!\n")
             stream.close()
-
-        if (not testRunner and settings["capture_console"]) or \
-                (not settings["deferred"] or testRunner.finished):
-            sys.stdout = stdout
-            sys.stderr = stderr
-            # remove stream set by logging.root.addHandler
-            logging.root.removeHandler(handler)
+            if settings["capture_console"]:
+                sys.stdout = stdout
+                sys.stderr = stderr
+                # remove stream set by logging.root.addHandler
+                logging.root.removeHandler(handler)
         else:
             sublime.set_timeout(
-                lambda: self.cleanup_testing(
+                lambda: self.clean_up(
                     testRunner, stream, stdout, stderr, handler, settings), 500)
 
     def syntax_testing(self, stream, package):
