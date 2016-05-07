@@ -19,6 +19,9 @@ if version >= "3103":
     import sublime_api
 
 
+BYE_STRING = "UnitTesting: Bye!\n"
+
+
 def input_parser(package):
     m = re.match(r'([^:]+):(.+)', package)
     if m:
@@ -200,7 +203,8 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand):
 
     def clean_up(self, testRunner, stream, stdout, stderr, handler, settings):
         if not settings["deferred"] or not testRunner or testRunner.finished:
-            stream.write("\nUnitTesting: Bye!\n")
+            stream.write("\n")
+            stream.write(BYE_STRING)
             stream.close()
             if settings["capture_console"]:
                 sys.stdout = stdout
@@ -245,4 +249,6 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand):
             if not stream.closed:
                 stream.write("ERROR: %s\n" % e)
 
+        stream.write("\n")
+        stream.write(BYE_STRING)
         stream.close()
