@@ -2,7 +2,7 @@ import sys
 import os
 import re
 import tempfile
-
+import logging
 from unittest import TextTestRunner
 from .core import TestLoader
 from .core import DeferringTextTestRunner
@@ -170,7 +170,9 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand):
     def unit_testing(self, stream, package, settings):
         stdout = sys.stdout
         stderr = sys.stderr
+        handler = logging.StreamHandler(stream=stream)
         if settings["capture_console"]:
+            logging.root.addHandler(handler)
             sys.stdout = stream
             sys.stderr = stream
 
@@ -194,21 +196,23 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand):
             if not stream.closed:
                 stream.write("ERROR: %s\n" % e)
 
-        self.cleanup_testing(testRunner, stream, stdout, stderr, settings)
+        self.cleanup_testing(testRunner, stream, stdout, stderr, handler, settings)
 
-    def cleanup_testing(self, testRunner, stream, stdout, stderr, settings):
-        if not testRunner and settings["capture_console"]:
-            sys.stdout = stdout
-            sys.stderr = stderr
-        if not settings["deferred"] or testRunner.finished:
+    def cleanup_testing(self, testRunner, stream, stdout, stderr, handler, settings):
+        if not settings["deferred"] or (testRunner and testRunner.finished):
             stream.write("\nUnitTesting: Bye!\n")
             stream.close()
-            if settings["capture_console"]:
-                sys.stdout = stdout
-                sys.stderr = stderr
+
+        if (not testRunner and settings["capture_console"]) or \
+                (not settings["deferred"] or testRunner.finished):
+            sys.stdout = stdout
+            sys.stderr = stderr
+            # remove stream set by logging.root.addHandler
+            logging.root.removeHandler(handler)
         else:
             sublime.set_timeout(
-                lambda: self.cleanup_testing(testRunner, stream, stdout, stderr, settings), 500)
+                lambda: self.cleanup_testing(
+                    testRunner, stream, stdout, stderr, handler, settings), 500)
 
     def syntax_testing(self, stream, package):
         total_assertions = 0
