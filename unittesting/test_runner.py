@@ -170,7 +170,7 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand):
     def unit_testing(self, stream, package, settings):
         stdout = sys.stdout
         stderr = sys.stderr
-        handler = logging.StreamHandler(stream=stream)
+        handler = logging.StreamHandler(stream)
         if settings["capture_console"]:
             logging.root.addHandler(handler)
             sys.stdout = stream
