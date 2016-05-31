@@ -11,7 +11,7 @@ fi
 Bootstrap() {
     if [ "$TRAVIS_OS_NAME" = "linux" ] && [ -z $DISPLAY ]; then
         export DISPLAY=:99.0
-        sh -e /etc/init.d/xvfb start || echo "xvfb is running"
+        sh -e /etc/init.d/xvfb start || true
     fi
 
     STI_URL="https://github.com/randy3k/sublime_text_installer"
@@ -42,7 +42,7 @@ Bootstrap() {
 InstallPackageControl() {
     if [ "$TRAVIS_OS_NAME" = "linux" ] && [ -z $DISPLAY ]; then
         export DISPLAY=:99.0
-        sh -e /etc/init.d/xvfb start || echo "xvfb is running"
+        sh -e /etc/init.d/xvfb start || true
     fi
 
     STI_URL="https://github.com/randy3k/sublime_text_installer"
@@ -55,7 +55,7 @@ InstallPackageControl() {
 RunTests() {
     if [ "$TRAVIS_OS_NAME" = "linux" ] && [ -z $DISPLAY ]; then
         export DISPLAY=:99.0
-        sh -e /etc/init.d/xvfb start || echo "xvfb is running"
+        sh -e /etc/init.d/xvfb start || true
     fi
 
     if [ -z "$1" ]; then
