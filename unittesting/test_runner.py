@@ -82,6 +82,11 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand):
 
         if package == "<current>":
             package = self.project_name
+        if package == "<current_file>":
+            current_file = sublime.active_window().active_view().file_name()
+            if current_file:
+                current_file = os.path.basename(current_file)
+            package = self.project_name + ":" + current_file
         if package:
             UTSetting.set("recent-package", package)
         else:
