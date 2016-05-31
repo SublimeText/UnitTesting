@@ -78,7 +78,7 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand):
             # bootstrap run() with package input
             package = UTSetting.get("recent-package", "Package Name")
             self.prompt_package(package, output, syntax_test)
-            return
+            return (None, None)
 
         if package == "<current>":
             package = self.project_name
@@ -86,7 +86,7 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand):
             UTSetting.set("recent-package", package)
         else:
             sublime.message_dialog("Cannot find current package.")
-            return
+            return (None, None)
 
         return input_parser(package)
 
@@ -158,6 +158,8 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand):
     def run(self, package=None, output=None, syntax_test=False):
 
         package, pattern = self.load_package(package, output, syntax_test)
+        if not package:
+            return
         settings = self.load_settings(package, pattern, output)
         stream = self.load_stream(package, settings["output"])
 
