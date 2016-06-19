@@ -248,7 +248,7 @@ class TestLoader(object):
                         expected_dir = os.path.dirname(full_path)
                         msg = (
                             '{!r} module incorrectly imported from {!r}. '
-                            'Expected {!r}. Is this mofule globally installed?'
+                            'Expected {!r}. Is this module globally installed?'
                         )
                         raise ImportError(
                             msg.format(mod_name, module_dir, expected_dir))
