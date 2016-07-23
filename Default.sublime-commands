@@ -8,6 +8,10 @@
     "command": "unit_testing_current_project"
   },
   {
+    "caption": "UnitTesting: Reload and Test Current Project",
+    "command": "unit_testing_current_project_reload"
+  },
+  {
     "caption": "UnitTesting: Test Current File",
     "command": "unit_testing_current_file"
   }

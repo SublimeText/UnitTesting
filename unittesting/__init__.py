@@ -2,8 +2,8 @@ from .core import DeferrableTestCase
 from .utils import OutputPanelInsertCommand
 from .scheduler import UnitTestingRunSchedulerCommand, run_scheduler
 from .test_package import UnitTestingCommand
-from .test_current import UnitTestingCurrentProjectCommand
-from .test_current import UnitTestingCurrentFileCommand
+from .test_current import UnitTestingCurrentFileCommand, UnitTestingCurrentProjectCommand, \
+    UnitTestingCurrentProjectReloadCommand
 from .test_syntax import UnitTestingSyntaxCommand
 
 __all__ = [
@@ -12,5 +12,6 @@ __all__ = [
     "UnitTestingCommand",
     "UnitTestingCurrentFileCommand",
     "UnitTestingCurrentProjectCommand",
+    "UnitTestingCurrentProjectReloadCommand",
     "UnitTestingSyntaxCommand"
 ]

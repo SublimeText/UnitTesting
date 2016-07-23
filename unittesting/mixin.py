@@ -114,7 +114,7 @@ class UnitTestingMixin:
     def load_stream(self, package, output):
         if output == "<panel>":
             output_panel = OutputPanel(
-                'unittests', file_regex=r'File "([^"]*)", line (\d+)')
+                'UnitTesting', file_regex=r'File "([^"]*)", line (\d+)')
             output_panel.show()
             stream = output_panel
         elif output == "<tempfile>":

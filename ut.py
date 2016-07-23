@@ -13,6 +13,7 @@ from unittesting import (
     UnitTestingCommand,
     UnitTestingCurrentFileCommand,
     UnitTestingCurrentProjectCommand,
+    UnitTestingCurrentProjectReloadCommand,
     UnitTestingSyntaxCommand,
     OutputPanelInsertCommand,
     run_scheduler

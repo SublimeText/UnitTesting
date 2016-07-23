@@ -1,4 +1,6 @@
 import sublime
+import sys
+from collections import namedtuple
 from .test_package import UnitTestingCommand
 
 
@@ -10,6 +12,30 @@ class UnitTestingCurrentProjectCommand(UnitTestingCommand):
             return
 
         UnitTestingCommand.run(self, project_name)
+
+
+class UnitTestingCurrentProjectReloadCommand(UnitTestingCommand):
+
+    def run(self):
+        # since PackageReloader is st 3 only, we have
+        # sublime.set_timeout_async
+        sublime.set_timeout_async(self.run_async, 1)
+
+    def run_async(self):
+        project_name = self.current_project_name
+        if not project_name:
+            sublime.message_dialog("Project not found.")
+            return
+
+        PackageReloader = sys.modules["PackageReloader"]
+        # a hack to run run_async of PackageReloader
+        w = type('', (), {})()
+        setattr(w, "window", sublime.active_window())
+        PackageReloader.package_reloader.PackageReloaderReloadCommand.run_async(w, project_name)
+        sublime.set_timeout(lambda:  sublime.run_command("unit_testing_current_project"))
+
+    def is_enabled(self):
+        return "PackageReloader" in sys.modules
 
 
 class UnitTestingCurrentFileCommand(UnitTestingCommand):
