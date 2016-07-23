@@ -4,13 +4,11 @@
     "command": "unit_testing"
   },
   {
-    "caption": "UnitTesting: Quick Run Current Package",
-    "command": "unit_testing",
-    "args": {"package": "<current>"}
+    "caption": "UnitTesting: Test Current Project",
+    "command": "unit_testing_current_project"
   },
   {
-    "caption": "UnitTesting: Quick Run Current File",
-    "command": "unit_testing",
-    "args": {"package": "<current_file>"}
+    "caption": "UnitTesting: Test Current File",
+    "command": "unit_testing_current_file"
   }
 ]

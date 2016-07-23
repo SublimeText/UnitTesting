@@ -45,9 +45,11 @@ def perpare_package(package, output="<file>", syntax_test=False, defer=0):
             set_package(package)
             if syntax_test:
                 yield 1000
-            sublime.run_command(
-                "unit_testing",
-                {"package": package, "output": output, "syntax_test": syntax_test})
+                sublime.run_command(
+                    "unit_testing_syntax", {"package": package, "output": output})
+            else:
+                sublime.run_command(
+                    "unit_testing_package", {"package": package, "output": output})
             if output == "<file>":
                 with open(os.path.join(outputdir, package), 'r') as f:
                     txt = f.read()

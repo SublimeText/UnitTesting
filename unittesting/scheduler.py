@@ -13,11 +13,16 @@ class Unit:
         self.syntax_test = s['syntax_test']
 
     def run(self):
-        sublime.run_command("unit_testing", {
-            "package": self.package,
-            "output": "<file>",
-            "syntax_test": self.syntax_test
-        })
+        if self.syntax_test:
+            sublime.run_command("unit_testing_syntax", {
+                "package": self.package,
+                "output": "<file>"
+            })
+        else:
+            sublime.run_command("unit_testing", {
+                "package": self.package,
+                "output": "<file>"
+            })
 
 
 class Scheduler:
