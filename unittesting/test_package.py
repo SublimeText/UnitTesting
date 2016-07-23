@@ -7,7 +7,7 @@ from unittest import TextTestRunner
 from .core import TestLoader
 from .core import DeferringTextTestRunner
 from .mixin import UnitTestingMixin
-from .const import BYE_STRING
+from .const import DONE_MESSAGE
 
 version = sublime.version()
 
@@ -63,7 +63,7 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand, UnitTestingMixin):
     def clean_up(self, testRunner, stream, stdout, stderr, handler, settings):
         if not settings["deferred"] or not testRunner or testRunner.finished:
             stream.write("\n")
-            stream.write(BYE_STRING)
+            stream.write(DONE_MESSAGE)
             stream.close()
             if settings["capture_console"]:
                 sys.stdout = stdout

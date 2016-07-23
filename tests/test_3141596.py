@@ -56,7 +56,7 @@ def perpare_package(package, output="<file>", syntax_test=False, defer=0):
             else:
                 with open(os.path.join(sublime.packages_path(), package, output), 'r') as f:
                     txt = f.read()
-            m = re.search('^UnitTesting: Bye!', txt, re.MULTILINE)
+            m = re.search('^UnitTesting: Done\\.', txt, re.MULTILINE)
             self.assertTrue(hasattr(m, "group"))
             func(self, txt)
             cleanup_package(package)

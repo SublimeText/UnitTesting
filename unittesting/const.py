@@ -1,1 +1,1 @@
-BYE_STRING = "UnitTesting: Bye!\n"
+DONE_MESSAGE = "UnitTesting: Done.\n"

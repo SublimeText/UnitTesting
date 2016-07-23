@@ -81,7 +81,7 @@ with open(outfile, 'r') as f:
         if m:
             success = m.group(0) == "OK"
         # break when OK, Failed or error
-        if re.search("^UnitTesting: Bye!$", result, re.MULTILINE):
+        if re.search("^UnitTesting: Done\\.$", result, re.MULTILINE):
             break
         elif not result:
             f.seek(where)

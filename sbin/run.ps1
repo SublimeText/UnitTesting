@@ -91,7 +91,7 @@ while ($true) {
             if ($l -match "^(OK|FAILED|ERROR)\b") {
                 $success = ($matches[1] -eq "OK")
             }
-            if ($l -match "^UnitTesting: Bye!$") {
+            if ($l -match "^UnitTesting: Done\.$") {
                 write-output $l
                 $done = $true
                 break

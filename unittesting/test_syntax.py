@@ -1,7 +1,7 @@
 import sublime
 import sublime_plugin
 from .mixin import UnitTestingMixin
-from .const import BYE_STRING
+from .const import DONE_MESSAGE
 
 version = sublime.version()
 
@@ -29,7 +29,7 @@ class UnitTestingSyntaxCommand(sublime_plugin.ApplicationCommand, UnitTestingMix
             stream.write("\n")
             stream.write("OK\n")
             stream.write("\n")
-            stream.write(BYE_STRING)
+            stream.write(DONE_MESSAGE)
             stream.close()
             return
 
@@ -57,5 +57,5 @@ class UnitTestingSyntaxCommand(sublime_plugin.ApplicationCommand, UnitTestingMix
                 stream.write("ERROR: %s\n" % e)
 
         stream.write("\n")
-        stream.write(BYE_STRING)
+        stream.write(DONE_MESSAGE)
         stream.close()
