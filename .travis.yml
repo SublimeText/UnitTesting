@@ -22,7 +22,9 @@ before_install:
       fi
 
 install:
-    - sudo pip install requests[security] python-coveralls
+    - if [ "$SUBLIME_TEXT_VERSION" == "3"  ]; then
+            sudo pip install python-coveralls;
+      fi
     - sh sbin/travis.sh bootstrap
     - if [ "$PCINSTALL" == true ]; then sh sbin/travis.sh install_package_control; fi
 
