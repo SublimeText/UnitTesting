@@ -91,7 +91,8 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand, UnitTestingMixin):
                         os.chdir(package_path)
                         coverage.files.set_relative_directory()
                         cov.report(file=stream)
-                        cov.save()
+                        if settings["output"] != "<panel>":
+                            cov.save()
                         os.chdir(old_wd)
 
                     stream.write("\n")
