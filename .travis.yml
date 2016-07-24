@@ -22,9 +22,7 @@ before_install:
       fi
 
 install:
-    - if [ "$SUBLIME_TEXT_VERSION" == "3"  ]; then
-            sudo pip install python-coveralls;
-      fi
+    - if [ "$SUBLIME_TEXT_VERSION" == "3"  ]; then sudo pip install python-coveralls; fi
     - sh sbin/travis.sh bootstrap
     - if [ "$PCINSTALL" == true ]; then sh sbin/travis.sh install_package_control; fi
 
@@ -32,7 +30,7 @@ script:
     - sh sbin/travis.sh run_tests --coverage
 
 after_success:
-    - coveralls
+    - if [ "$SUBLIME_TEXT_VERSION" == "3" ]; then coveralls; fi
 
 notifications:
     email:

@@ -83,9 +83,10 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand, UnitTestingMixin):
                         cov.stop()
                         old_wd = os.getcwd()
                         os.chdir(package_path)
+                        coverage.files.set_relative_directory()
                         cov.report(file=stream)
-                        os.chdir(old_wd)
                         cov.save()
+                        os.chdir(old_wd)
 
                     stream.write("\n")
                     stream.write(DONE_MESSAGE)
