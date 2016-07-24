@@ -21,11 +21,16 @@ class Unit:
                 "coverage": self.coverage
             })
         else:
-            sublime.run_command("unit_testing", {
-                "package": self.package,
-                "output": "<file>",
-                "coverage": self.coverage
-            })
+            if self.coverage:
+                sublime.run_command("unit_testing_coverage", {
+                    "package": self.package,
+                    "output": "<file>"
+                })
+            else:
+                sublime.run_command("unit_testing", {
+                    "package": self.package,
+                    "output": "<file>"
+                })
 
 
 class Scheduler:

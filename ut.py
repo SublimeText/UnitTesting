@@ -18,8 +18,10 @@ if version >= "3000":
 from unittesting import (
     UnitTestingRunSchedulerCommand,
     UnitTestingCommand,
+    UnitTestingCoverageCommand,
     UnitTestingCurrentFileCommand,
     UnitTestingCurrentProjectCommand,
+    UnitTestingCurrentProjectCoverageCommand,
     UnitTestingCurrentProjectReloadCommand,
     UnitTestingSyntaxCommand,
     OutputPanelInsertCommand,

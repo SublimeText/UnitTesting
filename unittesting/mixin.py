@@ -1,4 +1,5 @@
 import os
+import sys
 import re
 import tempfile
 
@@ -151,3 +152,14 @@ class UnitTestingMixin:
             stream = open(outfile, "w")
 
         return stream
+
+    def reload_package(self, package, interface=False):
+        if "PackageReloader" in sys.modules:
+            if interface:
+                PackageReloader = sys.modules["PackageReloader"]
+                # a hack to run run_async of PackageReloader
+                w = type('', (), {})()
+                setattr(w, "window", sublime.active_window())
+                PackageReloader.package_reloader.PackageReloaderReloadCommand.run_async(w, package)
+            else:
+                sys.modules["PackageReloader"].reloader.reload_package(package)
