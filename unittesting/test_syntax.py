@@ -11,11 +11,11 @@ if version >= "3103":
 
 class UnitTestingSyntaxCommand(sublime_plugin.ApplicationCommand, UnitTestingMixin):
 
-    def run(self, package=None, output=None):
+    def run(self, package=None, **kargs):
 
         if not package:
             return
-        settings = self.load_settings(package, None, output)
+        settings = self.load_settings(package, **kargs)
         stream = self.load_stream(package, settings["output"])
 
         self.syntax_testing(stream, package)

@@ -10,18 +10,21 @@ class Unit:
 
     def __init__(self, s):
         self.package = s['package']
-        self.syntax_test = s['syntax_test']
+        self.syntax_test = s['syntax_test'] if 'syntax_test' in s else None
+        self.coverage = s['coverage'] if 'coverage' in s else None
 
     def run(self):
         if self.syntax_test:
             sublime.run_command("unit_testing_syntax", {
                 "package": self.package,
-                "output": "<file>"
+                "output": "<file>",
+                "coverage": self.coverage
             })
         else:
             sublime.run_command("unit_testing", {
                 "package": self.package,
-                "output": "<file>"
+                "output": "<file>",
+                "coverage": self.coverage
             })
 
 

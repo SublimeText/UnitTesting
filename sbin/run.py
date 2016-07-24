@@ -14,9 +14,11 @@ import optparse
 
 parser = optparse.OptionParser()
 parser.add_option('--syntax-test', action="store_true", default=False)
+parser.add_option('--coverage', action="store_true", default=False)
 options, remainder = parser.parse_args()
 
 syntax_test = options.syntax_test
+coverage = options.coverage
 package = remainder[0] if len(remainder) > 0 else "UnitTesting"
 
 version = int(subprocess.check_output(["subl", "--version"]).decode('utf8').strip()[-4])
@@ -46,7 +48,7 @@ try:
 except:
     schedule = []
 if not any([s['package'] == package for s in schedule]):
-    schedule.append({'package': package, 'syntax_test': syntax_test})
+    schedule.append({'package': package, 'syntax_test': syntax_test, 'coverage': coverage})
 with open(jpath, 'w') as f:
     f.write(json.dumps(schedule, ensure_ascii=False, indent=True))
 
