@@ -75,7 +75,6 @@ class UnitTestingMixin:
         verbosity = 2
         output = kargs["output"] if "output" in kargs else None
         capture_console = False
-        coverage = kargs["coverage"] if "coverage" in kargs else None
 
         jfile = os.path.join(sublime.packages_path(), package, "unittesting.json")
         if os.path.exists(jfile):
@@ -90,8 +89,6 @@ class UnitTestingMixin:
                 pattern = ss.get("pattern", pattern)
             if not output:
                 output = ss.get("output", "<panel>")
-            if not coverage:
-                coverage = ss.get("coverage", coverage)
 
         if pattern is None:
             pattern = "test*.py"
@@ -99,13 +96,8 @@ class UnitTestingMixin:
         if output is None:
             output = "<panel>"
 
-        if coverage is None:
-            coverage = False
-
         if version < '3000':
             async = False
-        if version < '3000' or platform == "windows":
-            coverage = False
 
         return {
             "tests_dir": tests_dir,
@@ -114,8 +106,7 @@ class UnitTestingMixin:
             "verbosity": verbosity,
             "pattern": pattern,
             "output": output,
-            "capture_console": capture_console,
-            "coverage": coverage
+            "capture_console": capture_console
         }
 
     def default_output(self, package):
