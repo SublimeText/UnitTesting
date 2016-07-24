@@ -3,7 +3,7 @@ UnitTesting
 
 [![Build Status](https://travis-ci.org/randy3k/UnitTesting.svg?branch=master)](https://travis-ci.org/randy3k/UnitTesting) 
 [![Build status](https://ci.appveyor.com/api/projects/status/9nnjlnj6tetbxuqd/branch/master?svg=true)](https://ci.appveyor.com/project/randy3k/unittesting/branch/master)
-[![Coverage Status](https://coveralls.io/repos/github/randy3k/UnitTesting/badge.svg?branch=master)](https://coveralls.io/github/randy3k/UnitTesting?branch=coverage)
+[![Coverage Status](https://coveralls.io/repos/github/randy3k/UnitTesting/badge.svg?branch=master)](https://coveralls.io/github/randy3k/UnitTesting?branch=master)
 <a href="https://packagecontrol.io/packages/UnitTesting"><img src="https://packagecontrol.herokuapp.com/downloads/UnitTesting.svg"></a>
 
 This is a unittest framework for Sublime Text 2 and 3. It helps in running Sublime Text plugins' tests on local machines or via CI services such as [travis-ci](https://travis-ci.org) and [appveyor](http://www.appveyor.com). It also supports testing syntax_test files for the new [sublime-syntax](https://www.sublimetext.com/docs/3/syntax.html) format.
