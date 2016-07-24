@@ -47,6 +47,7 @@ Bootstrap() {
             PACKAGE_RELOADER_TAG=$(git ls-remote --tags "$PR_URL" |
                   sed 's|.*/v\(.*\)$|\1|' | grep -v '\^' |
                   sort -t. -k1,1nr -k2,2nr -k3,3nr | head -n1)
+            PACKAGE_RELOADER_TAG="v$PACKAGE_RELOADER_TAG"
         fi
 
         if [ ! -d "$STP/PackageReloader" ]; then
