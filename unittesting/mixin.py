@@ -19,20 +19,12 @@ class UnitTestingMixin:
     def current_project_name(self):
         """Return back the project name of the current project
         """
-
-        if version >= "3000":
-            project_name = sublime.active_window().project_file_name()
+        folders = sublime.active_window().folders()
+        if folders and len(folders) > 0:
+            return os.path.basename(folders[0])
         else:
-            project_name = None
-
-        if project_name is None:
-            folders = sublime.active_window().folders()
-            if len(folders) > 0:
-                project_name = folders[0].rsplit(os.sep, 1)[1]
-        else:
-            project_name = project_name.rsplit(os.sep, 1)[1].split('.')[0]
-
-        return project_name
+            project_file_name = sublime.active_window().project_file_name()
+            return os.path.splitext(os.path.basename(project_file_name))[0]
 
     @property
     def recent_package(self):
