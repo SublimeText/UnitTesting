@@ -2,3 +2,4 @@
 omit = 
     */vendor/*
     */tests/*
+    */core/*
