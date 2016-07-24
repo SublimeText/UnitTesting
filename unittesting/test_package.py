@@ -44,13 +44,13 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand, UnitTestingMixin):
         testRunner = None
         if settings["coverage"]:
             package_path = os.path.join(sublime.packages_path(), package)
-            settings.update({
-                "converage_result": os.path.join(package_path, ".coverage")
-            })
+            data_file = os.path.join(package_path, ".coverage")
             config_file = os.path.join(package_path, ".coveragerc")
             cov = coverage.Coverage(
+                data_file=data_file,
                 config_file=config_file if os.path.exists(config_file) else None,
                 include="{}/*".format(package_path))
+
             cov.start()
         else:
             cov = None
@@ -71,26 +71,32 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand, UnitTestingMixin):
         except Exception as e:
             if not stream.closed:
                 stream.write("ERROR: %s\n" % e)
+            # force clean up
+            testRunner = None
+        finally:
+            def clean_up(status=0):
+                if not settings["deferred"] or not testRunner or \
+                        testRunner.finished or status > 600:
 
-        self.clean_up(testRunner, stream, stdout, stderr, handler, settings, cov)
+                    if settings["coverage"]:
+                        stream.write("\n")
+                        cov.stop()
+                        old_wd = os.getcwd()
+                        os.chdir(package_path)
+                        cov.report(file=stream)
+                        os.chdir(old_wd)
+                        cov.save()
 
-    def clean_up(self, testRunner, stream, stdout, stderr, handler, settings, cov):
-        if not settings["deferred"] or not testRunner or testRunner.finished:
-            if settings["coverage"]:
-                stream.write("\n")
-                cov.stop()
-                cov.report(ignore_errors=True, file=stream)
-                cov.get_data().write_file(settings["converage_result"])
-            stream.write("\n")
-            stream.write(DONE_MESSAGE)
-            stream.close()
-            if settings["capture_console"]:
-                sys.stdout = stdout
-                sys.stderr = stderr
-                # remove stream set by logging.root.addHandler
-                logging.root.removeHandler(handler)
+                    stream.write("\n")
+                    stream.write(DONE_MESSAGE)
+                    stream.close()
+                    if settings["capture_console"]:
+                        sys.stdout = stdout
+                        sys.stderr = stderr
+                        # remove stream set by logging.root.addHandler
+                        logging.root.removeHandler(handler)
 
-        else:
-            sublime.set_timeout(
-                lambda: self.clean_up(
-                    testRunner, stream, stdout, stderr, handler, settings, cov), 500)
+                else:
+                    sublime.set_timeout(lambda: clean_up(status+1), 500)
+
+            clean_up()

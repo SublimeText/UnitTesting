@@ -3,3 +3,6 @@ omit =
     */vendor/*
     */tests/*
     */core/*
+
+[report]
+ignore_errors = True
