@@ -153,4 +153,4 @@ class UnitTestingMixin:
                 setattr(w, "window", sublime.active_window())
                 PackageReloader.package_reloader.PackageReloaderReloadCommand.run_async(w, package)
             else:
-                sys.modules["PackageReloader"].reloader.reload_package(package)
+                sys.modules["PackageReloader"].reloader.reload_package(package, dummy=False)
