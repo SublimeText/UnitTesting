@@ -38,18 +38,21 @@ Bootstrap() {
         git clone --quiet --depth 1 --branch $UNITTESTING_TAG "$UT_URL" "$STP/UnitTesting"
     fi
 
-    PR_URL="https://github.com/randy3k/PackageReloader"
+    if [ "$SUBLIME_TEXT_VERSION" == 3 ]; then
+        PR_URL="https://github.com/randy3k/PackageReloader"
 
-    if [ -z $PACKAGE_RELOADER_TAG ]; then
-        # latest tag
-        echo "download latest PackageReloader tag"
-        PACKAGE_RELOADER_TAG=$(git ls-remote --tags "$PR_URL" |
-              sed 's|.*/\(.*\)$|\1|' | grep -v '\^' |
-              sort -t. -k1,1nr -k2,2nr -k3,3nr | head -n1)
-    fi
+        if [ -z $PACKAGE_RELOADER_TAG ]; then
+            # latest tag
+            echo "download latest PackageReloader tag"
+            PACKAGE_RELOADER_TAG=$(git ls-remote --tags "$PR_URL" |
+                  sed 's|.*/\(.*\)$|\1|' | grep -v '\^' |
+                  sort -t. -k1,1nr -k2,2nr -k3,3nr | head -n1)
+        fi
 
-    if [ ! -d "$STP/PackageReloader" ]; then
-        git clone --quiet --depth 1 --branch $PACKAGE_RELOADER_TAG "$PR_URL" "$STP/PackageReloader"
+        if [ ! -d "$STP/PackageReloader" ]; then
+            PR_PATH="$STP/PackageReloader"
+            git clone --quiet --depth 1 --branch $PACKAGE_RELOADER_TAG "$PR_URL" "$PR_PATH"
+        fi
     fi
 }
 

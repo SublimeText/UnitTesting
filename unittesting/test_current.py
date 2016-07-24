@@ -4,6 +4,9 @@ from collections import namedtuple
 from .test_package import UnitTestingCommand
 from .test_coverage import UnitTestingCoverageCommand
 
+version = sublime.version()
+platform = sublime.platform()
+
 
 class UnitTestingCurrentProjectCommand(UnitTestingCommand):
     def run(self):
@@ -51,7 +54,7 @@ class UnitTestingCurrentProjectCoverageCommand(UnitTestingCoverageCommand):
         UnitTestingCoverageCommand.run(self, project_name)
 
     def is_enabled(self):
-        return "PackageReloader" in sys.modules
+        return version >= "3000" and platform != "windows" and "PackageReloader" in sys.modules
 
 
 class UnitTestingCurrentFileCommand(UnitTestingCommand):

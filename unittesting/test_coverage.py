@@ -48,4 +48,4 @@ class UnitTestingCoverageCommand(UnitTestingCommand):
         UnitTestingCommand.unit_testing(self, stream, package, settings, [cleanup])
 
     def is_enabled(self):
-        return "PackageReloader" in sys.modules
+        return version >= "3000" and platform != "windows" and "PackageReloader" in sys.modules
