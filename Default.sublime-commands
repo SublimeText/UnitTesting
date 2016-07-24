@@ -8,8 +8,18 @@
     "command": "unit_testing_current_project"
   },
   {
+    "caption": "UnitTesting: Test Current Project (with Coverage)",
+    "command": "unit_testing_current_project",
+    "args": {"coverage": true}
+  },
+  {
     "caption": "UnitTesting: Reload and Test Current Project",
     "command": "unit_testing_current_project_reload"
+  },
+  {
+    "caption": "UnitTesting: Reload and Test Current Project (with Coverage)",
+    "command": "unit_testing_current_project_reload",
+    "args": {"coverage": true}
   },
   {
     "caption": "UnitTesting: Test Current File",

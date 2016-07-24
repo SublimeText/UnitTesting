@@ -5,18 +5,19 @@ from .test_package import UnitTestingCommand
 
 
 class UnitTestingCurrentProjectCommand(UnitTestingCommand):
-    def run(self):
+    def run(self, coverage=False):
         project_name = self.current_project_name
         if not project_name:
             sublime.message_dialog("Project not found.")
             return
 
-        UnitTestingCommand.run(self, project_name)
+        UnitTestingCommand.run(self, project_name, coverage=coverage)
 
 
 class UnitTestingCurrentProjectReloadCommand(UnitTestingCommand):
 
-    def run(self):
+    def run(self, coverage=False):
+        self.coverage = coverage
         # since PackageReloader is st 3 only, we have
         # sublime.set_timeout_async
         sublime.set_timeout_async(self.run_async, 1)
@@ -32,7 +33,9 @@ class UnitTestingCurrentProjectReloadCommand(UnitTestingCommand):
         w = type('', (), {})()
         setattr(w, "window", sublime.active_window())
         PackageReloader.package_reloader.PackageReloaderReloadCommand.run_async(w, project_name)
-        sublime.set_timeout(lambda:  sublime.run_command("unit_testing_current_project"))
+        sublime.set_timeout(
+            lambda: sublime.run_command(
+                "unit_testing_current_project", args={"coverage": self.coverage}))
 
     def is_enabled(self):
         return "PackageReloader" in sys.modules
