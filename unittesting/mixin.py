@@ -83,18 +83,23 @@ class UnitTestingMixin:
             async = ss.get("async", async)
             deferred = ss.get("deferred", deferred)
             verbosity = ss.get("verbosity", verbosity)
+            capture_console = ss.get("capture_console", False)
+
             if pattern is None:
                 pattern = ss.get("pattern", pattern)
             if not output:
                 output = ss.get("output", "<panel>")
-            capture_console = ss.get("capture_console", False)
-            coverage = ss.get("coverage", False)
+            if not coverage:
+                coverage = ss.get("coverage", coverage)
 
         if pattern is None:
             pattern = "test*.py"
 
         if output is None:
             output = "<panel>"
+
+        if coverage is None:
+            coverage = False
 
         if version < '3000':
             async = False
