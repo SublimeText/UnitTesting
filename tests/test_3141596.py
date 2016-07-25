@@ -38,22 +38,33 @@ def cleanup_package(package):
         pass
 
 
-def perpare_package(package, output=None, syntax_test=False, defer=0):
+def perpare_package(package, output=None, syntax_test=False, delay=None):
     def wrapper(func):
         @wraps(func)
         def real_wrapper(self):
             set_package(package)
-            if not output:
-                outfile = os.path.join(outputdir, package)
+            if output:
+                # set by _Ooutput/unittesting.json
+                outfile = None
+                result_file = os.path.join(sublime.packages_path(), package, output)
+            else:
+                outfiledir = outputdir
+                outfile = os.path.join(outfiledir, package)
+                result_file = outfile
+                if not os.path.isdir(outfiledir):
+                    os.makedirs(outfiledir)
+
             if syntax_test:
                 yield 1000
                 sublime.run_command(
                     "unit_testing_syntax", {"package": package, "output": outfile})
             else:
                 sublime.run_command(
-                    "unit_testing_package", {"package": package, "output": outfile})
+                    "unit_testing", {"package": package, "output": outfile})
 
-            with open(outfile, 'r') as f:
+            if delay:
+                yield delay
+            with open(result_file, 'r') as f:
                 txt = f.read()
             m = re.search('^UnitTesting: Done\\.', txt, re.MULTILINE)
             self.assertTrue(hasattr(m, "group"))
@@ -63,7 +74,7 @@ def perpare_package(package, output=None, syntax_test=False, defer=0):
     return wrapper
 
 
-class TestUnitTesting(TestCase):
+class TestUnitTesting(DeferrableTestCase):
 
     def tearDown(self):
         UTSetting.set("recent-package", "UnitTesting")
@@ -88,36 +99,10 @@ class TestUnitTesting(TestCase):
         m = re.search('^OK', txt, re.MULTILINE)
         self.assertTrue(hasattr(m, "group"))
 
-
-# sublime.run_command("unit_testing", ...) does not play well with DeferrableTestCase
-# since DeferrableTestCase is non-blocking, we put the tests here instead
-class TestDeferrable(DeferrableTestCase):
-
-    def setUp(self):
-        self.view = sublime.active_window().new_file()
-        # make sure we have a window to work with
-        s = sublime.load_settings("Preferences.sublime-settings")
-        s.set("close_windows_when_empty", False)
-
-    def tearDown(self):
-        if self.view:
-            self.view.set_scratch(True)
-            self.view.window().focus_view(self.view)
-            self.view.window().run_command("close_file")
-
-    def setText(self, string):
-        self.view.run_command("insert", {"characters": string})
-
-    def getRow(self, row):
-        return self.view.substr(self.view.line(self.view.text_point(row, 0)))
-
-    def test_defer(self):
-        self.setText("foo")
-        self.view.sel().clear()
-        self.view.sel().add(sublime.Region(0, 0))
-        sublime.set_timeout(lambda: self.setText("foo"), 100)
-        yield 200
-        self.assertEqual(self.getRow(0), "foofoo")
+    @perpare_package("_Deferred", delay=1000)
+    def test_deferred(self, txt):
+        m = re.search('^OK', txt, re.MULTILINE)
+        self.assertTrue(hasattr(m, "group"))
 
 
 if version >= '3103':

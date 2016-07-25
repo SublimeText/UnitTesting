@@ -35,6 +35,8 @@ elif "linux" in sys.platform:
     packages_path = os.path.expanduser("~/.config/sublime-text-%d/Packages" % version)
 
 outdir = os.path.join(packages_path, "User", "UnitTesting", "tests_output")
+if not os.path.isdir(outdir):
+    os.makedirs(outdir)
 outfile = os.path.join(outdir, package)
 
 # remove output

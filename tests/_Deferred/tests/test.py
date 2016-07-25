@@ -1,6 +1,7 @@
 import sublime
 from unittest import TestCase
-import unittesting import DeferrableTestCase
+from unittesting import DeferrableTestCase
+
 
 class TestDeferrable(DeferrableTestCase):
 

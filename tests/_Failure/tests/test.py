@@ -8,6 +8,9 @@ class TestHelloWorld(TestCase):
 
     def setUp(self):
         self.view = sublime.active_window().new_file()
+        # make sure we have a window to work with
+        s = sublime.load_settings("Preferences.sublime-settings")
+        s.set("close_windows_when_empty", False)
 
     def tearDown(self):
         if self.view:
