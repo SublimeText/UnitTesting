@@ -24,21 +24,22 @@ Bootstrap() {
         ln -s "$PWD" "$STP/$PACKAGE"
     fi
 
-    UT_URL="https://github.com/randy3k/UnitTesting"
-
-    if [ -z $UNITTESTING_TAG ]; then
-        # latest tag
-        echo "download latest UnitTesting tag"
-        UNITTESTING_TAG=$(git ls-remote --tags "$UT_URL" |
-              sed 's|.*/\(.*\)$|\1|' | grep -v '\^' |
-              sort -t. -k1,1nr -k2,2nr -k3,3nr | head -n1)
-    fi
-
     if [ ! -d "$STP/UnitTesting" ]; then
+
+        UT_URL="https://github.com/randy3k/UnitTesting"
+
+        if [ -z $UNITTESTING_TAG ]; then
+            # latest tag
+            echo "download latest UnitTesting tag"
+            UNITTESTING_TAG=$(git ls-remote --tags "$UT_URL" |
+                  sed 's|.*/\(.*\)$|\1|' | grep -v '\^' |
+                  sort -t. -k1,1nr -k2,2nr -k3,3nr | head -n1)
+        fi
+
         git clone --quiet --depth 1 --branch $UNITTESTING_TAG "$UT_URL" "$STP/UnitTesting"
     fi
 
-    if [ "$SUBLIME_TEXT_VERSION" -eq 3 ]; then
+    if [ "$SUBLIME_TEXT_VERSION" -eq 3 ] && [ ! -d "$STP/PackageReloader" ]; then
         PR_URL="https://github.com/randy3k/PackageReloader"
 
         if [ -z $PACKAGE_RELOADER_TAG ]; then
@@ -50,10 +51,8 @@ Bootstrap() {
             PACKAGE_RELOADER_TAG="v$PACKAGE_RELOADER_TAG"
         fi
 
-        if [ ! -d "$STP/PackageReloader" ]; then
-            PR_PATH="$STP/PackageReloader"
-            git clone --quiet --depth 1 --branch $PACKAGE_RELOADER_TAG "$PR_URL" "$PR_PATH"
-        fi
+        PR_PATH="$STP/PackageReloader"
+        git clone --quiet --depth 1 --branch $PACKAGE_RELOADER_TAG "$PR_URL" "$PR_PATH"
     fi
 }
 
