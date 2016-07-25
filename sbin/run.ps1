@@ -36,6 +36,7 @@ $found = (@($schedule | foreach-object { $_.package }) -eq $PackageToTest).lengt
 if ($found -eq 0) {
     $schedule += @{
         "package" = $PackageToTest;
+        "output" = $outFile;
         "syntax_test" = $syntax_test.IsPresent
     }
 }

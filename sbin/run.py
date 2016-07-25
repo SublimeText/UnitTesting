@@ -52,7 +52,12 @@ try:
 except:
     schedule = []
 if not any([s['package'] == package for s in schedule]):
-    schedule.append({'package': package, 'syntax_test': syntax_test, 'coverage': coverage})
+    schedule.append({
+        'package': package,
+        'output': outfile,
+        'syntax_test': syntax_test,
+        'coverage': coverage
+    })
 with open(jpath, 'w') as f:
     f.write(json.dumps(schedule, ensure_ascii=False, indent=True))
 

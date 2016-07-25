@@ -1,7 +1,6 @@
 import os
 import sys
 import re
-import tempfile
 
 from .utils import UTSetting
 from .utils import OutputPanel
@@ -66,6 +65,7 @@ class UnitTestingMixin:
         deferred = False
         verbosity = 2
         output = kargs["output"] if "output" in kargs else None
+        covdata = kargs["covdata"] if "covdata" in kargs else False
         capture_console = False
 
         jfile = os.path.join(sublime.packages_path(), package, "unittesting.json")
@@ -76,17 +76,13 @@ class UnitTestingMixin:
             deferred = ss.get("deferred", deferred)
             verbosity = ss.get("verbosity", verbosity)
             capture_console = ss.get("capture_console", False)
-
             if pattern is None:
-                pattern = ss.get("pattern", pattern)
+                pattern = ss.get("pattern")
             if not output:
-                output = ss.get("output", "<panel>")
+                output = ss.get("output")
 
         if pattern is None:
             pattern = "test*.py"
-
-        if output is None:
-            output = "<panel>"
 
         if version < '3000':
             async = False
@@ -98,7 +94,8 @@ class UnitTestingMixin:
             "verbosity": verbosity,
             "pattern": pattern,
             "output": output,
-            "capture_console": capture_console
+            "capture_console": capture_console,
+            "covdata": covdata
         }
 
     def default_output(self, package):
@@ -110,29 +107,19 @@ class UnitTestingMixin:
         return outfile
 
     def load_stream(self, package, output):
-        if output == "<panel>":
+        if not output or output == "<panel>":
             output_panel = OutputPanel(
                 'UnitTesting', file_regex=r'File "([^"]*)", line (\d+)')
             output_panel.show()
             stream = output_panel
-        elif output == "<tempfile>":
-            stream = tempfile.NamedTemporaryFile(mode="w", delete=False)
-            window = sublime.active_window()
-            view = window.active_view()
-            window.open_file(stream.name)
-            window.focus_view(view)
         else:
-            if not output or output == "<file>":
-                outfile = self.default_output(package)
-            else:
-                outfile = output
-            if not os.path.isabs(outfile):
+            if not os.path.isabs(output):
                 if sublime.platform() == "windows":
-                    outfile.replace("/", "\\")
-                outfile = os.path.join(sublime.packages_path(), package, outfile)
-            if os.path.exists(outfile):
-                os.remove(outfile)
-            stream = open(outfile, "w")
+                    output.replace("/", "\\")
+                output = os.path.join(sublime.packages_path(), package, output)
+            if os.path.exists(output):
+                os.remove(output)
+            stream = open(output, "w")
 
         return stream
 

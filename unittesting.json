@@ -5,5 +5,5 @@
     "deferred": true,
     "verbosity": 2,
     "capture_console": false,
-    "output": "<panel>"
+    "output": null
 }

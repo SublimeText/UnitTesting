@@ -30,21 +30,19 @@ class UnitTestingCoverageCommand(UnitTestingCommand):
         else:
             config_file = None
 
-        def cleanup():
-            stream.write("\n")
-            cov.stop()
-            old_wd = os.getcwd()
-            os.chdir(package_path)
-            coverage.files.set_relative_directory()
-            cov.report(file=stream)
-            if settings["output"] != "<panel>":
-                cov.save()
-            os.chdir(old_wd)
-
         cov = coverage.Coverage(
             data_file=data_file, config_file=config_file, include=include, omit=omit)
         cov.start()
         self.reload_package(package)
+
+        def cleanup():
+            stream.write("\n")
+            cov.stop()
+            coverage.files.RELATIVE_DIR = package_path
+            cov.report(file=stream)
+            if "covdata" in settings and settings["covdata"]:
+                cov.save()
+
         UnitTestingCommand.unit_testing(self, stream, package, settings, [cleanup])
 
     def is_enabled(self):

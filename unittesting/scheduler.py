@@ -10,6 +10,7 @@ class Unit:
 
     def __init__(self, s):
         self.package = s['package']
+        self.output = s['output'] if 'output' in s else None
         self.syntax_test = s['syntax_test'] if 'syntax_test' in s else None
         self.coverage = s['coverage'] if 'coverage' in s else None
 
@@ -17,20 +18,19 @@ class Unit:
         if self.syntax_test:
             sublime.run_command("unit_testing_syntax", {
                 "package": self.package,
-                "output": "<file>",
-                "coverage": self.coverage
+                "output": self.output
             })
-        else:
-            if self.coverage:
+        elif self.coverage:
                 sublime.run_command("unit_testing_coverage", {
                     "package": self.package,
-                    "output": "<file>"
+                    "output": self.output,
+                    "covdata": True
                 })
-            else:
-                sublime.run_command("unit_testing", {
-                    "package": self.package,
-                    "output": "<file>"
-                })
+        else:
+            sublime.run_command("unit_testing", {
+                "package": self.package,
+                "output": self.output
+            })
 
 
 class Scheduler:
@@ -55,11 +55,7 @@ class Scheduler:
         self.clean_schedule()
 
     def clean_schedule(self):
-        self.schedule = [
-            s for s in self.schedule
-            if "expire" in s and s["expire"] == "never"
-        ]
-        self.j.save(self.schedule)
+        self.j.save([])
 
 
 class UnitTestingRunSchedulerCommand(sublime_plugin.ApplicationCommand):

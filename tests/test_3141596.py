@@ -38,24 +38,23 @@ def cleanup_package(package):
         pass
 
 
-def perpare_package(package, output="<file>", syntax_test=False, defer=0):
+def perpare_package(package, output=None, syntax_test=False, defer=0):
     def wrapper(func):
         @wraps(func)
         def real_wrapper(self):
             set_package(package)
+            if not output:
+                outfile = os.path.join(outputdir, package)
             if syntax_test:
                 yield 1000
                 sublime.run_command(
-                    "unit_testing_syntax", {"package": package, "output": output})
+                    "unit_testing_syntax", {"package": package, "output": outfile})
             else:
                 sublime.run_command(
-                    "unit_testing_package", {"package": package, "output": output})
-            if output == "<file>":
-                with open(os.path.join(outputdir, package), 'r') as f:
-                    txt = f.read()
-            else:
-                with open(os.path.join(sublime.packages_path(), package, output), 'r') as f:
-                    txt = f.read()
+                    "unit_testing_package", {"package": package, "output": outfile})
+
+            with open(outfile, 'r') as f:
+                txt = f.read()
             m = re.search('^UnitTesting: Done\\.', txt, re.MULTILINE)
             self.assertTrue(hasattr(m, "group"))
             func(self, txt)
