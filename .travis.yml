@@ -14,6 +14,14 @@ env:
         - SUBLIME_TEXT_VERSION="3"
         - SUBLIME_TEXT_VERSION="2" PCINSTALL=true
         - SUBLIME_TEXT_VERSION="3" PCINSTALL=true
+        - SUBLIME_TEXT_VERSION="2" PACKAGE_RELOADER_TAG="master"
+        - SUBLIME_TEXT_VERSION="3" PACKAGE_RELOADER_TAG="master"
+
+matrix:
+  allow_failures:
+    - env:
+        - SUBLIME_TEXT_VERSION="2" PACKAGE_RELOADER_TAG="master"
+        - SUBLIME_TEXT_VERSION="3" PACKAGE_RELOADER_TAG="master"
 
 before_install:
     - if [ "$TRAVIS_OS_NAME" == "linux"  ]; then
