@@ -41,7 +41,9 @@ class UnitTestingCoverageCommand(UnitTestingCommand):
             stream.write("\n")
             cov.stop()
             coverage.files.RELATIVE_DIR = package_path
-            cov.report(file=stream)
+            ignore_errors = cov.get_option("report:ignore_errors")
+            show_missing = cov.get_option("report:show_missing")
+            cov.report(file=stream, ignore_errors=ignore_errors, show_missing=show_missing)
             if "covdata" in settings and settings["covdata"]:
                 cov.save()
 
