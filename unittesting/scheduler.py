@@ -23,8 +23,7 @@ class Unit:
         elif self.coverage:
                 sublime.run_command("unit_testing_coverage", {
                     "package": self.package,
-                    "output": self.output,
-                    "covdata": True
+                    "output": self.output
                 })
         else:
             sublime.run_command("unit_testing", {

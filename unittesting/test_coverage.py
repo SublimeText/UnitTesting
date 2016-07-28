@@ -18,7 +18,13 @@ class UnitTestingCoverageCommand(UnitTestingCommand):
 
     def unit_testing(self, stream, package, settings):
         package_path = os.path.join(sublime.packages_path(), package)
-        data_file = os.path.join(package_path, ".coverage")
+        data_file = os.path.join(
+            sublime.packages_path(), "User", "UnitTesting", package, "coverage")
+        data_file_dir = os.path.dirname(data_file)
+        if not os.path.isdir(data_file_dir):
+            os.makedirs(data_file_dir)
+        if os.path.exists(data_file):
+            os.unlink(data_file)
         config_file = os.path.join(package_path, ".coveragerc")
         include = "{}/*".format(package_path)
         omit = "{}/{}/*".format(package_path, settings["tests_dir"])
@@ -44,8 +50,7 @@ class UnitTestingCoverageCommand(UnitTestingCommand):
             ignore_errors = cov.get_option("report:ignore_errors")
             show_missing = cov.get_option("report:show_missing")
             cov.report(file=stream, ignore_errors=ignore_errors, show_missing=show_missing)
-            if "covdata" in settings and settings["covdata"]:
-                cov.save()
+            cov.save()
 
         UnitTestingCommand.unit_testing(self, stream, package, settings, [cleanup])
 

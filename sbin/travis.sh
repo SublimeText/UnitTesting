@@ -20,9 +20,9 @@ Bootstrap() {
     sh "$HOME/sublime_text_installer/install_sublime_text.sh"
 
     if [ ! -d "$STP/$PACKAGE" ]; then
-        echo "copy the package to sublime text Packages directory"
-        mkdir -p "$STP/$PACKAGE"
-        cp -r * "$STP/$PACKAGE"
+        # we need synlink to get correct file paths for coverage and coveralls
+        echo "symlink the package to sublime package directory"
+        ln -s "$PWD" "$STP/$PACKAGE"
     fi
 
     UT_PATH="$STP/UnitTesting"

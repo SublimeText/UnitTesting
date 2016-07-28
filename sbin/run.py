@@ -3,6 +3,7 @@ import time
 import os
 import re
 import sys
+import shutil
 import json
 import optparse
 
@@ -34,14 +35,18 @@ if sys.platform == "darwin":
 elif "linux" in sys.platform:
     packages_path = os.path.expanduser("~/.config/sublime-text-%d/Packages" % version)
 
-outdir = os.path.join(packages_path, "User", "UnitTesting", "tests_output")
+outdir = os.path.join(packages_path, "User", "UnitTesting", package)
 if not os.path.isdir(outdir):
     os.makedirs(outdir)
-outfile = os.path.join(outdir, package)
+outfile = os.path.join(outdir, "result")
+coveragefile = os.path.join(outdir, "coverage")
 
 # remove output
 if os.path.exists(outfile):
     os.unlink(outfile)
+
+if os.path.exists(coveragefile):
+    os.unlink(coveragefile)
 
 # add schedule
 jpath_dir = os.path.join(packages_path, "User", "UnitTesting")
@@ -99,6 +104,10 @@ with open(outfile, 'r') as f:
         elif not result:
             f.seek(where)
         time.sleep(0.2)
+
+# restore .coverage if it exists, needed for coveralls
+if os.path.exists(coveragefile):
+    shutil.copyfile(coveragefile, os.path.join(os.getcwd(), ".coverage"))
 
 if not success:
     sys.exit(1)

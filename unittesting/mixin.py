@@ -65,7 +65,6 @@ class UnitTestingMixin:
         deferred = False
         verbosity = 2
         output = kargs["output"] if "output" in kargs else None
-        covdata = kargs["covdata"] if "covdata" in kargs else False
         capture_console = False
 
         jfile = os.path.join(sublime.packages_path(), package, "unittesting.json")
@@ -94,8 +93,7 @@ class UnitTestingMixin:
             "verbosity": verbosity,
             "pattern": pattern,
             "output": output,
-            "capture_console": capture_console,
-            "covdata": covdata
+            "capture_console": capture_console
         }
 
     def default_output(self, package):

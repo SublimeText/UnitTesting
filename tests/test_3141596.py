@@ -10,8 +10,8 @@ import sublime
 version = sublime.version()
 
 __dir__ = os.path.dirname(os.path.abspath(__file__))
-outputdir = os.path.join(
-    sublime.packages_path(), 'User', 'UnitTesting', "tests_output")
+UUT_dir = os.path.join(
+    sublime.packages_path(), 'User', 'UnitTesting')
 
 
 def set_package(package):
@@ -26,7 +26,7 @@ def set_package(package):
     except:
         pass
     try:
-        os.unlink(os.path.join(outputdir, package))
+        shutil.rmtree(os.path.join(UUT_dir, package))
     except:
         pass
 
@@ -48,8 +48,8 @@ def perpare_package(package, output=None, syntax_test=False, delay=None):
                 outfile = None
                 result_file = os.path.join(sublime.packages_path(), package, output)
             else:
-                outfiledir = outputdir
-                outfile = os.path.join(outfiledir, package)
+                outfiledir = os.path.join(UUT_dir, package)
+                outfile = os.path.join(outfiledir, "result")
                 result_file = outfile
                 if not os.path.isdir(outfiledir):
                     os.makedirs(outfiledir)

@@ -14,8 +14,8 @@ new-variable -name 'UTF8Encoding' -option CONSTANT -scope 'script' `
 $packagesPath = 'c:\st\Data\Packages'
 $stPath = 'c:\st\sublime_text.exe'
 
-$outDir = "$packagesPath\User\UnitTesting\tests_output"
-$outFile = "$outDir\$PackageToTest"
+$outDir = "$packagesPath\User\UnitTesting\$PackageToTest"
+$outFile = "$outDir\result"
 [void] (new-item -itemtype file $outFile -force)
 
 remove-item $outFile -force -erroraction silentlycontinue
