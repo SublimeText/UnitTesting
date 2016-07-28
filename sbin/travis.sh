@@ -20,11 +20,13 @@ Bootstrap() {
     sh "$HOME/sublime_text_installer/install_sublime_text.sh"
 
     if [ ! -d "$STP/$PACKAGE" ]; then
-        echo "symlink the package to sublime package directory"
-        ln -s "$PWD" "$STP/$PACKAGE"
+        echo "copy the package to sublime text Packages directory"
+        mkdir -p "$STP/$PACKAGE"
+        cp -r * "$STP/$PACKAGE"
     fi
 
-    if [ ! -d "$STP/UnitTesting" ]; then
+    UT_PATH="$STP/UnitTesting"
+    if [ ! -d "$UT_PATH" ]; then
 
         UT_URL="https://github.com/randy3k/UnitTesting"
 
@@ -36,23 +38,41 @@ Bootstrap() {
                   sort -t. -k1,1nr -k2,2nr -k3,3nr | head -n1)
         fi
 
-        git clone --quiet --depth 1 --branch $UNITTESTING_TAG "$UT_URL" "$STP/UnitTesting"
+        git clone --quiet --depth 1 --branch $UNITTESTING_TAG "$UT_URL" "$UT_PATH"
     fi
 
-    if [ "$SUBLIME_TEXT_VERSION" -eq 3 ] && [ ! -d "$STP/PackageReloader" ]; then
+    PR_PATH="$STP/PackageReloader"
+    if [ "$SUBLIME_TEXT_VERSION" -eq 3 ] && [ ! -d "$PR_PATH" ]; then
         PR_URL="https://github.com/randy3k/PackageReloader"
 
         if [ -z $PACKAGE_RELOADER_TAG ]; then
             # latest tag
-            echo "download latest PackageReloader tag"
             PACKAGE_RELOADER_TAG=$(git ls-remote --tags "$PR_URL" |
                   sed 's|.*/v\(.*\)$|\1|' | grep -v '\^' |
                   sort -t. -k1,1nr -k2,2nr -k3,3nr | head -n1)
             PACKAGE_RELOADER_TAG="v$PACKAGE_RELOADER_TAG"
+            echo "download latest PackageReloader tag: $PACKAGE_RELOADER_TAG"
         fi
 
-        PR_PATH="$STP/PackageReloader"
         git clone --quiet --depth 1 --branch $PACKAGE_RELOADER_TAG "$PR_URL" "$PR_PATH"
+        rm -rf "$PR_PATH/.git"
+    fi
+
+    COV_PATH="$STP/coverage"
+    if [ "$SUBLIME_TEXT_VERSION" -eq 3 ] && [ ! -d "$COV_PATH" ]; then
+
+        COV_URL="https://github.com/codexns/sublime-coverage"
+
+        if [ -z $COVERAGE_TAG ]; then
+            # latest tag
+            COVERAGE_TAG=$(git ls-remote --tags "$COV_URL" |
+                  sed 's|.*/\(.*\)$|\1|' | grep -v '\^' |
+                  sort -t. -k1,1nr -k2,2nr -k3,3nr | head -n1)
+            echo "download latest sublime-coverage tag: $COVERAGE_TAG"
+        fi
+
+        git clone --quiet --depth 1 --branch $COVERAGE_TAG "$COV_URL" "$COV_PATH"
+        rm -rf "$COV_PATH/.git"
     fi
 }
 

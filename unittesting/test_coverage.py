@@ -2,14 +2,16 @@ import sublime
 import os
 import sys
 import re
-# from collections import namedtuple
 from .test_package import UnitTestingCommand
 
 version = sublime.version()
 platform = sublime.platform()
 
-if version >= "3000" and platform != "windows":
-    import coverage
+try:
+    if version >= "3000":
+        import coverage
+except:
+    print("coverage not found.")
 
 
 class UnitTestingCoverageCommand(UnitTestingCommand):
@@ -46,4 +48,4 @@ class UnitTestingCoverageCommand(UnitTestingCommand):
         UnitTestingCommand.unit_testing(self, stream, package, settings, [cleanup])
 
     def is_enabled(self):
-        return version >= "3000" and platform != "windows" and "PackageReloader" in sys.modules
+        return "PackageReloader" in sys.modules and "coverage" in sys.modules

@@ -54,7 +54,7 @@ class UnitTestingCurrentProjectCoverageCommand(UnitTestingCoverageCommand):
         UnitTestingCoverageCommand.run(self, project_name)
 
     def is_enabled(self):
-        return version >= "3000" and platform != "windows" and "PackageReloader" in sys.modules
+        return "PackageReloader" in sys.modules and "coverage" in sys.modules
 
 
 class UnitTestingCurrentFileCommand(UnitTestingCommand):

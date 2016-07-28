@@ -6,10 +6,12 @@ version = sublime.version()
 platform = sublime.platform()
 
 if version >= "3000":
-    if platform != "windows":
-        coverage_path = os.path.join(os.path.dirname(__file__), "vendor")
-        if coverage_path not in sys.path:
-            sys.path.append(coverage_path)
+    coverage_path = os.path.abspath(os.path.join(
+        os.path.dirname(__file__), "..", "coverage",
+        "st3_%s_%s" % (platform, sublime.arch())))
+
+    if os.path.exists(coverage_path) and coverage_path not in sys.path:
+        sys.path.append(coverage_path)
 
     from . import unittesting
     sys.modules["unittesting"] = unittesting
