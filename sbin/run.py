@@ -107,7 +107,12 @@ with open(outfile, 'r') as f:
 
 # restore .coverage if it exists, needed for coveralls
 if os.path.exists(coveragefile):
-    shutil.copyfile(coveragefile, os.path.join(os.getcwd(), ".coverage"))
+    source_path = os.path.realpath(os.path.join(os.path.dirname(__file__), "..", "..", package))
+    with open(coveragefile, "r") as f:
+        txt = f.read()
+    txt = txt.replace(os.path.join(packages_path, package), os.getcwd())
+    with open(os.path.join(os.getcwd(), ".coverage"), "w") as f:
+        f.write(txt)
 
 if not success:
     sys.exit(1)

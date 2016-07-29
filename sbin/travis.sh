@@ -22,7 +22,8 @@ Bootstrap() {
     if [ ! -d "$STP/$PACKAGE" ]; then
         # we need synlink to get correct file paths for coverage and coveralls
         echo "symlink the package to sublime package directory"
-        ln -s "$PWD" "$STP/$PACKAGE"
+        mkdir -p "$STP/$PACKAGE"
+        cp -r * "$STP/$PACKAGE"
     fi
 
     UT_PATH="$STP/UnitTesting"
