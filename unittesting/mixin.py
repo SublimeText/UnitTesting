@@ -123,6 +123,9 @@ class UnitTestingMixin:
 
     def reload_package(self, package, interface=False):
         if "PackageReloader" in sys.modules:
+            pr_settings = sublime.load_settings("package_reloader.sublime-settings")
+            open_console = pr_settings.get("open_console")
+            pr_settings.set("open_console", False)
             if interface:
                 PackageReloader = sys.modules["PackageReloader"]
                 # a hack to run run_async of PackageReloader
@@ -131,3 +134,5 @@ class UnitTestingMixin:
                 PackageReloader.package_reloader.PackageReloaderReloadCommand.run_async(w, package)
             else:
                 sys.modules["PackageReloader"].reloader.reload_package(package, dummy=False)
+
+            pr_settings.set("open_console", open_console)
