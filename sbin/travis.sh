@@ -97,9 +97,9 @@ RunTests() {
     fi
 
     if [ -z "$1" ]; then
-        python "$STP/UnitTesting/sbin/run.py" "$PACKAGE"
+        python "$STP/UnitTesting/sbin/run_tests.py" "$PACKAGE"
     else
-        python "$STP/UnitTesting/sbin/run.py" "$1" "$PACKAGE"
+        python "$STP/UnitTesting/sbin/run_tests.py" "$1" "$PACKAGE"
     fi
 }
 

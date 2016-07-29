@@ -51,9 +51,9 @@ function RunTests {
     )
 
     if ( $syntax_test.IsPresent ){
-        & "$STP\UnitTesting\sbin\run.ps1" "${env:PACKAGE}" -verbose -syntax_test
+        & "$STP\UnitTesting\sbin\run_tests.ps1" "${env:PACKAGE}" -verbose -syntax_test
     }else{
-        & "$STP\UnitTesting\sbin\run.ps1" "${env:PACKAGE}" -verbose
+        & "$STP\UnitTesting\sbin\run_tests.ps1" "${env:PACKAGE}" -verbose
     }
 }
 

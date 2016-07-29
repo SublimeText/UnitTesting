@@ -3,15 +3,14 @@ import time
 import os
 import re
 import sys
-import shutil
 import json
 import optparse
 
 # todo: allow different sublime versions
 
 # usage
-# cd ~/.config/sublime-text-3/Packages/UnitTesting
-# python sbin/run.py PACKAGE
+# cd your_package
+# python path/to/run_tests.py PACKAGE
 
 parser = optparse.OptionParser()
 parser.add_option('--syntax-test', action="store_true", default=False)
@@ -28,12 +27,8 @@ if version == 2 and coverage:
     print("Force `coverage` to False for Sublime Text 2.")
     coverage = False
 
-# sublime package directory
-if sys.platform == "darwin":
-    packages_path = os.path.expanduser(
-        "~/Library/Application Support/Sublime Text %d/Packages" % version)
-elif "linux" in sys.platform:
-    packages_path = os.path.expanduser("~/.config/sublime-text-%d/Packages" % version)
+# sublime Packages directory
+packages_path = os.path.realpath(os.path.join(os.path.dirname(__file__), "..", ".."))
 
 outdir = os.path.join(packages_path, "User", "UnitTesting", package)
 if not os.path.isdir(outdir):
@@ -107,10 +102,9 @@ with open(outfile, 'r') as f:
 
 # restore .coverage if it exists, needed for coveralls
 if os.path.exists(coveragefile):
-    source_path = os.path.realpath(os.path.join(os.path.dirname(__file__), "..", "..", package))
     with open(coveragefile, "r") as f:
         txt = f.read()
-    txt = txt.replace(os.path.join(packages_path, package), os.getcwd())
+    txt = txt.replace(os.path.realpath(os.path.join(packages_path, package)), os.getcwd())
     with open(os.path.join(os.getcwd(), ".coverage"), "w") as f:
         f.write(txt)
 
