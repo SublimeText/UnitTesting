@@ -46,7 +46,7 @@ class UnitTestingCoverageCommand(UnitTestingCommand):
         def cleanup():
             stream.write("\n")
             cov.stop()
-            coverage.files.RELATIVE_DIR = package_path
+            coverage.files.RELATIVE_DIR = os.path.normcase(package_path + os.sep)
             ignore_errors = cov.get_option("report:ignore_errors")
             show_missing = cov.get_option("report:show_missing")
             cov.report(file=stream, ignore_errors=ignore_errors, show_missing=show_missing)
