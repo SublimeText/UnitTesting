@@ -26,6 +26,11 @@ Bootstrap() {
         cp -r * "$STP/$PACKAGE"
     fi
 
+    if [ ! -f "$STP/User/Preferences.sublime-settings" ]; then
+        mkdir -p "$STP/User"
+        echo '{"close_windows_when_empty": false }' > "$STP/User/Preferences.sublime-settings"
+    fi
+
     UT_PATH="$STP/UnitTesting"
     if [ ! -d "$UT_PATH" ]; then
 
