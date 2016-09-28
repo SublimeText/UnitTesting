@@ -4,8 +4,6 @@ os:
     - linux
     - osx
 
-sudo: required
-
 env:
     global:
         - PACKAGE="UnitTesting"
@@ -38,7 +36,7 @@ script:
 
 after_success:
     - if [ "$SUBLIME_TEXT_VERSION" == "3" ]; then
-            sudo pip install python-coveralls;
+            pip install --user python-coveralls;
             coveralls;
       fi
 
