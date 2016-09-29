@@ -6,11 +6,6 @@ param(
 $STP = "C:\st\Data\Packages"
 
 function Bootstrap {
-    $STI_URL = "https://github.com/randy3k/sublime_text_installer"
-    git clone --quiet --depth 1 --branch master "$STI_URL" "C:\sublime_text_installer"
-
-    & "C:\sublime_text_installer\install_sublime_text.ps1" -verbose
-
     new-item -itemtype directory "$STP\${env:PACKAGE}" -force >$null
     write-verbose "copy the package to sublime text Packages directory"
     copy * -recurse -force "$STP\${env:PACKAGE}"
@@ -33,15 +28,13 @@ function Bootstrap {
 
         git clone --quiet --depth 1 --branch=$UNITTESTING_TAG $UT_URL "$UT_PATH" 2>$null
     }
+
+    & "$STP\UnitTesting\sbin\install_sublime_text.ps1" -verbose
+
 }
 
 function InstallPackageControl {
-    $STI_URL = "https://github.com/randy3k/sublime_text_installer"
-    if(!(test-path -path "C:\sublime_text_installer")){
-        git clone --quiet --depth 1 --branch master "$STI_URL" "C:\sublime_text_installer"
-    }
-
-    & "C:\sublime_text_installer\install_package_control.ps1" -verbose
+    & "$STP\UnitTesting\sbin\install_package_control.ps1" -verbose
 }
 
 function RunTests {

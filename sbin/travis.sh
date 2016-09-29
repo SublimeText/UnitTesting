@@ -14,21 +14,11 @@ Bootstrap() {
         sh -e /etc/init.d/xvfb start || true
     fi
 
-    STI_URL="https://github.com/randy3k/sublime_text_installer"
-    git clone --quiet --depth 1 --branch master "$STI_URL" "$HOME/sublime_text_installer"
-
-    sh "$HOME/sublime_text_installer/install_sublime_text.sh"
-
     if [ ! -d "$STP/$PACKAGE" ]; then
-        # we need synlink to get correct file paths for coverage and coveralls
-        echo "symlink the package to sublime package directory"
+        # symlink does not play well with coverage
+        echo "copy the package to sublime package directory"
         mkdir -p "$STP/$PACKAGE"
         cp -r * "$STP/$PACKAGE"
-    fi
-
-    if [ ! -f "$STP/User/Preferences.sublime-settings" ]; then
-        mkdir -p "$STP/User"
-        echo '{"close_windows_when_empty": false }' > "$STP/User/Preferences.sublime-settings"
     fi
 
     UT_PATH="$STP/UnitTesting"
@@ -80,6 +70,8 @@ Bootstrap() {
         git clone --quiet --depth 1 --branch $COVERAGE_TAG "$COV_URL" "$COV_PATH"
         rm -rf "$COV_PATH/.git"
     fi
+
+    sh "$STP/UnitTesting/sbin/install_sublime_text.sh"
 }
 
 InstallPackageControl() {
@@ -88,11 +80,7 @@ InstallPackageControl() {
         sh -e /etc/init.d/xvfb start || true
     fi
 
-    STI_URL="https://github.com/randy3k/sublime_text_installer"
-    if [ ! -d "$HOME/sublime_text_installer" ]; then
-        git clone --quiet --depth 1 --branch master "$STI_URL" "$HOME/sublime_text_installer"
-    fi
-    sh "$HOME/sublime_text_installer/install_package_control.sh"
+    sh "$STP/UnitTesting/sbin/install_package_control.sh"
 }
 
 RunTests() {
