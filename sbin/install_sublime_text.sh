@@ -77,9 +77,9 @@ else
     fi
 fi
 
-if [ ! -d "$STP" ]; then
+if [ ! -f "$STP/User/Preferences.sublime-settings" ]; then
     echo creating sublime package directory
     mkdir -p "$STP/User"
-    # disable update check
+    # make sure a new window will be opened
     echo '{"close_windows_when_empty": false }' > "$STP/User/Preferences.sublime-settings"
 fi
