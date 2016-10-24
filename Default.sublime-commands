@@ -1,6 +1,6 @@
 [
   {
-    "caption": "UnitTesting", 
+    "caption": "UnitTesting",
     "command": "unit_testing"
   },
   {
@@ -8,11 +8,11 @@
     "command": "unit_testing_current_project"
   },
   {
-    "caption": "UnitTesting: Test Current Project (Reload)",
+    "caption": "UnitTesting: Reload and Test Current Project",
     "command": "unit_testing_current_project_reload"
   },
   {
-    "caption": "UnitTesting: Test Current Project (Coverage)",
+    "caption": "UnitTesting: Test Current Project with Coverage",
     "command": "unit_testing_current_project_coverage"
   },
   {
