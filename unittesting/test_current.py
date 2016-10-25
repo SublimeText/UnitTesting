@@ -15,7 +15,7 @@ class UnitTestingCurrentProjectCommand(UnitTestingCommand):
             sublime.message_dialog("Project not found.")
             return
 
-        UnitTestingCommand.run(self, project_name)
+        super().run(project_name)
 
 
 class UnitTestingCurrentProjectReloadCommand(UnitTestingCommand):
@@ -32,7 +32,7 @@ class UnitTestingCurrentProjectReloadCommand(UnitTestingCommand):
             return
 
         self.reload_package(project_name, interface=True)
-        UnitTestingCommand.run(self, project_name)
+        super().run(project_name)
 
     def is_enabled(self):
         return "PackageReloader" in sys.modules
@@ -51,7 +51,7 @@ class UnitTestingCurrentProjectCoverageCommand(UnitTestingCoverageCommand):
             sublime.message_dialog("Project not found.")
             return
 
-        UnitTestingCoverageCommand.run(self, project_name)
+        super().run(project_name)
 
     def is_enabled(self):
         return "PackageReloader" in sys.modules and "coverage" in sys.modules
@@ -69,4 +69,4 @@ class UnitTestingCurrentFileCommand(UnitTestingCommand):
             test_file = ""
         print(test_file)
 
-        UnitTestingCommand.run(self, "{}:{}".format(project_name, test_file))
+        super().run("{}:{}".format(project_name, test_file))

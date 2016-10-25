@@ -52,7 +52,7 @@ class UnitTestingCoverageCommand(UnitTestingCommand):
             cov.report(file=stream, ignore_errors=ignore_errors, show_missing=show_missing)
             cov.save()
 
-        UnitTestingCommand.unit_testing(self, stream, package, settings, [cleanup])
+        super().unit_testing(stream, package, settings, [cleanup])
 
     def is_enabled(self):
         return "PackageReloader" in sys.modules and "coverage" in sys.modules
