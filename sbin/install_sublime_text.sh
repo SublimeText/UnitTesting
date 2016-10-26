@@ -38,7 +38,10 @@ if [ $(uname) = 'Darwin'  ]; then
             exit 1
         fi
         echo "downloading $URL"
-        curl "$URL" -o ~/Downloads/sublimetext.dmg
+        # retry 5 times
+        for i in 1 2 3 4 5; do
+            curl "$URL" -o ~/Downloads/sublimetext.dmg && break || sleep 15
+        done
         hdiutil attach ~/Downloads/sublimetext.dmg
         cp -r "/Volumes/$SUBLIME_TEXT/$SUBLIME_TEXT.app" "$HOME/Applications/$SUBLIME_TEXT.app"
         mkdir -p $HOME/.local/bin
