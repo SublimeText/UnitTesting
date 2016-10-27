@@ -31,8 +31,6 @@ class DeferringTextTestRunner(TextTestRunner):
                 self.finished = True
 
             except Exception as e:
-                if not self.stream.closed:
-                    self.stream.write("\nERROR: %s\n" % e)
                 self.finished = True
                 raise e
 

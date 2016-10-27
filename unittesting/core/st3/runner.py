@@ -40,11 +40,9 @@ class DeferringTextTestRunner(TextTestRunner):
                 try:
                     deferred = test(result)
                     sublime.set_timeout(lambda: _continue_testing(deferred), 10)
+
                 except Exception as e:
-                    stopTestRun = getattr(result, 'stopTestRun', None)
-                    if stopTestRun is not None:
-                        stopTestRun()
-                    raise e
+                    _handle_error(e)
 
         def _continue_testing(deferred):
             try:
@@ -63,13 +61,7 @@ class DeferringTextTestRunner(TextTestRunner):
                 self.finished = True
 
             except Exception as e:
-                stopTestRun = getattr(result, 'stopTestRun', None)
-                if stopTestRun is not None:
-                    stopTestRun()
-                if not self.stream.closed:
-                    self.stream.write("\nERROR: %s\n" % e)
-                self.finished = True
-                raise e
+                _handle_error(e)
 
         def _wait_condition(deferred, condition, start_time):
             if not condition():
@@ -77,6 +69,13 @@ class DeferringTextTestRunner(TextTestRunner):
                 sublime.set_timeout(lambda: _wait_condition(deferred, condition, time.time()), 10)
             else:
                 sublime.set_timeout(lambda: _continue_testing(deferred), 10)
+
+        def _handle_error(e):
+            stopTestRun = getattr(result, 'stopTestRun', None)
+            if stopTestRun is not None:
+                stopTestRun()
+            self.finished = True
+            raise e
 
         def _stop_testing():
             with warnings.catch_warnings():
