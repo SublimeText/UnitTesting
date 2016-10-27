@@ -1,6 +1,5 @@
 import sublime
 import sys
-from collections import namedtuple
 from .test_package import UnitTestingCommand
 from .test_coverage import UnitTestingCoverageCommand
 
