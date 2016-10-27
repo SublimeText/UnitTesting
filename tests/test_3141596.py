@@ -104,10 +104,11 @@ class TestUnitTesting(DeferrableTestCase):
         m = re.search('^OK', txt, re.MULTILINE)
         self.assertTrue(hasattr(m, "group"))
 
-    @perpare_package("_Async", delay=1000)
-    def test_async(self, txt):
-        m = re.search('^OK', txt, re.MULTILINE)
-        self.assertTrue(hasattr(m, "group"))
+    if version >= '3000':
+        @perpare_package("_Async", delay=1000)
+        def test_async(self, txt):
+            m = re.search('^OK', txt, re.MULTILINE)
+            self.assertTrue(hasattr(m, "group"))
 
 
 if version >= '3103':
