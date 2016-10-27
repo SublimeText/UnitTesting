@@ -26,8 +26,12 @@ class UnitTestingCurrentProjectReloadCommand(UnitTestingCommand):
             sublime.message_dialog("Project not found.")
             return
 
+        sublime.set_timeout_async(lambda: self._run(project_name))
+
+    def _run(self, project_name):
         self.reload_package(project_name, interface=True)
-        super().run(project_name)
+        orig_run = super().run
+        sublime.set_timeout(lambda: orig_run(project_name))
 
     def is_enabled(self):
         return "PackageReloader" in sys.modules
