@@ -1,8 +1,7 @@
 [run]
 omit = 
-    */vendor/*
-    */tests/*
-    */core/*
+    tests/*
+    unittesting/core/*
 
 [report]
 ignore_errors = True
