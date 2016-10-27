@@ -9,7 +9,39 @@ class DeferringTextTestRunner(TextTestRunner):
         self.finished = False
         result = self._makeResult()
         startTime = time.time()
-        deferred = test(result)
+
+        def _start_testing():
+            deferred = test(result)
+            sublime.set_timeout(lambda: _continue_testing(deferred), 10)
+
+        def _continue_testing(deferred):
+            try:
+                condition = next(deferred)
+                if callable(condition):
+                    sublime.set_timeout(
+                        lambda: _wait_condition(deferred, condition, time.time()), 10)
+                else:
+                    if not isinstance(condition, int):
+                        condition = 10
+
+                    sublime.set_timeout(lambda: _continue_testing(deferred), condition)
+
+            except StopIteration:
+                _stop_testing()
+                self.finished = True
+
+            except Exception as e:
+                if not self.stream.closed:
+                    self.stream.write("\nERROR: %s\n" % e)
+                self.finished = True
+                raise e
+
+        def _wait_condition(deferred, condition, start_time):
+            if not condition():
+                assert (time.time() - start_time) < 10, "Condition timeout."
+                sublime.set_timeout(lambda: _wait_condition(deferred, condition, time.time()), 10)
+            else:
+                sublime.set_timeout(lambda: _continue_testing(deferred), 10)
 
         def _stop_testing():
             stopTime = time.time()
@@ -26,45 +58,12 @@ class DeferringTextTestRunner(TextTestRunner):
                 if failed:
                     self.stream.write("failures=%d" % failed)
                 if errored:
-                    if failed: self.stream.write(", ")
+                    if failed:
+                        self.stream.write(", ")
                     self.stream.write("errors=%d" % errored)
                 self.stream.writeln(")")
             else:
                 self.stream.writeln("OK")
             return result
 
-        def _wait_condition():
-            result = self.condition()
-
-            if not result:
-                assert (time.time() - self.condition_start_time) < 10, \
-                    "Timeout, waited longer than 10s till condition true"
-                sublime.set_timeout(_wait_condition, 10)
-
-            else:
-                sublime.set_timeout(_continue_testing, 10)
-
-        def _continue_testing():
-            try:
-                delay = next(deferred)
-
-                if callable(delay):
-                    self.condition = delay
-                    self.condition_start_time = time.time()
-                    sublime.set_timeout(_wait_condition, 10)
-                else:
-                    if not isinstance(delay, int):
-                        delay = 10
-
-                    sublime.set_timeout(_continue_testing, delay)
-
-            except StopIteration:
-                _stop_testing()
-                self.finished = True
-
-            except Exception as e:
-                if not self.stream.closed:
-                    self.stream.write("\nERROR: %s\n" % e)
-                self.finished = True
-
-        sublime.set_timeout(_continue_testing, 10)
+        sublime.set_timeout(_start_testing, 10)
