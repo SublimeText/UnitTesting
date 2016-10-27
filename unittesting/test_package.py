@@ -8,6 +8,7 @@ from .core import TestLoader
 from .core import DeferringTextTestRunner
 from .mixin import UnitTestingMixin
 from .const import DONE_MESSAGE
+import threading
 
 version = sublime.version()
 
@@ -24,8 +25,7 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand, UnitTestingMixin):
         stream = self.load_stream(package, settings["output"])
 
         if settings["async"]:
-            sublime.set_timeout_async(
-                lambda: self.unit_testing(stream, package, settings), 100)
+            threading.Thread(target=lambda: self.unit_testing(stream, package, settings)).start()
         else:
             self.unit_testing(stream, package, settings)
 
