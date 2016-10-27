@@ -21,11 +21,6 @@ class UnitTestingCurrentProjectCommand(UnitTestingCommand):
 class UnitTestingCurrentProjectReloadCommand(UnitTestingCommand):
 
     def run(self):
-        # since PackageReloader is st 3 only, we have
-        # sublime.set_timeout_async
-        sublime.set_timeout_async(self.run_async, 1)
-
-    def run_async(self):
         project_name = self.current_project_name
         if not project_name:
             sublime.message_dialog("Project not found.")
@@ -41,11 +36,6 @@ class UnitTestingCurrentProjectReloadCommand(UnitTestingCommand):
 class UnitTestingCurrentProjectCoverageCommand(UnitTestingCoverageCommand):
 
     def run(self):
-        # since PackageReloader is st 3 only, we have
-        # sublime.set_timeout_async
-        sublime.set_timeout_async(self.run_async, 1)
-
-    def run_async(self):
         project_name = self.current_project_name
         if not project_name:
             sublime.message_dialog("Project not found.")
@@ -67,6 +57,5 @@ class UnitTestingCurrentFileCommand(UnitTestingCommand):
         test_file = self.current_test_file
         if not test_file:
             test_file = ""
-        print(test_file)
 
         super().run("{}:{}".format(project_name, test_file))
