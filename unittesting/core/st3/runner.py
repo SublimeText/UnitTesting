@@ -1,61 +1,89 @@
 import time
-from unittest import runner
-
+from unittest.runner import TextTestRunner, registerResult
+import warnings
 import sublime
 
 
-class DeferringTextTestRunner(runner.TextTestRunner):
-    # This function is based on the previous work from Kay-Uwe Lorenz in the plugin
-    # sublimepluginunittestharness with the following License
-    #
-    # Copyright (c) 2013, Kay-Uwe (Kiwi) Lorenz <kiwi@franka.dyndns.org>
-    # All rights reserved.
-    #
-    # Redistribution and use in source and binary forms, with or without
-    # modification, are permitted provided that the following conditions are met:
-    #
-    #     Redistributions of source code must retain the above copyright notice,
-    #       this list of conditions and the following disclaimer.
-    #
-    #     Redistributions in binary form must reproduce the above copyright notice,
-    #       this list of conditions and the following disclaimer in the
-    #       documentation and/or other materials provided with the distribution.
-    #
-    # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-    # AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-    # IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-    # ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
-    # LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY,
-    # OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
-    # SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
-    # INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
-    # CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
-    # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-    # POSSIBILITY OF SUCH DAMAGE.
+class DeferringTextTestRunner(TextTestRunner):
 
-    r'''deferred test runner.
-
-    This test runner runs tests in deferred slices.  It gives
-    back control to sublime text, such that it can draw views,
-    do syntax highlighting and whatever.
-    '''
+    """
+    This test runner runs tests in deferred slices.
+    """
 
     def run(self, test):
         "Run the given test case or test suite."
         self.finished = False
         result = self._makeResult()
-        runner.registerResult(result)
+        registerResult(result)
         result.failfast = self.failfast
         result.buffer = self.buffer
         startTime = time.time()
-        startTestRun = getattr(result, 'startTestRun', None)
 
-        if startTestRun is not None:
-            startTestRun()
+        def _start_testing():
+            with warnings.catch_warnings():
+                if self.warnings:
+                    # if self.warnings is set, use it to filter all the warnings
+                    warnings.simplefilter(self.warnings)
+                    # if the filter is 'default' or 'always', special-case the
+                    # warnings from the deprecated unittest methods to show them
+                    # no more than once per module, because they can be fairly
+                    # noisy.  The -Wd and -Wa flags can be used to bypass this
+                    # only when self.warnings is None.
+                    if self.warnings in ['default', 'always']:
+                        warnings.filterwarnings(
+                            'module',
+                            category=DeprecationWarning,
+                            message='Please use assert\w+ instead.')
+                startTestRun = getattr(result, 'startTestRun', None)
+                if startTestRun is not None:
+                    startTestRun()
+                try:
+                    deferred = test(result)
+                    sublime.set_timeout(lambda: _continue_testing(deferred), 10)
+                except Exception as e:
+                    stopTestRun = getattr(result, 'stopTestRun', None)
+                    if stopTestRun is not None:
+                        stopTestRun()
+                    raise e
 
-        deferred = test(result)
+        def _continue_testing(deferred):
+            try:
+                condition = next(deferred)
+                if callable(condition):
+                    sublime.set_timeout(
+                        lambda: _wait_condition(deferred, condition, time.time()), 10)
+                else:
+                    if not isinstance(condition, int):
+                        condition = 10
+
+                    sublime.set_timeout(lambda: _continue_testing(deferred), condition)
+
+            except StopIteration:
+                _stop_testing()
+                self.finished = True
+
+            except Exception as e:
+                stopTestRun = getattr(result, 'stopTestRun', None)
+                if stopTestRun is not None:
+                    stopTestRun()
+                if not self.stream.closed:
+                    self.stream.write("\nERROR: %s\n" % e)
+                self.finished = True
+                raise e
+
+        def _wait_condition(deferred, condition, start_time):
+            if not condition():
+                assert (time.time() - start_time) < 10, "Condition timeout."
+                sublime.set_timeout(lambda: _wait_condition(deferred, condition, time.time()), 10)
+            else:
+                sublime.set_timeout(lambda: _continue_testing(deferred), 10)
 
         def _stop_testing():
+            with warnings.catch_warnings():
+                stopTestRun = getattr(result, 'stopTestRun', None)
+                if stopTestRun is not None:
+                    stopTestRun()
+
             stopTime = time.time()
             timeTaken = stopTime - startTime
             result.printErrors()
@@ -79,7 +107,7 @@ class DeferringTextTestRunner(runner.TextTestRunner):
             infos = []
             if not result.wasSuccessful():
                 self.stream.write("FAILED")
-                failed, errored = map(len, (result.failures, result.errors))
+                failed, errored = len(result.failures), len(result.errors)
                 if failed:
                     infos.append("failures=%d" % failed)
                 if errored:
@@ -96,44 +124,5 @@ class DeferringTextTestRunner(runner.TextTestRunner):
                 self.stream.writeln(" (%s)" % (", ".join(infos),))
             else:
                 self.stream.write("\n")
-            return result
 
-        def _wait_condition():
-            result = self.condition()
-
-            if not result:
-                assert (time.time() - self.condition_start_time) < 10, \
-                    "Timeout, waited longer than 10s till condition true"
-                sublime.set_timeout(_wait_condition, 10)
-
-            else:
-                sublime.set_timeout(_continue_testing, 10)
-
-        def _continue_testing():
-            try:
-                delay = next(deferred)
-
-                if callable(delay):
-                    self.condition = delay
-                    self.condition_start_time = time.time()
-                    sublime.set_timeout(_wait_condition, 10)
-                else:
-                    if not isinstance(delay, int):
-                        delay = 10
-
-                    sublime.set_timeout(_continue_testing, delay)
-
-            except StopIteration:
-                stopTestRun = getattr(result, 'stopTestRun', None)
-                if stopTestRun is not None:
-                    stopTestRun()
-
-                _stop_testing()
-                self.finished = True
-
-            except Exception as e:
-                if not self.stream.closed:
-                    self.stream.write("\nERROR: %s\n" % e)
-                self.finished = True
-
-        sublime.set_timeout(_continue_testing, 10)
+        sublime.set_timeout(_start_testing, 10)
