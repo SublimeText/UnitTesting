@@ -25,8 +25,8 @@ class OutputPanel:
         self.output_view = self.window.get_output_panel(name)
 
         # default to the current file directory
-        if (not base_dir and self.window.active_view()
-                and self.window.active_view().file_name()):
+        if (not base_dir and self.window.active_view() and
+                self.window.active_view().file_name()):
             base_dir = os.path.dirname(self.window.active_view().file_name())
 
         settings = self.output_view.settings()
@@ -41,11 +41,12 @@ class OutputPanel:
         self.closed = False
 
     def write(self, s):
-        self.output_view.run_command('output_panel_insert', {'characters': s})
+        sublime.set_timeout(
+            lambda: self.output_view.run_command('output_panel_insert', {'characters': s}),
+            10)
 
     def writeln(self, s):
-        self.write(s)
-        self.output_view.run_command('output_panel_insert', {'characters': "\n"})
+        self.write(s + "\n")
 
     def flush(self):
         pass
