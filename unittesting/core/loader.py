@@ -1,6 +1,5 @@
 # This is basically a copy of unittest/loader.py from python 3.3.6
 # It gives python 2.6 support of TestLoader.discover
-# __import__ is replaced by _import to reload modules
 # use deferred testsuite if deferred is true
 
 import os
@@ -40,16 +39,6 @@ def _jython_aware_splitext(path):
     if path.lower().endswith('$py.class'):
         return path[:-9]
     return os.path.splitext(path)[0]
-
-
-def _import(module):
-    if module in sys.modules:
-        for m in list(sys.modules):
-            if m.startswith(module + "."):
-                del sys.modules[m]
-        del sys.modules[module]
-
-    __import__(module)
 
 
 class TestLoader(object):
@@ -112,7 +101,7 @@ class TestLoader(object):
             parts_copy = parts[:]
             while parts_copy:
                 try:
-                    module = _import('.'.join(parts_copy))
+                    module = __import__('.'.join(parts_copy))
                     break
                 except ImportError:
                     del parts_copy[-1]
@@ -215,7 +204,7 @@ class TestLoader(object):
         else:
             # support for discovery from dotted module names
             try:
-                _import(start_dir)
+                __import__(start_dir)
             except ImportError:
                 is_not_importable = True
             else:
@@ -255,7 +244,7 @@ class TestLoader(object):
         return name
 
     def _get_module_from_name(self, name):
-        _import(name)
+        __import__(name)
         return sys.modules[name]
 
     def _match_path(self, path, full_path, pattern):

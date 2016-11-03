@@ -41,6 +41,7 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand, UnitTestingMixin):
 
         try:
             # use custom loader which support ST2 and reloading modules
+            self.remove_test_modules(package, settings["tests_dir"])
             loader = TestLoader(settings["deferred"])
             test = loader.discover(os.path.join(
                 sublime.packages_path(), package, settings["tests_dir"]), settings["pattern"]
@@ -62,6 +63,7 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand, UnitTestingMixin):
             def cleanup(status=0):
                 if not settings["deferred"] or not testRunner or \
                         testRunner.finished or status > 600:
+                    self.remove_test_modules(package, settings["tests_dir"])
                     for hook in cleanup_hooks:
                         hook()
                     stream.write("\n")

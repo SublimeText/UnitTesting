@@ -136,3 +136,23 @@ class UnitTestingMixin:
                 sys.modules["PackageReloader"].reloader.reload_package(package, dummy=False)
 
             pr_settings.set("open_console", open_console)
+
+    def remove_test_modules(self, package, tests_dir):
+        modules = {}
+        # make a copy of sys.modules
+        for mname in sys.modules:
+            modules[mname] = sys.modules[mname]
+
+        for mname in modules:
+            try:
+                mpath = sys.modules[mname].__path__._path[0]
+            except AttributeError:
+                try:
+                    mpath = os.path.dirname(sys.modules[mname].__file__)
+                except:
+                    continue
+            except:
+                continue
+            tests_dir = os.path.realpath(os.path.join(sublime.packages_path(), package, tests_dir))
+            if os.path.realpath(mpath).startswith(tests_dir):
+                del sys.modules[mname]
