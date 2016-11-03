@@ -44,6 +44,9 @@ def _jython_aware_splitext(path):
 
 def _import(module):
     if module in sys.modules:
+        for m in list(sys.modules):
+            if m.startswith(module + "."):
+                del sys.modules[m]
         del sys.modules[module]
 
     __import__(module)
