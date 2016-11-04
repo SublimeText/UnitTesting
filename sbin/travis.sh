@@ -18,7 +18,7 @@ Bootstrap() {
         # symlink does not play well with coverage
         echo "copy the package to sublime package directory"
         mkdir -p "$STP/$PACKAGE"
-        cp -r * "$STP/$PACKAGE"
+        cp -r ./ "$STP/$PACKAGE"
     fi
 
     UT_PATH="$STP/UnitTesting"
