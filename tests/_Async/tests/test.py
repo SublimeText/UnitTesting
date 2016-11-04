@@ -23,7 +23,7 @@ class TestAsync(TestCase):
     def getRow(self, row):
         return self.view.substr(self.view.line(self.view.text_point(row, 0)))
 
-    def test_defer(self):
+    def test_async(self):
         sublime.set_timeout_async(lambda: self.setText("foo"), 10)
         self.view.sel().clear()
         self.view.sel().add(sublime.Region(0, 0))
