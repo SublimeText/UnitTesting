@@ -27,7 +27,15 @@ try{
     $url = [System.Uri]::EscapeUriString($url)
     $filename = Split-Path $url -leaf
 
-    (New-Object System.Net.WebClient).DownloadFile($url, "${env:Temp}\$filename")
+
+    for ($i=1; $i -le 5; $i++) {
+        try {
+            (New-Object System.Net.WebClient).DownloadFile($url, "${env:Temp}\$filename")
+            break
+        } catch {
+            
+        }
+    }
 
     Add-Type -AssemblyName System.IO.Compression.FileSystem
     [System.IO.Compression.ZipFile]::ExtractToDirectory("${env:Temp}\$filename", "C:\st")
