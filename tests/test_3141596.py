@@ -99,16 +99,18 @@ class TestUnitTesting(DeferrableTestCase):
         m = re.search('^OK', txt, re.MULTILINE)
         self.assertTrue(hasattr(m, "group"))
 
-    @perpare_package("_Deferred", delay=1000)
+    @perpare_package("_Deferred", delay=2000)
     def test_deferred(self, txt):
         m = re.search('^OK', txt, re.MULTILINE)
         self.assertTrue(hasattr(m, "group"))
+        yield 1000
 
     if version >= '3000':
         @perpare_package("_Async", delay=2000)
         def test_async(self, txt):
             m = re.search('^OK', txt, re.MULTILINE)
             self.assertTrue(hasattr(m, "group"))
+            yield 1000
 
 
 if version >= '3103':
