@@ -14,7 +14,7 @@ version = sublime.version()
 platform = sublime.platform()
 
 
-class UnitTestingMixin:
+class UnitTestingMixin(object):
 
     @property
     def current_project_name(self):
