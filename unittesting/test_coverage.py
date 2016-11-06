@@ -55,4 +55,4 @@ class UnitTestingCoverageCommand(UnitTestingCommand):
         super().unit_testing(stream, package, settings, [cleanup])
 
     def is_enabled(self):
-        return "PackageReloader" in sys.modules and "coverage" in sys.modules
+        return "coverage" in sys.modules

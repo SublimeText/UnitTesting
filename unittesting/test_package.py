@@ -8,6 +8,7 @@ from .core import TestLoader
 from .core import DeferringTextTestRunner
 from .mixin import UnitTestingMixin
 from .const import DONE_MESSAGE
+from .utils import ProgressBar
 import threading
 
 version = sublime.version()
@@ -38,6 +39,8 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand, UnitTestingMixin):
             sys.stdout = stream
             sys.stderr = stream
         testRunner = None
+        progress_bar = ProgressBar("Testing %s" % package)
+        progress_bar.start()
 
         try:
             # use custom loader which support ST2 and reloading modules
@@ -64,6 +67,8 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand, UnitTestingMixin):
                 if not settings["deferred"] or not testRunner or \
                         testRunner.finished or status > 600:
                     self.remove_test_modules(package, settings["tests_dir"])
+                    progress_bar.stop()
+
                     for hook in cleanup_hooks:
                         hook()
                     stream.write("\n")

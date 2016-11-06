@@ -5,6 +5,8 @@ import re
 from .utils import UTSetting
 from .utils import OutputPanel
 from .utils import JsonFile
+from .utils import reload_package
+from .utils import ProgressBar
 
 import sublime
 
@@ -121,21 +123,30 @@ class UnitTestingMixin:
 
         return stream
 
-    def reload_package(self, package, interface=False):
-        if "PackageReloader" in sys.modules:
-            pr_settings = sublime.load_settings("package_reloader.sublime-settings")
-            open_console = pr_settings.get("open_console")
-            pr_settings.set("open_console", False)
-            if interface:
-                PackageReloader = sys.modules["PackageReloader"]
-                # a hack to run run_async of PackageReloader
-                w = type('', (), {})()
-                setattr(w, "window", sublime.active_window())
-                PackageReloader.package_reloader.PackageReloaderReloadCommand.run_async(w, package)
-            else:
-                sys.modules["PackageReloader"].reloader.reload_package(package, dummy=False)
+    def reload_package(self, package, show_progress=False, show_console=False):
+        if show_progress:
+            # a hack to run run_async of PackageReloader
+            progress_bar = ProgressBar("Reloading %s" % package)
+            progress_bar.start()
+            window = sublime.active_window()
 
-            pr_settings.set("open_console", open_console)
+            console_opened = window.active_panel() == "console"
+            if not console_opened and show_console:
+                window.run_command("show_panel", {"panel": "console"})
+            try:
+                reload_package(package)
+            except:
+                sublime.status_message("Fail to reload {}.".format(package))
+                raise
+            finally:
+                progress_bar.stop()
+
+            if not console_opened and show_console:
+                window.run_command("hide_panel", {"panel": "console"})
+
+            sublime.status_message("{} reloaded.".format(package))
+        else:
+            reload_package(package, dummy=False)
 
     def remove_test_modules(self, package, tests_dir):
         modules = {}

@@ -4,12 +4,12 @@
     "command": "unit_testing"
   },
   {
-    "caption": "UnitTesting: Test Current Project",
-    "command": "unit_testing_current_project"
+    "caption": "UnitTesting: Reload Current Project",
+    "command": "unit_testing_reload_current_project"
   },
   {
-    "caption": "UnitTesting: Reload and Test Current Project",
-    "command": "unit_testing_current_project_reload"
+    "caption": "UnitTesting: Test Current Project",
+    "command": "unit_testing_current_project"
   },
   {
     "caption": "UnitTesting: Test Current Project with Coverage",
