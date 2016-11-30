@@ -8,9 +8,11 @@ environment:
     matrix:
         - SUBLIME_TEXT_VERSION : "2"
         - SUBLIME_TEXT_VERSION : "3"
+          PYTHON: "C:\\Python33"
         - SUBLIME_TEXT_VERSION : "2"
           PCINSTALL: true
         - SUBLIME_TEXT_VERSION : "3"
+          PYTHON: "C:\\Python33"
           PCINSTALL: true
 
 install:
@@ -20,4 +22,14 @@ install:
 build: off
 
 test_script:
-    - ps: .\sbin\appveyor.ps1 "run_tests" -verbose
+    - ps: .\sbin\appveyor.ps1 "run_tests" -coverage -verbose
+
+# it is not quiet working
+# on_success:
+#     - ps: |
+#         if (${env:SUBLIME_TEXT_VERSION} -eq 3) {
+#             $branch = git name-rev --name-only HEAD | out-string
+#             invoke-expression "git checkout -q $branch" -erroraction silentlycontinue
+#             pip install coveralls
+#             invoke-expression "coveralls 2>&1" -erroraction silentlycontinue
+#         }

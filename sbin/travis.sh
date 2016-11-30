@@ -37,23 +37,6 @@ Bootstrap() {
         git clone --quiet --depth 1 --branch $UNITTESTING_TAG "$UT_URL" "$UT_PATH"
     fi
 
-    PR_PATH="$STP/PackageReloader"
-    if [ "$SUBLIME_TEXT_VERSION" -eq 3 ] && [ ! -d "$PR_PATH" ]; then
-        PR_URL="https://github.com/randy3k/PackageReloader"
-
-        if [ -z $PACKAGE_RELOADER_TAG ]; then
-            # latest tag
-            PACKAGE_RELOADER_TAG=$(git ls-remote --tags "$PR_URL" |
-                  sed 's|.*/v\(.*\)$|\1|' | grep -v '\^' |
-                  sort -t. -k1,1nr -k2,2nr -k3,3nr | head -n1)
-            PACKAGE_RELOADER_TAG="v$PACKAGE_RELOADER_TAG"
-            echo "download latest PackageReloader tag: $PACKAGE_RELOADER_TAG"
-        fi
-
-        git clone --quiet --depth 1 --branch $PACKAGE_RELOADER_TAG "$PR_URL" "$PR_PATH"
-        rm -rf "$PR_PATH/.git"
-    fi
-
     COV_PATH="$STP/coverage"
     if [ "$SUBLIME_TEXT_VERSION" -eq 3 ] && [ ! -d "$COV_PATH" ]; then
 
@@ -79,6 +62,9 @@ InstallPackageControl() {
         export DISPLAY=:99.0
         sh -e /etc/init.d/xvfb start || true
     fi
+
+    COV_PATH="$STP/coverage"
+    rm -rf "$COV_PATH"
 
     sh "$STP/UnitTesting/sbin/install_package_control.sh"
 }

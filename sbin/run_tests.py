@@ -23,10 +23,6 @@ package = remainder[0] if len(remainder) > 0 else "UnitTesting"
 
 version = int(subprocess.check_output(["subl", "--version"]).decode('utf8').strip()[-4])
 
-if version == 2 and coverage:
-    print("Force `coverage` to False for Sublime Text 2.")
-    coverage = False
-
 # sublime Packages directory
 packages_path = os.path.realpath(os.path.join(os.path.dirname(__file__), "..", ".."))
 

@@ -36,6 +36,14 @@ try{
     start-sleep -seconds 2
     write-host
     Remove-Item "$PCH_PATH" -Recurse -Force
+
+    $PC_SETTINGS = "C:\st\Data\Packages\User\Package Control.sublime-settings"
+
+    if (-not (test-path $PC_SETTINGS)) {
+        write-verbose "creating Package Control.sublime-settings"
+        "{`"ignore_vcs_packages`": true }" | out-file -filepath $PC_SETTINGS -encoding ascii
+    }
+
     write-verbose "Package Control installed."
 
 }catch {

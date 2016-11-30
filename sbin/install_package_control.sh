@@ -69,4 +69,11 @@ done
 sleep 2
 echo ""
 rm -rf "$PCH_PATH"
+
+if [ ! -f "$STP/User/Package Control.sublime-settings" ]; then
+    echo creating Package Control.sublime-settings
+    # make sure Pakcage Control does not complain
+    echo '{"ignore_vcs_packages": true }' > "$STP/User/Package Control.sublime-settings"
+fi
+
 echo "Package Control installed."

@@ -1,6 +1,9 @@
 [CmdletBinding()]
 param(
-    [string]$command
+    [Parameter(Mandatory = $false, Position = 0)]
+    [string]$command,
+    [Parameter(Mandatory = $false)]
+    [switch] $coverage
 )
 
 $STP = "C:\st\Data\Packages"
@@ -29,11 +32,32 @@ function Bootstrap {
         git clone --quiet --depth 1 --branch=$UNITTESTING_TAG $UT_URL "$UT_PATH" 2>$null
     }
 
+    $COV_PATH = "$STP\coverage"
+    if (!(test-path -path "$COV_PATH")){
+
+        $COV_URL = "https://github.com/codexns/sublime-coverage"
+
+        if ( ${env:COVERAGE_TAG} -eq $null){
+            # the latest tag
+            $COVERAGE_TAG = git ls-remote --tags $COV_URL | %{$_ -replace ".*/(.*)$", '$1'} `
+                    | where-object {$_ -notmatch "\^"} |%{[System.Version]$_} `
+                    | sort | select-object -last 1 | %{ "$_" }
+            write-verbose "download latest sublime-coverage tag: $COVERAGE_TAG"
+        }else{
+            $COVERAGE_TAG = ${env:COVERAGE_TAG}
+        }
+
+        git clone --quiet --depth 1 --branch=$COVERAGE_TAG $COV_URL "$COV_PATH" 2>$null
+    }
+
+
     & "$STP\UnitTesting\sbin\install_sublime_text.ps1" -verbose
 
 }
 
 function InstallPackageControl {
+    $COV_PATH = "$STP\coverage"
+    remove-item $COV_PATH -Force -Recurse
     & "$STP\UnitTesting\sbin\install_package_control.ps1" -verbose
 }
 
@@ -45,7 +69,9 @@ function RunTests {
 
     if ( $syntax_test.IsPresent ){
         & "$STP\UnitTesting\sbin\run_tests.ps1" "${env:PACKAGE}" -verbose -syntax_test
-    }else{
+    } elseif ( $coverage.IsPresent ) {
+        & "$STP\UnitTesting\sbin\run_tests.ps1" "${env:PACKAGE}" -verbose -coverage
+    } else {
         & "$STP\UnitTesting\sbin\run_tests.ps1" "${env:PACKAGE}" -verbose
     }
 }

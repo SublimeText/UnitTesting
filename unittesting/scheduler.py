@@ -11,8 +11,14 @@ class Unit:
     def __init__(self, s):
         self.package = s['package']
         self.output = s['output'] if 'output' in s else None
-        self.syntax_test = s['syntax_test'] if 'syntax_test' in s else None
-        self.coverage = s['coverage'] if 'coverage' in s else None
+        if 'syntax_test' in s and sublime.version() >= "3000":
+            self.syntax_test = s['syntax_test']
+        else:
+            self.syntax_test = False
+        if 'coverage' in s and sublime.version() >= "3103":
+            self.coverage = s['coverage']
+        else:
+            self.coverage = False
 
     def run(self):
         if self.syntax_test:

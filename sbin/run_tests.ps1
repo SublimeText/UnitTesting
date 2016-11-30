@@ -2,8 +2,10 @@
 param(
     [Parameter(Mandatory = $false, Position = 0)]
     [string]$PackageToTest="UnitTesting",
-    [Parameter(Mandatory = $false, Position = 1)]
-    [switch] $syntax_test
+    [Parameter(Mandatory = $false)]
+    [switch] $syntax_test,
+    [Parameter(Mandatory = $false)]
+    [switch] $coverage
 )
 
 # UTF8 encoding without preamble (default in .NET is with preamble).
@@ -11,11 +13,12 @@ new-variable -name 'UTF8Encoding' -option CONSTANT -scope 'script' `
              -value (new-object System.Text.UTF8Encoding -argumentlist $false)
 
 # todo(guillermooo): Make this configurable.
-$packagesPath = 'c:\st\Data\Packages'
-$stPath = 'c:\st\sublime_text.exe'
+$packagesPath = 'C:\st\Data\Packages'
+$stPath = 'C:\st\sublime_text.exe'
 
 $outDir = "$packagesPath\User\UnitTesting\$PackageToTest"
 $outFile = "$outDir\result"
+$coverageFile = "$outDir\coverage"
 [void] (new-item -itemtype file $outFile -force)
 
 remove-item $outFile -force -erroraction silentlycontinue
@@ -37,7 +40,8 @@ if ($found -eq 0) {
     $schedule += @{
         "package" = $PackageToTest;
         "output" = $outFile;
-        "syntax_test" = $syntax_test.IsPresent
+        "syntax_test" = $syntax_test.IsPresent;
+        "coverage" = $coverage.IsPresent
     }
 }
 
@@ -102,6 +106,15 @@ while ($true) {
         if ($done) { break }
     }
     start-sleep -milliseconds 200
+}
+
+# restore .coverage if it exists, needed for coveralls
+if (test-path $coverageFile) {
+    copy-item $coverageFile ".\.coverage" -force
+    $cwd = (get-item -Path ".\" -verbose).fullname.replace("\", "\\")
+    $pkgpath = "$packagesPath\$PackageToTest".replace("\", "\\")
+    $data = (get-content ".\.coverage") -replace [regex]::escape($pkgpath), $cwd
+    set-content ".\.coverage" -value $data
 }
 
 if (!$success) {
