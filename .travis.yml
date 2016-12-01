@@ -3,18 +3,40 @@
 
 sudo: false
 
-os:
-    - linux
-    - osx
-
 env:
     global:
         - PACKAGE="UnitTesting"
-    matrix:
-        - SUBLIME_TEXT_VERSION="2"
-        - SUBLIME_TEXT_VERSION="3"
-        - SUBLIME_TEXT_VERSION="2" PCINSTALL=true
-        - SUBLIME_TEXT_VERSION="3" PCINSTALL=true
+
+matrix:
+    include:
+        - os: linux
+          language: python
+          python: 2.7
+          env: SUBLIME_TEXT_VERSION="2"
+        - os: linux
+          language: python
+          python: 2.7
+          env: SUBLIME_TEXT_VERSION="2" PCINSTALL=true
+        - os: linux
+          language: python
+          python: 3.3
+          env: SUBLIME_TEXT_VERSION="3"
+        - os: linux
+          language: python
+          python: 3.3
+          env: SUBLIME_TEXT_VERSION="3" PCINSTALL=true
+        - os: osx
+          language: generic
+          env: SUBLIME_TEXT_VERSION="2"
+        - os: osx
+          language: generic
+          env: SUBLIME_TEXT_VERSION="2" PCINSTALL=true
+        - os: osx
+          language: generic
+          env: SUBLIME_TEXT_VERSION="3"
+        - os: osx
+          language: generic
+          env: SUBLIME_TEXT_VERSION="3" PCINSTALL=true
 
 before_install:
     - if [ "$TRAVIS_OS_NAME" == "linux"  ]; then
@@ -34,7 +56,7 @@ after_success:
             brew install python;
       fi
     - if [ "$SUBLIME_TEXT_VERSION" == "3" ]; then
-            pip install coveralls --user;
+            pip install coveralls;
             coveralls;
       fi
 
