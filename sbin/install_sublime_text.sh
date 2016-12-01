@@ -32,7 +32,9 @@ if [ $(uname) = 'Darwin'  ]; then
             SUBLIME_TEXT="Sublime Text"
         fi
         echo "installing sublime text $SUBLIME_TEXT_VERSION"
-        URL=$(curl -s "$STWEB" | sed -n 's/.*href="\([^"]*\.dmg\)".*/\1/p')
+        for i in 1 2 3 4 5; do
+            URL=$(curl -s "$STWEB" | sed -n 's/.*href="\([^"]*\.dmg\)".*/\1/p') && break || sleep 5
+        done
         if [ -z "$URL" ]; then
             echo "could not download Sublime Text binary"
             exit 1
@@ -40,7 +42,7 @@ if [ $(uname) = 'Darwin'  ]; then
         echo "downloading $URL"
         # retry 5 times
         for i in 1 2 3 4 5; do
-            curl "$URL" -o ~/Downloads/sublimetext.dmg && break || sleep 15
+            curl "$URL" -o ~/Downloads/sublimetext.dmg && break || sleep 5
         done
         hdiutil attach ~/Downloads/sublimetext.dmg
         cp -r "/Volumes/$SUBLIME_TEXT/$SUBLIME_TEXT.app" "$HOME/Applications/$SUBLIME_TEXT.app"

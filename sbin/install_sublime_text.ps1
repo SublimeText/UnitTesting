@@ -12,10 +12,17 @@ try{
     write-verbose "installing sublime text $st"
 
     $url = $null
-    foreach ( $link in (Invoke-WebRequest "http://www.sublimetext.com/$st" -UseBasicParsing).Links ) {
-        if ( $link.href.endsWith("x64.zip") ) {
-           $url = $link.href
-           break
+    for ($i=1; $i -le 5; $i++) {
+        try {
+            foreach ( $link in (Invoke-WebRequest "http://www.sublimetext.com/$st" -UseBasicParsing).Links ) {
+                if ( $link.href.endsWith("x64.zip") ) {
+                   $url = $link.href
+                   break
+                }
+            }
+            break
+        } catch {
+            start-sleep -s 5
         }
     }
     if (-not $url) {
@@ -33,7 +40,7 @@ try{
             (New-Object System.Net.WebClient).DownloadFile($url, "${env:Temp}\$filename")
             break
         } catch {
-            
+            start-sleep -s 5
         }
     }
 
