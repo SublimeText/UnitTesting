@@ -8,11 +8,9 @@ environment:
     matrix:
         - SUBLIME_TEXT_VERSION : "2"
         - SUBLIME_TEXT_VERSION : "3"
-          PYTHON: "C:\\Python33"
         - SUBLIME_TEXT_VERSION : "2"
           PCINSTALL: true
         - SUBLIME_TEXT_VERSION : "3"
-          PYTHON: "C:\\Python33"
           PCINSTALL: true
 
 install:
