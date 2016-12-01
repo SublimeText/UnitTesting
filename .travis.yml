@@ -30,8 +30,11 @@ script:
     - sh sbin/travis.sh run_tests --coverage
 
 after_success:
+    - if [ "$SUBLIME_TEXT_VERSION" == "3" ] && [ "$TRAVIS_OS_NAME" == "osx" ]; then
+            brew install python;
+      fi
     - if [ "$SUBLIME_TEXT_VERSION" == "3" ]; then
-            pip install coveralls;
+            pip install coveralls --user;
             coveralls;
       fi
 

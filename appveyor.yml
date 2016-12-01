@@ -24,7 +24,7 @@ build: off
 test_script:
     - ps: .\sbin\appveyor.ps1 "run_tests" -coverage -verbose
 
-# it is not quiet working
+# it is not quite working
 # on_success:
 #     - ps: |
 #         if (${env:SUBLIME_TEXT_VERSION} -eq 3) {
