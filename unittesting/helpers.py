@@ -52,8 +52,11 @@ class TempDirectoryTestCase(DeferrableTestCase):
         # need at least one window in order to keep sublime running
         if len(sublime.windows()) > 1:
             cls.window.run_command("close")
-            yield 1000
-            try:
-                shutil.rmtree(cls._temp_dir)
-            except:
-                print("Cannot remove {}".format(cls._temp_dir))
+
+            def remove_temp_dir():
+                try:
+                    shutil.rmtree(cls._temp_dir)
+                except:
+                    print("Cannot remove {}".format(cls._temp_dir))
+
+            sublime.set_timeout(remove_temp_dir, 1000)
