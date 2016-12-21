@@ -17,11 +17,11 @@ class UnitTestingCurrentProjectCommand(UnitTestingCommand):
         if version >= "3000":
             sublime.set_timeout_async(lambda: self.run_async(project_name))
         else:
-            super().run(project_name)
+            super(UnitTestingCurrentProjectCommand, self).run(project_name)
 
     def run_async(self, project_name):
         self.reload_package(project_name, show_progress=True)
-        orig_run = super().run
+        orig_run = super(UnitTestingCurrentProjectCommand, self).run
         sublime.set_timeout(lambda: orig_run(project_name))
 
 
@@ -33,7 +33,7 @@ class UnitTestingCurrentProjectCoverageCommand(UnitTestingCoverageCommand):
             sublime.message_dialog("Project not found.")
             return
 
-        super().run(project_name)
+        super(UnitTestingCurrentProjectCoverageCommand, self).run(project_name)
 
     def is_enabled(self):
         return "coverage" in sys.modules
@@ -50,4 +50,4 @@ class UnitTestingCurrentFileCommand(UnitTestingCommand):
         if not test_file:
             test_file = ""
 
-        super().run("{}:{}".format(project_name, test_file))
+        super(UnitTestingCurrentFileCommand, self).run("{}:{}".format(project_name, test_file))
