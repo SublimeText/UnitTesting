@@ -5,6 +5,7 @@ from functools import wraps
 from unittest import TestCase
 from unittesting.utils import UTSetting
 from unittesting import DeferrableTestCase
+from unittesting.helpers import TempDirectoryTestCase
 import sublime
 
 version = sublime.version()
@@ -133,3 +134,15 @@ if version >= '3103':
         def test_error_syntax(self, txt):
             m = re.search('^ERROR: No syntax_test', txt, re.MULTILINE)
             self.assertTrue(hasattr(m, "group"))
+
+
+def tidy_path(path):
+    return os.path.realpath(os.path.normcase(path))
+
+
+class TestTempDirectoryTestCase(TempDirectoryTestCase):
+
+    def test_temp_dir(self):
+        self.assertTrue(tidy_path(
+            self._temp_dir),
+            tidy_path(sublime.active_window().folders()[0]))

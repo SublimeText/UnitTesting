@@ -3,7 +3,7 @@ import subprocess
 import os
 import shutil
 import tempfile
-from unittesting import DeferrableTestCase
+from . import DeferrableTestCase
 
 
 def subl(*args):
