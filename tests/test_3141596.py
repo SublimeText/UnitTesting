@@ -145,4 +145,4 @@ class TestTempDirectoryTestCase(TempDirectoryTestCase):
     def test_temp_dir(self):
         self.assertTrue(tidy_path(
             self._temp_dir),
-            tidy_path(sublime.active_window().folders()[0]))
+            tidy_path(self.window.folders()[0]))
