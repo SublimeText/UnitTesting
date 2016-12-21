@@ -136,13 +136,14 @@ if version >= '3103':
             self.assertTrue(hasattr(m, "group"))
 
 
-def tidy_path(path):
-    return os.path.realpath(os.path.normcase(path))
+if version >= '3000':
 
+    def tidy_path(path):
+        return os.path.realpath(os.path.normcase(path))
 
-class TestTempDirectoryTestCase(TempDirectoryTestCase):
+    class TestTempDirectoryTestCase(TempDirectoryTestCase):
 
-    def test_temp_dir(self):
-        self.assertTrue(tidy_path(
-            self._temp_dir),
-            tidy_path(self.window.folders()[0]))
+        def test_temp_dir(self):
+            self.assertTrue(tidy_path(
+                self._temp_dir),
+                tidy_path(self.window.folders()[0]))
