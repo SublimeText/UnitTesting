@@ -7,6 +7,8 @@ from .test_current import UnitTestingCurrentFileCommand, UnitTestingCurrentProje
     UnitTestingCurrentProjectCoverageCommand
 from .reloader import UnitTestingReloadCurrentProjectCommand
 from .test_syntax import UnitTestingSyntaxCommand
+from . import helpers
+
 
 __all__ = [
     "DeferrableTestCase", "OutputPanelInsertCommand",
