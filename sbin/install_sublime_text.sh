@@ -41,7 +41,6 @@ if [ $(uname) = 'Darwin'  ]; then
             exit 1
         fi
         echo "downloading $URL"
-        # retry 5 times
         for i in {1..20}; do
             curl -L "$URL" -o ~/Downloads/sublimetext.dmg && break || sleep 3
         done
@@ -74,7 +73,9 @@ else
             exit 1
         fi
         echo "downloading $URL"
-        curl "$URL" -o ~/sublimetext.tar.bz2
+        for i in {1..20}; do
+            curl "$URL" -o ~/sublimetext.tar.bz2 && break || sleep 3
+        done
         tar jxfv ~/sublimetext.tar.bz2 -C ~/
         mkdir -p $HOME/.local/bin
         ln -sf "$HOME/$SUBLIME_TEXT/sublime_text" $HOME/.local/bin/subl
