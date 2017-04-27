@@ -13,6 +13,12 @@ class OutputPanelInsertCommand(sublime_plugin.TextCommand):
         self.view.show(self.view.size())
 
 
+class UnitTestingShowOutputCommand(sublime_plugin.WindowCommand):
+
+    def run(self):
+        self.window.run_command('show_panel', {'panel': 'output.UnitTesting'})
+
+
 class OutputPanel:
 
     def __init__(

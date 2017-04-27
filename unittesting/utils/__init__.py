@@ -1,5 +1,6 @@
 from .json_file import JsonFile
-from .output_panel import OutputPanelInsertCommand, OutputPanel
+from .output_panel import OutputPanelInsertCommand, OutputPanel, \
+    UnitTestingShowOutputCommand
 from . import settings as UTSetting
 from .progress_bar import ProgressBar
 import sublime
@@ -13,6 +14,7 @@ else:
 __all__ = [
     "JsonFile",
     "OutputPanelInsertCommand",
+    "UnitTestingShowOutputCommand",
     "OutputPanel",
     "UTSetting",
     "ProgressBar",
