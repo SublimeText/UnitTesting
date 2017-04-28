@@ -25,6 +25,7 @@ from unittesting import (
     UnitTestingCurrentProjectCommand,
     UnitTestingCurrentProjectCoverageCommand,
     UnitTestingReloadCurrentProjectCommand,
+    UnitTestingShowOutputCommand,
     UnitTestingSyntaxCommand,
     OutputPanelInsertCommand,
     run_scheduler

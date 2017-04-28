@@ -18,5 +18,9 @@
   {
     "caption": "UnitTesting: Test Current File",
     "command": "unit_testing_current_file"
+  },
+  {
+    "caption": "UnitTesting: Show Output Panel",
+    "command": "unit_testing_show_output"
   }
 ]
