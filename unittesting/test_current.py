@@ -20,8 +20,8 @@ class UnitTestingCurrentProjectCommand(UnitTestingCommand):
             super(UnitTestingCurrentProjectCommand, self).run(project_name)
 
     def run_async(self, project_name):
-        self.reload_package(project_name, show_progress=True)
         orig_run = super(UnitTestingCurrentProjectCommand, self).run
+        self.reload_package(project_name, show_progress=True)
         sublime.set_timeout(lambda: orig_run(project_name))
 
 
