@@ -4,6 +4,9 @@ import warnings
 import sublime
 
 
+ABSOLUTE_WAIT_TIMEOUT = 20
+
+
 class DeferringTextTestRunner(TextTestRunner):
 
     """
@@ -49,7 +52,7 @@ class DeferringTextTestRunner(TextTestRunner):
                 condition = next(deferred)
                 if callable(condition):
                     sublime.set_timeout(
-                        lambda: _wait_condition(deferred, condition, time.time()), 10)
+                        lambda: _wait_condition(deferred, condition, time.time(), initial_time=startTime), 10)
                 else:
                     if not isinstance(condition, int):
                         condition = 10
@@ -63,10 +66,13 @@ class DeferringTextTestRunner(TextTestRunner):
             except Exception as e:
                 _handle_error(e)
 
-        def _wait_condition(deferred, condition, start_time):
+        def _wait_condition(deferred, condition, start_time, initial_time=None):
             if not condition():
                 assert (time.time() - start_time) < 10, "Condition timeout."
-                sublime.set_timeout(lambda: _wait_condition(deferred, condition, time.time()), 10)
+                if initial_time:
+                    assert (time.time() - initial_time) < ABSOLUTE_WAIT_TIMEOUT, "Wait timeout."
+                sublime.set_timeout(lambda: _wait_condition(deferred, condition, time.time(),
+                                                            initial_time=initial_time), 10)
             else:
                 sublime.set_timeout(lambda: _continue_testing(deferred), 10)
 
