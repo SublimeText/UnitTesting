@@ -65,10 +65,14 @@ class DeferringTextTestRunner(TextTestRunner):
 
         def _wait_condition(deferred, condition, start_time):
             if not condition():
-                assert (time.time() - start_time) < 10, "Condition timeout."
-                sublime.set_timeout(lambda: _wait_condition(deferred, condition, time.time()), 10)
-            else:
-                sublime.set_timeout(lambda: _continue_testing(deferred), 10)
+                if time.time() - start_time < 10:
+                    sublime.set_timeout(
+                        lambda: _wait_condition(deferred, condition, start_time), 10)
+                    return
+                else:
+                    self.stream.writeln("Condition timeout, continue anyway.")
+
+            sublime.set_timeout(lambda: _continue_testing(deferred), 10)
 
         def _handle_error(e):
             stopTestRun = getattr(result, 'stopTestRun', None)
