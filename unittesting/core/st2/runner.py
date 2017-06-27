@@ -19,12 +19,16 @@ class DeferringTextTestRunner(TextTestRunner):
                 condition = next(deferred)
                 if callable(condition):
                     sublime.set_timeout(
-                        lambda: _wait_condition(deferred, condition, time.time()), 10)
-                else:
-                    if not isinstance(condition, int):
-                        condition = 10
-
+                        lambda: _wait_condition(deferred, condition, time.time(), 10000), 10)
+                elif isinstance(condition, tuple) and len(condition) == 2 and \
+                        callable(condition[0]) and isinstance(condition[1], int):
+                    sublime.set_timeout(
+                        lambda: _wait_condition(deferred, condition[0], time.time(), condition[1]),
+                        10)
+                elif isinstance(condition, int):
                     sublime.set_timeout(lambda: _continue_testing(deferred), condition)
+                else:
+                    sublime.set_timeout(lambda: _continue_testing(deferred), 10)
 
             except StopIteration:
                 _stop_testing()
@@ -34,11 +38,11 @@ class DeferringTextTestRunner(TextTestRunner):
                 self.finished = True
                 raise e
 
-        def _wait_condition(deferred, condition, start_time):
+        def _wait_condition(deferred, condition, start_time, wait_for):
             if not condition():
-                if time.time() - start_time < 10:
+                if (time.time() - start_time) * 1000 < wait_for:
                     sublime.set_timeout(
-                        lambda: _wait_condition(deferred, condition, start_time), 10)
+                        lambda: _wait_condition(deferred, condition, start_time, wait_for), 10)
                     return
                 else:
                     self.stream.writeln("Condition timeout, continue anyway.")
