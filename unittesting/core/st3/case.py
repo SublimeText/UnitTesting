@@ -9,7 +9,7 @@ class DeferrableTestCase(unittest.TestCase):
     def _executeTestPart(self, function, outcome, isTest=False):
         try:
             deferred = function()
-            if deferred is not None:
+            if deferred is not None and hasattr(deferred, '__iter__'):
                 for x in deferred:
                     yield x
         except KeyboardInterrupt:
@@ -65,16 +65,16 @@ class DeferrableTestCase(unittest.TestCase):
             self._outcomeForDoCleanups = outcome
 
             deferred = self._executeTestPart(self.setUp, outcome)
-            if deferred is not None:
+            if deferred is not None and hasattr(deferred, '__iter__'):
                 for x in deferred:
                     yield x
             if outcome.success:
                 deferred = self._executeTestPart(testMethod, outcome, isTest=True)
-                if deferred is not None:
+                if deferred is not None and hasattr(deferred, '__iter__'):
                     for x in deferred:
                         yield x
                 deferred = self._executeTestPart(self.tearDown, outcome)
-                if deferred is not None:
+                if deferred is not None and hasattr(deferred, '__iter__'):
                     for x in deferred:
                         yield x
 

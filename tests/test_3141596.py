@@ -70,7 +70,7 @@ def perpare_package(package, output=None, syntax_test=False, delay=None):
             m = re.search('^UnitTesting: Done\\.', txt, re.MULTILINE)
             self.assertTrue(hasattr(m, "group"))
             deferred = func(self, txt)
-            if deferred is not None:
+            if deferred is not None and hasattr(deferred, "__iter__"):
                 for x in deferred:
                     yield x
             if delay:

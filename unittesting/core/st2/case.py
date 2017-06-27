@@ -9,7 +9,7 @@ class DeferrableTestCase(TestCase):
         try:
             try:
                 deferred = self.setUp()
-                if deferred is not None:
+                if deferred is not None and hasattr(deferred, '__iter__'):
                     for x in deferred:
                         yield x
             except KeyboardInterrupt:
@@ -21,7 +21,7 @@ class DeferrableTestCase(TestCase):
             ok = False
             try:
                 deferred = testMethod()
-                if deferred is not None:
+                if deferred is not None and hasattr(deferred, '__iter__'):
                     for x in deferred:
                         yield x
                 ok = True
@@ -34,7 +34,7 @@ class DeferrableTestCase(TestCase):
 
             try:
                 deferred = self.tearDown()
-                if deferred is not None:
+                if deferred is not None and hasattr(deferred, '__iter__'):
                     for x in deferred:
                         yield x
             except KeyboardInterrupt:
