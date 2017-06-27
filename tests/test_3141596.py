@@ -39,7 +39,7 @@ def cleanup_package(package):
         pass
 
 
-def perpare_package(package, output=None, syntax_test=False, delay=None, use_yield=False):
+def perpare_package(package, output=None, syntax_test=False, delay=None):
     def wrapper(func):
         @wraps(func)
         def real_wrapper(self):
@@ -69,10 +69,12 @@ def perpare_package(package, output=None, syntax_test=False, delay=None, use_yie
                 txt = f.read()
             m = re.search('^UnitTesting: Done\\.', txt, re.MULTILINE)
             self.assertTrue(hasattr(m, "group"))
-            if use_yield:
-                yield from func(self, txt)
-            else:
-                func(self, txt)
+            deferred = func(self, txt)
+            if deferred is not None:
+                for x in deferred:
+                    yield x
+            if delay:
+                yield delay
             cleanup_package(package)
         return real_wrapper
     return wrapper
@@ -103,18 +105,16 @@ class TestUnitTesting(DeferrableTestCase):
         m = re.search('^OK', txt, re.MULTILINE)
         self.assertTrue(hasattr(m, "group"))
 
-    @perpare_package("_Deferred", delay=2000, use_yield=True)
+    @perpare_package("_Deferred", delay=2000)
     def test_deferred(self, txt):
         m = re.search('^OK', txt, re.MULTILINE)
         self.assertTrue(hasattr(m, "group"))
-        yield 1000
 
     if version >= '3000':
-        @perpare_package("_Async", delay=2000, use_yield=True)
+        @perpare_package("_Async", delay=2000)
         def test_async(self, txt):
             m = re.search('^OK', txt, re.MULTILINE)
             self.assertTrue(hasattr(m, "group"))
-            yield 1000
 
 
 if version >= '3103':
