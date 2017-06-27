@@ -55,8 +55,9 @@ def perpare_package(package, output=None, syntax_test=False, delay=None):
                 if not os.path.isdir(outfiledir):
                     os.makedirs(outfiledir)
 
+            if delay:
+                yield 100
             if syntax_test:
-                yield 1000
                 sublime.run_command(
                     "unit_testing_syntax", {"package": package, "output": outfile})
             else:
@@ -73,9 +74,9 @@ def perpare_package(package, output=None, syntax_test=False, delay=None):
             if deferred is not None and hasattr(deferred, "__iter__"):
                 for x in deferred:
                     yield x
-            if delay:
-                yield delay
             cleanup_package(package)
+            if delay:
+                yield 100
         return real_wrapper
     return wrapper
 
@@ -123,17 +124,17 @@ if version >= '3103':
         def tearDown(self):
             UTSetting.set("recent-package", "UnitTesting")
 
-        @perpare_package("_Syntax_Failure", syntax_test=True)
+        @perpare_package("_Syntax_Failure", syntax_test=True, delay=1000)
         def test_fail_syntax(self, txt):
             m = re.search('^FAILED: 1 of 21 assertions in 1 files failed$', txt, re.MULTILINE)
             self.assertTrue(hasattr(m, "group"))
 
-        @perpare_package("_Syntax_Success", syntax_test=True)
+        @perpare_package("_Syntax_Success", syntax_test=True, delay=1000)
         def test_success_syntax(self, txt):
             m = re.search('^OK', txt, re.MULTILINE)
             self.assertTrue(hasattr(m, "group"))
 
-        @perpare_package("_Syntax_Error", syntax_test=True)
+        @perpare_package("_Syntax_Error", syntax_test=True, delay=1000)
         def test_error_syntax(self, txt):
             m = re.search('^ERROR: No syntax_test', txt, re.MULTILINE)
             self.assertTrue(hasattr(m, "group"))

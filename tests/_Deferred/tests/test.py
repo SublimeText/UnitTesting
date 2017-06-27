@@ -53,12 +53,9 @@ class TestDeferrable(DeferrableTestCase):
         def append():
             x.append(1)
 
-        def condition():
-            return False
-
         sublime.set_timeout(append, 100)
 
         # wait until condition timeout
-        yield (condition, 100)
+        yield {"condition": lambda: False, "timeout": 500}
 
         self.assertEqual(x[0], 1)
