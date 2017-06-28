@@ -106,7 +106,7 @@ class TestUnitTesting(DeferrableTestCase):
         m = re.search('^OK', txt, re.MULTILINE)
         self.assertTrue(hasattr(m, "group"))
 
-    @perpare_package("_Deferred", delay=2000)
+    @perpare_package("_Deferred", delay=3000)
     def test_deferred(self, txt):
         m = re.search('^OK', txt, re.MULTILINE)
         self.assertTrue(hasattr(m, "group"))
