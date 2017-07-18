@@ -18,24 +18,30 @@ try{
     $BASE = Split-Path -parent $PSCommandPath
     Copy-Item "$BASE\pc_helper.py" "$PCH_PATH\pc_helper.py"
 
-    & "C:\st\sublime_text.exe"
+    for ($i=1; $i -le 2; $i++) {
 
-    $startTime = get-date
-    while (-not (test-path "$PCH_PATH\success")) {
-        write-host -nonewline "."
-        if (((get-date) - $startTime).totalseconds -ge 60) {
-            write-host
+        & "C:\st\sublime_text.exe"
+        $startTime = get-date
+        while ((-not (test-path "$PCH_PATH\success")) -and (((get-date) - $startTime).totalseconds -le 60)){
+            write-host -nonewline "."
+            start-sleep -seconds 5
+        }
+        try {
             stop-process -force -processname sublime_text
             start-sleep -seconds 2
-            Remove-Item "$PCH_PATH" -Recurse -Force
-            throw "Timeout: Fail to install Package Control."
+        } catch { }
+        if (test-path "$PCH_PATH\success") {
+            break
         }
-        start-sleep -seconds 5
     }
 
-    start-sleep -seconds 2
+    if (-not (test-path "$PCH_PATH\success")) {
+        remove-item "$PCH_PATH" -Recurse -Force
+        throw "Timeout: Fail to install Package Control."
+    }
+
+    remove-item "$PCH_PATH" -Recurse -Force
     write-host
-    Remove-Item "$PCH_PATH" -Recurse -Force
 
     $PC_SETTINGS = "C:\st\Data\Packages\User\Package Control.sublime-settings"
 
@@ -46,6 +52,6 @@ try{
 
     write-verbose "Package Control installed."
 
-}catch {
+} catch {
     throw $_
 }

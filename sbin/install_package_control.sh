@@ -49,26 +49,28 @@ fi
 
 
 # launch sublime text in background
-subl &
+for i in {1..2}; do
+    subl &
 
-ENDTIME=$(( $(date +%s) + 60 ))
-while true  ; do
-    printf "."
+    ENDTIME=$(( $(date +%s) + 60 ))
+    while [ ! -f "$PCH_PATH/success" ] && [ $(date +%s) -lt $ENDTIME ]  ; do
+        printf "."
+        sleep 5
+    done
+
+    pkill "[Ss]ubl" || true
+    sleep 2
     [ -f "$PCH_PATH/success" ] && break
-    if [ $(date +%s) -gt $ENDTIME ]; then
-        echo ""
-        pkill "[Ss]ubl"
-        sleep 2
-        rm -rf "$PCH_PATH"
-        echo "Timeout: Fail to install Package Control."
-        exit 1
-    fi
-    sleep 5
 done
 
-sleep 2
-echo ""
+if [ ! -f "$PCH_PATH/success" ]; then
+    echo "Timeout: Fail to install Package Control."
+    rm -rf "$PCH_PATH"
+    exit 1
+fi
+
 rm -rf "$PCH_PATH"
+echo ""
 
 if [ ! -f "$STP/User/Package Control.sublime-settings" ]; then
     echo creating Package Control.sublime-settings
