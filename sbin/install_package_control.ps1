@@ -26,10 +26,9 @@ try{
             write-host -nonewline "."
             start-sleep -seconds 5
         }
-        try {
-            stop-process -force -processname sublime_text
-            start-sleep -seconds 2
-        } catch { }
+        stop-process -force -processname sublime_text -ea silentlycontinue
+        start-sleep -seconds 2
+
         if (test-path "$PCH_PATH\success") {
             break
         }
