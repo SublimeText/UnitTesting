@@ -18,20 +18,29 @@ class TempDirectoryTestCase(DeferrableTestCase):
         Setup a temp directory for testing
         """
         cls._temp_dir = tempfile.mkdtemp()
+        nwindows = len(sublime.windows())
+        original_window_id = sublime.active_window().id()
         sublime.run_command("new_window")
+
+        def wait_window():
+            return len(sublime.windows()) > nwindows
+
+        yield wait_window
+
+        cls.window = sublime.active_window()
+        assert cls.window.id() != original_window_id
+
         project_data = dict(folders=[dict(follow_symlinks=True, path=cls._temp_dir)])
-        sublime.active_window().set_project_data(project_data)
+        cls.window.set_project_data(project_data)
 
         def condition():
-            for d in sublime.active_window().folders():
+            for d in cls.window.folders():
                 # on Windows, `cls._temp_dir` is lowered cased,
                 # `os.path.normcase` is needed for comparison.
                 if cls._temp_dir == os.path.normcase(d):
                     return True
 
         yield condition
-
-        cls.window = sublime.active_window()
 
     @classmethod
     def tearDownClass(cls):
