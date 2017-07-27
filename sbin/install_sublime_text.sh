@@ -49,6 +49,14 @@ if [ $(uname) = 'Darwin'  ]; then
         mkdir -p $HOME/.local/bin
         ln -s "$HOME/Applications/$SUBLIME_TEXT.app/Contents/SharedSupport/bin/subl" \
             $HOME/.local/bin/subl
+
+        if [ ! -f "$STP/User/Preferences.sublime-settings" ]; then
+            echo creating sublime package directory
+            mkdir -p "$STP/User"
+            # make sure a new window will be opened
+            echo '{"close_windows_when_empty": false }' > "$STP/User/Preferences.sublime-settings"
+        fi
+
         # make `subl` available
         open "$HOME/Applications/$SUBLIME_TEXT.app"
         sleep 2
@@ -79,17 +87,11 @@ else
         tar jxfv ~/sublimetext.tar.bz2 -C ~/
         mkdir -p $HOME/.local/bin
         ln -sf "$HOME/$SUBLIME_TEXT/sublime_text" $HOME/.local/bin/subl
+
         # make `subl` available
         "$HOME/$SUBLIME_TEXT/sublime_text" &
         sleep 2
         killall sublime_text
         sleep 2
     fi
-fi
-
-if [ ! -f "$STP/User/Preferences.sublime-settings" ]; then
-    echo creating sublime package directory
-    mkdir -p "$STP/User"
-    # make sure a new window will be opened
-    echo '{"close_windows_when_empty": false }' > "$STP/User/Preferences.sublime-settings"
 fi
