@@ -28,12 +28,12 @@ Bootstrap() {
 
         if [ -z $UNITTESTING_TAG ]; then
             # latest tag
-            echo "download latest UnitTesting tag"
             UNITTESTING_TAG=$(git ls-remote --tags "$UT_URL" |
                   sed 's|.*/\(.*\)$|\1|' | grep -v '\^' |
                   sort -t. -k1,1nr -k2,2nr -k3,3nr | head -n1)
         fi
 
+        echo "download UnitTesting tag: $UNITTESTING_TAG"
         git clone --quiet --depth 1 --branch $UNITTESTING_TAG "$UT_URL" "$UT_PATH"
     fi
 
@@ -47,9 +47,9 @@ Bootstrap() {
             COVERAGE_TAG=$(git ls-remote --tags "$COV_URL" |
                   sed 's|.*/\(.*\)$|\1|' | grep -v '\^' |
                   sort -t. -k1,1nr -k2,2nr -k3,3nr | head -n1)
-            echo "download latest sublime-coverage tag: $COVERAGE_TAG"
         fi
 
+        echo "download sublime-coverage tag: $COVERAGE_TAG"
         git clone --quiet --depth 1 --branch $COVERAGE_TAG "$COV_URL" "$COV_PATH"
         rm -rf "$COV_PATH/.git"
     fi

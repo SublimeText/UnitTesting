@@ -24,11 +24,11 @@ function Bootstrap {
             $UNITTESTING_TAG = git ls-remote --tags $UT_URL | %{$_ -replace ".*/(.*)$", '$1'} `
                     | where-object {$_ -notmatch "\^"} |%{[System.Version]$_} `
                     | sort | select-object -last 1 | %{ "$_" }
-            write-verbose "download latest UnitTesting tag: $UNITTESTING_TAG"
         }else{
             $UNITTESTING_TAG = ${env:UNITTESTING_TAG}
         }
 
+        write-verbose "download UnitTesting tag: $UNITTESTING_TAG"
         git clone --quiet --depth 1 --branch=$UNITTESTING_TAG $UT_URL "$UT_PATH" 2>$null
     }
 
@@ -42,11 +42,11 @@ function Bootstrap {
             $COVERAGE_TAG = git ls-remote --tags $COV_URL | %{$_ -replace ".*/(.*)$", '$1'} `
                     | where-object {$_ -notmatch "\^"} |%{[System.Version]$_} `
                     | sort | select-object -last 1 | %{ "$_" }
-            write-verbose "download latest sublime-coverage tag: $COVERAGE_TAG"
         }else{
             $COVERAGE_TAG = ${env:COVERAGE_TAG}
         }
 
+        write-verbose "download sublime-coverage tag: $COVERAGE_TAG"
         git clone --quiet --depth 1 --branch=$COVERAGE_TAG $COV_URL "$COV_PATH" 2>$null
     }
 
