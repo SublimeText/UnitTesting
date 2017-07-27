@@ -1,24 +1,8 @@
 import sublime
-import subprocess
 import os
 import shutil
 import tempfile
 from . import DeferrableTestCase
-
-
-def subl(*args):
-    executable_path = sublime.executable_path()
-    if sublime.platform() == 'osx':
-        app_path = executable_path[:executable_path.rfind(".app/") + 5]
-        executable_path = app_path + "Contents/SharedSupport/bin/subl"
-    subprocess.Popen([executable_path] + list(args))
-    if sublime.platform() == "windows":
-        def fix_focus():
-            window = sublime.active_window()
-            view = window.active_view()
-            window.run_command('focus_neighboring_group')
-            window.focus_view(view)
-        sublime.set_timeout(fix_focus, 300)
 
 
 class TempDirectoryTestCase(DeferrableTestCase):
@@ -34,7 +18,9 @@ class TempDirectoryTestCase(DeferrableTestCase):
         Setup a temp directory for testing
         """
         cls._temp_dir = tempfile.mkdtemp()
-        subl("-n", cls._temp_dir)
+        sublime.run_command("new_window")
+        project_data = dict(folders=[dict(follow_symlinks=True, path=cls._temp_dir)])
+        sublime.active_window().set_project_data(project_data)
 
         def condition():
             for d in sublime.active_window().folders():
