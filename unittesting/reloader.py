@@ -14,6 +14,3 @@ class UnitTestingReloadCurrentProjectCommand(UnitTestingMixin, sublime_plugin.Wi
 
         if pkg_name:
             self.reload_package(pkg_name, show_progress=True, show_console=True)
-
-    def is_enabled(self):
-        return sublime.version() > "3000"

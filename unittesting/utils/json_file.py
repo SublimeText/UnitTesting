@@ -1,7 +1,6 @@
 import os
 import codecs
 import sublime
-import json
 
 
 class JsonFile:
@@ -17,11 +16,8 @@ class JsonFile:
         if os.path.exists(self.fpath):
             f = codecs.open(self.fpath, "r+", encoding=self.encoding)
             try:
-                if sublime.version() > "3000":
-                    content = f.read()
-                    data = sublime.decode_value(content)
-                else:
-                    data = json.load(f)
+                content = f.read()
+                data = sublime.decode_value(content)
             except:
                 print("%s is bad!" % self.fpath)
                 f.close()
@@ -40,10 +36,7 @@ class JsonFile:
         if not os.path.isdir(self.fdir):
             os.makedirs(self.fdir)
         f = codecs.open(self.fpath, "w+", encoding=self.encoding)
-        if sublime.version() > "3000":
-            f.write(sublime.encode_value(data, True))
-        else:
-            f.write(json.dumps(data, ensure_ascii=False, indent=indent))
+        f.write(sublime.encode_value(data, True))
         f.close()
 
     def remove(self):

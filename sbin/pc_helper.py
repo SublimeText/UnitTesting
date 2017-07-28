@@ -10,19 +10,11 @@ def plugin_loaded():
 
     def kill_subl(restart=False):
         if sublime.platform() == "osx":
-            if sublime.version() > "3000":
-                cmd = "sleep 1; killall 'Sublime Text'; sleep 1; "
-                if restart:
-                    cmd = cmd + "osascript -e 'tell application \"Sublime Text\" to activate'"
-            else:
-                cmd = "sleep 1; killall 'Sublime Text 2'; sleep 1; "
-                if restart:
-                    cmd = cmd + "osascript -e 'tell application \"Sublime Text 2\" to activate'"
+            cmd = "sleep 1; killall 'Sublime Text'; sleep 1; "
+            if restart:
+                cmd = cmd + "osascript -e 'tell application \"Sublime Text\" to activate'"
         elif sublime.platform() == "linux":
-            if sublime.version() > "3000":
-                cmd = "sleep 1; killall 'subl'; sleep 1; "
-            else:
-                cmd = "sleep 1; killall 'subl'; sleep 1; "
+            cmd = "sleep 1; killall 'subl'; sleep 1; "
             if restart:
                 cmd = cmd + "subl"
         elif sublime.platform() == "windows":
@@ -47,10 +39,8 @@ def plugin_loaded():
             sublime.set_timeout(check_bootstrap, 20)
 
     def check_dependencies():
-        if sublime.version() > "3000" and 'Package Control' in sys.modules:
+        if 'Package Control' in sys.modules:
             package_control = sys.modules['Package Control'].package_control
-        elif sublime.version() < "3000" and 'package_control' in sys.modules:
-            package_control = sys.modules['package_control']
         else:
             sublime.set_timeout(check_dependencies, 20)
             return
@@ -73,8 +63,10 @@ def plugin_loaded():
 
         _check_dependencies()
 
-    if not os.path.exists(os.path.join(sublime.packages_path(),
-        "0_install_package_control_helper", "bootstrapped")):
+    if not os.path.exists(os.path.join(
+            sublime.packages_path(),
+            "0_install_package_control_helper",
+            "bootstrapped")):
         check_bootstrap()
     else:
         check_dependencies()

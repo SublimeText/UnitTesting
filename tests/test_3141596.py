@@ -2,7 +2,6 @@ import os
 import re
 import shutil
 from functools import wraps
-from unittest import TestCase
 from unittesting.utils import UTSetting
 from unittesting import DeferrableTestCase
 from unittesting.helpers import TempDirectoryTestCase
@@ -112,43 +111,40 @@ class TestUnitTesting(DeferrableTestCase):
         m = re.search('^OK', txt, re.MULTILINE)
         self.assertTrue(hasattr(m, "group"))
 
-    if version >= '3000':
-        @perpare_package("_Async", delay=2000)
-        def test_async(self, txt):
-            m = re.search('^OK', txt, re.MULTILINE)
-            self.assertTrue(hasattr(m, "group"))
+    @perpare_package("_Async", delay=3000)
+    def test_async(self, txt):
+        m = re.search('^OK', txt, re.MULTILINE)
+        self.assertTrue(hasattr(m, "group"))
 
 
-if version >= '3103':
-    class TestSyntax(DeferrableTestCase):
+class TestSyntax(DeferrableTestCase):
 
-        def tearDown(self):
-            UTSetting.set("recent-package", "UnitTesting")
+    def tearDown(self):
+        UTSetting.set("recent-package", "UnitTesting")
 
-        @perpare_package("_Syntax_Failure", syntax_test=True, delay=1000)
-        def test_fail_syntax(self, txt):
-            m = re.search('^FAILED: 1 of 21 assertions in 1 files failed$', txt, re.MULTILINE)
-            self.assertTrue(hasattr(m, "group"))
+    @perpare_package("_Syntax_Failure", syntax_test=True, delay=1000)
+    def test_fail_syntax(self, txt):
+        m = re.search('^FAILED: 1 of 21 assertions in 1 files failed$', txt, re.MULTILINE)
+        self.assertTrue(hasattr(m, "group"))
 
-        @perpare_package("_Syntax_Success", syntax_test=True, delay=1000)
-        def test_success_syntax(self, txt):
-            m = re.search('^OK', txt, re.MULTILINE)
-            self.assertTrue(hasattr(m, "group"))
+    @perpare_package("_Syntax_Success", syntax_test=True, delay=1000)
+    def test_success_syntax(self, txt):
+        m = re.search('^OK', txt, re.MULTILINE)
+        self.assertTrue(hasattr(m, "group"))
 
-        @perpare_package("_Syntax_Error", syntax_test=True, delay=1000)
-        def test_error_syntax(self, txt):
-            m = re.search('^ERROR: No syntax_test', txt, re.MULTILINE)
-            self.assertTrue(hasattr(m, "group"))
+    @perpare_package("_Syntax_Error", syntax_test=True, delay=1000)
+    def test_error_syntax(self, txt):
+        m = re.search('^ERROR: No syntax_test', txt, re.MULTILINE)
+        self.assertTrue(hasattr(m, "group"))
 
 
-if version >= '3000':
+def tidy_path(path):
+    return os.path.realpath(os.path.normcase(path))
 
-    def tidy_path(path):
-        return os.path.realpath(os.path.normcase(path))
 
-    class TestTempDirectoryTestCase(TempDirectoryTestCase):
+class TestTempDirectoryTestCase(TempDirectoryTestCase):
 
-        def test_temp_dir(self):
-            self.assertTrue(tidy_path(
-                self._temp_dir),
-                tidy_path(self.window.folders()[0]))
+    def test_temp_dir(self):
+        self.assertTrue(tidy_path(
+            self._temp_dir),
+            tidy_path(self.window.folders()[0]))

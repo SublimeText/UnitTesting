@@ -14,10 +14,7 @@ class UnitTestingCurrentProjectCommand(UnitTestingCommand):
             sublime.message_dialog("Project not found.")
             return
 
-        if version >= "3000":
-            sublime.set_timeout_async(lambda: self.run_async(project_name))
-        else:
-            super(UnitTestingCurrentProjectCommand, self).run(project_name)
+        sublime.set_timeout_async(lambda: self.run_async(project_name))
 
     def run_async(self, project_name):
         orig_run = super(UnitTestingCurrentProjectCommand, self).run

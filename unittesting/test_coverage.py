@@ -8,8 +8,7 @@ version = sublime.version()
 platform = sublime.platform()
 
 try:
-    if version >= "3000":
-        import coverage
+    import coverage
 except:
     print("coverage not found.")
 
