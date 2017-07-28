@@ -27,10 +27,14 @@ Bootstrap() {
         UT_URL="https://github.com/randy3k/UnitTesting"
 
         if [ -z $UNITTESTING_TAG ]; then
-            # latest tag
-            UNITTESTING_TAG=$(git ls-remote --tags "$UT_URL" |
-                  sed 's|.*/\(.*\)$|\1|' | grep -v '\^' |
-                  sort -t. -k1,1nr -k2,2nr -k3,3nr | head -n1)
+            if [ $SUBLIME_TEXT_VERSION -eq 2 ]; then
+                UNITTESTING_TAG="0.10.6"
+            elif [ $SUBLIME_TEXT_VERSION -eq 3 ]; then
+                # latest tag
+                UNITTESTING_TAG=$(git ls-remote --tags "$UT_URL" |
+                      sed 's|.*/\(.*\)$|\1|' | grep -v '\^' |
+                      sort -t. -k1,1nr -k2,2nr -k3,3nr | head -n1)
+            fi
         fi
 
         echo "download UnitTesting tag: $UNITTESTING_TAG"

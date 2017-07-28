@@ -20,11 +20,15 @@ function Bootstrap {
         $UT_URL = "https://github.com/randy3k/UnitTesting"
 
         if ( ${env:UNITTESTING_TAG} -eq $null){
-            # the latest tag
-            $UNITTESTING_TAG = git ls-remote --tags $UT_URL | %{$_ -replace ".*/(.*)$", '$1'} `
-                    | where-object {$_ -notmatch "\^"} |%{[System.Version]$_} `
-                    | sort | select-object -last 1 | %{ "$_" }
-        }else{
+            if (${env:SUBLIME_TEXT_VERSION} -eq 2) {
+                $UNITTESTING_TAG = "0.10.6"
+            } elseif (${env:SUBLIME_TEXT_VERSION} -eq 3) {
+                # the latest tag
+                $UNITTESTING_TAG = git ls-remote --tags $UT_URL | %{$_ -replace ".*/(.*)$", '$1'} `
+                        | where-object {$_ -notmatch "\^"} |%{[System.Version]$_} `
+                        | sort | select-object -last 1 | %{ "$_" }
+            }
+        } else {
             $UNITTESTING_TAG = ${env:UNITTESTING_TAG}
         }
 
@@ -42,7 +46,7 @@ function Bootstrap {
             $COVERAGE_TAG = git ls-remote --tags $COV_URL | %{$_ -replace ".*/(.*)$", '$1'} `
                     | where-object {$_ -notmatch "\^"} |%{[System.Version]$_} `
                     | sort | select-object -last 1 | %{ "$_" }
-        }else{
+        } else {
             $COVERAGE_TAG = ${env:COVERAGE_TAG}
         }
 
