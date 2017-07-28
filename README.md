@@ -67,7 +67,7 @@ If the tests can be run locally, let's put them to travis-ci and let travis-ci
 takes care of them. First, you have to copy a important file:
 [.travis.yml](https://github.com/randy3k/UnitTesting-example/blob/master/.travis.yml) 
 (caution: with a beginning dot) to your repo. Then
-change the env variable `PACKAGE` in [.travis.yml](.travis.yml) to the name of
+change the env variable `PACKAGE` to the name of
 your package. Don't forget to login [travis-ci](https://travis-ci.org) and
 enable travis-ci for your repo. Finally, push to github and wait..
 
