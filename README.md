@@ -89,7 +89,7 @@ Codecov.io is sightly preferable as it supports merging reports from travis and 
 
 To generate coverage report for [coveralls.io](https://coveralls.io/):
 
-1. install [coveralls](https://pypi.python.org/pypi/python-coveralls/)
+1. install [python-coveralls](https://pypi.python.org/pypi/python-coveralls/)
 1. run `coveralls` after success
 
 ### codecov support
@@ -140,7 +140,7 @@ variable in `unittesting.json`.
 
 ### Deferred testing
 
-Tests can also be written using the Deferrable testcase, such that you are
+Tests can be written using the Deferrable testcase, such that you are
 able to run sublime commands from your test cases and yield control to sublime
 text runtime and continue the execution later. Would be useful to test
 asynchronous codes.
@@ -155,6 +155,8 @@ To activate deferred testing on travis and appveyor. Add the file
     "deferred": true,
 }
 ```
+
+PS: this idea was inspired by [Plugin UnitTest Harness](https://bitbucket.org/klorenz/sublimepluginunittestharness).
 
 ### Async testing
 
