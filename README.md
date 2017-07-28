@@ -65,29 +65,23 @@ coverage via [coverage](https://pypi.python.org/pypi/coverage). The correspondin
 
 If the tests can be run locally, let's put them to travis-ci and let travis-ci
 takes care of them. First, you have to copy a important file:
-[.travis.yml](.travis.yml) (caution: with a beginning dot) to your repo. Then
+[.travis.yml](https://github.com/randy3k/UnitTesting-example/blob/master/.travis.yml) 
+(caution: with a beginning dot) to your repo. Then
 change the env variable `PACKAGE` in [.travis.yml](.travis.yml) to the name of
 your package. Don't forget to login [travis-ci](https://travis-ci.org) and
 enable travis-ci for your repo. Finally, push to github and wait..
 
 To enable Appveyor for windows platform tests, copy the file `appveyor.yml` to
-your repo, change the `PACKAGE` variable in [appveyor.yml](appveyor.yml). The
+your repo, change the `PACKAGE` variable in 
+[appveyor.yml](https://github.com/randy3k/UnitTesting-example/blob/master/appveyor.yml). The
 last but not least, login [appveyor](http://www.appveyor.com) to add your repo
 as a project.
 
-### Coverage report
+### Coverage reports
 
 We support [codecov.io](https://codecov.io/) and [coveralls.io](https://coveralls.io/).
-Check [.travis.yml](.travis.yml) for details. The file
-[.coveragerc](.coveragerc) is used to control the coverage configuations. If
+The file [.coveragerc](.coveragerc) is used to control the coverage configuations. If
 it is missing, UnitTesting will ignore the `tests` directory.
-
-### codecov support
-
-To generate coverage report for [codecov.io](https://codecov.io/):
-
-1. install [codecov](https://pypi.python.org/pypi/codecov)
-1. run `codecov` after success
 
 ### coveralls.io support
 
@@ -96,20 +90,24 @@ To generate coverage report for [coveralls.io](https://coveralls.io/):
 1. install [coveralls](https://pypi.python.org/pypi/python-coveralls/)
 1. run `coveralls` after success
 
+### codecov support
+
+To generate coverage report for [codecov.io](https://codecov.io/):
+
+1. install [codecov](https://pypi.python.org/pypi/codecov)
+1. run `codecov` after success
+
 
 ## Installing Package Control and Dependencies
 
 If your package uses Package Control dependencies, you may want to install
 Package Control by umcommenting the line of `install_package_control` in
-[.travis.yml](.travis.yml) or [appveyor.yml](appveyor.yml).
+travis and appveyor configuration files.
 
 
 ## Testing syntax_test files
 
-To enable testing of the syntax_test files, please copy the
-[.travis.yml](.travis.yml) or [appveyor.yml](appveyor.yml), and use the
-`run_syntax_tests` in those files. Check 
-[syntax](https://github.com/randy3k/UnitTesting-example/tree/syntax) branch for an example.
+Check [this](https://github.com/randy3k/UnitTesting-example/tree/syntax) for an example.
 
 
 
@@ -145,7 +143,7 @@ able to run sublime commands from your test cases and yield control to sublime
 text runtime and continue the execution later. Would be useful to test
 asynchronous codes.
 
-A example would be found in [deferred](https://github.com/randy3k/UnitTesting-example/tree/deferred) branch.
+A example would be found in [here](https://github.com/randy3k/UnitTesting-example/tree/deferred).
 
 To activate deferred testing on travis and appveyor. Add the file
 `unittesting.json` to your repo with the following:
@@ -156,7 +154,7 @@ To activate deferred testing on travis and appveyor. Add the file
 }
 ```
 
-### Async testing (*Sublime Text 3 only*)
+### Async testing
 
 In default, the tests are running in the main thread and can block the
 graphic inference. Asychronized testing could be used if you need the
@@ -165,7 +163,7 @@ interface to respond.
 Async tests are usually slower than the sync tests because the interface takes
 time to respond but it is useful when there are blocking codes in the tests. A
 example would be found in 
-[async](https://github.com/randy3k/UnitTesting-example/tree/async) branch. 
+[here](https://github.com/randy3k/UnitTesting-example/tree/async). 
 
 However, it is known that async test does not work very well with coverage.
 In general, it is recommended to use deferred testing over async testing since there is
