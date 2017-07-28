@@ -83,6 +83,8 @@ We support [codecov.io](https://codecov.io/) and [coveralls.io](https://coverall
 The file [.coveragerc](.coveragerc) is used to control the coverage configuations. If
 it is missing, UnitTesting will ignore the `tests` directory.
 
+Codecov.io is sightly preferable as it supports merging reports from travis and appveyor.
+
 ### coveralls.io support
 
 To generate coverage report for [coveralls.io](https://coveralls.io/):

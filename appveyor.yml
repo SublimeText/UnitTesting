@@ -5,16 +5,11 @@ environment:
     global:
         # Your package name
         PACKAGE: "UnitTesting"
-        COVERALLS_REPO_TOKEN:
-            secure: TJ2BCRujJaYemSu/OwzvdH85ACGyRowdkx7t4sR4qJ/MwYcGwpV2UwaYFuxMvNAr
+        SUBLIME_TEXT_VERSION : "3"
 
     matrix:
-        - SUBLIME_TEXT_VERSION : "2"
-        - SUBLIME_TEXT_VERSION : "3"
-        - SUBLIME_TEXT_VERSION : "2"
-          PCINSTALL: true
-        - SUBLIME_TEXT_VERSION : "3"
-          PCINSTALL: true
+        - PCINSTALL: false
+        - PCINSTALL: true
 
 install:
     - ps: .\sbin\appveyor.ps1 "bootstrap" -verbose
@@ -25,15 +20,8 @@ build: off
 test_script:
     - ps: .\sbin\appveyor.ps1 "run_tests" -coverage -verbose
 
-# on_success:
-#     - cmd: SET COVERALLS_SERVICE_NAME=appveyor
-#     - cmd: SET TRAVIS_JOB_ID=%APPVEYOR_BUILD_ID%
-#     - cmd: SET TRAVIS_BRANCH=%APPVEYOR_REPO_BRANCH%
-#     - cmd: SET PYTHON=C:\Python33
-#     - cmd: SET PATH=%PYTHON%;%PYTHON%\Scripts;%PATH%
-#     - ps: |
-#         if (${env:SUBLIME_TEXT_VERSION} -eq 3) {
-#             pip install python-coveralls
-#             coveralls 2>&1 | %{ "$_" }
-#             write-host
-#         }
+after_test:
+    - "SET PYTHON=C:\Python33"
+    - "SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
+    - pip install codecov
+    - codecov
