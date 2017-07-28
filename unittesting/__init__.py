@@ -1,5 +1,4 @@
 from .core import DeferrableTestCase
-from .utils import OutputPanelInsertCommand
 from .scheduler import UnitTestingRunSchedulerCommand, run_scheduler
 from .test_package import UnitTestingCommand
 from .test_coverage import UnitTestingCoverageCommand
@@ -11,7 +10,7 @@ from . import helpers
 
 
 __all__ = [
-    "DeferrableTestCase", "OutputPanelInsertCommand",
+    "DeferrableTestCase",
     "UnitTestingRunSchedulerCommand", "run_scheduler",
     "UnitTestingCommand",
     "UnitTestingCoverageCommand",

@@ -1,16 +1,5 @@
 import sublime
-import sublime_plugin
 import os
-
-
-# st3 has append command, it is needed for st2.
-class OutputPanelInsertCommand(sublime_plugin.TextCommand):
-
-    def run(self, edit, characters):
-        self.view.set_read_only(False)
-        self.view.insert(edit, self.view.size(), characters)
-        self.view.set_read_only(True)
-        self.view.show(self.view.size())
 
 
 class OutputPanel:
@@ -41,9 +30,10 @@ class OutputPanel:
         self.closed = False
 
     def write(self, s):
-        sublime.set_timeout(
-            lambda: self.output_view.run_command('output_panel_insert', {'characters': s}),
-            10)
+        self.output_view.set_read_only(False)
+        self.output_view.run_command('append', {'characters': s}),
+        self.output_view.set_read_only(True)
+        self.output_view.show(self.output_view.size())
 
     def writeln(self, s):
         self.write(s + "\n")
