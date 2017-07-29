@@ -49,7 +49,6 @@ def reload_package(pkg_name, dummy=True):
         reload_missing(modules)
         raise
 
-    reload_missing(modules)
     if dummy:
         load_dummy()
     dprint("end", fill='-')
