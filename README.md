@@ -53,13 +53,11 @@ developers do not have to restart Sublime Text.
 
 ### Test Coverage
 
-Furthermore, it is also possible to check test
-coverage via [coverage](https://pypi.python.org/pypi/coverage). The corresponding command is
+It is also possible to generate test
+coverage report via [coverage](https://pypi.python.org/pypi/coverage) by using the command
 `UnitTesting: Test Current Project with Coverage`.
-
-<img src='https://cloud.githubusercontent.com/assets/1690993/20858298/001ca266-b911-11e6-90d9-ea7d2eb02e3b.gif' width='800'></img>
-
-
+The file [.coveragerc](.coveragerc) is used to control the coverage configuations. If
+it is missing, UnitTesting will ignore the `tests` directory.
 
 ## Travis and Appveyor
 
@@ -79,25 +77,36 @@ as a project.
 
 ### Coverage reports
 
-We support [codecov.io](https://codecov.io/) and [coveralls.io](https://coveralls.io/).
-The file [.coveragerc](.coveragerc) is used to control the coverage configuations. If
-it is missing, UnitTesting will ignore the `tests` directory.
-
-Codecov.io is sightly preferable as it supports merging reports from travis and appveyor.
+We support [codecov.io](https://codecov.io/), [coveralls.io](https://coveralls.io/) and
+[codacy.com](https://www.codacy.com). codecov.io is sightly preferable as it
+supports merging reports from travis and appveyor.
 
 ### coveralls.io support
 
-To generate coverage report for [coveralls.io](https://coveralls.io/):
+To submit coverage report to [coveralls.io](https://coveralls.io/):
 
 1. install [python-coveralls](https://pypi.python.org/pypi/python-coveralls/)
-1. run `coveralls` after success
+2. run `coveralls` after success
 
 ### codecov support
 
-To generate coverage report for [codecov.io](https://codecov.io/):
+To submit coverage report to [codecov.io](https://codecov.io/):
 
 1. install [codecov](https://pypi.python.org/pypi/codecov)
-1. run `codecov` after success
+2. run `codecov` after success
+
+### codacy support
+
+To submit coverage report to [codacy.com](https://www.codacy.com):
+
+1. install both coverage and codacy-coverage
+    
+    ```
+    pip install coverage codacy-coverage
+    ```
+
+2. generate the xml report: `coverage xml -o coverage.xml`
+3. run `python-codacy-coverage`
 
 
 ## Installing Package Control and Dependencies
@@ -183,10 +192,7 @@ To activate async testing on travis and appveyor. Add the file
 }
 ```
 
-Note: 
-
-1. `async` is forced to be `false` on Sublime Text 2
-2. if `async` is true, `deferred` is forced to be `false` (relaxation of this is in progress)
+Note: if `async` is true, `deferred` is forced to be `false` (relaxation of this is in progress)
 
 
 
