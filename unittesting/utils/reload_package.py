@@ -20,9 +20,8 @@ def dprint(*args, fill=None, fill_width=60, **kwargs):
     print("[UnitTesting]", *args, **kwargs)
 
 
-# the following is derived from the code of Eldar Abusalimov.
-# https://github.com/divmain/GitSavvy/blob/599ba3cdb539875568a96a53fafb033b01708a67/common/util/reload.py
 # check the link for comments
+# https://github.com/divmain/GitSavvy/blob/599ba3cdb539875568a96a53fafb033b01708a67/common/util/reload.py
 def reload_package(pkg_name, dummy=True):
     if pkg_name not in sys.modules:
         dprint("error:", pkg_name, "is not loaded.")
@@ -45,10 +44,12 @@ def reload_package(pkg_name, dummy=True):
                 importing_fromlist_aggresively(modules):
 
             reload_plugin(main.__name__)
-            reload_missing(modules)
     except:
         dprint("reload failed.", fill='-')
+        reload_missing(modules)
         raise
+
+    reload_missing(modules)
     if dummy:
         load_dummy()
     dprint("end", fill='-')
@@ -99,10 +100,7 @@ def reload_missing(modules):
         dprint("reload missing modules")
         for name in missing_modules:
             dprint("reloading missing module", name)
-            try:
-                importlib.import_module(name)
-            except:
-                dprint("fail to reload", name)
+            sys.modules[name] = modules[name]
 
 
 def reload_plugin(pkg_name):
