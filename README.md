@@ -25,7 +25,7 @@ UnitTesting for Sublime Text 2 will be no longer supported. Version 0.10.6 will 
 
 1. Before testing anything, you have to install [UnitTesting](https://github.com/randy3k/UnitTesting) via Package Control.
 2. Your package!
-3. TestCases should be placed in `test*.py` under the directory `tests` (configurable, see below). They are loaded by a modified [TestLoader](https://github.com/randy3k/UnitTesting/blob/master/unittesting/core/loader.py), see [TestLoader.discover](https://docs.python.org/3.3/library/unittest.html#unittest.TestLoader.discover) for more details.
+3. TestCases should be placed in `test*.py` under the directory `tests` (configurable, see below). The testcases are then loaded by [TestLoader.discover](https://docs.python.org/3.3/library/unittest.html#unittest.TestLoader.discover).
 4. Some examples are available at https://github.com/randy3k/UnitTesting-example
 
 
