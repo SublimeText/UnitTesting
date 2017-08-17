@@ -46,7 +46,7 @@ the software multiple times when developing a package. The command
 `UnitTesting: Reload Current Project` would reload the current project so
 developers do not have to restart Sublime Text.~~
 
-This functionality is deprecated, use [Package Reloader](https://github.com/randy3k/AutomaticPackageReloader)
+This functionality is deprecated, use [Automatic Package Reloader](https://github.com/randy3k/AutomaticPackageReloader)
 instead.
 
 
