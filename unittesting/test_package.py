@@ -3,9 +3,8 @@ import sublime_plugin
 import sys
 import os
 import logging
-from unittest import TextTestRunner
-from .core import TestLoader
-from .core import DeferringTextTestRunner
+from unittest import TextTestRunner, TestSuite
+from .core import TestLoader, DeferringTextTestRunner, DeferrableTestCase
 from .mixin import UnitTestingMixin
 from .const import DONE_MESSAGE
 from .utils import ProgressBar
@@ -30,6 +29,13 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand, UnitTestingMixin):
         else:
             self.unit_testing(stream, package, settings)
 
+    def verify_testsuite(self, tests):
+        for t in tests:
+            if isinstance(t, TestSuite):
+                self.verify_testsuite(t)
+            if isinstance(t, DeferrableTestCase):
+                raise Exception("DeferrableTestCase is used but `deferred` is `false`.")
+
     def unit_testing(self, stream, package, settings, cleanup_hooks=[]):
         stdout = sys.stdout
         stderr = sys.stderr
@@ -46,16 +52,17 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand, UnitTestingMixin):
             # use custom loader which support ST2 and reloading modules
             self.remove_test_modules(package, settings["tests_dir"])
             loader = TestLoader(settings["deferred"])
-            test = loader.discover(os.path.join(
+            tests = loader.discover(os.path.join(
                 sublime.packages_path(), package, settings["tests_dir"]), settings["pattern"]
             )
             # use deferred test runner or default test runner
             if settings["deferred"]:
                 testRunner = DeferringTextTestRunner(stream, verbosity=settings["verbosity"])
             else:
+                self.verify_testsuite(tests)
                 testRunner = TextTestRunner(stream, verbosity=settings["verbosity"])
 
-            testRunner.run(test)
+            testRunner.run(tests)
 
         except Exception as e:
             if not stream.closed:
