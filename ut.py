@@ -23,7 +23,6 @@ from unittesting import (
     UnitTestingCurrentFileCommand,
     UnitTestingCurrentProjectCommand,
     UnitTestingCurrentProjectCoverageCommand,
-    UnitTestingReloadCurrentProjectCommand,
     UnitTestingSyntaxCommand,
     run_scheduler
 )

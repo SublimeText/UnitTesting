@@ -9,16 +9,12 @@ UnitTesting
 <a href="https://www.paypal.me/randy3k/5usd" title="Donate to this project using Paypal"><img src="https://img.shields.io/badge/paypal-donate-blue.svg" /></a>
 <a href="https://gratipay.com/~randy3k/" title="Donate to this project using Gratipay"><img src="https://img.shields.io/badge/gratipay-donate-yellow.svg" /></a>
 
-This is a unittest framework for Sublime Text 2 and 3. It runs unittest testcases on local machines and CI services such as [travis-ci](https://travis-ci.org) and [appveyor](http://www.appveyor.com). It also supports testing syntax_test files for the new [sublime-syntax](https://www.sublimetext.com/docs/3/syntax.html) format.
+This is a unittest framework for Sublime Text 3. It runs unittest testcases on local machines and CI services such as [travis-ci](https://travis-ci.org) and [appveyor](http://www.appveyor.com). It also supports testing syntax_test files for the new [sublime-syntax](https://www.sublimetext.com/docs/3/syntax.html) format.
 
 
----
+## Sublime Text 2 support is deprecated
 
-# Sublime Text 2 support is deprecated
-
-UnitTesting for Sublime Text 2 will be no longer supported. Version 0.10.6 will be used on Sublime Text 2 and it is still available via Package Control.
-
----
+UnitTesting for Sublime Text 2 will be no longer supported. Version 0.10.6 is the last version supports Sublime Text 2 and it is available via Package Control on Sublime Text 2.
 
 
 ## Preparation
@@ -40,15 +36,18 @@ default.
 
 
 You could run the command `UnitTesting: Test Current Project` to run the
-current project. The current project will be first reloaded (see next section)
-by UnitTesting and then the tests will be run.
+current project. The current project will be first reloaded by UnitTesting
+and then the tests will be executed.
 
 ### Reloading package
 
-Sublime Text package developers may find themselves have to close and re-open
+~~Sublime Text package developers may find themselves have to close and re-open
 the software multiple times when developing a package. The command
 `UnitTesting: Reload Current Project` would reload the current project so
-developers do not have to restart Sublime Text.
+developers do not have to restart Sublime Text.~~
+
+This functionality is deprecated, use [Package Reloader](https://github.com/randy3k/AutomaticPackageReloader)
+instead.
 
 
 ### Test Coverage
@@ -56,7 +55,7 @@ developers do not have to restart Sublime Text.
 It is also possible to generate test
 coverage report via [coverage](https://pypi.python.org/pypi/coverage) by using the command
 `UnitTesting: Test Current Project with Coverage`.
-The file [.coveragerc](.coveragerc) is used to control the coverage configuations. If
+The file [.coveragerc](.coveragerc) is used to control the coverage configurations. If
 it is missing, UnitTesting will ignore the `tests` directory.
 
 ## Travis and Appveyor
