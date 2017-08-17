@@ -20,6 +20,14 @@ class UnitTestingMixin(object):
     def current_project_name(self):
         """Return back the project name of the current project
         """
+        window = sublime.active_window()
+        view = window.active_view()
+        spp = os.path.realpath(sublime.packages_path())
+        if view and view.file_name():
+            file_path = os.path.realpath(view.file_name())
+            if file_path.startswith(spp):
+                return file_path[len(spp):].split(os.sep)[1]
+
         folders = sublime.active_window().folders()
         if folders and len(folders) > 0:
             return os.path.basename(folders[0])
@@ -84,9 +92,6 @@ class UnitTestingMixin(object):
 
         if pattern is None:
             pattern = "test*.py"
-
-        if version < '3000':
-            async = False
 
         return {
             "tests_dir": tests_dir,
