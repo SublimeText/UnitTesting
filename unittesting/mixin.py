@@ -30,10 +30,11 @@ class UnitTestingMixin(object):
 
         folders = sublime.active_window().folders()
         if folders and len(folders) > 0:
-            return os.path.basename(folders[0])
-        else:
-            project_file_name = sublime.active_window().project_file_name()
-            return os.path.splitext(os.path.basename(project_file_name))[0]
+            first_folder = os.path.realpath(folders[0])
+            if first_folder.startswith(spp):
+                return os.path.basename(first_folder)
+
+        raise Exception("Cannot determine package name.")
 
     @property
     def recent_package(self):
