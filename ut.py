@@ -21,8 +21,8 @@ from unittesting import (
     UnitTestingCommand,
     UnitTestingCoverageCommand,
     UnitTestingCurrentFileCommand,
-    UnitTestingCurrentProjectCommand,
-    UnitTestingCurrentProjectCoverageCommand,
+    UnitTestingCurrentPackageCommand,
+    UnitTestingCurrentPackageCoverageCommand,
     UnitTestingSyntaxCommand,
     run_scheduler
 )

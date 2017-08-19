@@ -35,15 +35,15 @@ wildcard to match the file names, `<Package name>:test*.py` is used in
 default.
 
 
-You could run the command `UnitTesting: Test Current Project` to run the
-current project. The current project will be first reloaded by UnitTesting
+You could run the command `UnitTesting: Test Current Package` to run the
+current package. The current package will be first reloaded by UnitTesting
 and then the tests will be executed.
 
 ### Reloading package
 
 ~~Sublime Text package developers may find themselves have to close and re-open
 the software multiple times when developing a package. The command
-`UnitTesting: Reload Current Project` would reload the current project so
+`UnitTesting: Reload Current Package` would reload the current package so
 developers do not have to restart Sublime Text.~~
 
 This functionality is deprecated, use [Automatic Package Reloader](https://github.com/randy3k/AutomaticPackageReloader)
@@ -54,7 +54,7 @@ instead.
 
 It is also possible to generate test
 coverage report via [coverage](https://pypi.python.org/pypi/coverage) by using the command
-`UnitTesting: Test Current Project with Coverage`.
+`UnitTesting: Test Current Package with Coverage`.
 The file [.coveragerc](.coveragerc) is used to control the coverage configurations. If
 it is missing, UnitTesting will ignore the `tests` directory.
 
@@ -194,6 +194,19 @@ To activate async testing on travis and appveyor. Add the file
 Note: if `async` is true, `deferred` is forced to be `false` (relaxation of this is in progress)
 
 
+### Add `Test Current Package` build
+
+It is recommended to add the following in your `.sublime-project` file so that <kbd>c</kbd>+<kbd>b</kbd> would invoke the testing action.
+
+```
+"build_systems":
+[
+  {
+    "name": "Test Current Package",
+    "target": "unit_testing_current_package",
+  }
+]
+``` 
 
 ### Credits
 Thanks [guillermooo](https://github.com/guillermooo) and [philippotto](https://github.com/philippotto) for their efforts in AppVeyor and Travis OSX support. 

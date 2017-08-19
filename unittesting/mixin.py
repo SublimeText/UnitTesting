@@ -17,8 +17,8 @@ platform = sublime.platform()
 class UnitTestingMixin(object):
 
     @property
-    def current_project_name(self):
-        """Return back the project name of the current project
+    def current_package_name(self):
+        """Return back the name of the current package
         """
         window = sublime.active_window()
         view = window.active_view()
@@ -34,7 +34,7 @@ class UnitTestingMixin(object):
             if first_folder.startswith(spp):
                 return os.path.basename(first_folder)
 
-        raise Exception("Cannot determine package name.")
+        return None
 
     @property
     def recent_package(self):

@@ -4,12 +4,12 @@
     "command": "unit_testing"
   },
   {
-    "caption": "UnitTesting: Test Current Project",
-    "command": "unit_testing_current_project"
+    "caption": "UnitTesting: Test Current Package",
+    "command": "unit_testing_current_package"
   },
   {
-    "caption": "UnitTesting: Test Current Project with Coverage",
-    "command": "unit_testing_current_project_coverage"
+    "caption": "UnitTesting: Test Current Package with Coverage",
+    "command": "unit_testing_current_package_coverage"
   },
   {
     "caption": "UnitTesting: Test Current File",

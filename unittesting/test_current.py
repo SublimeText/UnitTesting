@@ -7,30 +7,30 @@ version = sublime.version()
 platform = sublime.platform()
 
 
-class UnitTestingCurrentProjectCommand(UnitTestingCommand):
+class UnitTestingCurrentPackageCommand(UnitTestingCommand):
     def run(self):
-        project_name = self.current_project_name
+        project_name = self.current_package_name
         if not project_name:
-            sublime.message_dialog("Project not found.")
+            sublime.message_dialog("Cannot determine package name.")
             return
 
         sublime.set_timeout_async(lambda: self.run_async(project_name))
 
     def run_async(self, project_name):
-        orig_run = super(UnitTestingCurrentProjectCommand, self).run
+        orig_run = super(UnitTestingCurrentPackageCommand, self).run
         self.reload_package(project_name, show_progress=True)
         sublime.set_timeout(lambda: orig_run(project_name))
 
 
-class UnitTestingCurrentProjectCoverageCommand(UnitTestingCoverageCommand):
+class UnitTestingCurrentPackageCoverageCommand(UnitTestingCoverageCommand):
 
     def run(self):
-        project_name = self.current_project_name
+        project_name = self.current_package_name
         if not project_name:
-            sublime.message_dialog("Project not found.")
+            sublime.message_dialog("Cannot determine package name.")
             return
 
-        super(UnitTestingCurrentProjectCoverageCommand, self).run(project_name)
+        super(UnitTestingCurrentPackageCoverageCommand, self).run(project_name)
 
     def is_enabled(self):
         return "coverage" in sys.modules
@@ -38,9 +38,9 @@ class UnitTestingCurrentProjectCoverageCommand(UnitTestingCoverageCommand):
 
 class UnitTestingCurrentFileCommand(UnitTestingCommand):
     def run(self):
-        project_name = self.current_project_name
+        project_name = self.current_package_name
         if not project_name:
-            sublime.message_dialog("Project not found.")
+            sublime.message_dialog("Cannot determine package name.")
             return
 
         test_file = self.current_test_file
