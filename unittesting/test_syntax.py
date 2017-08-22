@@ -35,7 +35,8 @@ class UnitTestingSyntaxCommand(sublime_plugin.ApplicationCommand, UnitTestingMix
 
         try:
             tests = sublime.find_resources("syntax_test*")
-            tests = [t for t in tests if t.startswith("Packages/%s/" % package)]
+            if package != "__all__":
+                tests = [t for t in tests if t.startswith("Packages/%s/" % package)]
             if not tests:
                 raise RuntimeError("No syntax_test files are found in %s!" % package)
             for t in tests:

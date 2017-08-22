@@ -14,11 +14,17 @@ Bootstrap() {
         sh -e /etc/init.d/xvfb start || true
     fi
 
-    if [ ! -d "$STP/$PACKAGE" ]; then
-        # symlink does not play well with coverage
-        echo "copy the package to sublime package directory"
-        mkdir -p "$STP/$PACKAGE"
-        cp -r ./ "$STP/$PACKAGE"
+    if [ "$PACKAGE" = "__all__" ]; then
+        echo "copy all subfolders to sublime package directory"
+        mkdir -p "$STP"
+        cp -r ./ "$STP"
+    else
+        if [ ! -d "$STP/$PACKAGE" ]; then
+            # symlink does not play well with coverage
+            echo "copy the package to sublime package directory"
+            mkdir -p "$STP/$PACKAGE"
+            cp -r ./ "$STP/$PACKAGE"
+        fi
     fi
 
     UT_PATH="$STP/UnitTesting"

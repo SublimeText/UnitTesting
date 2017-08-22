@@ -10,9 +10,14 @@ $STP = "C:\st\Data\Packages"
 
 function Bootstrap {
     new-item -itemtype directory "$STP\${env:PACKAGE}" -force >$null
-    write-verbose "copy the package to sublime text Packages directory"
-    copy * -recurse -force "$STP\${env:PACKAGE}"
 
+    if (${env:PACKAGE} -eq "__all__"){
+        write-verbose "copy all subfolders to sublime package directory"
+        copy * -recurse -force "$STP"
+    } else {
+        write-verbose "copy the package to sublime text Packages directory"
+        copy * -recurse -force "$STP\${env:PACKAGE}"
+    }
 
     $UT_PATH = "$STP\UnitTesting"
     if (!(test-path -path "$UT_PATH")){
