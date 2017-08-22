@@ -42,7 +42,7 @@ function Bootstrap {
     }
 
     $COV_PATH = "$STP\coverage"
-    if (!(test-path -path "$COV_PATH")){
+    if ((${env:SUBLIME_TEXT_VERSION} -eq 3) -and (!(test-path -path "$COV_PATH"))){
 
         $COV_URL = "https://github.com/codexns/sublime-coverage"
 
