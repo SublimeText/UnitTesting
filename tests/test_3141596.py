@@ -55,9 +55,9 @@ def perpare_package(package, output=None, syntax_test=False, delay=None):
                     os.makedirs(outfiledir)
 
             if delay:
-                yield 100
+                yield delay
+
             if syntax_test:
-                yield 1000
                 sublime.run_command(
                     "unit_testing_syntax", {"package": package, "output": outfile})
             else:
