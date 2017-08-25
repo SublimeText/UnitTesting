@@ -170,6 +170,14 @@ class UnitTestingMixin(object):
                     continue
             except:
                 continue
-            tests_dir = os.path.realpath(os.path.join(sublime.packages_path(), package, tests_dir))
-            if os.path.realpath(mpath).startswith(tests_dir):
+
+            tests_dir = os.path.join(sublime.packages_path(), package, tests_dir)
+            real_tests_dir = os.path.realpath(tests_dir)
+            if os.path.realpath(mpath).startswith(real_tests_dir):
                 del sys.modules[mname]
+
+            # remove tests dir in sys.path
+            if tests_dir in sys.path:
+                sys.path.remove(tests_dir)
+            elif real_tests_dir in sys.path:
+                sys.path.remove(real_tests_dir)
