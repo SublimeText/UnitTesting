@@ -24,6 +24,7 @@ from unittesting import (
     UnitTestingCurrentPackageCommand,
     UnitTestingCurrentPackageCoverageCommand,
     UnitTestingSyntaxCommand,
+    UnitTestingColorSchemeCommand,
     run_scheduler
 )
 

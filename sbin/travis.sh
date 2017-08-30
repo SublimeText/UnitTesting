@@ -27,10 +27,16 @@ Bootstrap() {
         fi
     fi
 
+    # Disable warnings about detached HEAD
+    # https://stackoverflow.com/questions/36794501
+    git config --global advice.detachedHead false
+
     UT_PATH="$STP/UnitTesting"
     if [ ! -d "$UT_PATH" ]; then
 
-        UT_URL="https://github.com/randy3k/UnitTesting"
+        if [ -z $UT_URL ]; then
+            UT_URL="https://github.com/randy3k/UnitTesting"
+        fi
 
         if [ -z $UNITTESTING_TAG ]; then
             if [ $SUBLIME_TEXT_VERSION -eq 2 ]; then
@@ -45,6 +51,8 @@ Bootstrap() {
 
         echo "download UnitTesting tag: $UNITTESTING_TAG"
         git clone --quiet --depth 1 --branch $UNITTESTING_TAG "$UT_URL" "$UT_PATH"
+        git -C "$UT_PATH" rev-parse HEAD
+        echo
     fi
 
     COV_PATH="$STP/coverage"
@@ -61,7 +69,31 @@ Bootstrap() {
 
         echo "download sublime-coverage tag: $COVERAGE_TAG"
         git clone --quiet --depth 1 --branch $COVERAGE_TAG "$COV_URL" "$COV_PATH"
+        git -C "$COV_PATH" rev-parse HEAD
+        echo
         rm -rf "$COV_PATH/.git"
+    fi
+
+    if [ "$1" = "--with-color-scheme-unit" ]; then
+        shift
+        CSU_PATH="$STP/ColorSchemeUnit"
+        if [ "$SUBLIME_TEXT_VERSION" -eq 3 ] && [ ! -d "$CSU_PATH" ]; then
+
+            CSU="https://github.com/gerardroche/sublime-color-scheme-unit"
+
+            if [ -z $COLOR_SCHEME_UNIT_TAG ]; then
+                # latest tag
+                COLOR_SCHEME_UNIT_TAG=$(git ls-remote --tags "$CSU" |
+                      sed 's|.*/\(.*\)$|\1|' | grep -v '\^' |
+                      sort -t. -k1,1nr -k2,2nr -k3,3nr | head -n1)
+            fi
+
+            echo "download ColorSchemeUnit tag: $COLOR_SCHEME_UNIT_TAG"
+            git clone --quiet --depth 1 --branch $COLOR_SCHEME_UNIT_TAG "$CSU" "$CSU_PATH"
+            git -C "$CSU_PATH" rev-parse HEAD
+            echo
+            rm -rf "$CSU_PATH/.git"
+        fi
     fi
 
     sh "$STP/UnitTesting/sbin/install_sublime_text.sh"
@@ -83,18 +115,21 @@ RunTests() {
     if [ "$TRAVIS_OS_NAME" = "linux" ] && [ -z $DISPLAY ]; then
         export DISPLAY=:99.0
         sh -e /etc/init.d/xvfb start || true
+        # The above statement prints a status message
+        # but doesn't append a newline on the end.
+        echo ""
     fi
 
     if [ -z "$1" ]; then
         python "$STP/UnitTesting/sbin/run_tests.py" "$PACKAGE"
     else
-        python "$STP/UnitTesting/sbin/run_tests.py" "$1" "$PACKAGE"
+        python "$STP/UnitTesting/sbin/run_tests.py" "$@" "$PACKAGE"
     fi
 }
 
 COMMAND=$1
-echo "Running command: ${COMMAND}"
 shift
+echo "Running command: ${COMMAND} $@"
 case $COMMAND in
     "bootstrap")
         Bootstrap "$@"
@@ -107,5 +142,8 @@ case $COMMAND in
         ;;
     "run_syntax_tests")
         RunTests "--syntax-test" "$@"
+        ;;
+    "run_color_scheme_tests")
+        RunTests "--color-scheme-test" "$@"
         ;;
 esac

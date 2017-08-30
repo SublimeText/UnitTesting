@@ -5,6 +5,7 @@ from .test_coverage import UnitTestingCoverageCommand
 from .test_current import UnitTestingCurrentFileCommand, UnitTestingCurrentPackageCommand, \
     UnitTestingCurrentPackageCoverageCommand
 from .test_syntax import UnitTestingSyntaxCommand
+from .test_color_scheme import UnitTestingColorSchemeCommand
 from . import helpers
 
 
@@ -16,5 +17,6 @@ __all__ = [
     "UnitTestingCurrentFileCommand",
     "UnitTestingCurrentPackageCommand",
     "UnitTestingCurrentPackageCoverageCommand",
-    "UnitTestingSyntaxCommand"
+    "UnitTestingSyntaxCommand",
+    "UnitTestingColorSchemeCommand"
 ]

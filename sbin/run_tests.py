@@ -14,10 +14,12 @@ import optparse
 
 parser = optparse.OptionParser()
 parser.add_option('--syntax-test', action="store_true", default=False)
+parser.add_option('--color-scheme-test', action="store_true", default=False)
 parser.add_option('--coverage', action="store_true", default=False)
 options, remainder = parser.parse_args()
 
 syntax_test = options.syntax_test
+color_scheme_test = options.color_scheme_test
 coverage = options.coverage
 package = remainder[0] if len(remainder) > 0 else "UnitTesting"
 
@@ -50,12 +52,18 @@ try:
 except:
     schedule = []
 if not any([s['package'] == package for s in schedule]):
-    schedule.append({
+    schedule_info = {
         'package': package,
         'output': outfile,
         'syntax_test': syntax_test,
+        'color_scheme_test': color_scheme_test,
         'coverage': coverage
-    })
+    }
+    print('Schedule:')
+    for k, v in schedule_info.items():
+        print('  %s: %s' % (k, v))
+
+    schedule.append(schedule_info)
 with open(jpath, 'w') as f:
     f.write(json.dumps(schedule, ensure_ascii=False, indent=True))
 
@@ -69,18 +77,19 @@ else:
     subprocess.Popen(["subl"])
 
 # wait until the file has something
+print("Wait for Sublime Text response")
 startt = time.time()
 while (not os.path.exists(outfile) or os.stat(outfile).st_size == 0):
     sys.stdout.write('.')
     sys.stdout.flush()
-    if time.time()-startt > 60:
+    if time.time() - startt > 60:
         print("Timeout: Sublime Text is not responding")
         sys.exit(1)
     time.sleep(1)
-
-print("\nstart to read output")
+print("")
 
 # todo: use notification instead of polling
+print("Start to read output...")
 with open(outfile, 'r') as f:
     while True:
         where = f.tell()
