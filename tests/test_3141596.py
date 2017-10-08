@@ -38,7 +38,7 @@ def cleanup_package(package):
         pass
 
 
-def perpare_package(package, output=None, syntax_test=False, delay=None):
+def perpare_package(package, output=None, syntax_test=False, color_scheme_test=False, delay=None):
     def wrapper(func):
         @wraps(func)
         def real_wrapper(self):
@@ -60,6 +60,9 @@ def perpare_package(package, output=None, syntax_test=False, delay=None):
             if syntax_test:
                 sublime.run_command(
                     "unit_testing_syntax", {"package": package, "output": outfile})
+            elif color_scheme_test:
+                sublime.run_command(
+                    "unit_testing_color_scheme", {"package": package, "output": outfile})
             else:
                 sublime.run_command(
                     "unit_testing", {"package": package, "output": outfile})
@@ -135,6 +138,22 @@ class TestSyntax(DeferrableTestCase):
     @perpare_package("_Syntax_Error", syntax_test=True, delay=1000)
     def test_error_syntax(self, txt):
         m = re.search('^ERROR: No syntax_test', txt, re.MULTILINE)
+        self.assertTrue(hasattr(m, "group"))
+
+
+class TestColorScheme(DeferrableTestCase):
+
+    def tearDown(self):
+        UTSetting.set("recent-package", "UnitTesting")
+
+    @perpare_package("_ColorScheme_Failure", color_scheme_test=True, delay=1000)
+    def test_fail_color_scheme(self, txt):
+        m = re.search('^There were 14 failures:$', txt, re.MULTILINE)
+        self.assertTrue(hasattr(m, "group"))
+
+    @perpare_package("_ColorScheme_Success", color_scheme_test=True, delay=1000)
+    def test_success_color_scheme(self, txt):
+        m = re.search('^OK', txt, re.MULTILINE)
         self.assertTrue(hasattr(m, "group"))
 
 
