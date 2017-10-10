@@ -43,7 +43,7 @@ if ($found -eq 0) {
         "package" = $PackageToTest;
         "output" = $outFile;
         "syntax_test" = $syntax_test.IsPresent;
-        'color_scheme_test': $color_scheme_test.IsPresent;
+        'color_scheme_test' = $color_scheme_test.IsPresent;
         "coverage" = $coverage.IsPresent
     }
     write-verbose "Schedule:"
