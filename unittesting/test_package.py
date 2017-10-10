@@ -87,6 +87,6 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand, UnitTestingMixin):
                         # remove stream set by logging.root.addHandler
                         logging.root.removeHandler(handler)
                 else:
-                    sublime.set_timeout(lambda: cleanup(status+1), 500)
+                    sublime.set_timeout(lambda: cleanup(status + 1), 500)
 
             cleanup()
