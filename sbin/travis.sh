@@ -69,31 +69,7 @@ Bootstrap() {
 
         echo "download sublime-coverage tag: $COVERAGE_TAG"
         git clone --quiet --depth 1 --branch $COVERAGE_TAG "$COV_URL" "$COV_PATH"
-        git -C "$COV_PATH" rev-parse HEAD
-        echo
         rm -rf "$COV_PATH/.git"
-    fi
-
-    if [ "$1" = "--with-color-scheme-unit" ]; then
-        shift
-        CSU_PATH="$STP/ColorSchemeUnit"
-        if [ "$SUBLIME_TEXT_VERSION" -eq 3 ] && [ ! -d "$CSU_PATH" ]; then
-
-            CSU="https://github.com/gerardroche/sublime-color-scheme-unit"
-
-            if [ -z $COLOR_SCHEME_UNIT_TAG ]; then
-                # latest tag
-                COLOR_SCHEME_UNIT_TAG=$(git ls-remote --tags "$CSU" |
-                      sed 's|.*/\(.*\)$|\1|' | grep -v '\^' |
-                      sort -t. -k1,1nr -k2,2nr -k3,3nr | head -n1)
-            fi
-
-            echo "download ColorSchemeUnit tag: $COLOR_SCHEME_UNIT_TAG"
-            git clone --quiet --depth 1 --branch $COLOR_SCHEME_UNIT_TAG "$CSU" "$CSU_PATH"
-            git -C "$CSU_PATH" rev-parse HEAD
-            echo
-            rm -rf "$CSU_PATH/.git"
-        fi
     fi
 
     sh "$STP/UnitTesting/sbin/install_sublime_text.sh"
@@ -109,6 +85,25 @@ InstallPackageControl() {
     rm -rf "$COV_PATH"
 
     sh "$STP/UnitTesting/sbin/install_package_control.sh"
+}
+
+InstallColorSchemeUnit() {
+    CSU_PATH="$STP/ColorSchemeUnit"
+    if [ "$SUBLIME_TEXT_VERSION" -eq 3 ] && [ ! -d "$CSU_PATH" ]; then
+
+        CSU_URL="https://github.com/gerardroche/sublime-color-scheme-unit"
+
+        if [ -z $COLOR_SCHEME_UNIT_TAG ]; then
+            # latest tag
+            COLOR_SCHEME_UNIT_TAG=$(git ls-remote --tags "$CSU_URL" |
+                  sed 's|.*/\(.*\)$|\1|' | grep -v '\^' |
+                  sort -t. -k1,1nr -k2,2nr -k3,3nr | head -n1)
+        fi
+
+        echo "download ColorSchemeUnit tag: $COLOR_SCHEME_UNIT_TAG"
+        git clone --quiet --depth 1 --branch $COLOR_SCHEME_UNIT_TAG "$CSU_URL" "$CSU_PATH"
+        rm -rf "$CSU_PATH/.git"
+    fi
 }
 
 RunTests() {
@@ -136,6 +131,9 @@ case $COMMAND in
         ;;
     "install_package_control")
         InstallPackageControl "$@"
+        ;;
+    "install_color_scheme_unit")
+        InstallColorSchemeUnit "$@"
         ;;
     "run_tests")
         RunTests "$@"

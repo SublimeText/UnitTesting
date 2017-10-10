@@ -5,6 +5,8 @@ param(
     [Parameter(Mandatory = $false)]
     [switch] $syntax_test,
     [Parameter(Mandatory = $false)]
+    [switch] $color_scheme_test,
+    [Parameter(Mandatory = $false)]
     [switch] $coverage
 )
 
@@ -37,12 +39,19 @@ else {
 
 $found = (@($schedule | foreach-object { $_.package }) -eq $PackageToTest).length
 if ($found -eq 0) {
-    $schedule += @{
+    $schedule_info = @{
         "package" = $PackageToTest;
         "output" = $outFile;
         "syntax_test" = $syntax_test.IsPresent;
+        'color_scheme_test': $color_scheme_test.IsPresent;
         "coverage" = $coverage.IsPresent
     }
+    write-verbose "Schedule:"
+    foreach ($h in $schedule_info.GetEnumerator()) {
+        write-verbose "  $($h.Name): $($h.Value)"
+    }
+
+    $schedule += $schedule_info
 }
 
 [System.IO.File]::WriteAllText(

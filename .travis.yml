@@ -28,7 +28,8 @@ before_install:
       fi
 
 install:
-    - sh sbin/travis.sh bootstrap --with-color-scheme-unit
+    - sh sbin/travis.sh bootstrap
+    - sh sbin/travis.sh install_color_scheme_unit
     - if [ "$PCINSTALL" == true ]; then sh sbin/travis.sh install_package_control; fi
 
 script:

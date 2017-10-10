@@ -9,6 +9,11 @@ param(
 $STP = "C:\st\Data\Packages"
 
 function Bootstrap {
+    [CmdletBinding()]
+    param(
+        [switch] $with_color_scheme_unit
+    )
+
     new-item -itemtype directory "$STP\${env:PACKAGE}" -force >$null
 
     if (${env:PACKAGE} -eq "__all__"){
@@ -18,6 +23,8 @@ function Bootstrap {
         write-verbose "copy the package to sublime text Packages directory"
         copy * -recurse -force "$STP\${env:PACKAGE}"
     }
+
+    git config --global advice.detachedHead false
 
     $UT_PATH = "$STP\UnitTesting"
     if (!(test-path -path "$UT_PATH")){
@@ -70,6 +77,24 @@ function InstallPackageControl {
     & "$STP\UnitTesting\sbin\install_package_control.ps1" -verbose
 }
 
+function InstallColorSchemeUnit {
+    $CSU_PATH = "$STP\ColorSchemeUnit"
+    if ((${env:SUBLIME_TEXT_VERSION} -eq 3) -and (!(test-path -path "$CSU_PATH"))){
+        $CSU_URL = "https://github.com/gerardroche/sublime-color-scheme-unit"
+
+        if ( ${env:COLOR_SCHEME_UNIT_TAG} -eq $null){
+            # the latest tag
+            $COLOR_SCHEME_UNIT_TAG = git ls-remote --tags $CSU_URL | %{$_ -replace ".*/(.*)$", '$1'} `
+                    | where-object {$_ -notmatch "\^"} |%{[System.Version]$_} `
+                    | sort | select-object -last 1 | %{ "$_" }
+        } else {
+            $COLOR_SCHEME_UNIT_TAG = ${env:COLOR_SCHEME_UNIT_TAG}
+        }
+        write-verbose "download ColorSchemeUnit tag: $COLOR_SCHEME_UNIT_TAG"
+        git clone --quiet --depth 1 --branch=$COLOR_SCHEME_UNIT_TAG $CSU_URL "$CSU_PATH" 2>$null
+    }
+}
+
 function RunTests {
     [CmdletBinding()]
     param(
@@ -89,6 +114,7 @@ try{
     switch ($command){
         "bootstrap" { Bootstrap }
         "install_package_control" { InstallPackageControl }
+        "install_color_scheme_unit" { InstallColorSchemeUnit }
         "run_tests" { RunTests }
         "run_syntax_tests" { RunTests -syntax_test}
     }
