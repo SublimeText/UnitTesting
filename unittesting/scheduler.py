@@ -95,5 +95,6 @@ def try_running_scheduler():
 
 
 def run_scheduler():
+    UnitTestingRunSchedulerCommand.ready = False
     th = threading.Thread(target=try_running_scheduler)
     th.start()

@@ -92,6 +92,7 @@ else
         "$HOME/$SUBLIME_TEXT/sublime_text" &
         sleep 2
         killall sublime_text
+        killall 'plugin_host' || true
         sleep 2
     fi
 fi
