@@ -24,11 +24,5 @@ from unittesting import (
     UnitTestingCurrentPackageCommand,
     UnitTestingCurrentPackageCoverageCommand,
     UnitTestingSyntaxCommand,
-    UnitTestingColorSchemeCommand,
-    run_scheduler
+    UnitTestingColorSchemeCommand
 )
-
-
-def plugin_loaded():
-    # run the schedule
-    run_scheduler()

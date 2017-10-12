@@ -59,6 +59,7 @@ for i in {1..2}; do
     done
 
     pkill "[Ss]ubl" || true
+    killall 'plugin_host' || true
     sleep 2
     [ -f "$PCH_PATH/success" ] && break
 done

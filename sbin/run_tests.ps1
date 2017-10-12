@@ -57,14 +57,21 @@ if ($found -eq 0) {
 [System.IO.File]::WriteAllText(
     $jpath, (convertto-json $schedule), $UTF8Encoding)
 
+
+# inject scheduler
+$schedule_source = "$packagesPath\UnitTesting\sbin\run_scheduler.py"
+$schedule_target = "$packagesPath\UnitTesting\zzz_run_scheduler.py"
+
+if (-not (test-path $schedule_target)) {
+    copy-item $schedule_source $schedule_target -force
+}
+
 # launch sublime
 $sublimeIsRunning = get-process 'sublime_text' -erroraction silentlycontinue
 
 # XXX(guillermooo): we cannot start the editor minimized?
 if($sublimeIsRunning -eq $null) {
     start-process $stPath
-} else {
-    start-process $stPath -argumentlist '--command', "unit_testing_run_scheduler"
 }
 
 $startTime = get-date
@@ -72,6 +79,9 @@ while (-not (test-path $outFile) -or (get-item $outFile).length -eq 0) {
     write-host -nonewline "."
     if (((get-date) - $startTime).totalseconds -ge 60) {
         write-host
+        if (test-path $schedule_target) {
+            remove-item $schedule_target -force
+        }
         throw "Timeout: Sublime Text is not responding."
     }
     start-sleep -seconds 1
@@ -124,6 +134,10 @@ if (test-path $coverageFile) {
     $pkgpath = "$packagesPath\$PackageToTest".replace("\", "\\")
     $data = (get-content ".\.coverage") -replace [regex]::escape($pkgpath), $cwd
     set-content ".\.coverage" -value $data
+}
+
+if (test-path $schedule_target) {
+    remove-item $schedule_target -force
 }
 
 if (!$success) {
