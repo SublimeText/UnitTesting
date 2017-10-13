@@ -35,6 +35,9 @@ try{
     }
 
     if (-not (test-path "$PCH_PATH\success")) {
+        if (test-path "$PCH_PATH\log") {
+            get-content -Path "$PCH_PATH\log"
+        }
         remove-item "$PCH_PATH" -Recurse -Force
         throw "Timeout: Fail to install Package Control."
     }
