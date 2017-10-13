@@ -69,7 +69,8 @@ Bootstrap() {
 
         echo "download sublime-coverage tag: $COVERAGE_TAG"
         git clone --quiet --depth 1 --branch $COVERAGE_TAG "$COV_URL" "$COV_PATH"
-        rm -rf "$COV_PATH/.git"
+        git -C "$COV_PATH" rev-parse HEAD
+        echo
     fi
 
     sh "$STP/UnitTesting/sbin/install_sublime_text.sh"
@@ -102,7 +103,8 @@ InstallColorSchemeUnit() {
 
         echo "download ColorSchemeUnit tag: $COLOR_SCHEME_UNIT_TAG"
         git clone --quiet --depth 1 --branch $COLOR_SCHEME_UNIT_TAG "$CSU_URL" "$CSU_PATH"
-        rm -rf "$CSU_PATH/.git"
+        git -C "$CSU_PATH" rev-parse HEAD
+        echo
     fi
 }
 

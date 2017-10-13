@@ -46,6 +46,8 @@ function Bootstrap {
 
         write-verbose "download UnitTesting tag: $UNITTESTING_TAG"
         git clone --quiet --depth 1 --branch=$UNITTESTING_TAG $UT_URL "$UT_PATH" 2>$null
+        git -C "$UT_PATH" rev-parse HEAD
+        write-verbose ""
     }
 
     $COV_PATH = "$STP\coverage"
@@ -64,6 +66,8 @@ function Bootstrap {
 
         write-verbose "download sublime-coverage tag: $COVERAGE_TAG"
         git clone --quiet --depth 1 --branch=$COVERAGE_TAG $COV_URL "$COV_PATH" 2>$null
+        git -C "$COV_PATH" rev-parse HEAD
+        write-verbose ""
     }
 
 
@@ -92,6 +96,8 @@ function InstallColorSchemeUnit {
         }
         write-verbose "download ColorSchemeUnit tag: $COLOR_SCHEME_UNIT_TAG"
         git clone --quiet --depth 1 --branch=$COLOR_SCHEME_UNIT_TAG $CSU_URL "$CSU_PATH" 2>$null
+        git -C "$CSU_PATH" rev-parse HEAD
+        write-verbose ""
     }
 }
 
