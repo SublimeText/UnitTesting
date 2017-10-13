@@ -76,12 +76,7 @@ if not os.path.exists(schedule_target):
     shutil.copyfile(schedule_source, schedule_target)
 
 # launch sublime text
-tasks = subprocess.check_output(['ps', 'xw']).decode('utf8')
-sublime_is_running = "Sublime" in tasks or "sublime_text" in tasks
-
-if not sublime_is_running:
-    subprocess.Popen("subl", shell=True)
-
+subprocess.Popen(["subl", "-b"])
 
 # wait until the file has something
 print("Wait for Sublime Text response")
