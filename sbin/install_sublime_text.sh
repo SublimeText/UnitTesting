@@ -61,6 +61,7 @@ if [ $(uname) = 'Darwin'  ]; then
         open "$HOME/Applications/$SUBLIME_TEXT.app"
         sleep 2
         osascript -e "tell application "'"'"$SUBLIME_TEXT"'"'" to quit"
+        killall 'plugin_host' || true
         sleep 2
     fi
 else
