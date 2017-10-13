@@ -65,6 +65,9 @@ for i in {1..2}; do
 done
 
 if [ ! -f "$PCH_PATH/success" ]; then
+    if [ -f "$PCH_PATH/log" ]; then
+        cat "$PCH_PATH/log"
+    fi
     echo "Timeout: Fail to install Package Control."
     rm -rf "$PCH_PATH"
     exit 1
