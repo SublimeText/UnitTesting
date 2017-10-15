@@ -5,13 +5,10 @@ import sublime
 
 
 class DeferringTextTestRunner(TextTestRunner):
-
-    """
-    This test runner runs tests in deferred slices.
-    """
+    """This test runner runs tests in deferred slices."""
 
     def run(self, test):
-        "Run the given test case or test suite."
+        """Run the given test case or test suite."""
         self.finished = False
         result = self._makeResult()
         registerResult(result)

@@ -18,8 +18,7 @@ class UnitTestingMixin(object):
 
     @property
     def current_package_name(self):
-        """Return back the name of the current package
-        """
+        """Return back the name of the current package."""
         window = sublime.active_window()
         view = window.active_view()
         spp = os.path.realpath(sublime.packages_path())

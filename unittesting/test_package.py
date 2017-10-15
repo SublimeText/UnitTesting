@@ -16,10 +16,10 @@ version = sublime.version()
 class UnitTestingCommand(sublime_plugin.ApplicationCommand, UnitTestingMixin):
 
     def run(self, package=None, **kargs):
-
         if not package:
             self.prompt_package(lambda x: self.run(x, **kargs))
             return
+
         package, pattern = self.input_parser(package)
         settings = self.load_settings(package, pattern=pattern, **kargs)
         stream = self.load_stream(package, settings["output"])

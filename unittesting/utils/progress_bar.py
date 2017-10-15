@@ -21,4 +21,4 @@ class ProgressBar:
         before = min(status, (2 * self.width) - status)
         after = self.width - before
         sublime.status_message("%s [%s=%s]" % (self.label, " " * before, " " * after))
-        sublime.set_timeout(lambda: self.update(status+1), 100)
+        sublime.set_timeout(lambda: self.update(status + 1), 100)

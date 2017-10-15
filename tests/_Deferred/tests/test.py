@@ -1,5 +1,5 @@
 import sublime
-from unittest import TestCase
+from unittest import TestCase  # FIXME Import unused? # noqa: F401
 from unittesting import DeferrableTestCase
 
 
