@@ -6,17 +6,13 @@ from . import DeferrableTestCase
 
 
 class TempDirectoryTestCase(DeferrableTestCase):
-    """
-    Create a temp directory and open it.
-    """
+    """Create a temp directory and open it."""
 
     _temp_dir = None
 
     @classmethod
     def setUpClass(cls):
-        """
-        Setup a temp directory for testing
-        """
+        """Create a temp directory for testing."""
         cls._temp_dir = tempfile.mkdtemp()
         nwindows = len(sublime.windows())
         original_window_id = sublime.active_window().id()

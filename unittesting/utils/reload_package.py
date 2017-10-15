@@ -56,8 +56,9 @@ def reload_package(pkg_name, dummy=True):
 
 def load_dummy():
     """
-    a hack to trigger automatic "reloading plugins"
-    this is needed to ensure TextCommand's and WindowCommand's are ready.
+    Hack to trigger automatic "reloading plugins".
+
+    This is needed to ensure TextCommand's and WindowCommand's are ready.
     """
     dprint("installing dummy package")
     dummy = "_dummy_package"
@@ -71,7 +72,7 @@ def load_dummy():
                 os.unlink(dummy_py)
             after_remove_dummy()
         elif trial < 300:
-            threading.Timer(0.1, lambda: remove_dummy(trial+1)).start()
+            threading.Timer(0.1, lambda: remove_dummy(trial + 1)).start()
         else:
             if os.path.exists(dummy_py):
                 os.unlink(dummy_py)
@@ -84,7 +85,7 @@ def load_dummy():
             condition.notify()
             condition.release()
         elif trial < 300:
-            threading.Timer(0.1, lambda: after_remove_dummy(trial+1)).start()
+            threading.Timer(0.1, lambda: after_remove_dummy(trial + 1)).start()
 
     threading.Timer(0.1, remove_dummy).start()
     condition.acquire()
@@ -160,7 +161,7 @@ class FilterFinder:
         module = self._modules[name]
         sys.modules[name] = module  # restore the module back
         with self._stack_meter as depth:
-            dprint("reloading", ('| '*depth) + '|--', name)
+            dprint("reloading", ('| ' * depth) + '|--', name)
             try:
                 return module.__loader__.load_module(name)
             except:
