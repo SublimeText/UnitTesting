@@ -140,6 +140,8 @@ if (test-path $schedule_target) {
     remove-item $schedule_target -force
 }
 
+start-sleep -seconds 1
+
 if (!$success) {
     throw
 }

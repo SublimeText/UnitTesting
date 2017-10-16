@@ -120,5 +120,7 @@ if os.path.exists(coveragefile):
 if os.path.exists(schedule_target):
     os.unlink(schedule_target)
 
+time.sleep(1)
+
 if not success:
     sys.exit(1)
