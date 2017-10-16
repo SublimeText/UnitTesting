@@ -104,7 +104,7 @@ function InstallColorSchemeUnit {
 function RunTests {
     [CmdletBinding()]
     param(
-        [switch] $syntax_test
+        [switch] $syntax_test,
         [switch] $color_scheme_test
     )
 
