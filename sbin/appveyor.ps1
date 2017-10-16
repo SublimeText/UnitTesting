@@ -105,10 +105,13 @@ function RunTests {
     [CmdletBinding()]
     param(
         [switch] $syntax_test
+        [switch] $color_scheme_test
     )
 
     if ( $syntax_test.IsPresent ){
         & "$STP\UnitTesting\sbin\run_tests.ps1" "${env:PACKAGE}" -verbose -syntax_test
+    } elseif ( $color_scheme_test.IsPresent ){
+        & "$STP\UnitTesting\sbin\run_tests.ps1" "${env:PACKAGE}" -verbose -color_scheme_test
     } elseif ( $coverage.IsPresent ) {
         & "$STP\UnitTesting\sbin\run_tests.ps1" "${env:PACKAGE}" -verbose -coverage
     } else {
@@ -123,6 +126,7 @@ try{
         "install_color_scheme_unit" { InstallColorSchemeUnit }
         "run_tests" { RunTests }
         "run_syntax_tests" { RunTests -syntax_test}
+        "run_color_scheme_tests" { RunTests -color_scheme_test}
     }
 }catch {
     throw $_
