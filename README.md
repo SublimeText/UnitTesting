@@ -41,13 +41,7 @@ and then the tests will be executed.
 
 ### Reloading package
 
-~~Sublime Text package developers may find themselves have to close and re-open
-the software multiple times when developing a package. The command
-`UnitTesting: Reload Current Package` would reload the current package so
-developers do not have to restart Sublime Text.~~
-
-This functionality is deprecated, use [Automatic Package Reloader](https://github.com/randy3k/AutomaticPackageReloader)
-instead.
+Check [Automatic Package Reloader](https://github.com/randy3k/AutomaticPackageReloader).
 
 
 ### Test Coverage
@@ -80,12 +74,6 @@ We support [codecov.io](https://codecov.io/), [coveralls.io](https://coveralls.i
 [codacy.com](https://www.codacy.com). codecov.io is sightly preferable as it
 supports merging reports from travis and appveyor.
 
-### coveralls.io support
-
-To submit coverage report to [coveralls.io](https://coveralls.io/):
-
-1. install [python-coveralls](https://pypi.python.org/pypi/python-coveralls/)
-2. run `coveralls` after success
 
 ### codecov support
 
@@ -93,6 +81,14 @@ To submit coverage report to [codecov.io](https://codecov.io/):
 
 1. install [codecov](https://pypi.python.org/pypi/codecov)
 2. run `codecov` after success
+
+
+### coveralls.io support
+
+To submit coverage report to [coveralls.io](https://coveralls.io/):
+
+1. install [python-coveralls](https://pypi.python.org/pypi/python-coveralls/)
+2. run `coveralls` after success
 
 ### codacy support
 
