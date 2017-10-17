@@ -59,8 +59,9 @@ def reload_package(pkg_name, dummy=True, verbose=True):
 
 def load_dummy(verbose):
     """
-    a hack to trigger automatic "reloading plugins"
-    this is needed to ensure TextCommand's and WindowCommand's are ready.
+    Hack to trigger automatic "reloading plugins".
+
+    This is needed to ensure TextCommand's and WindowCommand's are ready.
     """
     if verbose:
         dprint("installing dummy package")
