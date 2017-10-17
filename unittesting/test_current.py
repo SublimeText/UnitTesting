@@ -14,12 +14,16 @@ class UnitTestingCurrentPackageCommand(UnitTestingCommand):
             sublime.message_dialog("Cannot determine package name.")
             return
 
-        sublime.set_timeout_async(lambda: self.run_async(project_name))
+        sublime.set_timeout_async(
+            lambda: super(UnitTestingCurrentPackageCommand, self).run(project_name))
 
-    def run_async(self, project_name):
-        orig_run = super(UnitTestingCurrentPackageCommand, self).run
-        self.reload_package(project_name, show_progress=True)
-        sublime.set_timeout(lambda: orig_run(project_name))
+    def unit_testing(self, stream, package, settings):
+        if settings["reload_package_on_testing"]:
+            self.reload_package(
+                package, dummy=True, show_reload_progress=settings["show_reload_progress"])
+        sublime.set_timeout(
+            lambda: super(
+                UnitTestingCurrentPackageCommand, self).unit_testing(stream, package, settings))
 
 
 class UnitTestingCurrentPackageCoverageCommand(UnitTestingCoverageCommand):
