@@ -15,7 +15,7 @@ class UnitTestingColorSchemeCommand(ApplicationCommand, UnitTestingMixin):
             return
 
         window = sublime.active_window()
-        settings = self.load_settings(package, **kargs)
+        settings = self.load_unittesting_settings(package, **kargs)
         stream = self.load_stream(package, settings["output"])
 
         # Make sure at least one file from the

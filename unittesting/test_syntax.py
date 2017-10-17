@@ -15,7 +15,7 @@ class UnitTestingSyntaxCommand(sublime_plugin.ApplicationCommand, UnitTestingMix
 
         if not package:
             return
-        settings = self.load_settings(package, **kargs)
+        settings = self.load_unittesting_settings(package, **kargs)
         stream = self.load_stream(package, settings["output"])
 
         self.syntax_testing(stream, package)

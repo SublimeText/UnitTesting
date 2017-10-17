@@ -68,7 +68,7 @@ class UnitTestingMixin(object):
             'Package:', package, _callback, None, None)
         view.run_command("select_all")
 
-    def load_settings(self, package, pattern=None, **kargs):
+    def load_unittesting_settings(self, package, **kargs):
         # default settings
         tests_dir = "tests"
         async = False
@@ -76,6 +76,7 @@ class UnitTestingMixin(object):
         verbosity = 2
         reload_package_on_testing = True
         show_reload_progress = True
+        pattern = kargs["pattern"] if "pattern" in kargs else None
         output = kargs["output"] if "output" in kargs else None
         capture_console = False
 

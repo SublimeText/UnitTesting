@@ -21,7 +21,7 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand, UnitTestingMixin):
             return
 
         package, pattern = self.input_parser(package)
-        settings = self.load_settings(package, pattern=pattern, **kargs)
+        settings = self.load_unittesting_settings(package, pattern=pattern, **kargs)
         stream = self.load_stream(package, settings["output"])
 
         if settings["async"]:
