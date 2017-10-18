@@ -88,10 +88,8 @@ def try_running_scheduler():
     while not UnitTestingRunSchedulerCommand.ready:
         sublime.set_timeout(
             lambda: sublime.run_command("unit_testing_run_scheduler"), 1)
-        if UnitTestingRunSchedulerCommand.ready:
-            break
-        else:
-            time.sleep(1)
+
+        time.sleep(1)
 
 
 def run_scheduler():
