@@ -29,3 +29,5 @@ class UnitTestingColorSchemeCommand(ApplicationCommand, UnitTestingMixin):
             window.open_file(sublime.packages_path().rstrip('Packages') + tests[0])
 
         ColorSchemeUnit(window).run(output=stream)
+
+        window.run_command("close_file")
