@@ -82,6 +82,7 @@ while (-not (test-path $outFile) -or (get-item $outFile).length -eq 0) {
         if (test-path $schedule_target) {
             remove-item $schedule_target -force
         }
+        start-sleep -seconds 2
         throw "Timeout: Sublime Text is not responding."
     }
     start-sleep -seconds 1
@@ -140,7 +141,7 @@ if (test-path $schedule_target) {
     remove-item $schedule_target -force
 }
 
-start-sleep -seconds 1
+start-sleep -seconds 2
 
 if (!$success) {
     throw

@@ -88,6 +88,7 @@ while (not os.path.exists(outfile) or os.stat(outfile).st_size == 0):
         print("Timeout: Sublime Text is not responding")
         if os.path.exists(schedule_target):
             os.unlink(schedule_target)
+        time.sleep(2)
         sys.exit(1)
     time.sleep(1)
 print("")
@@ -120,7 +121,7 @@ if os.path.exists(coveragefile):
 if os.path.exists(schedule_target):
     os.unlink(schedule_target)
 
-time.sleep(1)
+time.sleep(2)
 
 if not success:
     sys.exit(1)
