@@ -62,6 +62,10 @@ if ($found -eq 0) {
 $schedule_source = "$packagesPath\UnitTesting\sbin\run_scheduler.py"
 $schedule_target = "$packagesPath\UnitTesting\zzz_run_scheduler.py"
 
+if (test-path $schedule_target) {
+    remove-item $schedule_target -force
+}
+
 if (-not (test-path $schedule_target)) {
     copy-item $schedule_source $schedule_target -force
 }
@@ -82,7 +86,6 @@ while (-not (test-path $outFile) -or (get-item $outFile).length -eq 0) {
         if (test-path $schedule_target) {
             remove-item $schedule_target -force
         }
-        start-sleep -seconds 2
         throw "Timeout: Sublime Text is not responding."
     }
     start-sleep -seconds 1
@@ -140,8 +143,6 @@ if (test-path $coverageFile) {
 if (test-path $schedule_target) {
     remove-item $schedule_target -force
 }
-
-start-sleep -seconds 2
 
 if (!$success) {
     throw

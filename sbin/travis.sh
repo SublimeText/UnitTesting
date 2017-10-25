@@ -122,6 +122,10 @@ RunTests() {
     else
         python "$STP/UnitTesting/sbin/run_tests.py" "$@" "$PACKAGE"
     fi
+
+    pkill "[Ss]ubl" || true
+    killall 'plugin_host' || true
+    sleep 2
 }
 
 COMMAND=$1

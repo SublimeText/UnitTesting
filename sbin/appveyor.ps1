@@ -117,6 +117,9 @@ function RunTests {
     } else {
         & "$STP\UnitTesting\sbin\run_tests.ps1" "${env:PACKAGE}" -verbose
     }
+
+    stop-process -force -processname sublime_text -ea silentlycontinue
+    start-sleep -seconds 2
 }
 
 try{
