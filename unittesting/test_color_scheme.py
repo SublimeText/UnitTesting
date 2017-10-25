@@ -21,13 +21,12 @@ class UnitTestingColorSchemeCommand(ApplicationCommand, UnitTestingMixin):
         # Make sure at least one file from the
         # package opened for ColorSchemeUnit.
         tests = sublime.find_resources("color_scheme_test*")
-
-        if package != "__all__":
-            tests = [t for t in tests if t.startswith("Packages/%s/" % package)]
+        tests = [t for t in tests if t.startswith("Packages/%s/" % package)]
 
         if tests:
             window.open_file(sublime.packages_path().rstrip('Packages') + tests[0])
 
         ColorSchemeUnit(window).run(output=stream)
 
-        window.run_command("close_file")
+        if tests:
+            window.run_command("close_file")
