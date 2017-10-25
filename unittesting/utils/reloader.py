@@ -45,7 +45,7 @@ def reload_package(pkg_name, dummy=True, verbose=True):
                 importing_fromlist_aggresively(modules):
 
             reload_plugin(main.__name__)
-    except:
+    except Exception:
         dprint("reload failed.", fill='-')
         reload_missing(modules, verbose)
         raise
@@ -173,7 +173,7 @@ class FilterFinder:
                 dprint("reloading", ('| ' * depth) + '|--', name)
             try:
                 return module.__loader__.load_module(name)
-            except:
+            except Exception:
                 if name in sys.modules:
                     del sys.modules[name]  # to indicate an error
                 raise

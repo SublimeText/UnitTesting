@@ -17,24 +17,24 @@ UUT_dir = os.path.join(
 def set_package(package):
     try:
         shutil.rmtree(os.path.join(sublime.packages_path(), package))
-    except:
+    except Exception:
         pass
     try:
         shutil.copytree(
             os.path.join(__dir__, package),
             os.path.join(sublime.packages_path(), package))
-    except:
+    except Exception:
         pass
     try:
         shutil.rmtree(os.path.join(UUT_dir, package))
-    except:
+    except Exception:
         pass
 
 
 def cleanup_package(package):
     try:
         shutil.rmtree(os.path.join(sublime.packages_path(), package))
-    except:
+    except Exception:
         pass
 
 

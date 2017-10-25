@@ -35,7 +35,7 @@ class DeferrableTestCase(unittest.TestCase):
             outcome.success = False
             outcome.failures.append(sys.exc_info())
             exc_info = sys.exc_info()
-        except:
+        except Exception:
             outcome.success = False
             outcome.errors.append(sys.exc_info())
 

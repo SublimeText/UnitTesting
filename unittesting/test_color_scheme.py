@@ -4,7 +4,7 @@ from .mixin import UnitTestingMixin
 
 try:
     from ColorSchemeUnit.lib.runner import ColorSchemeUnit
-except:
+except Exception:
     print('ColorSchemeUnit runner could not be imported')
 
 

@@ -164,9 +164,9 @@ class UnitTestingMixin(object):
             except AttributeError:
                 try:
                     mpath = os.path.dirname(sys.modules[mname].__file__)
-                except:
+                except Exception:
                     continue
-            except:
+            except Exception:
                 continue
 
             tests_dir = os.path.join(sublime.packages_path(), package, tests_dir)

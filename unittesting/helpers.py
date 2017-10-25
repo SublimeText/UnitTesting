@@ -45,7 +45,7 @@ class TempDirectoryTestCase(DeferrableTestCase):
             def remove_temp_dir():
                 try:
                     shutil.rmtree(cls._temp_dir)
-                except:
+                except Exception:
                     print("Cannot remove {}".format(cls._temp_dir))
 
             sublime.set_timeout(remove_temp_dir, 1000)

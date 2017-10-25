@@ -50,7 +50,7 @@ if not os.path.isdir(jpath_dir):
 try:
     with open(jpath, 'r') as f:
         schedule = json.load(f)
-except:
+except Exception:
     schedule = []
 if not any([s['package'] == package for s in schedule]):
     schedule_info = {

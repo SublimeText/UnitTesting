@@ -18,7 +18,7 @@ class JsonFile:
             try:
                 content = f.read()
                 data = sublime.decode_value(content)
-            except:
+            except Exception:
                 print("%s is bad!" % self.fpath)
                 f.close()
                 raise

@@ -9,7 +9,7 @@ platform = sublime.platform()
 
 try:
     import coverage
-except:
+except Exception:
     print("coverage not found.")
 
 
