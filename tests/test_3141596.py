@@ -141,7 +141,7 @@ class TestSyntax(DeferrableTestCase):
         self.assertTrue(hasattr(m, "group"))
 
 
-class TestColorScheme(DeferrableTestCase):
+class TestColorScheme(TempDirectoryTestCase):
 
     def tearDown(self):
         UTSetting.set("recent-package", "UnitTesting")

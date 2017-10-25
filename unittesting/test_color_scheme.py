@@ -1,6 +1,7 @@
 import sublime
 from sublime_plugin import ApplicationCommand
 from .mixin import UnitTestingMixin
+from .const import DONE_MESSAGE
 
 try:
     from ColorSchemeUnit.lib.runner import ColorSchemeUnit
@@ -23,10 +24,18 @@ class UnitTestingColorSchemeCommand(ApplicationCommand, UnitTestingMixin):
         tests = sublime.find_resources("color_scheme_test*")
         tests = [t for t in tests if t.startswith("Packages/%s/" % package)]
 
-        if tests:
-            window.open_file(sublime.packages_path().rstrip('Packages') + tests[0])
+        if not tests:
+            stream.write("ERROR: No syntax_test files are found in %s!" % package)
+            stream.write("\n")
+            stream.write(DONE_MESSAGE)
+            stream.close()
+            return
+
+        # trigger "Start reading output"
+        stream.write("Running ColorSchemeUnit\n")
+        stream.flush()
+
+        view = window.open_file(sublime.packages_path().rstrip('Packages') + tests[0])
+        view.set_scratch(True)
 
         ColorSchemeUnit(window).run(output=stream)
-
-        if tests:
-            window.run_command("close_file")

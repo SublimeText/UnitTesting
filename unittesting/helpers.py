@@ -40,7 +40,7 @@ class TempDirectoryTestCase(DeferrableTestCase):
     def tearDownClass(cls):
         # need at least one window in order to keep sublime running
         if len(sublime.windows()) > 1:
-            cls.window.run_command("close")
+            cls.window.run_command('close_window')
 
             def remove_temp_dir():
                 try:
