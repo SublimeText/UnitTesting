@@ -101,6 +101,26 @@ function InstallColorSchemeUnit {
     }
 }
 
+function InstallKeypress {
+    $KP_PATH = "$STP\Keypress"
+    if ((${env:SUBLIME_TEXT_VERSION} -eq 3) -and (!(test-path -path "$KP_PATH"))){
+        $KP_URL = "https://github.com/randy3k/Keypress"
+
+        if ( ${env:KEYPRESS_TAG} -eq $null){
+            # the latest tag
+            $KEYPRESS_TAG = git ls-remote --tags $KP_URL | %{$_ -replace ".*/(.*)$", '$1'} `
+                    | where-object {$_ -notmatch "\^"} |%{[System.Version]$_} `
+                    | sort | select-object -last 1 | %{ "$_" }
+        } else {
+            $KEYPRESS_TAG = ${env:KEYPRESS_TAG}
+        }
+        write-verbose "download ColorSchemeUnit tag: $KEYPRESS_TAG"
+        git clone --quiet --depth 1 --branch=$KEYPRESS_TAG $KP_URL "$KP_PATH" 2>$null
+        git -C "$KP_PATH" rev-parse HEAD | write-verbose
+        write-verbose ""
+    }
+}
+
 function RunTests {
     [CmdletBinding()]
     param(
@@ -127,6 +147,7 @@ try{
         "bootstrap" { Bootstrap }
         "install_package_control" { InstallPackageControl }
         "install_color_scheme_unit" { InstallColorSchemeUnit }
+        "install_keypresss" { InstallKeypress }
         "run_tests" { RunTests }
         "run_syntax_tests" { RunTests -syntax_test}
         "run_color_scheme_tests" { RunTests -color_scheme_test}

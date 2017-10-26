@@ -108,6 +108,26 @@ InstallColorSchemeUnit() {
     fi
 }
 
+InstallKeypress() {
+    KP_PATH="$STP/Keypress"
+    if [ "$SUBLIME_TEXT_VERSION" -eq 3 ] && [ ! -d "$KP_PATH" ]; then
+
+        KP_URL="https://github.com/randy3k/Keypress"
+
+        if [ -z $KEYPRESS_TAG ]; then
+            # latest tag
+            KEYPRESS_TAG=$(git ls-remote --tags "$KP_URL" |
+                  sed 's|.*/\(.*\)$|\1|' | grep -v '\^' |
+                  sort -t. -k1,1nr -k2,2nr -k3,3nr | head -n1)
+        fi
+
+        echo "download Keypress tag: $KEYPRESS_TAG"
+        git clone --quiet --depth 1 --branch $KEYPRESS_TAG "$KP_URL" "$KP_PATH"
+        git -C "$KP_PATH" rev-parse HEAD
+        echo
+    fi
+}
+
 RunTests() {
     if [ "$TRAVIS_OS_NAME" = "linux" ] && [ -z $DISPLAY ]; then
         export DISPLAY=:99.0
@@ -140,6 +160,9 @@ case $COMMAND in
         ;;
     "install_color_scheme_unit")
         InstallColorSchemeUnit "$@"
+        ;;
+    "install_keypress")
+        InstallKeypress "$@"
         ;;
     "run_tests")
         RunTests "$@"
