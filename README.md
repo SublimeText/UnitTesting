@@ -3,7 +3,6 @@ UnitTesting
 
 [![Build Status](https://travis-ci.org/randy3k/UnitTesting.svg?branch=master)](https://travis-ci.org/randy3k/UnitTesting) 
 [![Build status](https://ci.appveyor.com/api/projects/status/9nnjlnj6tetbxuqd/branch/master?svg=true)](https://ci.appveyor.com/project/randy3k/unittesting/branch/master)
-[![Coverage Status](https://coveralls.io/repos/github/randy3k/UnitTesting/badge.svg?branch=master)](https://coveralls.io/github/randy3k/UnitTesting?branch=master)
 [![codecov](https://codecov.io/gh/randy3k/UnitTesting/branch/master/graph/badge.svg)](https://codecov.io/gh/randy3k/UnitTesting)
 <a href="https://packagecontrol.io/packages/UnitTesting"><img src="https://packagecontrol.herokuapp.com/downloads/UnitTesting.svg"></a>
 <a href="https://www.paypal.me/randy3k/5usd" title="Donate to this project using Paypal"><img src="https://img.shields.io/badge/paypal-donate-blue.svg" /></a>
