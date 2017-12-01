@@ -45,6 +45,7 @@ if [ $(uname) = 'Darwin'  ]; then
             curl -L "$URL" -o ~/Downloads/sublimetext.dmg && break || sleep 3
         done
         hdiutil attach ~/Downloads/sublimetext.dmg
+        mkdir -p "$HOME/Applications"
         cp -r "/Volumes/$SUBLIME_TEXT/$SUBLIME_TEXT.app" "$HOME/Applications/$SUBLIME_TEXT.app"
         mkdir -p $HOME/.local/bin
         ln -s "$HOME/Applications/$SUBLIME_TEXT.app/Contents/SharedSupport/bin/subl" \
