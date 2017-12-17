@@ -78,8 +78,8 @@ if os.path.exists(schedule_target):
 if not os.path.exists(schedule_target):
     shutil.copyfile(schedule_source, schedule_target)
 
-# launch sublime text
-subprocess.Popen(["subl"])
+# launch sublime text without blocking the main thread
+subprocess.Popen(["subl &"], shell=True)
 
 # wait until the file has something
 print("Wait for Sublime Text response")
