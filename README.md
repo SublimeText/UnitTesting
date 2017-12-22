@@ -1,6 +1,7 @@
 UnitTesting
 ===================
 
+[![CircleCI](https://circleci.com/gh/SublimeText/UnitTesting.svg?style=shield)](https://circleci.com/gh/SublimeText/UnitTesting)
 [![Build Status](https://travis-ci.org/SublimeText/UnitTesting.svg?branch=master)](https://travis-ci.org/SublimeText/UnitTesting) 
 [![Build status](https://ci.appveyor.com/api/projects/status/psbbacfodps9r124/branch/master?svg=true)](https://ci.appveyor.com/project/randy3k/unittesting/branch/master)
 [![codecov](https://codecov.io/gh/SublimeText/UnitTesting/branch/master/graph/badge.svg)](https://codecov.io/gh/SublimeText/UnitTesting)
@@ -8,11 +9,6 @@ UnitTesting
 
 
 This is a unittest framework for Sublime Text 3. It runs unittest testcases on local machines and CI services such as [travis-ci](https://travis-ci.org) and [appveyor](http://www.appveyor.com). It also supports testing syntax_test files for the new [sublime-syntax](https://www.sublimetext.com/docs/3/syntax.html) format.
-
-
-## Sublime Text 2 support is deprecated
-
-UnitTesting for Sublime Text 2 will be no longer supported. Version 0.10.6 is the last version supports Sublime Text 2 and it is available via Package Control on Sublime Text 2.
 
 
 ## Preparation
@@ -23,7 +19,7 @@ UnitTesting for Sublime Text 2 will be no longer supported. Version 0.10.6 is th
 4. Some examples are available at https://github.com/randy3k/UnitTesting-example
 
 
-## Running Tests
+## Running Tests Locally
 
 UnitTesting can be triggered via the command palette command `UnitTesting`.
 Enter the package name in the input panel and hit enter, a console should pop
@@ -38,15 +34,21 @@ current package. The current package will be first reloaded by UnitTesting
 and then the tests will be executed.
 
 
-### Test Coverage
-
 It is also possible to generate test
 coverage report via [coverage](https://pypi.python.org/pypi/coverage) by using the command
 `UnitTesting: Test Current Package with Coverage`.
 The file [.coveragerc](.coveragerc) is used to control the coverage configurations. If
 it is missing, UnitTesting will ignore the `tests` directory.
 
-## Travis and Appveyor
+
+
+## Continuous Integration
+
+### Circle CI
+
+TBA
+
+### Travis CI
 
 If the tests can be run locally, let's put them to travis-ci and let travis-ci
 takes care of them. First, you have to copy a important file:
@@ -56,13 +58,16 @@ change the env variable `PACKAGE` to the name of
 your package. Don't forget to login [travis-ci](https://travis-ci.org) and
 enable travis-ci for your repo. Finally, push to github and wait..
 
+### Appveyor CI
+
 To enable Appveyor for windows platform tests, copy the file `appveyor.yml` to
 your repo, change the `PACKAGE` variable in 
 [appveyor.yml](https://github.com/randy3k/UnitTesting-example/blob/master/appveyor.yml). The
 last but not least, login [appveyor](http://www.appveyor.com) to add your repo
 as a project.
 
-### Coverage reports
+
+## Coverage reports
 
 We support [codecov.io](https://codecov.io/), [coveralls.io](https://coveralls.io/) and
 [codacy.com](https://www.codacy.com). codecov.io is sightly preferable as it
@@ -108,7 +113,6 @@ travis and appveyor configuration files.
 ## Testing syntax_test files
 
 Check [this](https://github.com/randy3k/UnitTesting-example/tree/syntax) for an example.
-
 
 
 ## Options
