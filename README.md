@@ -1,9 +1,9 @@
 UnitTesting
 ===================
 
-[![Build Status](https://travis-ci.org/randy3k/UnitTesting.svg?branch=master)](https://travis-ci.org/randy3k/UnitTesting) 
+[![Build Status](https://travis-ci.org/SublimeText/UnitTesting.svg?branch=master)](https://travis-ci.org/SublimeText/UnitTesting) 
 [![Build status](https://ci.appveyor.com/api/projects/status/9nnjlnj6tetbxuqd/branch/master?svg=true)](https://ci.appveyor.com/project/randy3k/unittesting/branch/master)
-[![codecov](https://codecov.io/gh/randy3k/UnitTesting/branch/master/graph/badge.svg)](https://codecov.io/gh/randy3k/UnitTesting)
+[![codecov](https://codecov.io/gh/SublimeText/UnitTesting/branch/master/graph/badge.svg)](https://codecov.io/gh/SublimeText/UnitTesting)
 <a href="https://packagecontrol.io/packages/UnitTesting"><img src="https://packagecontrol.herokuapp.com/downloads/UnitTesting.svg"></a>
 <a href="https://www.paypal.me/randy3k/5usd" title="Donate to this project using Paypal"><img src="https://img.shields.io/badge/paypal-donate-blue.svg" /></a>
 <a href="https://gratipay.com/~randy3k/" title="Donate to this project using Gratipay"><img src="https://img.shields.io/badge/gratipay-donate-yellow.svg" /></a>
@@ -18,7 +18,7 @@ UnitTesting for Sublime Text 2 will be no longer supported. Version 0.10.6 is th
 
 ## Preparation
 
-1. Before testing anything, you have to install [UnitTesting](https://github.com/randy3k/UnitTesting) via Package Control.
+1. Before testing anything, you have to install [UnitTesting](https://github.com/SublimeText/UnitTesting) via Package Control.
 2. Your package!
 3. TestCases should be placed in `test*.py` under the directory `tests` (configurable, see below). The testcases are then loaded by [TestLoader.discover](https://docs.python.org/3.3/library/unittest.html#unittest.TestLoader.discover).
 4. Some examples are available at https://github.com/randy3k/UnitTesting-example
@@ -37,10 +37,6 @@ default.
 You could run the command `UnitTesting: Test Current Package` to run the
 current package. The current package will be first reloaded by UnitTesting
 and then the tests will be executed.
-
-### Reloading package
-
-Check [Automatic Package Reloader](https://github.com/randy3k/AutomaticPackageReloader).
 
 
 ### Test Coverage
