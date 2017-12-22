@@ -1,0 +1,54 @@
+version: 2
+
+# if you are looking for a working example
+# refer to https://github.com/randy3k/UnitTesting-example/blob/master/.circleci
+
+jobs:
+  build-linux:
+    docker:
+      - image: circleci/python:3.3.6
+    environment:
+      PACKAGE: "UnitTesting"
+      SUBLIME_TEXT_VERSION: "3"
+    steps:
+      - checkout
+      - run: |
+          sudo apt-get update
+          sudo apt-get install libglib2.0-0 libgtk2.0-0
+      - run: |
+          export DISPLAY=:99.0
+          Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+          PATH="$HOME/.local/bin:$PATH"
+          sh sbin/circleci.sh bootstrap
+          sh sbin/circleci.sh install_color_scheme_unit
+          sh sbin/circleci.sh install_package_control
+          sh sbin/circleci.sh run_tests --coverage
+      - run: |
+          sudo pip install codecov
+          codecov
+
+  build-macos:
+    macos:
+      xcode: "9.0"
+    environment:
+      PACKAGE: "UnitTesting"
+      SUBLIME_TEXT_VERSION: "3"
+    steps:
+      - checkout
+      - run: |
+          export PATH="$HOME/.local/bin:$PATH"
+          sh sbin/circleci.sh bootstrap
+          sh sbin/circleci.sh install_color_scheme_unit
+          sh sbin/circleci.sh install_package_control
+          sh sbin/circleci.sh run_tests --coverage
+      - run: |
+          brew install python3
+          pip3 install codecov
+          codecov
+
+workflows:
+  version: 2
+  build_and_test:
+    jobs:
+      - build-linux
+      - build-macos
