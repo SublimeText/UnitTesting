@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# obviously outdated, need to be updated
+
 set -e
 
 Provision() {
