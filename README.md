@@ -46,35 +46,38 @@ it is missing, UnitTesting will ignore the `tests` directory.
 
 ### Circle CI
 
-TBA
+To enable Circle CI Linux and macOS builds, copy the file
+[.circleci/config.yml](https://github.com/randy3k/UnitTesting-example/blob/master/.circleci/config.yml) to your repository and change the environmental variable `PACKAGE` to the name of
+your package. Login [circleci](https://circleci.com) and add a new project.
+
+Circle CI doesn't offer free macOS plan by default, but you could contact them for access if your package is open sourced:
+
+> We also offer the Seed plan for macOS open-source projects. Contact us at billing@circleci.com for access. If you are building a bigger open-source project and need more resources, let us know how we can help you!
 
 ### Travis CI
 
-If the tests can be run locally, let's put them to travis-ci and let travis-ci
-takes care of them. First, you have to copy a important file:
+To enable Travis CI Linux and macOS builds, copy a important file:
 [.travis.yml](https://github.com/randy3k/UnitTesting-example/blob/master/.travis.yml) 
-(caution: with a beginning dot) to your repo. Then
-change the env variable `PACKAGE` to the name of
-your package. Don't forget to login [travis-ci](https://travis-ci.org) and
-enable travis-ci for your repo. Finally, push to github and wait..
+(caution: with a beginning dot) to your repository and
+change the environmental variable `PACKAGE` to the name of
+your package. Login [travis-ci](https://travis-ci.org) to enable CI for your package..
 
 ### Appveyor CI
 
-To enable Appveyor for windows platform tests, copy the file `appveyor.yml` to
-your repo, change the `PACKAGE` variable in 
-[appveyor.yml](https://github.com/randy3k/UnitTesting-example/blob/master/appveyor.yml). The
-last but not least, login [appveyor](http://www.appveyor.com) to add your repo
-as a project.
+To enable Appveyor Windows builds, copy the file `appveyor.yml` to
+your repository, change the `PACKAGE` variable in 
+[appveyor.yml](https://github.com/randy3k/UnitTesting-example/blob/master/appveyor.yml). 
+Login [appveyor](http://www.appveyor.com) and add your repository
+as a new project.
 
 
 ## Coverage reports
 
-We support [codecov.io](https://codecov.io/), [coveralls.io](https://coveralls.io/) and
-[codacy.com](https://www.codacy.com). codecov.io is sightly preferable as it
-supports merging reports from travis and appveyor.
+We support Codecov, Coveralls and Codacy. Codacov is sightly preferable as it
+supports merging reports from different CIs.
 
 
-### codecov support
+### Codecov
 
 To submit coverage report to [codecov.io](https://codecov.io/):
 
@@ -82,14 +85,14 @@ To submit coverage report to [codecov.io](https://codecov.io/):
 2. run `codecov` after success
 
 
-### coveralls.io support
+### Coveralls
 
 To submit coverage report to [coveralls.io](https://coveralls.io/):
 
 1. install [python-coveralls](https://pypi.python.org/pypi/python-coveralls/)
 2. run `coveralls` after success
 
-### codacy support
+### Codacy
 
 To submit coverage report to [codacy.com](https://www.codacy.com):
 
@@ -187,6 +190,7 @@ To activate async testing on travis and appveyor. Add the file
 
 Note: if `async` is true, `deferred` is forced to be `false` (relaxation of this is in progress)
 
+## Others
 
 ### Add `Test Current Package` build
 
