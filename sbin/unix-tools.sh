@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -e
-
 if [ $(uname) = 'Darwin' ]; then
     STP="$HOME/Library/Application Support/Sublime Text $SUBLIME_TEXT_VERSION/Packages"
 else
@@ -9,6 +7,11 @@ else
 fi
 
 Bootstrap() {
+    if [ $(uname) = 'Linux' ] && [ -z $DISPLAY ]; then
+        export DISPLAY=:99.0
+        sh -e /etc/init.d/xvfb start || true
+    fi
+
     if [ "$PACKAGE" = "__all__" ]; then
         echo "copy all subfolders to sublime package directory"
         mkdir -p "$STP"
@@ -72,6 +75,11 @@ Bootstrap() {
 }
 
 InstallPackageControl() {
+    if [ $(uname) = 'Linux' ] && [ -z $DISPLAY ]; then
+        export DISPLAY=:99.0
+        sh -e /etc/init.d/xvfb start || true
+    fi
+
     COV_PATH="$STP/coverage"
     rm -rf "$COV_PATH"
 
@@ -119,6 +127,14 @@ InstallKeypress() {
 }
 
 RunTests() {
+    if [ $(uname) = 'Linux' ] && [ -z $DISPLAY ]; then
+        export DISPLAY=:99.0
+        sh -e /etc/init.d/xvfb start || true
+        # The above statement prints a status message
+        # but doesn't append a newline on the end.
+        echo ""
+    fi
+
     if [ -z "$1" ]; then
         python "$STP/UnitTesting/sbin/run_tests.py" "$PACKAGE"
     else
@@ -129,31 +145,3 @@ RunTests() {
     killall 'plugin_host' || true
     sleep 2
 }
-
-
-COMMAND=$1
-shift
-echo "Running command: ${COMMAND} $@"
-case $COMMAND in
-    "bootstrap")
-        Bootstrap "$@"
-        ;;
-    "install_package_control")
-        InstallPackageControl "$@"
-        ;;
-    "install_color_scheme_unit")
-        InstallColorSchemeUnit "$@"
-        ;;
-    "install_keypress")
-        InstallKeypress "$@"
-        ;;
-    "run_tests")
-        RunTests "$@"
-        ;;
-    "run_syntax_tests")
-        RunTests "--syntax-test" "$@"
-        ;;
-    "run_color_scheme_tests")
-        RunTests "--color-scheme-test" "$@"
-        ;;
-esac

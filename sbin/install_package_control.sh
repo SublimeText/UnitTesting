@@ -36,7 +36,7 @@ fi
 PC_PATH="$STIP/Package Control.sublime-package"
 if [ ! -f "$PC_PATH" ]; then
     PC_URL="https://packagecontrol.io/Package Control.sublime-package"
-    wget -O "$PC_PATH" "$PC_URL"
+    curl -L "$PC_URL" -o "$PC_PATH"
 fi
 
 PCH_PATH="$STP/0_install_package_control_helper"
@@ -59,7 +59,7 @@ for i in {1..2}; do
     done
 
     pkill "[Ss]ubl" || true
-    killall 'plugin_host' || true
+    pkill 'plugin_host' || true
     sleep 4
     [ -f "$PCH_PATH/success" ] && break
 done
