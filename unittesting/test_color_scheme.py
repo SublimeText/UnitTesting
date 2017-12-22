@@ -3,11 +3,6 @@ from sublime_plugin import ApplicationCommand
 from .mixin import UnitTestingMixin
 from .const import DONE_MESSAGE
 
-try:
-    from ColorSchemeUnit.lib.runner import ColorSchemeUnit
-except Exception:
-    print('ColorSchemeUnit runner could not be imported')
-
 
 class UnitTestingColorSchemeCommand(ApplicationCommand, UnitTestingMixin):
 
@@ -18,6 +13,15 @@ class UnitTestingColorSchemeCommand(ApplicationCommand, UnitTestingMixin):
         window = sublime.active_window()
         settings = self.load_unittesting_settings(package, **kargs)
         stream = self.load_stream(package, settings["output"])
+
+        try:
+            from ColorSchemeUnit.lib.runner import ColorSchemeUnit
+        except ImportError:
+            stream.write('ERROR: ColorSchemeUnit runner could not be imported')
+            stream.write('\n')
+            stream.write(DONE_MESSAGE)
+            stream.close()
+            return
 
         tests = sublime.find_resources("color_scheme_test*")
         tests = [t for t in tests if t.startswith("Packages/%s/" % package)]
