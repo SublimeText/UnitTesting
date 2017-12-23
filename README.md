@@ -127,9 +127,7 @@ file `unittesting.json` to your repo with the corresponding directory name, eg
 `unittest`:
 
 ```
-{
     "tests_dir" : "unittest"
-}
 ```
 
 ### Redirect test result to a file
@@ -138,9 +136,7 @@ The test result could be redirected to a file by specifying the `output`
 variable in `unittesting.json`.
 
 ```
-{
     "output" : "foo.txt"
-}
 ```
 
 ### Deferred testing
@@ -150,15 +146,13 @@ able to run sublime commands from your test cases and yield control to sublime
 text runtime and continue the execution later. Would be useful to test
 asynchronous codes.
 
-A example would be found in [here](https://github.com/randy3k/UnitTesting-example/tree/deferred).
+An example would be found in [here](https://github.com/randy3k/UnitTesting-example/tree/deferred).
 
-To activate deferred testing on travis and appveyor. Add the file
-`unittesting.json` to your repo with the following:
+To activate deferred testing on travis and appveyor, put the following line in
+`unittesting.json`.
 
 ```
-{
     "deferred": true,
-}
 ```
 
 PS: this idea was inspired by [Plugin UnitTest Harness](https://bitbucket.org/klorenz/sublimepluginunittestharness).
@@ -170,7 +164,7 @@ graphic inference. Asychronized testing could be used if you need the
 interface to respond. 
 
 Async tests are usually slower than the sync tests because the interface takes
-time to respond but it is useful when there are blocking codes in the tests. A
+time to respond but it is useful when there are blocking codes in the tests. An
 example would be found in 
 [here](https://github.com/randy3k/UnitTesting-example/tree/async). 
 
@@ -179,13 +173,11 @@ In general, it is recommended to use deferred testing over async testing since t
 no need to worry about race condition.
 
 
-To activate async testing on travis and appveyor. Add the file
-`unittesting.json` to your repo with the following:
+To activate async testing on travis and appveyor, put the following line in
+`unittesting.json`.
 
 ```
-{
     "async": true,
-}
 ```
 
 Note: if `async` is true, `deferred` is forced to be `false` (relaxation of this is in progress)
