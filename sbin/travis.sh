@@ -9,6 +9,11 @@ else
 fi
 
 Bootstrap() {
+    if [ "$TRAVIS_OS_NAME" = "linux" ] && [ -z $DISPLAY ]; then
+        echo "Xvfb is not running"
+        echo "check https://github.com/SublimeText/UnitTesting/issues/74"
+        exit 1
+    fi
     if [ "$PACKAGE" = "__all__" ]; then
         echo "copy all subfolders to sublime package directory"
         mkdir -p "$STP"
