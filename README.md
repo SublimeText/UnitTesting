@@ -8,7 +8,7 @@ UnitTesting
 <a href="https://packagecontrol.io/packages/UnitTesting"><img src="https://packagecontrol.herokuapp.com/downloads/UnitTesting.svg"></a>
 
 
-This is a unittest framework for Sublime Text 3. It runs unittest testcases on local machines and CI services such as [travis-ci](https://travis-ci.org) and [appveyor](http://www.appveyor.com). It also supports testing syntax_test files for the new [sublime-syntax](https://www.sublimetext.com/docs/3/syntax.html) format.
+This is a unittest framework for Sublime Text 3. It runs unittest testcases on local machines and CI services such as Travis CI, Circle CI and Appveyor. It also supports testing syntax_test files for the new [sublime-syntax](https://www.sublimetext.com/docs/3/syntax.html) format.
 
 
 ## Preparation
@@ -16,8 +16,8 @@ This is a unittest framework for Sublime Text 3. It runs unittest testcases on l
 1. Before testing anything, you have to install [UnitTesting](https://github.com/SublimeText/UnitTesting) via Package Control.
 2. Your package!
 3. TestCases should be placed in `test*.py` under the directory `tests` (configurable, see below). The testcases are then loaded by [TestLoader.discover](https://docs.python.org/3.3/library/unittest.html#unittest.TestLoader.discover).
-4. Some examples are available at https://github.com/randy3k/UnitTesting-example
 
+[Here](https://github.com/randy3k/UnitTesting-example) are some small examples
 
 ## Running Tests Locally
 
