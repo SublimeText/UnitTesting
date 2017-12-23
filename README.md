@@ -61,7 +61,7 @@ Circle CI doesn't offer free macOS plan by default, but you could contact them f
 
 ### Travis CI
 
-To enable Travis CI Linux and macOS builds, copy a important file:
+To enable Travis CI Linux and macOS builds, copy the file:
 [.travis.yml](https://github.com/randy3k/UnitTesting-example/blob/master/.travis.yml) 
 (caution: with a beginning dot) to your repository and
 change the environmental variable `PACKAGE` to the name of
@@ -78,7 +78,7 @@ as a new project.
 
 ## Coverage reports
 
-We support Codecov, Coveralls and Codacy. Codacov is sightly preferable as it
+We support Codecov, Coveralls and Codacy. Codacov is slightly more favorable as it
 supports merging reports from different CIs.
 
 
@@ -114,7 +114,7 @@ To submit coverage report to [codacy.com](https://www.codacy.com):
 ## Installing Package Control and Dependencies
 
 If your package uses Package Control dependencies, you may want to install
-Package Control by umcommenting the line of `install_package_control` in
+Package Control by uncommenting the line of `install_package_control` in
 travis and appveyor configuration files.
 
 
@@ -164,7 +164,7 @@ PS: this idea was inspired by [Plugin UnitTest Harness](https://bitbucket.org/kl
 
 ### Async testing
 
-In default, the tests are running in the main thread and can block the
+By default, the tests are running in the main thread and can block the
 graphic inference. Asychronized testing could be used if you need the
 interface to respond. 
 
