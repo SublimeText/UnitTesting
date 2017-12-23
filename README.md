@@ -7,8 +7,13 @@ UnitTesting
 [![codecov](https://codecov.io/gh/SublimeText/UnitTesting/branch/master/graph/badge.svg)](https://codecov.io/gh/SublimeText/UnitTesting)
 <a href="https://packagecontrol.io/packages/UnitTesting"><img src="https://packagecontrol.herokuapp.com/downloads/UnitTesting.svg"></a>
 
-
 This is a unittest framework for Sublime Text 3. It runs unittest testcases on local machines and CI services such as Travis CI, Circle CI and Appveyor. It also supports testing syntax_test files for the new [sublime-syntax](https://www.sublimetext.com/docs/3/syntax.html) format.
+
+
+**News**: UnitTesting is now housed by `SublimeText`. You may want to change the urls from
+`randy3k/UnitTesting` to `SublimeText/UnitTesting`, e.g.:
+
+- https://raw.githubusercontent.com/SublimeText/UnitTesting/master/sbin/travis.sh
 
 
 ## Preparation
