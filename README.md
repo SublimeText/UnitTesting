@@ -1,7 +1,7 @@
 UnitTesting
 ===================
 
-[![CircleCI](https://circleci.com/gh/SublimeText/UnitTesting.svg?style=shield)](https://circleci.com/gh/SublimeText/UnitTesting)
+[![CircleCI](https://circleci.com/gh/SublimeText/UnitTesting/tree/master.svg?style=shield)](https://circleci.com/gh/SublimeText/UnitTesting/tree/master)
 [![Build Status](https://travis-ci.org/SublimeText/UnitTesting.svg?branch=master)](https://travis-ci.org/SublimeText/UnitTesting) 
 [![Build status](https://ci.appveyor.com/api/projects/status/psbbacfodps9r124/branch/master?svg=true)](https://ci.appveyor.com/project/randy3k/unittesting/branch/master)
 [![codecov](https://codecov.io/gh/SublimeText/UnitTesting/branch/master/graph/badge.svg)](https://codecov.io/gh/SublimeText/UnitTesting)
