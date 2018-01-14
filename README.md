@@ -2,8 +2,8 @@ UnitTesting
 ===================
 
 [![CircleCI](https://circleci.com/gh/SublimeText/UnitTesting/tree/master.svg?style=shield)](https://circleci.com/gh/SublimeText/UnitTesting/tree/master)
-[![Build Status](https://travis-ci.org/SublimeText/UnitTesting.svg?branch=master)](https://travis-ci.org/SublimeText/UnitTesting) 
-[![Build status](https://ci.appveyor.com/api/projects/status/psbbacfodps9r124/branch/master?svg=true)](https://ci.appveyor.com/project/randy3k/unittesting/branch/master)
+[![Build Status](https://travis-ci.org/SublimeText/UnitTesting.svg?branch=master)](https://travis-ci.org/SublimeText/UnitTesting)
+[![Build status](https://ci.appveyor.com/api/projects/status/github/SublimeText/UnitTesting?branch=master&svg=true)](https://ci.appveyor.com/project/randy3k/UnitTesting/branch/master)
 [![codecov](https://codecov.io/gh/SublimeText/UnitTesting/branch/master/graph/badge.svg)](https://codecov.io/gh/SublimeText/UnitTesting)
 <a href="https://packagecontrol.io/packages/UnitTesting"><img src="https://packagecontrol.herokuapp.com/downloads/UnitTesting.svg"></a>
 
@@ -62,7 +62,7 @@ Circle CI doesn't offer free macOS plan by default, but you could contact them f
 ### Travis CI
 
 To enable Travis CI Linux and macOS builds, copy the file:
-[.travis.yml](https://github.com/randy3k/UnitTesting-example/blob/master/.travis.yml) 
+[.travis.yml](https://github.com/randy3k/UnitTesting-example/blob/master/.travis.yml)
 (caution: with a beginning dot) to your repository and
 change the environmental variable `PACKAGE` to the name of
 your package. Login [travis-ci](https://travis-ci.org) to enable CI for your package..
@@ -70,8 +70,8 @@ your package. Login [travis-ci](https://travis-ci.org) to enable CI for your pac
 ### Appveyor CI
 
 To enable Appveyor Windows builds, copy the file `appveyor.yml` to
-your repository, change the `PACKAGE` variable in 
-[appveyor.yml](https://github.com/randy3k/UnitTesting-example/blob/master/appveyor.yml). 
+your repository, change the `PACKAGE` variable in
+[appveyor.yml](https://github.com/randy3k/UnitTesting-example/blob/master/appveyor.yml).
 Login [appveyor](http://www.appveyor.com) and add your repository
 as a new project.
 
@@ -102,7 +102,7 @@ To submit coverage report to [coveralls.io](https://coveralls.io/):
 To submit coverage report to [codacy.com](https://www.codacy.com):
 
 1. install both coverage and codacy-coverage
-    
+
     ```
     pip install coverage codacy-coverage
     ```
@@ -166,12 +166,12 @@ PS: this idea was inspired by [Plugin UnitTest Harness](https://bitbucket.org/kl
 
 By default, the tests are running in the main thread and can block the
 graphic inference. Asychronized testing could be used if you need the
-interface to respond. 
+interface to respond.
 
 Async tests are usually slower than the sync tests because the interface takes
 time to respond but it is useful when there are blocking codes in the tests. An
-example would be found in 
-[here](https://github.com/randy3k/UnitTesting-example/tree/async). 
+example would be found in
+[here](https://github.com/randy3k/UnitTesting-example/tree/async).
 
 However, it is known that async test does not work very well with coverage.
 In general, it is recommended to use deferred testing over async testing since there is
@@ -201,7 +201,7 @@ It is recommended to add the following in your `.sublime-project` file so that <
     "target": "unit_testing_current_package",
   }
 ]
-``` 
+```
 
 ### Credits
-Thanks [guillermooo](https://github.com/guillermooo) and [philippotto](https://github.com/philippotto) for their efforts in AppVeyor and Travis OSX support. 
+Thanks [guillermooo](https://github.com/guillermooo) and [philippotto](https://github.com/philippotto) for their efforts in AppVeyor and Travis OSX support.
