@@ -1,22 +1,16 @@
 [
-  {
-    "caption": "UnitTesting",
-    "command": "unit_testing"
-  },
-  {
-    "caption": "UnitTesting: Test Current Package",
-    "command": "unit_testing_current_package"
-  },
-  {
-    "caption": "UnitTesting: Test Current Package with Coverage",
-    "command": "unit_testing_current_package_coverage"
-  },
-  {
-    "caption": "UnitTesting: Test Current File",
-    "command": "unit_testing_current_file"
-  },
-  {
-    "caption": "UnitTesting: Show Output Panel",
-    "command": "show_panel", "args": { "panel": "output.UnitTesting" }
-  }
+
+    { "caption": "UnitTesting", "command": "unit_testing" },
+    { "caption": "UnitTesting: Test Cancel", "command": "unit_testing_test_cancel" },
+    { "caption": "UnitTesting: Test File with Coverage", "command": "unit_testing_test_file", "args": {"coverage": true}},
+    { "caption": "UnitTesting: Test File", "command": "unit_testing_test_file" },
+    { "caption": "UnitTesting: Test Last", "command": "unit_testing_test_last" },
+    { "caption": "UnitTesting: Test Nearest", "command": "unit_testing_test_nearest" },
+    { "caption": "UnitTesting: Test Results", "command": "unit_testing_test_results" },
+    { "caption": "UnitTesting: Test Suite with Coverage", "command": "unit_testing_test_suite", "args": {"coverage": true}},
+    { "caption": "UnitTesting: Test Suite", "command": "unit_testing_test_suite" },
+    { "caption": "UnitTesting: Test Switch", "command": "unit_testing_test_switch" },
+    { "caption": "UnitTesting: Test Syntax Compatibility", "command": "unit_testing_syntax_compatibility" },
+    { "caption": "UnitTesting: Test Syntax", "command": "unit_testing_syntax" },
+    { "caption": "UnitTesting: Test Visit", "command": "unit_testing_test_visit" },
 ]

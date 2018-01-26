@@ -10,7 +10,10 @@ class UnitTestingSyntaxBase(sublime_plugin.ApplicationCommand, UnitTestingMixin)
 
     def run(self, package=None, **kwargs):
         if not package:
-            return
+            package = self.current_package_name
+            if not package:
+                return
+
         settings = self.load_unittesting_settings(package, kwargs)
         stream = self.load_stream(package, settings)
         self.syntax_testing(stream, package)

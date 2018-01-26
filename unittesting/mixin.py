@@ -23,7 +23,7 @@ DEFAULT_SETTINGS = {
     "reload_package_on_testing": True,
     "show_reload_progress": True,
     "start_coverage_after_reload": False,
-    "generate_html_report": False,
+    "generate_html_report": True,
     "capture_console": False,
     "failfast": False
 }

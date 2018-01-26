@@ -29,5 +29,9 @@ class UnitTesting33CurrentFileCommand(ut38.UnitTestingCurrentFileCommand):
     pass
 
 
+class UnitTesting33CurrentFileCoverageCommand(ut38.UnitTestingCurrentFileCoverageCommand):
+    pass
+
+
 class UnitTesting33ColorSchemeCommand(ut38.UnitTestingColorSchemeCommand):
     pass
