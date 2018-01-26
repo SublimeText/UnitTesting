@@ -7,7 +7,7 @@ class OutputPanel:
     def __init__(
         self, name, file_regex='', line_regex='', base_dir=None,
         word_wrap=False, line_numbers=False, gutter=False,
-        scroll_past_end=False, syntax='Packages/Text/Plain text.tmLanguage'
+        scroll_past_end=False
     ):
         self.name = name
         self.window = sublime.active_window()
@@ -26,7 +26,7 @@ class OutputPanel:
         settings.set("line_numbers", line_numbers)
         settings.set("gutter", gutter)
         settings.set("scroll_past_end", scroll_past_end)
-        settings.set("syntax", syntax)
+        settings.set("syntax", "Packages/UnitTesting/res/unit-testing-test-result.sublime-syntax")
         self.closed = False
 
     def write(self, s):

@@ -1,0 +1,44 @@
+# SYNTAX TEST "Packages/UnitTesting/res/unit-testing-test-result.sublime-syntax"
+
+..F.s..s....FE..E....
+# ^ markup.deleted
+#   ^ markup.changed
+#      ^ markup.changed
+#           ^ markup.deleted
+#            ^ markup.deleted
+#               ^ markup.deleted
+
+test_method (x.test_module.TestClassName) ... ok
+#                                             ^^ markup.inserted
+test_method (x.test_module.TestClassName) ... FAIL
+#                                             ^^^^ markup.deleted
+test_method (x.test_module.TestClassName) ... ERROR
+#                                             ^^^^^ markup.deleted
+test_method (x.test_method.TestClassName) ... skipped 'skipped message'
+#                                             ^^^^^^^ markup.changed
+
+----------------------------------------------------------------------
+Ran 18 tests in 1.348s
+
+----------------------------------------------------------------------
+Ran 1 test in 0.158s
+
+OK
+#<- markup.inserted
+#^ markup.inserted
+
+OK (skipped=2)
+#<- markup.inserted
+#^^^^^^^^^^^^^ markup.inserted
+
+FAILED (failures=1)
+#<- markup.deleted
+#^^^^^^^^^^^^^^^^^^ markup.deleted
+
+FAILED (failures=1, skipped=2)
+#<- markup.deleted
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ markup.deleted
+
+FAILED (failures=1, errors=1, skipped=2)
+#<- markup.deleted
+#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ markup.deleted
