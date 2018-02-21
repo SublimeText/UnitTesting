@@ -126,7 +126,7 @@ RunTests() {
     fi
 
     pkill "[Ss]ubl" || true
-    killall 'plugin_host' || true
+    pkill 'plugin_host' || true
     sleep 2
 }
 
