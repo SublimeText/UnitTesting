@@ -25,7 +25,7 @@ UT_DIR_PATH = os.path.realpath(os.path.join(PACKAGES_DIR_PATH, 'UnitTesting'))
 UT_SBIN_PATH = os.path.realpath(os.path.join(PACKAGES_DIR_PATH, 'UnitTesting', 'sbin'))
 SCHEDULE_RUNNER_SOURCE = os.path.join(UT_SBIN_PATH, "run_scheduler.py")
 SCHEDULE_RUNNER_TARGET = os.path.join(UT_DIR_PATH, "zzz_run_scheduler.py")
-RX_RESULT = re.compile(r'^(?P<result>OK|FAILED|ERROR)$', re.MULTILINE)
+RX_RESULT = re.compile(r'^(?P<result>OK|FAILED|ERROR)', re.MULTILINE)
 RX_DONE = re.compile(r'^UnitTesting: Done\.$', re.MULTILINE)
 
 _is_windows = sys.platform == 'win32'
@@ -112,7 +112,7 @@ def read_output(path):
         try:
             return RX_RESULT.search(result).group('result') == 'OK'
         except AttributeError:
-            pass
+            return success
 
     def check_is_done(result):
         return RX_DONE.search(result) is not None
@@ -125,8 +125,7 @@ def read_output(path):
             print(result, end="")
 
             # Keep checking while we don't have a definite result.
-            if success is None:
-                success = check_is_success(result)
+            success = check_is_success(result)
 
             if check_is_done(result):
                 assert success is not None, 'final test result must not be None'
