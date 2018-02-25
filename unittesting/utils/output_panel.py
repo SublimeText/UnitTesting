@@ -1,5 +1,6 @@
 import sublime
 import os
+import sys
 
 
 class OutputPanel:
@@ -28,8 +29,10 @@ class OutputPanel:
         settings.set("scroll_past_end", scroll_past_end)
         settings.set("syntax", syntax)
         self.closed = False
+        self._stderr = sys.stderr
 
     def write(self, s):
+        self._stderr.write(s)
         self.output_view.set_read_only(False)
         self.output_view.run_command('append', {'characters': s}),
         self.output_view.set_read_only(True)
