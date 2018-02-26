@@ -48,14 +48,16 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand, UnitTestingMixin):
                     stdout.write(data)
                     stream.write(data)
                 def flush(self):
-                    pass
+                    stderr.flush()
+                    stream.flush()
 
             class StdErrForward(object):
                 def write(self, data):
                     stderr.write(data)
                     stream.write(data)
                 def flush(self):
-                    pass
+                    stderr.flush()
+                    stream.flush()
 
             sys.stdout = StdOutForward()
             sys.stderr = StdErrForward()
