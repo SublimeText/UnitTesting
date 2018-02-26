@@ -18,12 +18,11 @@ class UnitTestingCurrentPackageCommand(UnitTestingCommand):
             lambda: super(UnitTestingCurrentPackageCommand, self).run(project_name))
 
     def unit_testing(self, stream, package, settings):
+        parent = super(UnitTestingCurrentPackageCommand, self)
         if settings["reload_package_on_testing"]:
             self.reload_package(
                 package, dummy=True, show_reload_progress=settings["show_reload_progress"])
-        sublime.set_timeout(
-            lambda: super(
-                UnitTestingCurrentPackageCommand, self).unit_testing(stream, package, settings))
+        sublime.set_timeout(lambda: parent.unit_testing(stream, package, settings))
 
 
 class UnitTestingCurrentPackageCoverageCommand(UnitTestingCoverageCommand):
