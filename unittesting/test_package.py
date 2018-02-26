@@ -42,8 +42,23 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand, UnitTestingMixin):
             stderr = sys.stderr
             handler = logging.StreamHandler(stream)
             logging.root.addHandler(handler)
-            sys.stdout = stream
-            sys.stderr = stream
+
+            class StdOutForward(object):
+                def write(self, data):
+                    stdout.write(data)
+                    stream.write(data)
+                def flush(self):
+                    pass
+
+            class StdErrForward(object):
+                def write(self, data):
+                    stderr.write(data)
+                    stream.write(data)
+                def flush(self):
+                    pass
+
+            sys.stdout = StdOutForward()
+            sys.stderr = StdErrForward()
         testRunner = None
         progress_bar = ProgressBar("Testing %s" % package)
         progress_bar.start()

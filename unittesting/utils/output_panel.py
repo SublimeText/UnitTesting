@@ -8,8 +8,7 @@ class OutputPanel:
     def __init__(
         self, name, file_regex='', line_regex='', base_dir=None,
         word_wrap=False, line_numbers=False, gutter=False,
-        scroll_past_end=False, syntax='Packages/Text/Plain text.tmLanguage',
-        capture_console=False
+        scroll_past_end=False, syntax='Packages/Text/Plain text.tmLanguage'
     ):
         self.name = name
         self.window = sublime.active_window()
@@ -30,13 +29,8 @@ class OutputPanel:
         settings.set("scroll_past_end", scroll_past_end)
         settings.set("syntax", syntax)
         self.closed = False
-        if capture_console:
-            self._stderr = sys.stderr.write
-        else:
-            self._stderr = lambda s: s
 
     def write(self, s):
-        self._stderr(s)
         self.output_view.set_read_only(False)
         self.output_view.run_command('append', {'characters': s}),
         self.output_view.set_read_only(True)
