@@ -31,12 +31,12 @@ class OutputPanel:
         settings.set("syntax", syntax)
         self.closed = False
         if capture_console:
-            self._stderr = sys.stderr
+            self._stderr = sys.stderr.write
         else:
             self._stderr = lambda s: s
 
     def write(self, s):
-        self._stderr.write(s)
+        self._stderr(s)
         self.output_view.set_read_only(False)
         self.output_view.run_command('append', {'characters': s}),
         self.output_view.set_read_only(True)
