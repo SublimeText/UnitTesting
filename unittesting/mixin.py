@@ -119,10 +119,12 @@ class UnitTestingMixin(object):
         outfile = os.path.join(outputdir, package)
         return outfile
 
-    def load_stream(self, package, output):
+    def load_stream(self, package, settings):
+        output = settings["output"]
+        capture_console = settings["capture_console"]
         if not output or output == "<panel>":
             output_panel = OutputPanel(
-                'UnitTesting', file_regex=r'File "([^"]*)", line (\d+)')
+                'UnitTesting', file_regex=r'File "([^"]*)", line (\d+)', capture_console=capture_console)
             output_panel.show()
             stream = output_panel
         else:

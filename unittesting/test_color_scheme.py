@@ -12,7 +12,7 @@ class UnitTestingColorSchemeCommand(ApplicationCommand, UnitTestingMixin):
 
         window = sublime.active_window()
         settings = self.load_unittesting_settings(package, **kargs)
-        stream = self.load_stream(package, settings["output"])
+        stream = self.load_stream(package, settings)
 
         try:
             from ColorSchemeUnit.lib.runner import ColorSchemeUnit
