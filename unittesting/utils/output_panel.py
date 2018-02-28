@@ -1,6 +1,5 @@
 import sublime
 import os
-import sys
 
 
 class OutputPanel:
