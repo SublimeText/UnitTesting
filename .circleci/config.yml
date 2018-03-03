@@ -42,7 +42,7 @@ jobs:
           sh sbin/circleci.sh install_package_control
           sh sbin/circleci.sh run_tests --coverage
       - run: |
-          brew install python3
+          brew install python || brew upgrade python
           pip3 install codecov
           codecov
 
