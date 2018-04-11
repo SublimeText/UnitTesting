@@ -5,6 +5,7 @@ from functools import wraps
 from unittesting.utils import UTSetting
 from unittesting import DeferrableTestCase
 from unittesting.helpers import TempDirectoryTestCase
+from unittesting.helpers import ViewTestCase
 import sublime
 
 version = sublime.version()
@@ -167,3 +168,9 @@ class TestTempDirectoryTestCase(TempDirectoryTestCase):
         self.assertTrue(tidy_path(
             self._temp_dir),
             tidy_path(self.window.folders()[0]))
+
+class TestViewTestCase(ViewTestCase):
+
+    def test_view(self):
+        self.assertIsInstance(self.view, sublime.View)
+        self.assertTrue(self.view.is_valid())
