@@ -1,6 +1,7 @@
 import os
 import sys
 import re
+from glob import glob
 
 from .utils import UTSetting
 from .utils import OutputPanel
@@ -14,23 +15,39 @@ version = sublime.version()
 platform = sublime.platform()
 
 
+def casedpath(path):
+    r = glob(re.sub(r'([^:/\\])(?=[/\\]|$)', r'[\1]', path))
+    return r and r[0] or path
+
+
+def relative_to_spp(path):
+    spp = sublime.packages_path()
+    spp_real = os.path.realpath(spp)
+    for p in [path, os.path.realpath(path)]:
+        if p.startswith(spp + os.sep):
+            return p[len(spp):]
+        if p.startswith(spp_real + os.sep):
+            return p[len(spp_real):]
+    return None
+
+
 class UnitTestingMixin(object):
 
     @property
     def current_package_name(self):
-        """Return back the name of the current package."""
         window = sublime.active_window()
         view = window.active_view()
-        spp = os.path.realpath(sublime.packages_path())
         if view and view.file_name():
-            file_path = os.path.realpath(view.file_name())
-            if file_path.startswith(spp):
-                return file_path[len(spp):].split(os.sep)[1]
+            # path on Windows may not be properly cased
+            # https://github.com/randy3k/AutomaticPackageReloader/issues/10
+            file_path = relative_to_spp(casedpath(view.file_name()))
+            if file_path and file_path.endswith(".py"):
+                return file_path.split(os.sep)[1]
 
-        folders = sublime.active_window().folders()
+        folders = window.folders()
         if folders and len(folders) > 0:
-            first_folder = os.path.realpath(folders[0])
-            if first_folder.startswith(spp):
+            first_folder = relative_to_spp(casedpath(folders[0]))
+            if first_folder:
                 return os.path.basename(first_folder)
 
         return None
@@ -71,7 +88,7 @@ class UnitTestingMixin(object):
     def load_unittesting_settings(self, package, **kargs):
         # default settings
         tests_dir = "tests"
-        async = False
+        use_async = False
         deferred = False
         verbosity = 2
         reload_package_on_testing = True
@@ -84,7 +101,7 @@ class UnitTestingMixin(object):
         if os.path.exists(jfile):
             ss = JsonFile(jfile).load()
             tests_dir = ss.get("tests_dir", tests_dir)
-            async = ss.get("async", async)
+            use_async = ss.get("async", use_async)
             deferred = ss.get("deferred", deferred)
             verbosity = ss.get("verbosity", verbosity)
             reload_package_on_testing = ss.get(
@@ -101,7 +118,7 @@ class UnitTestingMixin(object):
 
         return {
             "tests_dir": tests_dir,
-            "async": async,
+            "async": use_async,
             "deferred": deferred,
             "verbosity": verbosity,
             "reload_package_on_testing": reload_package_on_testing,
