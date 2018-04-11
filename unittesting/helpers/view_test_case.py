@@ -2,6 +2,7 @@ import sublime
 
 from unittest import TestCase
 
+
 class ViewTestCase(TestCase):
     def setUp(self):
         self.view = sublime.active_window().new_file()
