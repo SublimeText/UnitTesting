@@ -2,7 +2,7 @@ import sublime
 import os
 import shutil
 import tempfile
-from . import DeferrableTestCase
+from .. import DeferrableTestCase
 
 
 class TempDirectoryTestCase(DeferrableTestCase):
