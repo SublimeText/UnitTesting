@@ -169,6 +169,7 @@ class TestTempDirectoryTestCase(TempDirectoryTestCase):
             self._temp_dir),
             tidy_path(self.window.folders()[0]))
 
+
 class TestViewTestCase(ViewTestCase):
 
     def test_view(self):
