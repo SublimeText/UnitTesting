@@ -16,18 +16,18 @@ platform = sublime.platform()
 
 
 def casedpath(path):
+    # path on Windows may not be properly cased
     r = glob(re.sub(r'([^:/\\])(?=[/\\]|$)', r'[\1]', path))
     return r and r[0] or path
 
 
 def relative_to_spp(path):
     spp = sublime.packages_path()
-    spp_real = os.path.realpath(spp)
-    for p in [path, os.path.realpath(path)]:
-        if p.startswith(spp + os.sep):
-            return p[len(spp):]
-        if p.startswith(spp_real + os.sep):
-            return p[len(spp_real):]
+    spp_real = casedpath(os.path.realpath(spp))
+    for p in [path, casedpath(os.path.realpath(path))]:
+        for sp in [spp, spp_real]:
+            if p.startswith(sp + os.sep):
+                return p[len(sp):]
     return None
 
 
@@ -38,15 +38,13 @@ class UnitTestingMixin(object):
         window = sublime.active_window()
         view = window.active_view()
         if view and view.file_name():
-            # path on Windows may not be properly cased
-            # https://github.com/randy3k/AutomaticPackageReloader/issues/10
-            file_path = relative_to_spp(casedpath(view.file_name()))
+            file_path = relative_to_spp(view.file_name())
             if file_path and file_path.endswith(".py"):
                 return file_path.split(os.sep)[1]
 
-        folders = window.folders()
+        folders = self.window.folders()
         if folders and len(folders) > 0:
-            first_folder = relative_to_spp(casedpath(folders[0]))
+            first_folder = relative_to_spp(folders[0])
             if first_folder:
                 return os.path.basename(first_folder)
 
