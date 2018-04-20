@@ -92,7 +92,7 @@ class UnitTestingTestCase(DeferrableTestCase):
 
     def assertRegexContains(self, txt, expr, msg=None):
         m = re.search(expr, txt, re.MULTILINE)
-        self.assertTrue(hasattr(m, "group"), msg)
+        self.assertIsNotNone(m, msg)
 
     def assertOk(self, txt, msg=None):
         self.assertRegexContains(txt, r'^OK', msg)
