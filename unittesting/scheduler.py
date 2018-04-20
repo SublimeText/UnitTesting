@@ -10,22 +10,11 @@ class Unit:
 
     def __init__(self, s):
         self.package = s['package']
-        self.output = s['output'] if 'output' in s else None
 
-        if 'syntax_test' in s and int(sublime.version()) >= 3000:
-            self.syntax_test = s['syntax_test']
-        else:
-            self.syntax_test = False
-
-        if 'color_scheme_test' in s and int(sublime.version()) >= 3000:
-            self.color_scheme_test = s['color_scheme_test']
-        else:
-            self.color_scheme_test = False
-
-        if 'coverage' in s and int(sublime.version()) >= 3103:
-            self.coverage = s['coverage']
-        else:
-            self.coverage = False
+        self.output =  s.get('output', None)
+        self.syntax_test = s.get('syntax_test', False)
+        self.color_scheme_test = s.get('color_scheme_test', False)
+        self.coverage = s.get('coverage', False)
 
     def run(self):
         if self.syntax_test:
@@ -39,10 +28,10 @@ class Unit:
                 "output": self.output
             })
         elif self.coverage:
-                sublime.run_command("unit_testing_coverage", {
-                    "package": self.package,
-                    "output": self.output
-                })
+            sublime.run_command("unit_testing_coverage", {
+                "package": self.package,
+                "output": self.output
+            })
         else:
             sublime.run_command("unit_testing", {
                 "package": self.package,
