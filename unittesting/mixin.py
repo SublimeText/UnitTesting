@@ -11,7 +11,6 @@ from .utils import ProgressBar
 
 import sublime
 
-version = sublime.version()
 platform = sublime.platform()
 
 

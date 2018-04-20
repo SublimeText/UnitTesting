@@ -10,8 +10,6 @@ from .const import DONE_MESSAGE
 from .utils import ProgressBar, StdioSplitter
 import threading
 
-version = sublime.version()
-
 
 class UnitTestingCommand(sublime_plugin.ApplicationCommand, UnitTestingMixin):
 
