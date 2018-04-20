@@ -3,9 +3,6 @@ import sys
 from .test_package import UnitTestingCommand
 from .test_coverage import UnitTestingCoverageCommand
 
-version = sublime.version()
-platform = sublime.platform()
-
 
 class UnitTestingCurrentPackageCommand(UnitTestingCommand):
     def run(self):
