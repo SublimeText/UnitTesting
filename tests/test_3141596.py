@@ -8,8 +8,6 @@ from unittesting.helpers import TempDirectoryTestCase
 from unittesting.helpers import ViewTestCase
 import sublime
 
-version = sublime.version()
-
 __dir__ = os.path.dirname(os.path.abspath(__file__))
 UUT_dir = os.path.join(
     sublime.packages_path(), 'User', 'UnitTesting')
@@ -39,7 +37,7 @@ def cleanup_package(package):
         pass
 
 
-def perpare_package(package, output=None, syntax_test=False, color_scheme_test=False, delay=None):
+def prepare_package(package, output=None, syntax_test=False, color_scheme_test=False, delay=None):
     def wrapper(func):
         @wraps(func)
         def real_wrapper(self):
@@ -70,92 +68,87 @@ def perpare_package(package, output=None, syntax_test=False, color_scheme_test=F
 
             if delay:
                 yield delay
+
             with open(result_file, 'r') as f:
                 txt = f.read()
-            m = re.search('^UnitTesting: Done\\.', txt, re.MULTILINE)
-            self.assertTrue(hasattr(m, "group"))
+            self.assertRegexContains(txt, r'^UnitTesting: Done\.')
+
             deferred = func(self, txt)
-            if deferred is not None and hasattr(deferred, "__iter__"):
-                for x in deferred:
-                    yield x
+            if hasattr(deferred, "__iter__"):
+                yield from deferred
+
             cleanup_package(package)
+
             if delay:
                 yield 100
         return real_wrapper
     return wrapper
 
 
-class TestUnitTesting(DeferrableTestCase):
+class UnitTestingTestCase(DeferrableTestCase):
 
     def tearDown(self):
         UTSetting.set("recent-package", "UnitTesting")
 
-    @perpare_package("_Success")
+    def assertRegexContains(self, txt, expr, msg=None):
+        m = re.search(expr, txt, re.MULTILINE)
+        self.assertTrue(hasattr(m, "group"), msg)
+
+    def assertOk(self, txt, msg=None):
+        self.assertRegexContains(txt, r'^OK', msg)
+
+
+class TestUnitTesting(UnitTestingTestCase):
+
+    @prepare_package("_Success")
     def test_success(self, txt):
-        m = re.search('^OK', txt, re.MULTILINE)
-        self.assertTrue(hasattr(m, "group"))
+        self.assertOk(txt)
 
-    @perpare_package("_Failure")
+    @prepare_package("_Failure")
     def test_failure(self, txt):
-        m = re.search('^FAILED \(failures=1\)', txt, re.MULTILINE)
-        self.assertTrue(hasattr(m, "group"))
+        self.assertRegexContains(txt, r'^FAILED \(failures=1\)')
 
-    @perpare_package("_Error")
+    @prepare_package("_Error")
     def test_error(self, txt):
-        m = re.search('^ERROR', txt, re.MULTILINE)
-        self.assertTrue(hasattr(m, "group"))
+        self.assertRegexContains(txt, r'^ERROR')
 
-    @perpare_package("_Output", "tests/result")
+    @prepare_package("_Output", "tests/result")
     def test_output(self, txt):
-        m = re.search('^OK', txt, re.MULTILINE)
-        self.assertTrue(hasattr(m, "group"))
+        self.assertOk(txt)
 
-    @perpare_package("_Deferred", delay=3000)
+    @prepare_package("_Deferred", delay=3000)
     def test_deferred(self, txt):
-        m = re.search('^OK', txt, re.MULTILINE)
-        self.assertTrue(hasattr(m, "group"))
+        self.assertOk(txt)
 
-    @perpare_package("_Async", delay=3000)
+    @prepare_package("_Async", delay=3000)
     def test_async(self, txt):
-        m = re.search('^OK', txt, re.MULTILINE)
-        self.assertTrue(hasattr(m, "group"))
+        self.assertOk(txt)
 
 
-class TestSyntax(DeferrableTestCase):
+class TestSyntax(UnitTestingTestCase):
 
-    def tearDown(self):
-        UTSetting.set("recent-package", "UnitTesting")
-
-    @perpare_package("_Syntax_Failure", syntax_test=True, delay=1000)
+    @prepare_package("_Syntax_Failure", syntax_test=True, delay=1000)
     def test_fail_syntax(self, txt):
-        m = re.search('^FAILED: 1 of 21 assertions in 1 files failed$', txt, re.MULTILINE)
-        self.assertTrue(hasattr(m, "group"))
+        self.assertRegexContains(txt, r'^FAILED: 1 of 21 assertions in 1 files failed$')
 
-    @perpare_package("_Syntax_Success", syntax_test=True, delay=1000)
+    @prepare_package("_Syntax_Success", syntax_test=True, delay=1000)
     def test_success_syntax(self, txt):
-        m = re.search('^OK', txt, re.MULTILINE)
-        self.assertTrue(hasattr(m, "group"))
+        self.assertOk(txt)
 
-    @perpare_package("_Syntax_Error", syntax_test=True, delay=1000)
+    @prepare_package("_Syntax_Error", syntax_test=True, delay=1000)
     def test_error_syntax(self, txt):
-        m = re.search('^ERROR: No syntax_test', txt, re.MULTILINE)
-        self.assertTrue(hasattr(m, "group"))
+        self.assertRegexContains(txt, r'^ERROR: No syntax_test')
 
 
-class TestColorScheme(TempDirectoryTestCase):
+class TestColorScheme(UnitTestingTestCase):
 
-    def tearDown(self):
-        UTSetting.set("recent-package", "UnitTesting")
-
-    @perpare_package("_ColorScheme_Failure", color_scheme_test=True, delay=1000)
+    @prepare_package("_ColorScheme_Failure", color_scheme_test=True, delay=1000)
     def test_fail_color_scheme(self, txt):
-        m = re.search('^There were 14 failures:$', txt, re.MULTILINE)
-        self.assertTrue(hasattr(m, "group"))
+        self.assertRegexContains(txt, r'^There were 14 failures:$')
 
-    @perpare_package("_ColorScheme_Success", color_scheme_test=True, delay=1000)
+    @prepare_package("_ColorScheme_Success", color_scheme_test=True, delay=1000)
     def test_success_color_scheme(self, txt):
-        m = re.search('^OK', txt, re.MULTILINE)
-        self.assertTrue(hasattr(m, "group"))
+        self.assertOk(txt)
 
 
 def tidy_path(path):
