@@ -11,7 +11,7 @@ class Unit:
     def __init__(self, s):
         self.package = s['package']
 
-        self.output =  s.get('output', None)
+        self.output = s.get('output', None)
         self.syntax_test = s.get('syntax_test', False)
         self.color_scheme_test = s.get('color_scheme_test', False)
         self.coverage = s.get('coverage', False)
