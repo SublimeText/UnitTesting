@@ -1,5 +1,6 @@
 from unittest.suite import TestSuite, _isnotsuite, _call_if_exists, _DebugResult
 from unittest import util
+from ...utils import isiterable
 
 
 class DeferrableTestSuite(TestSuite):
@@ -15,16 +16,14 @@ class DeferrableTestSuite(TestSuite):
 
             if _isnotsuite(test):
                 deferred = self._tearDownPreviousClass(test, result)
-                if deferred is not None and hasattr(deferred, '__iter__'):
-                    for x in deferred:
-                        yield x
+                if isiterable(deferred):
+                    yield from deferred
                 yield
                 self._handleModuleFixture(test, result)
                 yield
                 deferred = self._handleClassSetUp(test, result)
-                if deferred is not None and hasattr(deferred, '__iter__'):
-                    for x in deferred:
-                        yield x
+                if isiterable(deferred):
+                    yield from deferred
                 yield
                 result._previousTestClass = test.__class__
 
@@ -34,21 +33,18 @@ class DeferrableTestSuite(TestSuite):
 
             if not debug:
                 deferred = test(result)
-                if deferred is not None and hasattr(deferred, '__iter__'):
-                    for x in deferred:
-                        yield x
             else:
                 deferred = test.debug()
-                if deferred is not None and hasattr(deferred, '__iter__'):
-                    for x in deferred:
-                        yield x
+
+            if isiterable(deferred):
+                yield from deferred
+
             yield
 
         if topLevel:
             deferred = self._tearDownPreviousClass(None, result)
-            if deferred is not None and hasattr(deferred, '__iter__'):
-                for x in deferred:
-                    yield x
+            if isiterable(deferred):
+                yield from deferred
             yield
             yield
             self._handleModuleTearDown(result)
@@ -77,9 +73,8 @@ class DeferrableTestSuite(TestSuite):
             _call_if_exists(result, '_setupStdout')
             try:
                 deferred = setUpClass()
-                if deferred is not None and hasattr(deferred, '__iter__'):
-                    for x in deferred:
-                        yield x
+                if isiterable(deferred):
+                    yield from deferred
             except Exception as e:
                 if isinstance(result, _DebugResult):
                     raise
@@ -107,9 +102,8 @@ class DeferrableTestSuite(TestSuite):
             _call_if_exists(result, '_setupStdout')
             try:
                 deferred = tearDownClass()
-                if deferred is not None and hasattr(deferred, '__iter__'):
-                    for x in deferred:
-                        yield x
+                if isiterable(deferred):
+                    yield from deferred
             except Exception as e:
                 if isinstance(result, _DebugResult):
                     raise
