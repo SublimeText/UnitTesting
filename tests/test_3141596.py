@@ -3,6 +3,7 @@ import re
 import shutil
 from functools import wraps
 from unittesting.utils import UTSetting
+from unittesting.utils import isiterable
 from unittesting import DeferrableTestCase
 from unittesting.helpers import TempDirectoryTestCase
 from unittesting.helpers import ViewTestCase
@@ -74,7 +75,7 @@ def prepare_package(package, output=None, syntax_test=False, color_scheme_test=F
             self.assertRegexContains(txt, r'^UnitTesting: Done\.')
 
             deferred = func(self, txt)
-            if hasattr(deferred, "__iter__"):
+            if isiterable(deferred):
                 yield from deferred
 
             cleanup_package(package)

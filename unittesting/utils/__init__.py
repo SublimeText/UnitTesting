@@ -4,6 +4,7 @@ from . import settings as UTSetting
 from .progress_bar import ProgressBar
 from .reloader import reload_package
 from .stdio_splitter import StdioSplitter
+from .isiterable import isiterable
 
 __all__ = [
     "JsonFile",
@@ -11,5 +12,6 @@ __all__ = [
     "StdioSplitter",
     "UTSetting",
     "ProgressBar",
-    "reload_package"
+    "reload_package",
+    "isiterable",
 ]
