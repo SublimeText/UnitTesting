@@ -2,7 +2,6 @@ import os
 import re
 import shutil
 from functools import wraps
-from unittesting.utils import UTSetting
 from unittesting.utils import isiterable
 from unittesting import DeferrableTestCase
 from unittesting.helpers import TempDirectoryTestCase
@@ -87,9 +86,6 @@ def prepare_package(package, output=None, syntax_test=False, color_scheme_test=F
 
 
 class UnitTestingTestCase(DeferrableTestCase):
-
-    def tearDown(self):
-        UTSetting.set("recent-package", "UnitTesting")
 
     def assertRegexContains(self, txt, expr, msg=None):
         m = re.search(expr, txt, re.MULTILINE)

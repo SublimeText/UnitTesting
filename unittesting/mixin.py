@@ -3,7 +3,6 @@ import sys
 import re
 from glob import glob
 
-from .utils import UTSetting
 from .utils import OutputPanel
 from .utils import JsonFile
 from .utils import reload_package
@@ -50,14 +49,6 @@ class UnitTestingMixin(object):
         return None
 
     @property
-    def recent_package(self):
-        return UTSetting.get("recent-package", "Package Name")
-
-    @recent_package.setter
-    def recent_package(self, package):
-        UTSetting.set("recent-package", package)
-
-    @property
     def current_test_file(self):
         current_file = sublime.active_window().active_view().file_name()
         if current_file and current_file.endswith(".py"):
@@ -72,14 +63,10 @@ class UnitTestingMixin(object):
             return (package, None)
 
     def prompt_package(self, callback):
-        package = self.recent_package
-
-        def _callback(package):
-            self.recent_package = package
-            callback(package)
+        package = self.current_package_name
 
         view = sublime.active_window().show_input_panel(
-            'Package:', package, _callback, None, None)
+            'Package:', package, callback, None, None)
         view.run_command("select_all")
 
     def load_unittesting_settings(self, package, **kargs):
