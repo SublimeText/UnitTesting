@@ -41,7 +41,7 @@ class UnitTestingMixin(object):
             if file_path and file_path.endswith(".py"):
                 return file_path.split(os.sep)[1]
 
-        folders = self.window.folders()
+        folders = window.folders()
         if folders and len(folders) > 0:
             first_folder = relative_to_spp(folders[0])
             if first_folder:
