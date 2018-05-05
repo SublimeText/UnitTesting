@@ -10,8 +10,6 @@ from .utils import ProgressBar
 
 import sublime
 
-platform = sublime.platform()
-
 
 def casedpath(path):
     # path on Windows may not be properly cased
