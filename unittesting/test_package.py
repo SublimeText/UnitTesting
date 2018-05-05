@@ -78,9 +78,15 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand, UnitTestingMixin):
 
                     for hook in cleanup_hooks:
                         hook()
-                    stream.write("\n")
-                    stream.write(DONE_MESSAGE)
+
+                    if not hasattr(stream, 'window'):
+                        # If it's an output panel don't print done message,
+                        # because it's only required for CI test runs.
+                        stream.write("\n")
+                        stream.write(DONE_MESSAGE)
+
                     stream.close()
+
                     if settings["capture_console"]:
                         sys.stdout = stdout
                         sys.stderr = stderr
