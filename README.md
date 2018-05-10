@@ -65,7 +65,7 @@ To enable Travis CI Linux and macOS builds, copy the file:
 [.travis.yml](https://github.com/randy3k/UnitTesting-example/blob/master/.travis.yml)
 (caution: with a beginning dot) to your repository and
 change the environmental variable `PACKAGE` to the name of
-your package. Login [travis-ci](https://travis-ci.org) to enable CI for your package..
+your package. Login [travis-ci](https://travis-ci.com/) to enable CI for your package..
 
 ### Appveyor CI
 
