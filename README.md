@@ -7,7 +7,7 @@ UnitTesting
 [![codecov](https://codecov.io/gh/SublimeText/UnitTesting/branch/master/graph/badge.svg)](https://codecov.io/gh/SublimeText/UnitTesting)
 <a href="https://packagecontrol.io/packages/UnitTesting"><img src="https://packagecontrol.herokuapp.com/downloads/UnitTesting.svg"></a>
 
-This is a unittest framework for Sublime Text 3. It runs unittest testcases on local machines and CI services such as Travis CI, Circle CI and Appveyor. It also supports testing syntax_test files for the new [sublime-syntax](https://www.sublimetext.com/docs/3/syntax.html) format.
+This is a unittest framework for Sublime Text 3. It runs unittest testcases on local machines and CI services such as Travis CI, Circle CI and AppVeyor. It also supports testing syntax_test files for the new [sublime-syntax](https://www.sublimetext.com/docs/3/syntax.html) format.
 
 
 **News**: UnitTesting is now housed by `SublimeText`. You may want to change the urls from
@@ -53,7 +53,7 @@ it is missing, UnitTesting will ignore the `tests` directory.
 
 To enable Circle CI Linux and macOS builds, copy the file
 [.circleci/config.yml](https://github.com/randy3k/UnitTesting-example/blob/master/.circleci/config.yml) to your repository and change the environmental variable `PACKAGE` to the name of
-your package. Login [circleci](https://circleci.com) and add a new project.
+your package. Log in to [Circle CI](https://circleci.com) and add a new project.
 
 Circle CI doesn't offer free macOS plan by default, but you could contact them for access if your package is open sourced:
 
@@ -64,15 +64,15 @@ Circle CI doesn't offer free macOS plan by default, but you could contact them f
 To enable Travis CI Linux and macOS builds, copy the file:
 [.travis.yml](https://github.com/randy3k/UnitTesting-example/blob/master/.travis.yml)
 (caution: with a beginning dot) to your repository and
-change the environmental variable `PACKAGE` to the name of
-your package. Login [travis-ci](https://travis-ci.org) to enable CI for your package..
+change the environment variable `PACKAGE` to the name of
+your package. Log in to [Travis CI](https://travis-ci.com/) to enable CI for your package..
 
-### Appveyor CI
+### AppVeyor CI
 
-To enable Appveyor Windows builds, copy the file `appveyor.yml` to
+To enable AppVeyor Windows builds, copy the file `appveyor.yml` to
 your repository, change the `PACKAGE` variable in
 [appveyor.yml](https://github.com/randy3k/UnitTesting-example/blob/master/appveyor.yml).
-Login [appveyor](http://www.appveyor.com) and add your repository
+Log in to [AppVeyor](http://www.appveyor.com) and add your repository
 as a new project.
 
 
@@ -115,7 +115,7 @@ To submit coverage report to [codacy.com](https://www.codacy.com):
 
 If your package uses Package Control dependencies, you may want to install
 Package Control by uncommenting the line of `install_package_control` in
-travis and appveyor configuration files.
+Travis CI and AppVeyor configuration files.
 
 
 ## Testing syntax_test files
@@ -153,7 +153,7 @@ asynchronous codes.
 
 An example would be found in [here](https://github.com/randy3k/UnitTesting-example/tree/deferred).
 
-To activate deferred testing on travis and appveyor, put the following line in
+To activate deferred testing on Travis CI and AppVeyor, put the following line in
 `unittesting.json`.
 
 ```
@@ -178,7 +178,7 @@ In general, it is recommended to use deferred testing over async testing since t
 no need to worry about race condition.
 
 
-To activate async testing on travis and appveyor, put the following line in
+To activate async testing on Travis CI and AppVeyor, put the following line in
 `unittesting.json`.
 
 ```
@@ -204,4 +204,4 @@ It is recommended to add the following in your `.sublime-project` file so that <
 ```
 
 ### Credits
-Thanks [guillermooo](https://github.com/guillermooo) and [philippotto](https://github.com/philippotto) for their efforts in AppVeyor and Travis OSX support.
+Thanks [guillermooo](https://github.com/guillermooo) and [philippotto](https://github.com/philippotto) for their efforts in AppVeyor and Travis CI macOS support.
