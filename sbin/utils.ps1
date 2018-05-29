@@ -9,6 +9,11 @@ function eitherOr {
     if ($Left) { $Left } else { $Right }
 }
 
+function nullOr {
+    param($Left, $Right)
+    if ($Left -eq $null) { $Left } else { $Right }
+}
+
 function toLogMessage {
     param([string]$content)
     "[UnitTesting] $content"
@@ -67,4 +72,17 @@ function ensureCreateDirectoryJunction {
     param([string]$Link, [string]$Target)
     cmd.exe /c mklink /J "$Link" "$Target"
     if ($LASTEXITCODE -ne 0) { throw "could not create directory junction at $Link to $Target" }
+}
+
+function ensureValue {
+    param($Value, [string]$Pattern='^.*$', [string]$Message=$null)
+    if(($Value -eq $null) -or ($Value -notmatch $Pattern)) {
+        throw (eitherOr $Message "value is null or unexpected (expected match: $Pattern; got: $Value)")
+    }
+    $Value
+}
+
+function pathExists {
+    param([string]$Path, [switch]$Negate=$False)
+    if (!$Not) { test-path $Path } else { !(test-path $Path) }
 }

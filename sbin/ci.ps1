@@ -8,102 +8,85 @@ param(
 
 # TODO: Bootstrap the bootstrapper. See appveyor.ps1.
 
+. $PSScriptRoot\ci_config.ps1
 . $PSScriptRoot\utils.ps1
-$STP = "C:\st\Data\Packages"
-$script:PackageName = $env:PACKAGE
 
 function Bootstrap {
     [CmdletBinding()]
-    param(
-        [switch] $with_color_scheme_unit
-    )
+    param([switch] $with_color_scheme_unit)
     
-    ensureCreateDirectory $STP
+    ensureCreateDirectory $SublimeTextPackagesDirectory
 
-    if ($PackageName -eq "__all__"){
-        logVerbose "create package directory at $STP\$env:PACKAGE"
-        ensureCreateDirectory "$STP\$PackageName"
-        logVerbose "copy all subfolders to sublime package directory"
+    # Copy plugin files to Packages/<Package> folder.
+    if ($PackageUnderTestName -eq $SymbolCopyAll){
+        logVerbose "creating directory for package under test at $PackageUnderTestSublimeTextPackagesDirectory..."
+        ensureCreateDirectory $PackageUnderTestSublimeTextPackagesDirectory
+        logVerbose "copying current directory contents to $PackageUnderTestSublimeTextPackagesDirectory..."
         # TODO: create junctions for all packages.
-        ensureCopyDirectoryContents . "$STP"
+        ensureCopyDirectoryContents . $SublimeTextPackagesDirectory
     } else {
-        logVerbose "create directory junction to package at $STP\$PackageName"
-        ensureCreateDirectoryJunction "$STP\$env:PACKAGE" .
+        logVerbose "creating directory junction to package under test at $PackageUnderTestSublimeTextPackagesDirectory..."
+        ensureCreateDirectoryJunction $PackageUnderTestSublimeTextPackagesDirectory .
     }
 
-    git config --global advice.detachedHead false
-
-    $UT_PATH = "$STP\UnitTesting"
-    if (!(test-path -path "$UT_PATH")){
-
-        $UT_URL = "https://github.com/randy3k/UnitTesting"
-        $UNITTESTING_TAG = getLatestUnitTestingBuildTag $env:UNITTESTING_TAG $env:SUBLIME_TEXT_VERSION $UT_URL
-
+    # Clone UnitTesting into Packages/UnitTesting.
+    if (pathExists -Negate $UnitTestingSublimeTextPackagesDirectory) {
+        $UNITTESTING_TAG = getLatestUnitTestingBuildTag $env:UNITTESTING_TAG $SublimeTextVersion $UnitTestingRepositoryUrl
         logVerbose "download UnitTesting tag: $UNITTESTING_TAG"
-        git clone --quiet --depth 1 --branch=$UNITTESTING_TAG $UT_URL "$UT_PATH" 2>$null
-        git -C "$UT_PATH" rev-parse HEAD | logVerbose
+        git clone --quiet --depth 1 --branch=$UNITTESTING_TAG $UnitTestingRepositoryUrl "$UnitTestingSublimeTextPackagesDirectory" 2>$null
+        git -C "$UnitTestingSublimeTextPackagesDirectory" rev-parse HEAD | logVerbose
         logVerbose ""
     }
 
-    $COV_PATH = "$STP\coverage"
-    if (($env:SUBLIME_TEXT_VERSION -eq 3) -and (!(test-path -path "$COV_PATH"))){
-
-        $COV_URL = "https://github.com/codexns/sublime-coverage"
-        $COVERAGE_TAG = getLatestCoverageTag $env:COVERAGE_TAG $COV_URL
-        
+    # Clone coverage plugin into Packages/coverage.
+    if ($IsSublimeTextVersion3 -and (pathExists -Negate $CoverageSublimeTextPackagesDirectory)){
+        $COVERAGE_TAG = getLatestCoverageTag $env:COVERAGE_TAG $SublimeTextConverageRepositoryUrl
         logVerbose "download sublime-coverage tag: $COVERAGE_TAG"
-        git clone --quiet --depth 1 --branch=$COVERAGE_TAG $COV_URL "$COV_PATH" 2>$null
-        git -C "$COV_PATH" rev-parse HEAD | write-verbose
+        git clone --quiet --depth 1 --branch=$COVERAGE_TAG $SublimeTextConverageRepositoryUrl $CoverageSublimeTextPackagesDirectory 2>$null
+        git -C $CoverageSublimeTextPackagesDirectory rev-parse HEAD | write-verbose
         logVerbose ""
     }
 
-    & "$STP\UnitTesting\sbin\install_sublime_text.ps1" -verbose
-
+    & "$UnitTestingSublimeTextPackagesDirectory\sbin\install_sublime_text.ps1" -verbose
 }
 
 function InstallPackageControl {
-    $COV_PATH = "$STP\coverage"
-    remove-item $COV_PATH -Force -Recurse
-    & "$STP\UnitTesting\sbin\install_package_control.ps1" -verbose
+    remove-item $CoverageSublimeTextPackagesDirectory -Force -Recurse
+    & "$UnitTestingSublimeTextPackagesDirectory\sbin\install_package_control.ps1" -verbose
 }
 
 function InstallColorSchemeUnit {
-    $CSU_PATH = "$STP\ColorSchemeUnit"
-    if (($env:SUBLIME_TEXT_VERSION -eq 3) -and (!(test-path -path "$CSU_PATH"))){
-        $CSU_URL = "https://github.com/gerardroche/sublime-color-scheme-unit"
+    if (($SublimeTextVersion -eq 3) -and (!(test-path -path $ColorSchemeUnitSublimeTextPackagesDirectory))){
 
         if ( $env:COLOR_SCHEME_UNIT_TAG -eq $null){
             # the latest tag
-            $COLOR_SCHEME_UNIT_TAG = git ls-remote --tags $CSU_URL | %{$_ -replace ".*/(.*)$", '$1'} `
+            $COLOR_SCHEME_UNIT_TAG = git ls-remote --tags $SublimeTextColorSchemeUnitRepositoryUrl | %{$_ -replace ".*/(.*)$", '$1'} `
                     | where-object {$_ -notmatch "\^"} |%{[System.Version]$_} `
                     | sort | select-object -last 1 | %{ "$_" }
         } else {
             $COLOR_SCHEME_UNIT_TAG = $env:COLOR_SCHEME_UNIT_TAG
         }
         write-verbose "download ColorSchemeUnit tag: $COLOR_SCHEME_UNIT_TAG"
-        git clone --quiet --depth 1 --branch=$COLOR_SCHEME_UNIT_TAG $CSU_URL "$CSU_PATH" 2>$null
-        git -C "$CSU_PATH" rev-parse HEAD | write-verbose
+        git clone --quiet --depth 1 --branch=$COLOR_SCHEME_UNIT_TAG $SublimeTextColorSchemeUnitRepositoryUrl $ColorSchemeUnitSublimeTextPackagesDirectory 2>$null
+        git -C $ColorSchemeUnitSublimeTextPackagesDirectory rev-parse HEAD | write-verbose
         write-verbose ""
     }
 }
 
 function InstallKeypress {
-    $KP_PATH = "$STP\Keypress"
-    if (($env:SUBLIME_TEXT_VERSION -eq 3) -and (!(test-path -path "$KP_PATH"))){
-        $KP_URL = "https://github.com/randy3k/Keypress"
-
+    if (($SublimeTextVersion -eq 3) -and (!(test-path -path $KeyPressSublimeTextPackagesDirectory))){
         if ( $env:KEYPRESS_TAG -eq $null){
             # the latest tag
-            $KEYPRESS_TAG = git ls-remote --tags $KP_URL | %{$_ -replace ".*/(.*)$", '$1'} `
+            $KEYPRESS_TAG = git ls-remote --tags $SublimeTextKeyPressRepositoryUrl | %{$_ -replace ".*/(.*)$", '$1'} `
                     | where-object {$_ -notmatch "\^"} |%{[System.Version]$_} `
                     | sort | select-object -last 1 | %{ "$_" }
         } else {
             $KEYPRESS_TAG = $env:KEYPRESS_TAG
         }
-        write-verbose "download ColorSchemeUnit tag: $KEYPRESS_TAG"
-        git clone --quiet --depth 1 --branch=$KEYPRESS_TAG $KP_URL "$KP_PATH" 2>$null
-        git -C "$KP_PATH" rev-parse HEAD | write-verbose
-        write-verbose ""
+        logVerbose "download KeyPress tag: $KEYPRESS_TAG"
+        git clone --quiet --depth 1 --branch=$KEYPRESS_TAG $SublimeTextKeyPressRepositoryUrl $KeyPressSublimeTextPackagesDirectory 2>$null
+        git -C $KeyPressSublimeTextPackagesDirectory rev-parse HEAD | logVerbose
+        logVerbose ""
     }
 }
 
@@ -115,13 +98,13 @@ function RunTests {
     )
 
     if ( $syntax_test.IsPresent ){
-        & "$STP\UnitTesting\sbin\run_tests.ps1" "$env:PACKAGE" -verbose -syntax_test
+        & "$UnitTestingSublimeTextPackagesDirectory\sbin\run_tests.ps1" "$env:PACKAGE" -verbose -syntax_test
     } elseif ( $color_scheme_test.IsPresent ){
-        & "$STP\UnitTesting\sbin\run_tests.ps1" "$env:PACKAGE" -verbose -color_scheme_test
+        & "$UnitTestingSublimeTextPackagesDirectory\sbin\run_tests.ps1" "$env:PACKAGE" -verbose -color_scheme_test
     } elseif ( $coverage.IsPresent ) {
-        & "$STP\UnitTesting\sbin\run_tests.ps1" "$env:PACKAGE" -verbose -coverage
+        & "$UnitTestingSublimeTextPackagesDirectory\sbin\run_tests.ps1" "$env:PACKAGE" -verbose -coverage
     } else {
-        & "$STP\UnitTesting\sbin\run_tests.ps1" "$env:PACKAGE" -verbose
+        & "$UnitTestingSublimeTextPackagesDirectory\sbin\run_tests.ps1" "$env:PACKAGE" -verbose
     }
 
     stop-process -force -processname sublime_text -ea silentlycontinue
