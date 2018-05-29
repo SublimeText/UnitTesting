@@ -4,18 +4,24 @@ function ensureCreateDirectory {
     [void](new-item -itemtype d "$Path" -force -erroraction stop)
 }
 
+function eitherOr {
+    param($Left, $Right)
+    if ($Left) { $Left } else { $Right }
+}
+
+function toLogMessage {
+    param([string]$content)
+    "[UnitTesting] $content"
+}
+
 filter logVerbose {
     param([string]$message)
-    $msg = $message
-    if ($_) { $msg = "$_" }
-    write-verbose "[UnitTesting] $msg"
+    write-verbose (toLogMessage (eitherOr $_ $message))
 }
 
 filter logWarning {
     param([string]$message)
-    $msg = $message
-    if ($_) { $msg = "$_" }
-    write-warning "[UnitTesting] $msg"
+    write-warning (toLogMessage (eitherOr $_ $message))
 }
 
 function ensureCopyDirectoryContents {
