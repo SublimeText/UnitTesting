@@ -11,6 +11,13 @@ filter logVerbose {
     write-verbose "[UnitTesting] $msg"
 }
 
+filter logWarning {
+    param([string]$message)
+    $msg = $message
+    if ($_) { $msg = "$_" }
+    write-warning "[UnitTesting] $msg"
+}
+
 function ensureCopyDirectoryContents {
     param([string]$Path, [string]$Destination)
     copy-item "$Path\*" -recurse -force $Destination -erroraction stop
