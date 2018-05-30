@@ -42,11 +42,21 @@ function ensureRemoveDirectory {
     remove-item "$Path" -recurse -force -erroraction stop
 }
 
-function getLatestTagFromRemote {
+function gitFetchLatestTagFromRepository {
     param([string]$UrlToRepository)
     git ls-remote --tags "$UrlToRepository" | %{$_ -replace ".*/(.*)$", '$1'} `
         | where-object {$_ -notmatch "\^"} |%{[System.Version]$_} `
         | sort | select-object -last 1 | %{ "$_" }
+}
+
+function gitCloneTag {
+    param([string]$Tag, [string]$RepositoryUrl, [string]$Destination)
+    git clone --quiet --depth 1 --branch=$Tag $RepositoryUrl "$Destination" 2>$null
+}
+
+function gitGetHeadRevisionName {
+    param([string]$RepositoryDirectory)
+    git -C $RepositoryDirectory rev-parse HEAD
 }
 
 function getLatestUnitTestingBuildTag {
@@ -56,21 +66,30 @@ function getLatestUnitTestingBuildTag {
         if ($SublimeTextVersion -eq 2) {
             $result = '0.10.6'
         } elseif ($SublimeTextVersion -eq 3) {
-            $result = getLatestTagFromRemote $UrlToUnitTesting
+            $result = gitFetchLatestTagFromRepository $UrlToUnitTesting
         }
     }
     $result
 }
 
-function getLatestCoverageTag {
-    param([string]$Tag, [string]$UrlToCoverage)
-    if ([string]::IsNullOrEmpty($Tag)) { getLatestTagFromRemote $UrlToCoverage }
-    else { $Tag }
+function getRepositoryTag {
+    param([string]$PreferredTag, [string]$RepositoryUrl)
+    if ([string]::IsNullOrEmpty($PreferredTag)) { gitFetchLatestTagFromRepository $RepositoryUrl }
+    else { $PreferredTag }
+}
+
+function cloneRepositoryTag {
+    param([string]$PreferredTag, [string]$RepositoryUrl, [string]$Destination)
+    $Tag = getRepositoryTag $PreferredTag $RepositoryUrl
+    logVerbose "cloning $(split-path $RepositoryUrl -leaf) tag: $Tag into $Destination..."
+    gitCloneTag $Tag $RepositoryUrl $Destination
+    gitGetHeadRevisionName $Destination | logVerbose
+    logVerbose ""
 }
 
 function getLatestColorSchemeUnitTag {
     param([string]$Tag, [string]$UrlToColorSchemeUnit)
-    if ([string]::IsNullOrEmpty($Tag)) { getLatestTagFromRemote $UrlToColorSchemeUnit }
+    if ([string]::IsNullOrEmpty($Tag)) { gitFetchLatestTagFromRepository $UrlToColorSchemeUnit }
     else { $Tag }
 }
 
