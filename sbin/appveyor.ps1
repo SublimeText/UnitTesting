@@ -79,13 +79,28 @@ function Bootstrap {
     # new-item -itemtype directory "$global:SublimeTextPackagesDirectory\$global:PackageUnderTestName" -force >$null
     ensureCreateDirectory $SublimeTextPackagesDirectory
 
-    if ($global:PackageUnderTestName -eq "__all__"){
-        write-verbose "copy all subfolders to sublime package directory"
-        copy * -recurse -force "$global:SublimeTextPackagesDirectory"
+    # if ($global:PackageUnderTestName -eq "__all__"){
+    #     write-verbose "copy all subfolders to sublime package directory"
+    #     copy * -recurse -force "$global:SublimeTextPackagesDirectory"
+    # } else {
+    #     write-verbose "copy the package to sublime text Packages directory"
+    #     copy * -recurse -force "$global:SublimeTextPackagesDirectory\$global:PackageUnderTestName"
+    # }
+
+    # Copy plugin files to Packages/<Package> folder.
+    if ($global:PackageUnderTestName -eq $global:SymbolCopyAll){
+        "XXX copy all"
+        logVerbose "creating directory for package under test at $PackageUnderTestSublimeTextPackagesDirectory..."
+        ensureCreateDirectory $PackageUnderTestSublimeTextPackagesDirectory
+        logVerbose "copying current directory contents to $PackageUnderTestSublimeTextPackagesDirectory..."
+        # TODO: create junctions for all packages.
+        ensureCopyDirectoryContents . $SublimeTextPackagesDirectory
     } else {
-        write-verbose "copy the package to sublime text Packages directory"
-        copy * -recurse -force "$global:SublimeTextPackagesDirectory\$global:PackageUnderTestName"
+        "YYY copy package"
+        logVerbose "creating directory junction to package under test at $PackageUnderTestSublimeTextPackagesDirectory..."
+        ensureCreateDirectoryJunction $PackageUnderTestSublimeTextPackagesDirectory .
     }
+
 
     git config --global advice.detachedHead false
 
