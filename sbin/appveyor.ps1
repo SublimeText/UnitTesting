@@ -110,7 +110,7 @@ function Bootstrap {
     }
 
     $COV_PATH = "$global:SublimeTextPackagesDirectory\coverage"
-    if ($global:IsSublimeTex3) -and (!(test-path -path "$COV_PATH"))){
+    if ($global:IsSublimeText3 -and (!(test-path -path "$COV_PATH"))){
 
         $COV_URL = "https://github.com/codexns/sublime-coverage"
 
@@ -142,7 +142,7 @@ function InstallPackageControl {
 
 function InstallColorSchemeUnit {
     $CSU_PATH = "$global:SublimeTextPackagesDirectory\ColorSchemeUnit"
-    if ($global:IsSublimeTex3) -and (!(test-path -path "$CSU_PATH"))){
+    if ($global:IsSublimeText3 -and (!(test-path -path "$CSU_PATH"))){
         $CSU_URL = "https://github.com/gerardroche/sublime-color-scheme-unit"
 
         if ( ${env:COLOR_SCHEME_UNIT_TAG} -eq $null){
@@ -162,7 +162,7 @@ function InstallColorSchemeUnit {
 
 function InstallKeypress {
     $KP_PATH = "$global:SublimeTextPackagesDirectory\Keypress"
-    if ($global:IsSublimeTex3) -and (!(test-path -path "$KP_PATH"))){
+    if ($global:IsSublimeText3 -and (!(test-path -path "$KP_PATH"))){
         $KP_URL = "https://github.com/randy3k/Keypress"
 
         if ( ${env:KEYPRESS_TAG} -eq $null){
