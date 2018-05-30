@@ -6,6 +6,8 @@ param(
     [switch] $coverage
 )
 
+# TODO: Bootstrap the bootstrapper. See appveyor.ps1.
+
 . $PSScriptRoot\utils.ps1
 $STP = "C:\st\Data\Packages"
 $script:PackageName = $env:PACKAGE
