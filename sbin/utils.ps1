@@ -109,12 +109,12 @@ function ensureValue {
 
 function pathExists {
     param([string]$Path, [switch]$Negate=$False)
-    if (!$Not) { test-path $Path } else { !(test-path $Path) }
+    if (!$Negate) { test-path $Path } else { !(test-path $Path) }
 }
 
 function installPackageForSublimeTextVersion3IfNotPresent {
     param([string]$Path, [string]$PreferredTag, [string]$RepositoryUrl)
-    if ($IsSublimeTextVersion3 -and (pathExists -Negate $Path)) {
+    if ($IsSublimeText3 -and (pathExists -Negate $Path)) {
         cloneRepositoryTag $PreferredTag $RepositoryUrl $Path
     }
 }
