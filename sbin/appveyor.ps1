@@ -70,10 +70,6 @@ if (!$env:UNITTESTING_BOOTSTRAPPED) {
 
 # & $PSScriptRoot\ci.ps1 @PSBoundParameters
 
-ls
-"XXX $SublimeTextPackagesDirectory"
-# $global:SublimeTextPackagesDirectory = $global:SublimeTextPackagesDirectory
-
 function Bootstrap {
     [CmdletBinding()]
     param(
@@ -94,14 +90,12 @@ function Bootstrap {
 
     if (!(test-path -path "$global:UnitTestingSublimeTextPackagesDirectory")){
 
-        $UT_URL = "https://github.com/randy3k/UnitTesting"
-
         if ( ${env:UNITTESTING_TAG} -eq $null){
             if (${env:SUBLIME_TEXT_VERSION} -eq 2) {
                 $UNITTESTING_TAG = "0.10.6"
             } elseif (${env:SUBLIME_TEXT_VERSION} -eq 3) {
                 # the latest tag
-                $UNITTESTING_TAG = git ls-remote --tags $UT_URL | %{$_ -replace ".*/(.*)$", '$1'} `
+                $UNITTESTING_TAG = git ls-remote --tags $global:UnitTestingRepositoryUrl | %{$_ -replace ".*/(.*)$", '$1'} `
                         | where-object {$_ -notmatch "\^"} |%{[System.Version]$_} `
                         | sort | select-object -last 1 | %{ "$_" }
             }
@@ -110,7 +104,7 @@ function Bootstrap {
         }
 
         write-verbose "download UnitTesting tag: $UNITTESTING_TAG"
-        git clone --quiet --depth 1 --branch=$UNITTESTING_TAG $UT_URL "$global:UnitTestingSublimeTextPackagesDirectory" 2>$null
+        git clone --quiet --depth 1 --branch=$UNITTESTING_TAG $global:UnitTestingRepositoryUrl "$global:UnitTestingSublimeTextPackagesDirectory" 2>$null
         git -C "$global:UnitTestingSublimeTextPackagesDirectory" rev-parse HEAD | write-verbose
         write-verbose ""
     }
