@@ -92,7 +92,7 @@ function Bootstrap {
 
     git config --global advice.detachedHead false
 
-    $UT_PATH = "$global:SublimeTextPackagesDirectory\UnitTesting"
+    $UT_PATH = "$global:UnitTestingSublimeTextPackagesDirectory"
     if (!(test-path -path "$UT_PATH")){
 
         $UT_URL = "https://github.com/randy3k/UnitTesting"
