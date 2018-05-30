@@ -91,7 +91,7 @@ function Bootstrap {
     if ($global:PackageUnderTestName -eq $global:SymbolCopyAll){
         "XXX copy all"
         logVerbose "creating directory for package under test at $PackageUnderTestSublimeTextPackagesDirectory..."
-        ensureCreateDirectory $PackageUnderTestSublimeTextPackagesDirectory
+        # ensureCreateDirectory $PackageUnderTestSublimeTextPackagesDirectory
         logVerbose "copying current directory contents to $PackageUnderTestSublimeTextPackagesDirectory..."
         # TODO: create junctions for all packages.
         ensureCopyDirectoryContents . $SublimeTextPackagesDirectory
@@ -126,8 +126,6 @@ function Bootstrap {
     }
 
     if ($global:IsSublimeText3 -and (!(test-path -path "$global:CoverageSublimeTextPackagesDirectory"))){
-
-        $global:SublimeTextCoverageRepositoryUrl = "https://github.com/codexns/sublime-coverage"
 
         if ( ${env:COVERAGE_TAG} -eq $null){
             # the latest tag
