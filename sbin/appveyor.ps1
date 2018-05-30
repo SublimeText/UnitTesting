@@ -70,7 +70,8 @@ if (!$env:UNITTESTING_BOOTSTRAPPED) {
 
 # & $PSScriptRoot\ci.ps1 @PSBoundParameters
 
-$STP = "C:\st\Data\Packages"
+"XXX $SublimeTextPackagesDirectory"
+$STP = $global:SublimeTextPackagesDirectory
 
 function Bootstrap {
     [CmdletBinding()]
