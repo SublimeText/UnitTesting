@@ -92,8 +92,7 @@ function Bootstrap {
 
     git config --global advice.detachedHead false
 
-    $UT_PATH = "$global:UnitTestingSublimeTextPackagesDirectory"
-    if (!(test-path -path "$UT_PATH")){
+    if (!(test-path -path "$global:UnitTestingSublimeTextPackagesDirectory")){
 
         $UT_URL = "https://github.com/randy3k/UnitTesting"
 
@@ -111,8 +110,8 @@ function Bootstrap {
         }
 
         write-verbose "download UnitTesting tag: $UNITTESTING_TAG"
-        git clone --quiet --depth 1 --branch=$UNITTESTING_TAG $UT_URL "$UT_PATH" 2>$null
-        git -C "$UT_PATH" rev-parse HEAD | write-verbose
+        git clone --quiet --depth 1 --branch=$UNITTESTING_TAG $UT_URL "$global:UnitTestingSublimeTextPackagesDirectory" 2>$null
+        git -C "$global:UnitTestingSublimeTextPackagesDirectory" rev-parse HEAD | write-verbose
         write-verbose ""
     }
 
