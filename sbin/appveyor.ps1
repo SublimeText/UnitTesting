@@ -70,8 +70,9 @@ if (!$env:UNITTESTING_BOOTSTRAPPED) {
 
 # & $PSScriptRoot\ci.ps1 @PSBoundParameters
 
+ls
 "XXX $SublimeTextPackagesDirectory"
-$STP = $global:SublimeTextPackagesDirectory
+# $global:SublimeTextPackagesDirectory = $global:SublimeTextPackagesDirectory
 
 function Bootstrap {
     [CmdletBinding()]
@@ -79,19 +80,19 @@ function Bootstrap {
         [switch] $with_color_scheme_unit
     )
 
-    new-item -itemtype directory "$STP\${env:PACKAGE}" -force >$null
+    new-item -itemtype directory "$global:SublimeTextPackagesDirectory\${env:PACKAGE}" -force >$null
 
     if (${env:PACKAGE} -eq "__all__"){
         write-verbose "copy all subfolders to sublime package directory"
-        copy * -recurse -force "$STP"
+        copy * -recurse -force "$global:SublimeTextPackagesDirectory"
     } else {
         write-verbose "copy the package to sublime text Packages directory"
-        copy * -recurse -force "$STP\${env:PACKAGE}"
+        copy * -recurse -force "$global:SublimeTextPackagesDirectory\${env:PACKAGE}"
     }
 
     git config --global advice.detachedHead false
 
-    $UT_PATH = "$STP\UnitTesting"
+    $UT_PATH = "$global:SublimeTextPackagesDirectory\UnitTesting"
     if (!(test-path -path "$UT_PATH")){
 
         $UT_URL = "https://github.com/randy3k/UnitTesting"
@@ -115,7 +116,7 @@ function Bootstrap {
         write-verbose ""
     }
 
-    $COV_PATH = "$STP\coverage"
+    $COV_PATH = "$global:SublimeTextPackagesDirectory\coverage"
     if ((${env:SUBLIME_TEXT_VERSION} -eq 3) -and (!(test-path -path "$COV_PATH"))){
 
         $COV_URL = "https://github.com/codexns/sublime-coverage"
@@ -136,18 +137,18 @@ function Bootstrap {
     }
 
 
-    & "$STP\UnitTesting\sbin\install_sublime_text.ps1" -verbose
+    & "$global:SublimeTextPackagesDirectory\UnitTesting\sbin\install_sublime_text.ps1" -verbose
 
 }
 
 function InstallPackageControl {
-    $COV_PATH = "$STP\coverage"
+    $COV_PATH = "$global:SublimeTextPackagesDirectory\coverage"
     remove-item $COV_PATH -Force -Recurse
-    & "$STP\UnitTesting\sbin\install_package_control.ps1" -verbose
+    & "$global:SublimeTextPackagesDirectory\UnitTesting\sbin\install_package_control.ps1" -verbose
 }
 
 function InstallColorSchemeUnit {
-    $CSU_PATH = "$STP\ColorSchemeUnit"
+    $CSU_PATH = "$global:SublimeTextPackagesDirectory\ColorSchemeUnit"
     if ((${env:SUBLIME_TEXT_VERSION} -eq 3) -and (!(test-path -path "$CSU_PATH"))){
         $CSU_URL = "https://github.com/gerardroche/sublime-color-scheme-unit"
 
@@ -167,7 +168,7 @@ function InstallColorSchemeUnit {
 }
 
 function InstallKeypress {
-    $KP_PATH = "$STP\Keypress"
+    $KP_PATH = "$global:SublimeTextPackagesDirectory\Keypress"
     if ((${env:SUBLIME_TEXT_VERSION} -eq 3) -and (!(test-path -path "$KP_PATH"))){
         $KP_URL = "https://github.com/randy3k/Keypress"
 
@@ -194,13 +195,13 @@ function RunTests {
     )
 
     if ( $syntax_test.IsPresent ){
-        & "$STP\UnitTesting\sbin\run_tests.ps1" "${env:PACKAGE}" -verbose -syntax_test
+        & "$global:SublimeTextPackagesDirectory\UnitTesting\sbin\run_tests.ps1" "${env:PACKAGE}" -verbose -syntax_test
     } elseif ( $color_scheme_test.IsPresent ){
-        & "$STP\UnitTesting\sbin\run_tests.ps1" "${env:PACKAGE}" -verbose -color_scheme_test
+        & "$global:SublimeTextPackagesDirectory\UnitTesting\sbin\run_tests.ps1" "${env:PACKAGE}" -verbose -color_scheme_test
     } elseif ( $coverage.IsPresent ) {
-        & "$STP\UnitTesting\sbin\run_tests.ps1" "${env:PACKAGE}" -verbose -coverage
+        & "$global:SublimeTextPackagesDirectory\UnitTesting\sbin\run_tests.ps1" "${env:PACKAGE}" -verbose -coverage
     } else {
-        & "$STP\UnitTesting\sbin\run_tests.ps1" "${env:PACKAGE}" -verbose
+        & "$global:SublimeTextPackagesDirectory\UnitTesting\sbin\run_tests.ps1" "${env:PACKAGE}" -verbose
     }
 
     stop-process -force -processname sublime_text -ea silentlycontinue
