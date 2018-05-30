@@ -66,15 +66,8 @@ function InstallColorSchemeUnit {
 }
 
 function InstallKeypress {
-    if (($SublimeTextVersion -eq 3) -and (!(test-path -path $KeyPressSublimeTextPackagesDirectory))){
-        if ( $env:KEYPRESS_TAG -eq $null){
-            # the latest tag
-            $KEYPRESS_TAG = git ls-remote --tags $SublimeTextKeyPressRepositoryUrl | %{$_ -replace ".*/(.*)$", '$1'} `
-                    | where-object {$_ -notmatch "\^"} |%{[System.Version]$_} `
-                    | sort | select-object -last 1 | %{ "$_" }
-        } else {
-            $KEYPRESS_TAG = $env:KEYPRESS_TAG
-        }
+    if (($SublimeTextVersion -eq 3) -and (pathExists -Negate $KeyPressSublimeTextPackagesDirectory)) {
+        $KEYPRESS_TAG = getLatestColorSchemeUnitTag $env:KEYPRESS_TAG $SublimeTextKeyPressRepositoryUrl
         logVerbose "download KeyPress tag: $KEYPRESS_TAG"
         git clone --quiet --depth 1 --branch=$KEYPRESS_TAG $SublimeTextKeyPressRepositoryUrl $KeyPressSublimeTextPackagesDirectory 2>$null
         git -C $KeyPressSublimeTextPackagesDirectory rev-parse HEAD | logVerbose
