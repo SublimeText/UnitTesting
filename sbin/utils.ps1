@@ -68,6 +68,12 @@ function getLatestCoverageTag {
     else { $Tag }
 }
 
+function getLatestColorSchemeUnitTag {
+    param([string]$Tag, [string]$UrlToColorSchemeUnit)
+    if ([string]::IsNullOrEmpty($Tag)) { getLatestTagFromRemote $UrlToColorSchemeUnit }
+    else { $Tag }
+}
+
 function ensureCreateDirectoryJunction {
     param([string]$Link, [string]$Target)
     cmd.exe /c mklink /J "$Link" "$Target"

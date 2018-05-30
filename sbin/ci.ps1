@@ -56,20 +56,12 @@ function InstallPackageControl {
 }
 
 function InstallColorSchemeUnit {
-    if (($SublimeTextVersion -eq 3) -and (!(test-path -path $ColorSchemeUnitSublimeTextPackagesDirectory))){
-
-        if ( $env:COLOR_SCHEME_UNIT_TAG -eq $null){
-            # the latest tag
-            $COLOR_SCHEME_UNIT_TAG = git ls-remote --tags $SublimeTextColorSchemeUnitRepositoryUrl | %{$_ -replace ".*/(.*)$", '$1'} `
-                    | where-object {$_ -notmatch "\^"} |%{[System.Version]$_} `
-                    | sort | select-object -last 1 | %{ "$_" }
-        } else {
-            $COLOR_SCHEME_UNIT_TAG = $env:COLOR_SCHEME_UNIT_TAG
-        }
-        write-verbose "download ColorSchemeUnit tag: $COLOR_SCHEME_UNIT_TAG"
+    if (($SublimeTextVersion -eq 3) -and (pathExists -Negate $ColorSchemeUnitSublimeTextPackagesDirectory)) {
+        $COLOR_SCHEME_UNIT_TAG = getLatestColorSchemeUnitTag $env:COLOR_SCHEME_UNIT_TAG $SublimeTextColorSchemeUnitRepositoryUrl
+        logVerbose "download ColorSchemeUnit tag: $COLOR_SCHEME_UNIT_TAG"
         git clone --quiet --depth 1 --branch=$COLOR_SCHEME_UNIT_TAG $SublimeTextColorSchemeUnitRepositoryUrl $ColorSchemeUnitSublimeTextPackagesDirectory 2>$null
-        git -C $ColorSchemeUnitSublimeTextPackagesDirectory rev-parse HEAD | write-verbose
-        write-verbose ""
+        git -C $ColorSchemeUnitSublimeTextPackagesDirectory rev-parse HEAD | logVerbose
+        logVerbose ""
     }
 }
 
