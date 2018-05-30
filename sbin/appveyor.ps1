@@ -89,27 +89,6 @@ function Bootstrap {
         ensureCreateDirectoryJunction $PackageUnderTestSublimeTextPackagesDirectory .
     }
 
-    # if (!(test-path -path "$global:UnitTestingSublimeTextPackagesDirectory")){
-
-    #     if ( ${env:UNITTESTING_TAG} -eq $null){
-    #         if ($global:IsSublimeText2) {
-    #             $UNITTESTING_TAG = "0.10.6"
-    #         } elseif ($global:IsSublimeText3) {
-    #             # the latest tag
-    #             $UNITTESTING_TAG = git ls-remote --tags $global:UnitTestingRepositoryUrl | %{$_ -replace ".*/(.*)$", '$1'} `
-    #                     | where-object {$_ -notmatch "\^"} |%{[System.Version]$_} `
-    #                     | sort | select-object -last 1 | %{ "$_" }
-    #         }
-    #     } else {
-    #         $UNITTESTING_TAG = ${env:UNITTESTING_TAG}
-    #     }
-
-    #     write-verbose "download UnitTesting tag: $UNITTESTING_TAG"
-    #     git clone --quiet --depth 1 --branch=$UNITTESTING_TAG $global:UnitTestingRepositoryUrl "$global:UnitTestingSublimeTextPackagesDirectory" 2>$null
-    #     git -C "$global:UnitTestingSublimeTextPackagesDirectory" rev-parse HEAD | write-verbose
-    #     write-verbose ""
-    # }
-    
     # Clone UnitTesting into Packages/UnitTesting.
     if (pathExists -Negate $UnitTestingSublimeTextPackagesDirectory) {
         $UNITTESTING_TAG = getLatestUnitTestingBuildTag $env:UNITTESTING_TAG $SublimeTextVersion $UnitTestingRepositoryUrl
@@ -120,25 +99,36 @@ function Bootstrap {
     }
 
 
-    if ($global:IsSublimeText3 -and (!(test-path -path "$global:CoverageSublimeTextPackagesDirectory"))){
+    # if ($global:IsSublimeText3 -and (!(test-path -path "$global:CoverageSublimeTextPackagesDirectory"))){
 
-        if ( ${env:COVERAGE_TAG} -eq $null){
-            # the latest tag
-            $COVERAGE_TAG = git ls-remote --tags $global:SublimeTextCoverageRepositoryUrl | %{$_ -replace ".*/(.*)$", '$1'} `
-                    | where-object {$_ -notmatch "\^"} |%{[System.Version]$_} `
-                    | sort | select-object -last 1 | %{ "$_" }
-        } else {
-            $COVERAGE_TAG = ${env:COVERAGE_TAG}
-        }
+    #     if ( ${env:COVERAGE_TAG} -eq $null){
+    #         # the latest tag
+    #         $COVERAGE_TAG = git ls-remote --tags $global:SublimeTextCoverageRepositoryUrl | %{$_ -replace ".*/(.*)$", '$1'} `
+    #                 | where-object {$_ -notmatch "\^"} |%{[System.Version]$_} `
+    #                 | sort | select-object -last 1 | %{ "$_" }
+    #     } else {
+    #         $COVERAGE_TAG = ${env:COVERAGE_TAG}
+    #     }
 
-        write-verbose "download sublime-coverage tag: $COVERAGE_TAG"
-        git clone --quiet --depth 1 --branch=$COVERAGE_TAG $global:SublimeTextCoverageRepositoryUrl "$global:CoverageSublimeTextPackagesDirectory" 2>$null
-        git -C "$global:CoverageSublimeTextPackagesDirectory" rev-parse HEAD | write-verbose
-        write-verbose ""
+    #     write-verbose "download sublime-coverage tag: $COVERAGE_TAG"
+    #     git clone --quiet --depth 1 --branch=$COVERAGE_TAG $global:SublimeTextCoverageRepositoryUrl "$global:CoverageSublimeTextPackagesDirectory" 2>$null
+    #     git -C "$global:CoverageSublimeTextPackagesDirectory" rev-parse HEAD | write-verbose
+    #     write-verbose ""
+    # }
+
+
+    # & "$global:SublimeTextPackagesDirectory\UnitTesting\sbin\install_sublime_text.ps1" -verbose
+    
+    # Clone coverage plugin into Packages/coverage.
+    if ($IsSublimeTextVersion3 -and (pathExists -Negate $CoverageSublimeTextPackagesDirectory)){
+        $COVERAGE_TAG = getLatestCoverageTag $env:COVERAGE_TAG $SublimeTextConverageRepositoryUrl
+        logVerbose "download sublime-coverage tag: $COVERAGE_TAG"
+        git clone --quiet --depth 1 --branch=$COVERAGE_TAG $SublimeTextConverageRepositoryUrl $CoverageSublimeTextPackagesDirectory 2>$null
+        git -C $CoverageSublimeTextPackagesDirectory rev-parse HEAD | write-verbose
+        logVerbose ""
     }
 
-
-    & "$global:SublimeTextPackagesDirectory\UnitTesting\sbin\install_sublime_text.ps1" -verbose
+    & "$UnitTestingSublimeTextPackagesDirectory\sbin\install_sublime_text.ps1" -verbose
 
 }
 
