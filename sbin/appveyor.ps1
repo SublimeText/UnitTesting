@@ -91,9 +91,9 @@ function Bootstrap {
     if (!(test-path -path "$global:UnitTestingSublimeTextPackagesDirectory")){
 
         if ( ${env:UNITTESTING_TAG} -eq $null){
-            if (${env:SUBLIME_TEXT_VERSION} -eq 2) {
+            if ($global:IsSublimeText2) {
                 $UNITTESTING_TAG = "0.10.6"
-            } elseif (${env:SUBLIME_TEXT_VERSION} -eq 3) {
+            } elseif ($global:IsSublimeText3) {
                 # the latest tag
                 $UNITTESTING_TAG = git ls-remote --tags $global:UnitTestingRepositoryUrl | %{$_ -replace ".*/(.*)$", '$1'} `
                         | where-object {$_ -notmatch "\^"} |%{[System.Version]$_} `
@@ -110,7 +110,7 @@ function Bootstrap {
     }
 
     $COV_PATH = "$global:SublimeTextPackagesDirectory\coverage"
-    if ((${env:SUBLIME_TEXT_VERSION} -eq 3) -and (!(test-path -path "$COV_PATH"))){
+    if ($global:IsSublimeTex3) -and (!(test-path -path "$COV_PATH"))){
 
         $COV_URL = "https://github.com/codexns/sublime-coverage"
 
@@ -142,7 +142,7 @@ function InstallPackageControl {
 
 function InstallColorSchemeUnit {
     $CSU_PATH = "$global:SublimeTextPackagesDirectory\ColorSchemeUnit"
-    if ((${env:SUBLIME_TEXT_VERSION} -eq 3) -and (!(test-path -path "$CSU_PATH"))){
+    if ($global:IsSublimeTex3) -and (!(test-path -path "$CSU_PATH"))){
         $CSU_URL = "https://github.com/gerardroche/sublime-color-scheme-unit"
 
         if ( ${env:COLOR_SCHEME_UNIT_TAG} -eq $null){
@@ -162,7 +162,7 @@ function InstallColorSchemeUnit {
 
 function InstallKeypress {
     $KP_PATH = "$global:SublimeTextPackagesDirectory\Keypress"
-    if ((${env:SUBLIME_TEXT_VERSION} -eq 3) -and (!(test-path -path "$KP_PATH"))){
+    if ($global:IsSublimeTex3) -and (!(test-path -path "$KP_PATH"))){
         $KP_URL = "https://github.com/randy3k/Keypress"
 
         if ( ${env:KEYPRESS_TAG} -eq $null){
