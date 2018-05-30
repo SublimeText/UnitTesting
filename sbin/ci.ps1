@@ -11,6 +11,13 @@ param(
 . $PSScriptRoot\ci_config.ps1
 . $PSScriptRoot\utils.ps1
 
+function installPackageForSublimeTextVersion3IfNotPresent {
+    param([string]$Path, [string]$PreferredTag, [string]RepositoryUrl)
+    if ($IsSublimeTextVersion3 -and (pathExists -Negate $Path)) {
+        cloneRepositoryTag $PreferredTag $RepositoryUrl $Path
+    }
+}
+
 function Bootstrap {
     [CmdletBinding()]
     param([switch] $with_color_scheme_unit)
@@ -39,9 +46,7 @@ function Bootstrap {
     }
 
     # Clone coverage plugin into Packages/coverage.
-    if ($IsSublimeTextVersion3 -and (pathExists -Negate $CoverageSublimeTextPackagesDirectory)){
-        cloneRepositoryTag $env:COVERAGE_TAG $ConverageRepositoryUrl $CoverageSublimeTextPackagesDirectory
-    }
+    installPackageForSublimeTextVersion3IfNotPresent $CoverageSublimeTextPackagesDirectory $env:COVERAGE_TAG $ConverageRepositoryUrl
 
     & "$UnitTestingSublimeTextPackagesDirectory\sbin\install_sublime_text.ps1" -verbose
 }
@@ -52,15 +57,11 @@ function InstallPackageControl {
 }
 
 function InstallColorSchemeUnit {
-    if (($SublimeTextVersion -eq 3) -and (pathExists -Negate $ColorSchemeUnitSublimeTextPackagesDirectory)) {
-        cloneRepositoryTag $env:COLOR_SCHEME_UNIT_TAG $ColorSchemeUnitRepositoryUrl $ColorSchemeUnitSublimeTextPackagesDirectory
-    }
+    installPackageForSublimeTextVersion3IfNotPresent $ColorSchemeUnitSublimeTextPackagesDirectory $env:COLOR_SCHEME_UNIT_TAG $ColorSchemeUnitRepositoryUrl
 }
 
 function InstallKeypress {
-    if (($SublimeTextVersion -eq 3) -and (pathExists -Negate $KeyPressSublimeTextPackagesDirectory)) {
-        cloneRepositoryTag $env:KEYPRESS_TAG $KeyPressRepositoryUrl $KeyPressSublimeTextPackagesDirectory
-    }
+    installPackageForSublimeTextVersion3IfNotPresent $KeyPressSublimeTextPackagesDirectory $env:KEYPRESS_TAG $KeyPressRepositoryUrl
 }
 
 function RunTests {
