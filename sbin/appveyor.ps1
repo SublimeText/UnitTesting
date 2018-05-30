@@ -58,6 +58,8 @@ if (!$env:UNITTESTING_BOOTSTRAPPED) {
 
     $encodedDependencies | unPackFile
 
+    . $PSScriptRoot\ci_config.ps1
+
     $env:UNITTESTING_BOOTSTRAPPED = 1
 }
 
