@@ -11,13 +11,6 @@ param(
 . $PSScriptRoot\ci_config.ps1
 . $PSScriptRoot\utils.ps1
 
-function installPackageForSublimeTextVersion3IfNotPresent {
-    param([string]$Path, [string]$PreferredTag, [string]RepositoryUrl)
-    if ($IsSublimeTextVersion3 -and (pathExists -Negate $Path)) {
-        cloneRepositoryTag $PreferredTag $RepositoryUrl $Path
-    }
-}
-
 function Bootstrap {
     [CmdletBinding()]
     param([switch] $with_color_scheme_unit)
@@ -68,14 +61,15 @@ function RunTests {
     [CmdletBinding()]
     param(
         [switch] $syntax_test,
-        [switch] $color_scheme_test
+        [switch] $color_scheme_test,
+        [switch] $coverage,
     )
 
-    if ( $syntax_test.IsPresent ){
+    if ($syntax_test) {
         & "$UnitTestingSublimeTextPackagesDirectory\sbin\run_tests.ps1" "$env:PACKAGE" -verbose -syntax_test
-    } elseif ( $color_scheme_test.IsPresent ){
+    } elseif ($color_scheme_test) {
         & "$UnitTestingSublimeTextPackagesDirectory\sbin\run_tests.ps1" "$env:PACKAGE" -verbose -color_scheme_test
-    } elseif ( $coverage.IsPresent ) {
+    } elseif ($coverage) {
         & "$UnitTestingSublimeTextPackagesDirectory\sbin\run_tests.ps1" "$env:PACKAGE" -verbose -coverage
     } else {
         & "$UnitTestingSublimeTextPackagesDirectory\sbin\run_tests.ps1" "$env:PACKAGE" -verbose
@@ -87,13 +81,13 @@ function RunTests {
 
 try{
     switch ($command){
-        "bootstrap" { Bootstrap }
-        "install_package_control" { InstallPackageControl }
-        "install_color_scheme_unit" { InstallColorSchemeUnit }
-        "install_keypresss" { InstallKeypress }
-        "run_tests" { RunTests }
-        "run_syntax_tests" { RunTests -syntax_test}
-        "run_color_scheme_tests" { RunTests -color_scheme_test}
+        'bootstrap' { Bootstrap }
+        'install_package_control' { InstallPackageControl }
+        'install_color_scheme_unit' { InstallColorSchemeUnit }
+        'install_keypresss' { InstallKeypress }
+        'run_tests' { RunTests -coverage:$coverage }
+        'run_syntax_tests' { RunTests -syntax_test}
+        'run_color_scheme_tests' { RunTests -color_scheme_test}
     }
 }catch {
     throw $_
