@@ -22,9 +22,9 @@ makeGlobalConstant ColorSchemeUnitSublimeTextPackagesDirectory (join-path $Subli
 makeGlobalConstant KeyPressSublimeTextPackagesDirectory (join-path $SublimeTextPackagesDirectory 'Keypress')
 makeGlobalConstant SublimeTextVersion (ensureValue $env:SUBLIME_TEXT_VERSION '^2|3$' -message "the environment variable SUBLIME_TEXT_VERSION must be set to '2' or '3'")
 makeGlobalConstant UnitTestingRepositoryUrl "https://github.com/randy3k/UnitTesting"
-makeGlobalConstant SublimeTextCoverageRepositoryUrl "https://github.com/codexns/sublime-coverage"
-makeGlobalConstant SublimeTextColorSchemeUnitRepositoryUrl "https://github.com/gerardroche/sublime-color-scheme-unit"
-makeGlobalConstant SublimeTextKeyPressRepositoryUrl "https://github.com/randy3k/Keypress"
+makeGlobalConstant CoverageRepositoryUrl "https://github.com/codexns/sublime-coverage"
+makeGlobalConstant ColorSchemeUnitRepositoryUrl "https://github.com/gerardroche/sublime-color-scheme-unit"
+makeGlobalConstant KeyPressRepositoryUrl "https://github.com/randy3k/Keypress"
 makeGlobalConstant IsSublimeText3 ($SublimeTextVersion -eq 3)
 makeGlobalConstant IsSublimeText2 ($SublimeTextVersion -eq 2)
 

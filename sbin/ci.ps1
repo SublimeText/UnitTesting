@@ -40,9 +40,9 @@ function Bootstrap {
 
     # Clone coverage plugin into Packages/coverage.
     if ($IsSublimeTextVersion3 -and (pathExists -Negate $CoverageSublimeTextPackagesDirectory)){
-        $COVERAGE_TAG = getLatestCoverageTag $env:COVERAGE_TAG $SublimeTextConverageRepositoryUrl
+        $COVERAGE_TAG = getLatestCoverageTag $env:COVERAGE_TAG $ConverageRepositoryUrl
         logVerbose "download sublime-coverage tag: $COVERAGE_TAG"
-        git clone --quiet --depth 1 --branch=$COVERAGE_TAG $SublimeTextConverageRepositoryUrl $CoverageSublimeTextPackagesDirectory 2>$null
+        git clone --quiet --depth 1 --branch=$COVERAGE_TAG $ConverageRepositoryUrl $CoverageSublimeTextPackagesDirectory 2>$null
         git -C $CoverageSublimeTextPackagesDirectory rev-parse HEAD | write-verbose
         logVerbose ""
     }
@@ -57,9 +57,9 @@ function InstallPackageControl {
 
 function InstallColorSchemeUnit {
     if (($SublimeTextVersion -eq 3) -and (pathExists -Negate $ColorSchemeUnitSublimeTextPackagesDirectory)) {
-        $COLOR_SCHEME_UNIT_TAG = getLatestColorSchemeUnitTag $env:COLOR_SCHEME_UNIT_TAG $SublimeTextColorSchemeUnitRepositoryUrl
+        $COLOR_SCHEME_UNIT_TAG = getLatestColorSchemeUnitTag $env:COLOR_SCHEME_UNIT_TAG $ColorSchemeUnitRepositoryUrl
         logVerbose "download ColorSchemeUnit tag: $COLOR_SCHEME_UNIT_TAG"
-        git clone --quiet --depth 1 --branch=$COLOR_SCHEME_UNIT_TAG $SublimeTextColorSchemeUnitRepositoryUrl $ColorSchemeUnitSublimeTextPackagesDirectory 2>$null
+        git clone --quiet --depth 1 --branch=$COLOR_SCHEME_UNIT_TAG $ColorSchemeUnitRepositoryUrl $ColorSchemeUnitSublimeTextPackagesDirectory 2>$null
         git -C $ColorSchemeUnitSublimeTextPackagesDirectory rev-parse HEAD | logVerbose
         logVerbose ""
     }
@@ -67,9 +67,9 @@ function InstallColorSchemeUnit {
 
 function InstallKeypress {
     if (($SublimeTextVersion -eq 3) -and (pathExists -Negate $KeyPressSublimeTextPackagesDirectory)) {
-        $KEYPRESS_TAG = getLatestColorSchemeUnitTag $env:KEYPRESS_TAG $SublimeTextKeyPressRepositoryUrl
+        $KEYPRESS_TAG = getLatestColorSchemeUnitTag $env:KEYPRESS_TAG $KeyPressRepositoryUrl
         logVerbose "download KeyPress tag: $KEYPRESS_TAG"
-        git clone --quiet --depth 1 --branch=$KEYPRESS_TAG $SublimeTextKeyPressRepositoryUrl $KeyPressSublimeTextPackagesDirectory 2>$null
+        git clone --quiet --depth 1 --branch=$KEYPRESS_TAG $KeyPressRepositoryUrl $KeyPressSublimeTextPackagesDirectory 2>$null
         git -C $KeyPressSublimeTextPackagesDirectory rev-parse HEAD | logVerbose
         logVerbose ""
     }
