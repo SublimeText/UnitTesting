@@ -76,7 +76,8 @@ function Bootstrap {
         [switch] $with_color_scheme_unit
     )
 
-    new-item -itemtype directory "$global:SublimeTextPackagesDirectory\$global:PackageUnderTestName" -force >$null
+    # new-item -itemtype directory "$global:SublimeTextPackagesDirectory\$global:PackageUnderTestName" -force >$null
+    ensureCreateDirectory $SublimeTextPackagesDirectory
 
     if ($global:PackageUnderTestName -eq "__all__"){
         write-verbose "copy all subfolders to sublime package directory"
@@ -111,11 +112,11 @@ function Bootstrap {
 
     if ($global:IsSublimeText3 -and (!(test-path -path "$global:CoverageSublimeTextPackagesDirectory"))){
 
-        $COV_URL = "https://github.com/codexns/sublime-coverage"
+        $global:SublimeTextCoverageRepositoryUrl = "https://github.com/codexns/sublime-coverage"
 
         if ( ${env:COVERAGE_TAG} -eq $null){
             # the latest tag
-            $COVERAGE_TAG = git ls-remote --tags $COV_URL | %{$_ -replace ".*/(.*)$", '$1'} `
+            $COVERAGE_TAG = git ls-remote --tags $global:SublimeTextCoverageRepositoryUrl | %{$_ -replace ".*/(.*)$", '$1'} `
                     | where-object {$_ -notmatch "\^"} |%{[System.Version]$_} `
                     | sort | select-object -last 1 | %{ "$_" }
         } else {
@@ -123,7 +124,7 @@ function Bootstrap {
         }
 
         write-verbose "download sublime-coverage tag: $COVERAGE_TAG"
-        git clone --quiet --depth 1 --branch=$COVERAGE_TAG $COV_URL "$global:CoverageSublimeTextPackagesDirectory" 2>$null
+        git clone --quiet --depth 1 --branch=$COVERAGE_TAG $global:SublimeTextCoverageRepositoryUrl "$global:CoverageSublimeTextPackagesDirectory" 2>$null
         git -C "$global:CoverageSublimeTextPackagesDirectory" rev-parse HEAD | write-verbose
         write-verbose ""
     }
