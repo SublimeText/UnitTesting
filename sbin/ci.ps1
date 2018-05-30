@@ -7,9 +7,10 @@ param(
 )
 
 # TODO: Bootstrap the bootstrapper. See appveyor.ps1.
+$global:UnitTestingPowerShellScriptsDirectory = $env:TEMP
 
-. $PSScriptRoot\ci_config.ps1
-. $PSScriptRoot\utils.ps1
+. $UnitTestingPowerShellScriptsDirectory\ci_config.ps1
+. $UnitTestingPowerShellScriptsDirectory\utils.ps1
 
 function Bootstrap {
     [CmdletBinding()]
@@ -62,7 +63,7 @@ function RunTests {
     param(
         [switch] $syntax_test,
         [switch] $color_scheme_test,
-        [switch] $coverage,
+        [switch] $coverage
     )
 
     if ($syntax_test) {

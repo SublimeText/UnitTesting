@@ -113,7 +113,7 @@ function pathExists {
 }
 
 function installPackageForSublimeTextVersion3IfNotPresent {
-    param([string]$Path, [string]$PreferredTag, [string]RepositoryUrl)
+    param([string]$Path, [string]$PreferredTag, [string]$RepositoryUrl)
     if ($IsSublimeTextVersion3 -and (pathExists -Negate $Path)) {
         cloneRepositoryTag $PreferredTag $RepositoryUrl $Path
     }
