@@ -119,8 +119,10 @@ function Bootstrap {
 
     # & "$global:SublimeTextPackagesDirectory\UnitTesting\sbin\install_sublime_text.ps1" -verbose
 
+    logWarning "about to download coverage..."
     # Clone coverage plugin into Packages/coverage.
     if ($global:IsSublimeText3 -and (pathExists -Negate $global:CoverageSublimeTextPackagesDirectory)){
+        logWarning "downloading coverage..."
         $COVERAGE_TAG = getLatestCoverageTag $env:COVERAGE_TAG $global:SublimeTextConverageRepositoryUrl
         logVerbose "download sublime-coverage tag: $COVERAGE_TAG"
         git clone --quiet --depth 1 --branch=$COVERAGE_TAG $global:SublimeTextConverageRepositoryUrl $global:CoverageSublimeTextPackagesDirectory 2>$null
