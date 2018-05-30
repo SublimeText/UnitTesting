@@ -79,51 +79,46 @@ function Bootstrap {
     # new-item -itemtype directory "$global:SublimeTextPackagesDirectory\$global:PackageUnderTestName" -force >$null
     ensureCreateDirectory $SublimeTextPackagesDirectory
 
-    # if ($global:PackageUnderTestName -eq "__all__"){
-    #     write-verbose "copy all subfolders to sublime package directory"
-    #     copy * -recurse -force "$global:SublimeTextPackagesDirectory"
-    # } else {
-    #     write-verbose "copy the package to sublime text Packages directory"
-    #     copy * -recurse -force "$global:SublimeTextPackagesDirectory\$global:PackageUnderTestName"
-    # }
-
     # Copy plugin files to Packages/<Package> folder.
     if ($global:PackageUnderTestName -eq $global:SymbolCopyAll){
-        "XXX copy all"
-        logVerbose "creating directory for package under test at $PackageUnderTestSublimeTextPackagesDirectory..."
-        # ensureCreateDirectory $PackageUnderTestSublimeTextPackagesDirectory
         logVerbose "copying current directory contents to $PackageUnderTestSublimeTextPackagesDirectory..."
         # TODO: create junctions for all packages.
         ensureCopyDirectoryContents . $SublimeTextPackagesDirectory
     } else {
-        "YYY copy package"
         logVerbose "creating directory junction to package under test at $PackageUnderTestSublimeTextPackagesDirectory..."
         ensureCreateDirectoryJunction $PackageUnderTestSublimeTextPackagesDirectory .
     }
 
+    # if (!(test-path -path "$global:UnitTestingSublimeTextPackagesDirectory")){
 
-    git config --global advice.detachedHead false
+    #     if ( ${env:UNITTESTING_TAG} -eq $null){
+    #         if ($global:IsSublimeText2) {
+    #             $UNITTESTING_TAG = "0.10.6"
+    #         } elseif ($global:IsSublimeText3) {
+    #             # the latest tag
+    #             $UNITTESTING_TAG = git ls-remote --tags $global:UnitTestingRepositoryUrl | %{$_ -replace ".*/(.*)$", '$1'} `
+    #                     | where-object {$_ -notmatch "\^"} |%{[System.Version]$_} `
+    #                     | sort | select-object -last 1 | %{ "$_" }
+    #         }
+    #     } else {
+    #         $UNITTESTING_TAG = ${env:UNITTESTING_TAG}
+    #     }
 
-    if (!(test-path -path "$global:UnitTestingSublimeTextPackagesDirectory")){
-
-        if ( ${env:UNITTESTING_TAG} -eq $null){
-            if ($global:IsSublimeText2) {
-                $UNITTESTING_TAG = "0.10.6"
-            } elseif ($global:IsSublimeText3) {
-                # the latest tag
-                $UNITTESTING_TAG = git ls-remote --tags $global:UnitTestingRepositoryUrl | %{$_ -replace ".*/(.*)$", '$1'} `
-                        | where-object {$_ -notmatch "\^"} |%{[System.Version]$_} `
-                        | sort | select-object -last 1 | %{ "$_" }
-            }
-        } else {
-            $UNITTESTING_TAG = ${env:UNITTESTING_TAG}
-        }
-
-        write-verbose "download UnitTesting tag: $UNITTESTING_TAG"
-        git clone --quiet --depth 1 --branch=$UNITTESTING_TAG $global:UnitTestingRepositoryUrl "$global:UnitTestingSublimeTextPackagesDirectory" 2>$null
-        git -C "$global:UnitTestingSublimeTextPackagesDirectory" rev-parse HEAD | write-verbose
-        write-verbose ""
+    #     write-verbose "download UnitTesting tag: $UNITTESTING_TAG"
+    #     git clone --quiet --depth 1 --branch=$UNITTESTING_TAG $global:UnitTestingRepositoryUrl "$global:UnitTestingSublimeTextPackagesDirectory" 2>$null
+    #     git -C "$global:UnitTestingSublimeTextPackagesDirectory" rev-parse HEAD | write-verbose
+    #     write-verbose ""
+    # }
+    
+    # Clone UnitTesting into Packages/UnitTesting.
+    if (pathExists -Negate $UnitTestingSublimeTextPackagesDirectory) {
+        $UNITTESTING_TAG = getLatestUnitTestingBuildTag $env:UNITTESTING_TAG $SublimeTextVersion $UnitTestingRepositoryUrl
+        logVerbose "download UnitTesting tag: $UNITTESTING_TAG"
+        git clone --quiet --depth 1 --branch=$UNITTESTING_TAG $UnitTestingRepositoryUrl "$UnitTestingSublimeTextPackagesDirectory" 2>$null
+        git -C "$UnitTestingSublimeTextPackagesDirectory" rev-parse HEAD | logVerbose
+        logVerbose ""
     }
+
 
     if ($global:IsSublimeText3 -and (!(test-path -path "$global:CoverageSublimeTextPackagesDirectory"))){
 
