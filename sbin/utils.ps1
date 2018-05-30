@@ -84,5 +84,5 @@ function ensureValue {
 
 function pathExists {
     param([string]$Path, [switch]$Negate=$False)
-    if (!$Not) { test-path $Path } else { !(test-path $Path) }
+    if (!$Negate) { test-path $Path } else { !(test-path $Path) }
 }
