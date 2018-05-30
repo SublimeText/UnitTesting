@@ -109,8 +109,7 @@ function Bootstrap {
         write-verbose ""
     }
 
-    $COV_PATH = "$global:SublimeTextPackagesDirectory\coverage"
-    if ($global:IsSublimeText3 -and (!(test-path -path "$COV_PATH"))){
+    if ($global:IsSublimeText3 -and (!(test-path -path "$global:CoverageSublimeTextPackagesDirectory"))){
 
         $COV_URL = "https://github.com/codexns/sublime-coverage"
 
@@ -124,8 +123,8 @@ function Bootstrap {
         }
 
         write-verbose "download sublime-coverage tag: $COVERAGE_TAG"
-        git clone --quiet --depth 1 --branch=$COVERAGE_TAG $COV_URL "$COV_PATH" 2>$null
-        git -C "$COV_PATH" rev-parse HEAD | write-verbose
+        git clone --quiet --depth 1 --branch=$COVERAGE_TAG $COV_URL "$global:CoverageSublimeTextPackagesDirectory" 2>$null
+        git -C "$global:CoverageSublimeTextPackagesDirectory" rev-parse HEAD | write-verbose
         write-verbose ""
     }
 
@@ -135,8 +134,8 @@ function Bootstrap {
 }
 
 function InstallPackageControl {
-    $COV_PATH = "$global:SublimeTextPackagesDirectory\coverage"
-    remove-item $COV_PATH -Force -Recurse
+    $global:CoverageSublimeTextPackagesDirectory = "$global:SublimeTextPackagesDirectory\coverage"
+    remove-item $global:CoverageSublimeTextPackagesDirectory -Force -Recurse
     & "$global:SublimeTextPackagesDirectory\UnitTesting\sbin\install_package_control.ps1" -verbose
 }
 
