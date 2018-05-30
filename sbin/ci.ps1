@@ -11,13 +11,6 @@ param(
 . $PSScriptRoot\ci_config.ps1
 . $PSScriptRoot\utils.ps1
 
-function installPackageForSublimeTextVersion3IfNotPresent {
-    param([string]$Path, [string]$PreferredTag, [string]RepositoryUrl)
-    if ($IsSublimeTextVersion3 -and (pathExists -Negate $Path)) {
-        cloneRepositoryTag $PreferredTag $RepositoryUrl $Path
-    }
-}
-
 function Bootstrap {
     [CmdletBinding()]
     param([switch] $with_color_scheme_unit)
