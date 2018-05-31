@@ -29,6 +29,11 @@ filter logWarning {
     write-warning (toLogMessage (eitherOr $_ $message))
 }
 
+filter logError {
+    param([string]$message)
+    write-error (toLogMessage (eitherOr $_ $message))
+}
+
 function ensureCopyDirectoryContents {
     param([string]$Path, [string]$Destination)
     copy-item "$Path\*" -recurse -force $Destination -erroraction stop
