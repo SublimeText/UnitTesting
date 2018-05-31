@@ -16,6 +16,21 @@ filter convertToBase64String {
     [System.Convert]::ToBase64String($utf8.GetBytes($content))
 }
 
+filter prettify {
+    param([string]$content)
+    $pretty = [System.Collections.ArrayList]::new()
+    $theContent = eitherOr $_ $content
+    $lineLength = 0
+    foreach ($c in $theContent.ToCharArray()) {
+        if (($lineLength -gt 0) -and ($lineLength % 80 -eq 0)) {
+            $pretty.Add([char]"`n") > $null
+        }
+        $pretty.Add($c) > $null
+        ++$lineLength
+    }
+    "$($pretty -join '')"
+}
+
 filter convertFromBase64String {
     param([string]$content)
     $theContent = if ($_) { $_ } else { $content }
@@ -36,12 +51,13 @@ function packFile {
     param($Path)
     $name = split-path $Path -leaf
     $base64encodedContent = $Path | convertToBase64String
-    "$name@@@$base64encodedContent"
+    "$name@@@$base64encodedContent" | prettify
 }
 
 function unPackFile {
     param($Content)
-    $elements = @($Content -split '@@@')
+    # de-prettify and split
+    $elements = @(($Content -replace '\n','') -split '@@@')
     for ($i = 0; $i -lt $elements.length; $i = $i + 2) {
         createTextFile (join-path (convert-path .) ".\$($elements[$i])") ($elements[$i+1] | convertFromBase64String)
     }
@@ -54,9 +70,9 @@ if (!$AsCodeSnippet) {
 } else {
 @"
 `$local:encodedDependencies = @(
-    '$(packFile "$basePath\..\utils.ps1")',
-    '$(packFile "$basePath\..\ci.ps1")',
-    '$(packFile "$basePath\..\ci_config.ps1")'
-    )
+'$(packFile "$basePath\..\utils.ps1")',
+'$(packFile "$basePath\..\ci.ps1")',
+'$(packFile "$basePath\..\ci_config.ps1")'
+)
 "@
 }
