@@ -98,48 +98,15 @@ function Bootstrap {
         logVerbose ""
     }
 
-
     if ($global:IsSublimeText3 -and (pathExists -negate $global:CoverageSublimeTextPackagesDirectory)) {
         logWarning "downloading coverage tag..."
-        logWarning "`$env:COVERAGE_TAG: $env:COVERAGE_TAG is null: $($env:COVERAGE_TAG -eq $null)..."
         $COVERAGE_TAG = getLatestCoverageTag $env:COVERAGE_TAG $global:SublimeTextCoverageRepositoryUrl
 
-        logWarning "using `$COVERAGE_TAG: $COVERAGE_TAG is null: $($COVERAGE_TAG -eq $null)..."
-        logWarning "using `$global:SublimeTextCoverageRepositoryUrl: $global:SublimeTextCoverageRepositoryUrl is null: $($global:SublimeTextCoverageRepositoryUrl -eq $null)..."
-        write-verbose "download sublime-coverage tag: $COVERAGE_TAG"
+        logVerbose "download sublime-coverage tag: $COVERAGE_TAG"
         git clone --quiet --depth 1 --branch=$COVERAGE_TAG $global:SublimeTextCoverageRepositoryUrl "$global:CoverageSublimeTextPackagesDirectory" 2>$null
         git -C "$global:CoverageSublimeTextPackagesDirectory" rev-parse HEAD | write-verbose
-        write-verbose ""
+        logVerbose ""
     }
-
-
-    # & "$global:SublimeTextPackagesDirectory\UnitTesting\sbin\install_sublime_text.ps1" -verbose
-
-    # logWarning "about to download coverage..."
-    # # # Clone coverage plugin into Packages/coverage.
-    # if ($global:IsSublimeText3 -and (pathExists -Negate $global:CoverageSublimeTextPackagesDirectory)) {
-    #     logWarning "downloading coverage..."
-    #     # $COVERAGE_TAG = getLatestCoverageTag $env:COVERAGE_TAG $global:SublimeTextConverageRepositoryUrl
-    #     if ( ${env:COVERAGE_TAG} -eq $null){
-    #         # the latest tag
-    #         $COVERAGE_TAG = git ls-remote --tags $global:SublimeTextCoverageRepositoryUrl | %{$_ -replace ".*/(.*)$", '$1'} `
-    #                 | where-object {$_ -notmatch "\^"} |%{[System.Version]$_} `
-    #                 | sort | select-object -last 1 | %{ "$_" }
-    #     } else {
-    #         $COVERAGE_TAG = ${env:COVERAGE_TAG}
-    #     }
-    #     $COVERAGE_TAG2 = getLatestCoverageTag $env:COVERAGE_TAG $global:SublimeTextConverageRepositoryUrl
-    #     logVerbose "tags are equal $($COVERAGE_TAG -eq $COVERAGE_TAG2), $COVERAGE_TAG | $COVERAGE_TAG2"
-    #     # logVerbose "TAG: $COVERAGE_TAG"
-    #     # logVerbose "download sublime-coverage tag: $COVERAGE_TAG"
-    #     # git clone --quiet --depth 1 --branch=$COVERAGE_TAG $global:SublimeTextConverageRepositoryUrl "$global:CoverageSublimeTextPackagesDirectory" 2>$null
-    #     # git -C "$global:CoverageSublimeTextPackagesDirectory" rev-parse HEAD | logVerbose
-    #     # logVerbose ""
-    #     write-verbose "download sublime-coverage tag: $COVERAGE_TAG"
-    #     git clone --quiet --depth 1 --branch=$COVERAGE_TAG $global:SublimeTextCoverageRepositoryUrl "$global:CoverageSublimeTextPackagesDirectory" 2>$null
-    #     git -C "$global:CoverageSublimeTextPackagesDirectory" rev-parse HEAD | write-verbose
-    #     write-verbose ""
-    # }
 
     & "$global:UnitTestingSublimeTextPackagesDirectory\sbin\install_sublime_text.ps1" -verbose
 
