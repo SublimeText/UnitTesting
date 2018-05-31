@@ -1,5 +1,6 @@
 . $PSScriptRoot\utils.ps1
 
+# We must set constants only once.
 if (!$env:UNITTESTING_BOOTSTRAPPED) {
     function local:makeGlobalConstant {
         param([string]$Name, $Value)
@@ -11,25 +12,30 @@ if (!$env:UNITTESTING_BOOTSTRAPPED) {
     # TODO: If we used directory junctions here too, we wouldn't need this?
     # This constant means that the entire contents of the source directory must be copied to the target directory.
     makeGlobalConstant SymbolCopyAll '__all__'
+
+    makeGlobalConstant SublimeTextVersion (ensureValue $env:SUBLIME_TEXT_VERSION '^2|3$' -message "the environment variable SUBLIME_TEXT_VERSION must be set to '2' or '3'")
+    makeGlobalConstant IsSublimeTextVersion3 ($SublimeTextVersion -eq 3)
+    makeGlobalConstant IsSublimeTextVersion2 ($SublimeTextVersion -eq 2)
     makeGlobalConstant SublimeTextDirectory (eitherOr $env:SUBLIME_TEXT_DIRECTORY "C:\st")
-    makeGlobalConstant SublimeTextPackagesDirectory (eitherOr $env:SUBLIME_TEXT_PACKAGES_DIRECTORY "C:\st\Data\Packages")
+    makeGlobalConstant SublimeTextExecutableHelperPath (join-path $SublimeTextDirectory 'subl.exe')
     makeGlobalConstant SublimeTextExecutablePath (join-path $SublimeTextDirectory 'sublime_text.exe')
+    makeGlobalConstant SublimeTextPackagesDirectory (eitherOr $env:SUBLIME_TEXT_PACKAGES_DIRECTORY "C:\st\Data\Packages")
+    # TODO: For compatibility; remove when not used anymore.
     $global:STP = $SublimeTextPackagesDirectory
-    makeGlobalConstant PackageUnderTestName (ensureValue $env:PACKAGE -message "the environment variable PACKAGE is not set")
+
+    makeGlobalConstant PackageUnderTestName (ensureValue (eitherOr $env:UNITTESTING_PACKAGE_UNDER_TEST_NAME $env:PACKAGE) -message "the environment variable UNITTESTING_PACKAGE_UNDER_TEST_NAME (or alternatively, PACKAGE) is not set")
     # TODO: For compatibility; remove when not used anymore.
     makeGlobalConstant PackageName $PackageUnderTestName
     makeGlobalConstant PackageUnderTestSublimeTextPackagesDirectory (join-path $SublimeTextPackagesDirectory $PackageUnderTestName)
-    makeGlobalConstant UnitTestingSublimeTextPackagesDirectory (join-path $SublimeTextPackagesDirectory 'UnitTesting')
-    makeGlobalConstant CoverageSublimeTextPackagesDirectory (join-path $SublimeTextPackagesDirectory 'coverage')
-    makeGlobalConstant ColorSchemeUnitSublimeTextPackagesDirectory (join-path $SublimeTextPackagesDirectory 'ColorSchemeUnit')
-    makeGlobalConstant KeyPressSublimeTextPackagesDirectory (join-path $SublimeTextPackagesDirectory 'Keypress')
-    makeGlobalConstant SublimeTextVersion (ensureValue $env:SUBLIME_TEXT_VERSION '^2|3$' -message "the environment variable SUBLIME_TEXT_VERSION must be set to '2' or '3'")
-    makeGlobalConstant UnitTestingRepositoryUrl "https://github.com/randy3k/UnitTesting"
-    makeGlobalConstant CoverageRepositoryUrl "https://github.com/codexns/sublime-coverage"
+
     makeGlobalConstant ColorSchemeUnitRepositoryUrl "https://github.com/gerardroche/sublime-color-scheme-unit"
+    makeGlobalConstant ColorSchemeUnitSublimeTextPackagesDirectory (join-path $SublimeTextPackagesDirectory 'ColorSchemeUnit')
+    makeGlobalConstant CoverageRepositoryUrl "https://github.com/codexns/sublime-coverage"
+    makeGlobalConstant CoverageSublimeTextPackagesDirectory (join-path $SublimeTextPackagesDirectory 'coverage')
     makeGlobalConstant KeyPressRepositoryUrl "https://github.com/randy3k/Keypress"
-    makeGlobalConstant IsSublimeText3 ($SublimeTextVersion -eq 3)
-    makeGlobalConstant IsSublimeText2 ($SublimeTextVersion -eq 2)
+    makeGlobalConstant KeyPressSublimeTextPackagesDirectory (join-path $SublimeTextPackagesDirectory 'Keypress')
+    makeGlobalConstant UnitTestingRepositoryUrl "https://github.com/randy3k/UnitTesting"
+    makeGlobalConstant UnitTestingSublimeTextPackagesDirectory (join-path $SublimeTextPackagesDirectory 'UnitTesting')
 
     # TODO: Is this specific to the CI service?
     # Supress some git warnings
