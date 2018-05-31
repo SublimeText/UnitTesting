@@ -12,9 +12,9 @@ environment:
         - PCINSTALL: true
 
 install:
-    - ps: .\sbin\appveyor.ps1 "bootstrap" -verbose
-    - ps: .\sbin\appveyor.ps1 "install_color_scheme_unit" -verbose
-    - ps: if (${env:PCINSTALL} -eq $true) { .\sbin\appveyor.ps1 "install_package_control" -verbose }
+    - ps: .\sbin\ci.ps1 "bootstrap" -verbose
+    - ps: .\sbin\ci.ps1 "install_color_scheme_unit" -verbose
+    - ps: if (${env:PCINSTALL} -eq $true) { .\sbin\ci.ps1 "install_package_control" -verbose }
 
 build: off
 
