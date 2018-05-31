@@ -6,7 +6,6 @@ param(
     [switch] $coverage
 )
 
-# TODO: Bootstrap the bootstrapper. See appveyor.ps1.
 $global:UnitTestingPowerShellScriptsDirectory = $env:TEMP
 
 # Scripts other than the bootstrapper are located here.
@@ -169,7 +168,7 @@ YWNoZWRIZWFkIGZhbHNlCn0='
         # de-prettify and split
         $elements = @(($theContent -replace '\n','') -split '@@@')
         for ($i = 0; $i -lt $elements.length; $i = $i + 2) {
-            createTextFile (join-path (convert-path .) $elements[$i]) ($elements[$i+1] | convertFromBase64String) -force
+            createTextFile (join-path (convert-path .) $elements[$i]) ($elements[$i+1] | convertFromBase64String)
         }
     }
 
@@ -188,7 +187,6 @@ YWNoZWRIZWFkIGZhbHNlCn0='
     $env:UNITTESTING_BOOTSTRAPPED = 1
 }
 
-. $UnitTestingPowerShellScriptsDirectory\ci_config.ps1
 . $UnitTestingPowerShellScriptsDirectory\utils.ps1
 
 function Bootstrap {
@@ -230,7 +228,7 @@ function Bootstrap {
 }
 
 function InstallPackageControl {
-    remove-item $CoverageSublimeTextPackagesDirectory -Force -Recurse
+    ensureRemoveDirectory $CoverageSublimeTextPackagesDirectory
     & "$UnitTestingSublimeTextPackagesDirectory\sbin\install_package_control.ps1" -verbose
 }
 

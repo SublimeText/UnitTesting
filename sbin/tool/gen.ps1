@@ -1,4 +1,4 @@
-# generates base64-encoded verions of files
+# generates base64-encoded versions of files
 param([switch]$AsCodeSnippet)
 
 $basePath = convert-path $PSScriptRoot

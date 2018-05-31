@@ -42,7 +42,7 @@ function ensureCopyDirectoryContents {
 
 function ensureRemoveDirectory {
     param([string]$Path)
-    if ([System.IO.Path.File].Exists((convert-path $Path))) {
+    if ([System.IO.File].Exists((convert-path $Path))) {
         throw "expected a directory, got a file: $Path"
     }
     remove-item "$Path" -recurse -force -erroraction stop
