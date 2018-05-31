@@ -101,19 +101,19 @@ function Bootstrap {
 
     if ($global:IsSublimeText3 -and (!(test-path -path "$global:CoverageSublimeTextPackagesDirectory"))){
         logWarning "downloading coverage tag..."
-        logWarning "`$env:COVERAGE_TAG: $env:COVERAGE_TAG $(is null: $env:COVERAGE_TAG eq $null)..."
+        logWarning "`$env:COVERAGE_TAG: $env:COVERAGE_TAG is null: $($env:COVERAGE_TAG 0eq $null)..."
         if (${env:COVERAGE_TAG} -eq $null){
             # the latest tag
             $COVERAGE_TAG = git ls-remote --tags $global:SublimeTextCoverageRepositoryUrl | %{$_ -replace ".*/(.*)$", '$1'} `
                     | where-object {$_ -notmatch "\^"} |%{[System.Version]$_} `
                     | sort | select-object -last 1 | %{ "$_" }
-            logWarning "found `$COVERAGE_TAG: $COVERAGE_TAG $(is null: $COVERAGE_TAG eq $null)..."
+            logWarning "found `$COVERAGE_TAG: $COVERAGE_TAG is null: $($COVERAGE_TAG -eq $null)..."
         } else {
             $COVERAGE_TAG = ${env:COVERAGE_TAG}
         }
 
-        logWarning "using `$COVERAGE_TAG: $COVERAGE_TAG $(is null: $COVERAGE_TAG eq $null)..."
-        logWarning "using `$global:SublimeTextCoverageRepositoryUrl: $global:SublimeTextCoverageRepositoryUrl $(is null: $global:SublimeTextCoverageRepositoryUrl eq $null)..."
+        logWarning "using `$COVERAGE_TAG: $COVERAGE_TAG is null: $($COVERAGE_TAG -eq $null)..."
+        logWarning "using `$global:SublimeTextCoverageRepositoryUrl: $global:SublimeTextCoverageRepositoryUrl is null: $($global:SublimeTextCoverageRepositoryUrl -eq $null)..."
         write-verbose "download sublime-coverage tag: $COVERAGE_TAG"
         git clone --quiet --depth 1 --branch=$COVERAGE_TAG $global:SublimeTextCoverageRepositoryUrl "$global:CoverageSublimeTextPackagesDirectory" 2>$null
         git -C "$global:CoverageSublimeTextPackagesDirectory" rev-parse HEAD | write-verbose
