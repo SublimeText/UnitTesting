@@ -64,7 +64,7 @@ function getLatestUnitTestingBuildTag {
 
 function getLatestCoverageTag {
     param([string]$Tag, [string]$UrlToCoverage)
-    logWarning "`$Tag: $Tag is null: $([string].IsNullOrEmpty($Tag))..."
+    logWarning "`$Tag: $Tag is null: $([string]::IsNullOrEmpty($Tag))..."
     logWarning "using `$UrlToCoverage: $UrlToCoverage is null: $($UrlToCoverage -eq $null)..."
     if ([string]::IsNullOrEmpty($Tag)) { getLatestTagFromRemote $UrlToCoverage }
     else { $Tag }
