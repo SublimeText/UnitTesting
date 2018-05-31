@@ -123,7 +123,15 @@ function Bootstrap {
     # # Clone coverage plugin into Packages/coverage.
     if ($global:IsSublimeText3 -and (pathExists -Negate $global:CoverageSublimeTextPackagesDirectory)) {
         logWarning "downloading coverage..."
-        $COVERAGE_TAG = getLatestCoverageTag $env:COVERAGE_TAG $global:SublimeTextConverageRepositoryUrl
+        # $COVERAGE_TAG = getLatestCoverageTag $env:COVERAGE_TAG $global:SublimeTextConverageRepositoryUrl
+        if ( ${env:COVERAGE_TAG} -eq $null){
+            # the latest tag
+            $COVERAGE_TAG = git ls-remote --tags $global:SublimeTextCoverageRepositoryUrl | %{$_ -replace ".*/(.*)$", '$1'} `
+                    | where-object {$_ -notmatch "\^"} |%{[System.Version]$_} `
+                    | sort | select-object -last 1 | %{ "$_" }
+        } else {
+            $COVERAGE_TAG = ${env:COVERAGE_TAG}
+        }
         logVerbose "TAG: $COVERAGE_TAG"
         logVerbose "download sublime-coverage tag: $COVERAGE_TAG"
         git clone --quiet --depth 1 --branch=$COVERAGE_TAG "$global:SublimeTextConverageRepositoryUrl" $global:CoverageSublimeTextPackagesDirectory 2>$null
