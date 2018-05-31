@@ -1,3 +1,4 @@
+Add-Type -AssemblyName System.IO.Compression.FileSystem
 
 function ensureCreateDirectory {
     param([string]$Path)
@@ -122,4 +123,14 @@ function installPackageForSublimeTextVersion3IfNotPresent {
     if ($IsSublimeTextVersion3 -and (pathExists -Negate $Path)) {
         cloneRepositoryTag $PreferredTag $RepositoryUrl $Path
     }
+}
+
+function iif {
+    param([scriptblock]$Condition, $IfTrue, $IfFalse)
+    if (&$Condition) { $IfTrue } else {$IfFalse }
+}
+
+function unzip {
+    param([string]$Source, [string]$Target)
+    [System.IO.Compression.ZipFile]::ExtractToDirectory($Source, $Target)
 }

@@ -13,6 +13,7 @@ if (!$env:UNITTESTING_BOOTSTRAPPED) {
     # This constant means that the entire contents of the source directory must be copied to the target directory.
     makeGlobalConstant SymbolCopyAll '__all__'
 
+
     makeGlobalConstant SublimeTextVersion (ensureValue $env:SUBLIME_TEXT_VERSION '^2|3$' -message "the environment variable SUBLIME_TEXT_VERSION must be set to '2' or '3'")
     makeGlobalConstant IsSublimeTextVersion3 ($SublimeTextVersion -eq 3)
     makeGlobalConstant IsSublimeTextVersion2 ($SublimeTextVersion -eq 2)
@@ -20,7 +21,10 @@ if (!$env:UNITTESTING_BOOTSTRAPPED) {
     makeGlobalConstant SublimeTextExecutableHelperPath (join-path $SublimeTextDirectory 'subl.exe')
     makeGlobalConstant SublimeTextExecutablePath (join-path $SublimeTextDirectory 'sublime_text.exe')
     makeGlobalConstant SublimeTextPackagesDirectory (eitherOr $env:SUBLIME_TEXT_PACKAGES_DIRECTORY "C:\st\Data\Packages")
-    # TODO: For compatibility; remove when not used anymore.
+    makeGlobalConstant SublimeTextWebsiteUrl 'https://www.sublimetext.com/'
+    makeGlobalConstant SublimeTextWebsiteUrlForVersion3 'https://www.sublimetext.com/3'
+    makeGlobalConstant SublimeTextWebsiteUrlForVersion2 'https://www.sublimetext.com/2'
+        # TODO: For compatibility; remove when not used anymore.
     $global:STP = $SublimeTextPackagesDirectory
 
     makeGlobalConstant PackageUnderTestName (ensureValue (eitherOr $env:UNITTESTING_PACKAGE_UNDER_TEST_NAME $env:PACKAGE) -message "the environment variable UNITTESTING_PACKAGE_UNDER_TEST_NAME (or alternatively, PACKAGE) is not set")

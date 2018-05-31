@@ -69,7 +69,7 @@ if (!$AsCodeSnippet) {
     packFile "$basePath\..\ci_config.ps1"
 } else {
 @"
-`$local:encodedDependencies = @(
+    `$local:encodedDependencies = @(
 '$(packFile "$basePath\..\utils.ps1")',
 '$(packFile "$basePath\..\ci.ps1")',
 '$(packFile "$basePath\..\ci_config.ps1")'
