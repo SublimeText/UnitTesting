@@ -137,7 +137,7 @@ function Bootstrap {
         git clone --quiet --depth 1 --branch=$COVERAGE_TAG $global:SublimeTextConverageRepositoryUrl "$global:CoverageSublimeTextPackagesDirectory" 2>$null
         git -C "$global:CoverageSublimeTextPackagesDirectory" rev-parse HEAD | logVerbose
         logVerbose ""
-    # }
+    }
 
     & "$global:UnitTestingSublimeTextPackagesDirectory\sbin\install_sublime_text.ps1" -verbose
 
