@@ -59,7 +59,7 @@ function getLatestUnitTestingBuildTag {
             $result = getLatestTagFromRemote $UrlToUnitTesting
         }
     }
-    $result
+    "$result"
 }
 
 function getLatestCoverageTag {

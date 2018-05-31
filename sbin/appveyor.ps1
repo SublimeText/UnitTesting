@@ -132,6 +132,8 @@ function Bootstrap {
         } else {
             $COVERAGE_TAG = ${env:COVERAGE_TAG}
         }
+        $COVERAGE_TAG2 = getLatestCoverageTag $env:COVERAGE_TAG $global:SublimeTextConverageRepositoryUrl
+        logVerbose "tags are equal $($COVERAGE_TAG -eq $COVERAGE_TAG2)"
         logVerbose "TAG: $COVERAGE_TAG"
         logVerbose "download sublime-coverage tag: $COVERAGE_TAG"
         git clone --quiet --depth 1 --branch=$COVERAGE_TAG $global:SublimeTextConverageRepositoryUrl "$global:CoverageSublimeTextPackagesDirectory" 2>$null
