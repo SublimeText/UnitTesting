@@ -99,7 +99,7 @@ function Bootstrap {
     }
 
 
-    if ($global:IsSublimeText3 -and (!(test-path -path "$global:CoverageSublimeTextPackagesDirectory"))){
+    if ($global:IsSublimeText3 -and (pathExists -negate "$global:CoverageSublimeTextPackagesDirectory")) {
         logWarning "downloading coverage tag..."
         logWarning "`$env:COVERAGE_TAG: $env:COVERAGE_TAG is null: $($env:COVERAGE_TAG -eq $null)..."
         $COVERAGE_TAG = getLatestCoverageTag $env:COVERAGE_TAG $global:SublimeTextCoverageRepositoryUrl
