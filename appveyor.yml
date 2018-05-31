@@ -20,6 +20,7 @@ build: off
 
 test_script:
     - ps: .\sbin\appveyor.ps1 "run_tests" -coverage -verbose
+    - ps: .\sbin\ci.ps1 "run_tests"
 
 after_test:
     - "SET PYTHON=C:\\Python33"
