@@ -68,9 +68,10 @@ function getLatestCoverageTag {
     # else { $Tag }
     if (${env:COVERAGE_TAG} -eq $null){
         # the latest tag
-        $COVERAGE_TAG = git ls-remote --tags $global:SublimeTextCoverageRepositoryUrl | %{$_ -replace ".*/(.*)$", '$1'} `
-                | where-object {$_ -notmatch "\^"} |%{[System.Version]$_} `
-                | sort | select-object -last 1 | %{ "$_" }
+        $COVERAGE_TAG = getLatestTagFromRemote $global:SublimeTextCoverageRepositoryUrl
+        # $COVERAGE_TAG = git ls-remote --tags $global:SublimeTextCoverageRepositoryUrl | %{$_ -replace ".*/(.*)$", '$1'} `
+        #         | where-object {$_ -notmatch "\^"} |%{[System.Version]$_} `
+        #         | sort | select-object -last 1 | %{ "$_" }
         logWarning "found `$COVERAGE_TAG: $COVERAGE_TAG is null: $($COVERAGE_TAG -eq $null)..."
     } else {
         $COVERAGE_TAG = ${env:COVERAGE_TAG}
