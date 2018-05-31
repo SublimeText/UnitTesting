@@ -133,12 +133,16 @@ function Bootstrap {
             $COVERAGE_TAG = ${env:COVERAGE_TAG}
         }
         $COVERAGE_TAG2 = getLatestCoverageTag $env:COVERAGE_TAG $global:SublimeTextConverageRepositoryUrl
-        logVerbose "tags are equal $($COVERAGE_TAG -eq $COVERAGE_TAG2)"
-        logVerbose "TAG: $COVERAGE_TAG"
-        logVerbose "download sublime-coverage tag: $COVERAGE_TAG"
-        git clone --quiet --depth 1 --branch=$COVERAGE_TAG $global:SublimeTextConverageRepositoryUrl "$global:CoverageSublimeTextPackagesDirectory" 2>$null
-        git -C "$global:CoverageSublimeTextPackagesDirectory" rev-parse HEAD | logVerbose
-        logVerbose ""
+        logVerbose "tags are equal $($COVERAGE_TAG -eq $COVERAGE_TAG2), $COVERAGE_TAG | $COVERAGE_TAG2"
+        # logVerbose "TAG: $COVERAGE_TAG"
+        # logVerbose "download sublime-coverage tag: $COVERAGE_TAG"
+        # git clone --quiet --depth 1 --branch=$COVERAGE_TAG $global:SublimeTextConverageRepositoryUrl "$global:CoverageSublimeTextPackagesDirectory" 2>$null
+        # git -C "$global:CoverageSublimeTextPackagesDirectory" rev-parse HEAD | logVerbose
+        # logVerbose ""
+        write-verbose "download sublime-coverage tag: $COVERAGE_TAG"
+        git clone --quiet --depth 1 --branch=$COVERAGE_TAG $global:SublimeTextCoverageRepositoryUrl "$global:CoverageSublimeTextPackagesDirectory" 2>$null
+        git -C "$global:CoverageSublimeTextPackagesDirectory" rev-parse HEAD | write-verbose
+        write-verbose ""
     }
 
     & "$global:UnitTestingSublimeTextPackagesDirectory\sbin\install_sublime_text.ps1" -verbose
