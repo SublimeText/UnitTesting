@@ -134,8 +134,8 @@ function Bootstrap {
         }
         logVerbose "TAG: $COVERAGE_TAG"
         logVerbose "download sublime-coverage tag: $COVERAGE_TAG"
-        git clone --quiet --depth 1 --branch=$COVERAGE_TAG "$global:SublimeTextConverageRepositoryUrl" $global:CoverageSublimeTextPackagesDirectory 2>$null
-        git -C $global:CoverageSublimeTextPackagesDirectory rev-parse HEAD | logVerbose
+        git clone --quiet --depth 1 --branch=$COVERAGE_TAG "$global:SublimeTextConverageRepositoryUrl" "$global:CoverageSublimeTextPackagesDirectory" 2>$null
+        git -C "$global:CoverageSublimeTextPackagesDirectory" rev-parse HEAD | logVerbose
         logVerbose ""
     }
 
