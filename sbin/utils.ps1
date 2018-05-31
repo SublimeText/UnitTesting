@@ -64,18 +64,20 @@ function getLatestUnitTestingBuildTag {
 
 function getLatestCoverageTag {
     param([string]$Tag, [string]$UrlToCoverage)
-    # if ([string]::IsNullOrEmpty($Tag)) { "$(getLatestTagFromRemote $UrlToCoverage)".Trim() }
-    # else { $Tag }
-    if (${env:COVERAGE_TAG} -eq $null){
-        # the latest tag
-        logWarning "`$env:COVERAGE_TAG: $env:COVERAGE_TAG is null: $($env:COVERAGE_TAG -eq $null)..."
-        logWarning "using `$UrlToCoverage: $UrlToCoverage is null: $($UrlToCoverage -eq $null)..."
-        $COVERAGE_TAG = getLatestTagFromRemote $UrlToCoverage
-        logWarning "found `$COVERAGE_TAG: $COVERAGE_TAG is null: $($COVERAGE_TAG -eq $null)..."
-    } else {
-        $COVERAGE_TAG = ${env:COVERAGE_TAG}
-    }
-    $COVERAGE_TAG
+    logWarning "`$Tag: $Tag is null: $([string].IsNullOrEmpty($Tag))..."
+    logWarning "using `$UrlToCoverage: $UrlToCoverage is null: $($UrlToCoverage -eq $null)..."
+    if ([string]::IsNullOrEmpty($Tag)) { getLatestTagFromRemote $UrlToCoverage }
+    else { $Tag }
+    # if (${env:COVERAGE_TAG} -eq $null){
+    #     # the latest tag
+    #     logWarning "`$env:COVERAGE_TAG: $env:COVERAGE_TAG is null: $($env:COVERAGE_TAG -eq $null)..."
+    #     logWarning "using `$UrlToCoverage: $UrlToCoverage is null: $($UrlToCoverage -eq $null)..."
+    #     $COVERAGE_TAG = getLatestTagFromRemote $UrlToCoverage
+    #     logWarning "found `$COVERAGE_TAG: $COVERAGE_TAG is null: $($COVERAGE_TAG -eq $null)..."
+    # } else {
+    #     $COVERAGE_TAG = ${env:COVERAGE_TAG}
+    # }
+    # $COVERAGE_TAG
 }
 
 function ensureCreateDirectoryJunction {
