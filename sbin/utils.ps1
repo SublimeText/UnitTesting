@@ -59,12 +59,12 @@ function getLatestUnitTestingBuildTag {
             $result = getLatestTagFromRemote $UrlToUnitTesting
         }
     }
-    "$result"
+    $result
 }
 
 function getLatestCoverageTag {
     param([string]$Tag, [string]$UrlToCoverage)
-    if ([string]::IsNullOrEmpty($Tag)) { getLatestTagFromRemote $UrlToCoverage }
+    if ([string]::IsNullOrEmpty($Tag)) { "$(getLatestTagFromRemote $UrlToCoverage)".Trim() }
     else { $Tag }
 }
 
