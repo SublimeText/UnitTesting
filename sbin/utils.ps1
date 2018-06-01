@@ -69,9 +69,9 @@ function getLatestUnitTestingBuildTag {
     param([string]$Tag, [string]$SublimeTextVersion, [string]$UrlToUnitTesting)
     $result = $Tag
     if ([string]::IsNullOrEmpty($Tag)){
-        if ($SublimeTextVersion -eq 2) {
+        if ($IsSublimeTextVersion2) {
             $result = '0.10.6'
-        } elseif ($SublimeTextVersion -eq 3) {
+        } elseif ($IsSublimeTextVersion3) {
             $result = gitFetchLatestTagFromRepository $UrlToUnitTesting
         }
     }
