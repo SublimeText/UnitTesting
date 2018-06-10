@@ -62,7 +62,8 @@ class UnitTestingMixin(object):
 
     def prompt_package(self, callback):
         package = self.current_package_name
-
+        if not package:
+            package = ""
         view = sublime.active_window().show_input_panel(
             'Package:', package, callback, None, None)
         view.run_command("select_all")
