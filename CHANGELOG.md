@@ -1,3 +1,14 @@
+Changes since 1.3.2:
+
+   - make sure input string when running `UnitTesting`
+   - improve docs
+
+  Contributors:
+   - Randy Lai
+   - Taylor D. Edmiston
+
+
+
 Changes since 1.3.1:
 
   Other:
