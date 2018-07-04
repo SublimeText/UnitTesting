@@ -37,7 +37,8 @@ function Bootstrap {
             } elseif (${env:SUBLIME_TEXT_VERSION} -eq 3) {
                 # the latest tag
                 $UNITTESTING_TAG = git ls-remote --tags $UT_URL | %{$_ -replace ".*/(.*)$", '$1'} `
-                        | where-object {$_ -notmatch "\^"} |%{[System.Version]$_} `
+                        | where-object {$_ -match "^[0-9]+\.[0-9]+\.[0-9]+$"} `
+                        | %{[System.Version]$_} `
                         | sort | select-object -last 1 | %{ "$_" }
             }
         } else {
