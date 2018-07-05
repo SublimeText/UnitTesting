@@ -6,8 +6,20 @@ param(
     [switch] $coverage
 )
 
+$ErrorActionPreference = 'stop'
+
 # TODO: Bootstrap the bootstrapper. See appveyor.ps1.
 $global:UnitTestingPowerShellScriptsDirectory = $env:TEMP
+
+if (!$env:UNITTESTING_BOOTSTRAPPED) {
+    write-output "[UnitTesting] bootstrapping environment..."
+
+    invoke-webrequest "https://raw.githubusercontent.com/guillermooo/UnitTesting/refactor/ciagnostic/sbin/ps/ci_config.ps1" -outfile "$UnitTestingPowerShellScriptsDirectory\ci_config.ps1"
+    invoke-webrequest "https://raw.githubusercontent.com/guillermooo/UnitTesting/refactor/ciagnostic/sbin/ps/utils.ps1" -outfile "$UnitTestingPowerShellScriptsDirectory\utils.ps1"
+    invoke-webrequest "https://raw.githubusercontent.com/guillermooo/UnitTesting/refactor/ciagnostic/sbin/ps/ci.ps1" -outfile "$UnitTestingPowerShellScriptsDirectory\ci.ps1"
+
+    $env:UNITTESTING_BOOTSTRAPPED = 1
+}
 
 . $UnitTestingPowerShellScriptsDirectory\ci_config.ps1
 . $UnitTestingPowerShellScriptsDirectory\utils.ps1
