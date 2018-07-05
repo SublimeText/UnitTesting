@@ -4,6 +4,10 @@ import warnings
 import sublime
 
 
+def defer(delay, callback, *args, **kwargs):
+    sublime.set_timeout(lambda: callback(*args, **kwargs), delay)
+
+
 class DeferringTextTestRunner(TextTestRunner):
     """This test runner runs tests in deferred slices."""
 
@@ -36,7 +40,7 @@ class DeferringTextTestRunner(TextTestRunner):
                     startTestRun()
                 try:
                     deferred = test(result)
-                    sublime.set_timeout(lambda: _continue_testing(deferred), 10)
+                    defer(10, _continue_testing, deferred)
 
                 except Exception as e:
                     _handle_error(e)
@@ -45,20 +49,15 @@ class DeferringTextTestRunner(TextTestRunner):
             try:
                 condition = next(deferred)
                 if callable(condition):
-                    sublime.set_timeout(
-                        lambda: _wait_condition(deferred, condition, 100, 10000, time.time()), 100)
+                    defer(100, _wait_condition, deferred, condition)
                 elif isinstance(condition, dict) and "condition" in condition and \
                         callable(condition["condition"]):
-                    period = condition["period"] if "period" in condition else 100
-                    timeout = condition["timeout"] if "timeout" in condition else 10000
-                    sublime.set_timeout(
-                        lambda: _wait_condition(
-                            deferred, condition["condition"], period, timeout, time.time()),
-                        period)
+                    period = condition.get("period", 100)
+                    defer(period, _wait_condition, deferred, **condition)
                 elif isinstance(condition, int):
-                    sublime.set_timeout(lambda: _continue_testing(deferred), int(condition))
+                    defer(condition, _continue_testing, deferred)
                 else:
-                    sublime.set_timeout(lambda: _continue_testing(deferred), 10)
+                    defer(10, _continue_testing, deferred)
 
             except StopIteration:
                 _stop_testing()
@@ -67,17 +66,17 @@ class DeferringTextTestRunner(TextTestRunner):
             except Exception as e:
                 _handle_error(e)
 
-        def _wait_condition(deferred, condition, period, timeout, start_time):
-            if not condition():
-                if (time.time() - start_time) * 1000 < timeout:
-                    sublime.set_timeout(
-                        lambda: _wait_condition(deferred, condition, period, timeout, start_time),
-                        period)
-                    return
-                else:
-                    self.stream.writeln("Condition timeout, continue anyway.")
+        def _wait_condition(deferred, condition, period=100, timeout=10000, start_time=None):
+            if start_time is None:
+                start_time = time.time()
 
-            sublime.set_timeout(lambda: _continue_testing(deferred), 10)
+            if condition():
+                defer(10, _continue_testing, deferred)
+            elif (time.time() - start_time) * 1000 >= timeout:
+                self.stream.writeln("Condition timeout, continue anyway.")
+                defer(10, _continue_testing, deferred)
+            else:
+                defer(period, _wait_condition, deferred, condition, period, timeout, start_time)
 
         def _handle_error(e):
             stopTestRun = getattr(result, 'stopTestRun', None)

@@ -1,8 +1,8 @@
 import os
 import sys
 import re
+from glob import glob
 
-from .utils import UTSetting
 from .utils import OutputPanel
 from .utils import JsonFile
 from .utils import reload_package
@@ -10,38 +10,41 @@ from .utils import ProgressBar
 
 import sublime
 
-version = sublime.version()
-platform = sublime.platform()
+
+def casedpath(path):
+    # path on Windows may not be properly cased
+    r = glob(re.sub(r'([^:/\\])(?=[/\\]|$)', r'[\1]', path))
+    return r and r[0] or path
+
+
+def relative_to_spp(path):
+    spp = sublime.packages_path()
+    spp_real = casedpath(os.path.realpath(spp))
+    for p in [path, casedpath(os.path.realpath(path))]:
+        for sp in [spp, spp_real]:
+            if p.startswith(sp + os.sep):
+                return p[len(sp):]
+    return None
 
 
 class UnitTestingMixin(object):
 
     @property
     def current_package_name(self):
-        """Return back the name of the current package."""
         window = sublime.active_window()
         view = window.active_view()
-        spp = os.path.realpath(sublime.packages_path())
         if view and view.file_name():
-            file_path = os.path.realpath(view.file_name())
-            if file_path.startswith(spp):
-                return file_path[len(spp):].split(os.sep)[1]
+            file_path = relative_to_spp(view.file_name())
+            if file_path and file_path.endswith(".py"):
+                return file_path.split(os.sep)[1]
 
-        folders = sublime.active_window().folders()
+        folders = window.folders()
         if folders and len(folders) > 0:
-            first_folder = os.path.realpath(folders[0])
-            if first_folder.startswith(spp):
+            first_folder = relative_to_spp(folders[0])
+            if first_folder:
                 return os.path.basename(first_folder)
 
         return None
-
-    @property
-    def recent_package(self):
-        return UTSetting.get("recent-package", "Package Name")
-
-    @recent_package.setter
-    def recent_package(self, package):
-        UTSetting.set("recent-package", package)
 
     @property
     def current_test_file(self):
@@ -58,20 +61,16 @@ class UnitTestingMixin(object):
             return (package, None)
 
     def prompt_package(self, callback):
-        package = self.recent_package
-
-        def _callback(package):
-            self.recent_package = package
-            callback(package)
+        package = self.current_package_name
 
         view = sublime.active_window().show_input_panel(
-            'Package:', package, _callback, None, None)
+            'Package:', package, callback, None, None)
         view.run_command("select_all")
 
     def load_unittesting_settings(self, package, **kargs):
         # default settings
         tests_dir = "tests"
-        async = False
+        use_async = False
         deferred = False
         verbosity = 2
         reload_package_on_testing = True
@@ -84,7 +83,7 @@ class UnitTestingMixin(object):
         if os.path.exists(jfile):
             ss = JsonFile(jfile).load()
             tests_dir = ss.get("tests_dir", tests_dir)
-            async = ss.get("async", async)
+            use_async = ss.get("async", use_async)
             deferred = ss.get("deferred", deferred)
             verbosity = ss.get("verbosity", verbosity)
             reload_package_on_testing = ss.get(
@@ -101,7 +100,7 @@ class UnitTestingMixin(object):
 
         return {
             "tests_dir": tests_dir,
-            "async": async,
+            "async": use_async,
             "deferred": deferred,
             "verbosity": verbosity,
             "reload_package_on_testing": reload_package_on_testing,
@@ -119,7 +118,8 @@ class UnitTestingMixin(object):
         outfile = os.path.join(outputdir, package)
         return outfile
 
-    def load_stream(self, package, output):
+    def load_stream(self, package, settings):
+        output = settings["output"]
         if not output or output == "<panel>":
             output_panel = OutputPanel(
                 'UnitTesting', file_regex=r'File "([^"]*)", line (\d+)')

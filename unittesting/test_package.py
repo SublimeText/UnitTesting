@@ -7,10 +7,8 @@ from unittest import TextTestRunner, TestSuite
 from .core import TestLoader, DeferringTextTestRunner, DeferrableTestCase
 from .mixin import UnitTestingMixin
 from .const import DONE_MESSAGE
-from .utils import ProgressBar
+from .utils import ProgressBar, StdioSplitter
 import threading
-
-version = sublime.version()
 
 
 class UnitTestingCommand(sublime_plugin.ApplicationCommand, UnitTestingMixin):
@@ -22,7 +20,7 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand, UnitTestingMixin):
 
         package, pattern = self.input_parser(package)
         settings = self.load_unittesting_settings(package, pattern=pattern, **kargs)
-        stream = self.load_stream(package, settings["output"])
+        stream = self.load_stream(package, settings)
 
         if settings["async"]:
             threading.Thread(target=lambda: self.unit_testing(stream, package, settings)).start()
@@ -37,13 +35,15 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand, UnitTestingMixin):
                 raise Exception("DeferrableTestCase is used but `deferred` is `false`.")
 
     def unit_testing(self, stream, package, settings, cleanup_hooks=[]):
-        stdout = sys.stdout
-        stderr = sys.stderr
-        handler = logging.StreamHandler(stream)
         if settings["capture_console"]:
+            stdout = sys.stdout
+            stderr = sys.stderr
+            handler = logging.StreamHandler(stream)
             logging.root.addHandler(handler)
-            sys.stdout = stream
-            sys.stderr = stream
+
+            sys.stdout = StdioSplitter(stdout, stream)
+            sys.stderr = StdioSplitter(stderr, stream)
+
         testRunner = None
         progress_bar = ProgressBar("Testing %s" % package)
         progress_bar.start()
@@ -78,9 +78,15 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand, UnitTestingMixin):
 
                     for hook in cleanup_hooks:
                         hook()
-                    stream.write("\n")
-                    stream.write(DONE_MESSAGE)
+
+                    if not hasattr(stream, 'window'):
+                        # If it's an output panel don't print done message,
+                        # because it's only required for CI test runs.
+                        stream.write("\n")
+                        stream.write(DONE_MESSAGE)
+
                     stream.close()
+
                     if settings["capture_console"]:
                         sys.stdout = stdout
                         sys.stderr = stderr

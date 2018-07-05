@@ -1,7 +1,7 @@
 version: 2
 
 # if you are looking for a working example
-# refer to https://github.com/randy3k/UnitTesting-example/blob/master/.circleci
+# refer to https://github.com/randy3k/UnitTesting-example/blob/master/.circleci/config.yml
 
 jobs:
   build-linux:
@@ -42,7 +42,7 @@ jobs:
           sh sbin/circleci.sh install_package_control
           sh sbin/circleci.sh run_tests --coverage
       - run: |
-          brew install python3
+          brew install python || brew upgrade python
           pip3 install codecov
           codecov
 

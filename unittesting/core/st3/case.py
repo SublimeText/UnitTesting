@@ -2,6 +2,7 @@ import sys
 import unittest
 import warnings
 from unittest.case import _ExpectedFailure, _UnexpectedSuccess, SkipTest, _Outcome
+from ...utils import isiterable
 
 
 class DeferrableTestCase(unittest.TestCase):
@@ -9,9 +10,8 @@ class DeferrableTestCase(unittest.TestCase):
     def _executeTestPart(self, function, outcome, isTest=False):
         try:
             deferred = function()
-            if deferred is not None and hasattr(deferred, '__iter__'):
-                for x in deferred:
-                    yield x
+            if isiterable(deferred):
+                yield from deferred
         except KeyboardInterrupt:
             raise
         except SkipTest as e:
@@ -34,7 +34,6 @@ class DeferrableTestCase(unittest.TestCase):
         except self.failureException:
             outcome.success = False
             outcome.failures.append(sys.exc_info())
-            exc_info = sys.exc_info()
         except Exception:
             outcome.success = False
             outcome.errors.append(sys.exc_info())
@@ -65,18 +64,15 @@ class DeferrableTestCase(unittest.TestCase):
             self._outcomeForDoCleanups = outcome
 
             deferred = self._executeTestPart(self.setUp, outcome)
-            if deferred is not None and hasattr(deferred, '__iter__'):
-                for x in deferred:
-                    yield x
+            if isiterable(deferred):
+                yield from deferred
             if outcome.success:
                 deferred = self._executeTestPart(testMethod, outcome, isTest=True)
-                if deferred is not None and hasattr(deferred, '__iter__'):
-                    for x in deferred:
-                        yield x
+                if isiterable(deferred):
+                    yield from deferred
                 deferred = self._executeTestPart(self.tearDown, outcome)
-                if deferred is not None and hasattr(deferred, '__iter__'):
-                    for x in deferred:
-                        yield x
+                if isiterable(deferred):
+                    yield from deferred
 
             self.doCleanups()
             if outcome.success:

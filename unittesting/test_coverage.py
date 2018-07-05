@@ -4,9 +4,6 @@ import sys
 import re
 from .test_package import UnitTestingCommand
 
-version = sublime.version()
-platform = sublime.platform()
-
 try:
     import coverage
 except Exception:

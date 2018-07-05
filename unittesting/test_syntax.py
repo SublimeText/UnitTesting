@@ -3,10 +3,7 @@ import sublime_plugin
 from .mixin import UnitTestingMixin
 from .const import DONE_MESSAGE
 
-version = sublime.version()
-
-if version >= "3103":
-    import sublime_api
+import sublime_api
 
 
 class UnitTestingSyntaxCommand(sublime_plugin.ApplicationCommand, UnitTestingMixin):
@@ -16,22 +13,13 @@ class UnitTestingSyntaxCommand(sublime_plugin.ApplicationCommand, UnitTestingMix
         if not package:
             return
         settings = self.load_unittesting_settings(package, **kargs)
-        stream = self.load_stream(package, settings["output"])
+        stream = self.load_stream(package, settings)
 
         self.syntax_testing(stream, package)
 
     def syntax_testing(self, stream, package):
         total_assertions = 0
         failed_assertions = 0
-
-        if version < "3103":
-            stream.write("Warning: Syntax test is only avaliable on Sublime Text >=3103.\n")
-            stream.write("\n")
-            stream.write("OK\n")
-            stream.write("\n")
-            stream.write(DONE_MESSAGE)
-            stream.close()
-            return
 
         try:
             tests = sublime.find_resources("syntax_test*")
