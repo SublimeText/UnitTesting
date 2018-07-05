@@ -37,7 +37,8 @@ class UnitTestingColorSchemeCommand(ApplicationCommand, UnitTestingMixin):
         stream.write("Running ColorSchemeUnit\n")
         stream.flush()
 
-        result = ColorSchemeUnit(window).run(output=stream, package=package, async=False)
+        unit = ColorSchemeUnit(window)
+        result = unit.run(output=stream, package=package, async=False)
 
         if result:
             stream.write('\n')
