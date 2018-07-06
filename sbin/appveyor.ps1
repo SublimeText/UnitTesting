@@ -15,6 +15,7 @@ $global:UnitTestingPowerShellScriptsDirectory = $env:TEMP
 if (!$env:UNITTESTING_BOOTSTRAPPED) {
     write-output "[UnitTesting] bootstrapping environment..."
 
+    # TODO: Change urls to point to UnitTesting. Using mine so the CI server finds the files.
     invoke-webrequest "https://raw.githubusercontent.com/guillermooo/UnitTesting/refactor/ciagnostic/sbin/ps/ci_config.ps1" -outfile "$UnitTestingPowerShellScriptsDirectory\ci_config.ps1"
     invoke-webrequest "https://raw.githubusercontent.com/guillermooo/UnitTesting/refactor/ciagnostic/sbin/ps/utils.ps1" -outfile "$UnitTestingPowerShellScriptsDirectory\utils.ps1"
     invoke-webrequest "https://raw.githubusercontent.com/guillermooo/UnitTesting/refactor/ciagnostic/sbin/ps/ci.ps1" -outfile "$UnitTestingPowerShellScriptsDirectory\ci.ps1"
