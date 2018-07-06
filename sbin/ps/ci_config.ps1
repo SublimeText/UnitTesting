@@ -18,10 +18,10 @@ if (!$env:UNITTESTING_BOOTSTRAPPED) {
     makeGlobalConstant SublimeTextVersion (ensureValue $env:SUBLIME_TEXT_VERSION '^2|3$' -message "the environment variable SUBLIME_TEXT_VERSION must be set to '2' or '3'")
     makeGlobalConstant IsSublimeTextVersion3 ($SublimeTextVersion -eq 3)
     makeGlobalConstant IsSublimeTextVersion2 ($SublimeTextVersion -eq 2)
-    makeGlobalConstant SublimeTextDirectory (eitherOr $env:SUBLIME_TEXT_DIRECTORY "C:\st")
+    makeGlobalConstant SublimeTextDirectory (eitherOr $env:SUBLIME_TEXT_DIRECTORY "$env:SystemDrive\st")
     makeGlobalConstant SublimeTextExecutableHelperPath (join-path $SublimeTextDirectory 'subl.exe')
     makeGlobalConstant SublimeTextExecutablePath (join-path $SublimeTextDirectory 'sublime_text.exe')
-    makeGlobalConstant SublimeTextPackagesDirectory (eitherOr $env:SUBLIME_TEXT_PACKAGES_DIRECTORY "C:\st\Data\Packages")
+    makeGlobalConstant SublimeTextPackagesDirectory (eitherOr $env:SUBLIME_TEXT_PACKAGES_DIRECTORY (join-path $SublimeTextDirectory "Data\Packages"))
     # TODO: For compatibility; remove when not used anymore.
     $global:STP = $SublimeTextPackagesDirectory
 
