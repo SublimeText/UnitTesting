@@ -14,8 +14,8 @@ class OutputPanel:
         self.output_view = self.window.get_output_panel(name)
 
         # default to the current file directory
-        if (not base_dir and self.window.active_view() and
-                self.window.active_view().file_name()):
+        if not base_dir and self.window.active_view() and \
+                self.window.active_view().file_name():
             base_dir = os.path.dirname(self.window.active_view().file_name())
 
         settings = self.output_view.settings()

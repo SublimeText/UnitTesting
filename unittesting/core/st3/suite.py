@@ -27,8 +27,8 @@ class DeferrableTestSuite(TestSuite):
                 yield
                 result._previousTestClass = test.__class__
 
-                if (getattr(test.__class__, '_classSetupFailed', False) or
-                        getattr(result, '_moduleSetUpFailed', False)):
+                if getattr(test.__class__, '_classSetupFailed', False) or \
+                        getattr(result, '_moduleSetUpFailed', False):
                     continue
 
             if not debug:

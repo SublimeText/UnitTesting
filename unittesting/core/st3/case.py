@@ -49,12 +49,12 @@ class DeferrableTestCase(unittest.TestCase):
         result.startTest(self)
 
         testMethod = getattr(self, self._testMethodName)
-        if (getattr(self.__class__, "__unittest_skip__", False) or
-                getattr(testMethod, "__unittest_skip__", False)):
+        if getattr(self.__class__, "__unittest_skip__", False) or \
+                getattr(testMethod, "__unittest_skip__", False):
             # If the class or method was skipped.
             try:
-                skip_why = (getattr(self.__class__, '__unittest_skip_why__', '') or
-                            getattr(testMethod, '__unittest_skip_why__', ''))
+                skip_why = getattr(self.__class__, '__unittest_skip_why__', '') or \
+                    getattr(testMethod, '__unittest_skip_why__', '')
                 self._addSkip(result, skip_why)
             finally:
                 result.stopTest(self)
