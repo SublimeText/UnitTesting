@@ -15,10 +15,9 @@ $global:UnitTestingPowerShellScriptsDirectory = $env:TEMP
 if (!$env:UNITTESTING_BOOTSTRAPPED) {
     write-output "[UnitTesting] bootstrapping environment..."
 
-    # TODO: Change urls to point to UnitTesting. Using mine so the CI server finds the files.
-    invoke-webrequest "https://raw.githubusercontent.com/guillermooo/UnitTesting/refactor/ciagnostic/sbin/ps/ci_config.ps1" -outfile "$UnitTestingPowerShellScriptsDirectory\ci_config.ps1"
-    invoke-webrequest "https://raw.githubusercontent.com/guillermooo/UnitTesting/refactor/ciagnostic/sbin/ps/utils.ps1" -outfile "$UnitTestingPowerShellScriptsDirectory\utils.ps1"
-    invoke-webrequest "https://raw.githubusercontent.com/guillermooo/UnitTesting/refactor/ciagnostic/sbin/ps/ci.ps1" -outfile "$UnitTestingPowerShellScriptsDirectory\ci.ps1"
+    invoke-webrequest "https://raw.githubusercontent.com/SublimeText/UnitTesting/master/sbin/ps/ci_config.ps1" -outfile "$UnitTestingPowerShellScriptsDirectory\ci_config.ps1"
+    invoke-webrequest "https://raw.githubusercontent.com/SublimeText/UnitTesting/master/sbin/ps/utils.ps1" -outfile "$UnitTestingPowerShellScriptsDirectory\utils.ps1"
+    invoke-webrequest "https://raw.githubusercontent.com/SublimeText/UnitTesting/master/sbin/ps/ci.ps1" -outfile "$UnitTestingPowerShellScriptsDirectory\ci.ps1"
 
     . $UnitTestingPowerShellScriptsDirectory\ci_config.ps1
 
@@ -27,7 +26,5 @@ if (!$env:UNITTESTING_BOOTSTRAPPED) {
 
 # Dependencies are now available to this script.
 . $UnitTestingPowerShellScriptsDirectory\utils.ps1
-
-logWarning "the appveyor.ps1 script is deprecated; use ci.ps1 instead"
 
 & $UnitTestingPowerShellScriptsDirectory\ci.ps1 @PSBoundParameters
