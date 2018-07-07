@@ -46,7 +46,7 @@ function Bootstrap {
     if (pathExists -Negate $UnitTestingSublimeTextPackagesDirectory) {
         $UNITTESTING_TAG = getLatestUnitTestingBuildTag $env:UNITTESTING_TAG $SublimeTextVersion $UnitTestingRepositoryUrl
         logVerbose "download UnitTesting tag: $UNITTESTING_TAG"
-        gitCloneTag $UNITTESTING_TAG UnitTestingRepositoryUrl $UnitTestingSublimeTextPackagesDirectory
+        gitCloneTag $UNITTESTING_TAG $UnitTestingRepositoryUrl $UnitTestingSublimeTextPackagesDirectory
         gitGetHeadRevisionName $UnitTestingSublimeTextPackagesDirectory | logVerbose
         logVerbose ""
     }

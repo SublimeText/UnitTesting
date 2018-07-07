@@ -36,7 +36,7 @@ if (!$env:UNITTESTING_BOOTSTRAPPED) {
     makeGlobalConstant CoverageSublimeTextPackagesDirectory (join-path $SublimeTextPackagesDirectory 'coverage')
     makeGlobalConstant KeyPressRepositoryUrl "https://github.com/randy3k/Keypress"
     makeGlobalConstant KeyPressSublimeTextPackagesDirectory (join-path $SublimeTextPackagesDirectory 'Keypress')
-    makeGlobalConstant UnitTestingRepositoryUrl "https://github.com/randy3k/UnitTesting"
+    makeGlobalConstant UnitTestingRepositoryUrl "https://github.com/SublimeText/UnitTesting"
     makeGlobalConstant UnitTestingSublimeTextPackagesDirectory (join-path $SublimeTextPackagesDirectory 'UnitTesting')
 
     # TODO: Is this specific to the CI service?
