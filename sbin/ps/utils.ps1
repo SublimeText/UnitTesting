@@ -49,8 +49,8 @@ function ensureRemoveDirectory {
 
 function gitFetchLatestTagFromRepository {
     param([string]$UrlToRepository)
-    git ls-remote --tags "$UrlToRepository" | %{$_ -replace ".*/(.*)$", '$1'} `
-        | where-object {$_ -notmatch "\^"} |%{[System.Version]$_} `
+    git ls-remote --tags "$UrlToRepository" | %{$_ -replace ".*/v?(.*)$", '$1'} `
+        | where-object {$_ -match "^[0-9]+\.[0-9]+\.[0-9]+$"} | %{[System.Version]$_} `
         | sort | select-object -last 1 | %{ "$_" }
 }
 
