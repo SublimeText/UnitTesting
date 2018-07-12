@@ -29,7 +29,7 @@ use it.
 param(
     [Parameter(Position=0, Mandatory=$true)]
     [ValidateSet('bootstrap', 'install_package_control', 'install_color_scheme_unit',
-        'install_keypress', 'run_tests')]
+        'install_keypress', 'run_tests', 'run_syntax_tests', 'run_color_scheme_tests')]
     [string]$command,
     [switch]$coverage
 )
