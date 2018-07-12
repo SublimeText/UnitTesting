@@ -27,7 +27,7 @@ use it.
 #>
 [CmdletBinding()]
 param(
-    [Parameter(Position=0)]
+    [Parameter(Position=0, Mandatory=$true)]
     [ValidateSet('bootstrap', 'install_package_control', 'install_color_scheme_unit',
         'install_keypress', 'run_tests')]
     [string]$Command,
