@@ -4,7 +4,7 @@ The ci.ps1 script controls the execution of Unittesting-related commands in a CI
 environment.
 
 .DESCRIPTION
-The ci.ps1 script controls de execution of commands related to the Unittesting
+The ci.ps1 script controls the execution of commands related to the Unittesting
 package used to write tests for Sublime Text packages and plugins. The ci.ps1
 script is meant to be used in a CI server (Windows-only at present). The ci.ps1
 script is the entry point for users.
@@ -21,7 +21,9 @@ The ci.ps1 script supersedes the appveyor.ps1 script. If you can choose, use
 ci.ps1 from now on. The ci.ps1 script is a drop-in replacement for appveyor.ps1.
 
 On first execution, ci.ps1 bootstraps itself by downloading required files and
-copying them to a temp directory from which they are then used.
+copying them to a temp directory from which they are then used. Therefore, this
+is the only script you need to download from a CI configuration if you want to
+use it.
 
 #>
 [CmdletBinding()]
