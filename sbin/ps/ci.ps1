@@ -10,8 +10,7 @@ script is meant to be used in a CI server (Windows-only at present). The ci.ps1
 script is the entry point for users.
 
 .PARAMETER Command
-The name of the command to be executed. Must be a member of the [CiCommand]
-enumeration.
+The name of the command to be executed.
 
 .PARAMETER Coverage
 If true, coverage statistics will be calculated.
@@ -29,6 +28,8 @@ use it.
 [CmdletBinding()]
 param(
     [Parameter(Position=0)]
+    [ValidateSet('bootstrap', 'install_package_control', 'install_color_scheme_unit',
+        'install_keypress', 'run_tests')]
     [string]$Command,
     [switch]$Coverage
 )
@@ -110,45 +111,12 @@ function RunTests {
     start-sleep -seconds 2
 }
 
-# UnitTesting command names that the ci.ps1 script supports.
-enum CiCommand {
-    Bootstrap
-    InstallPackageControl
-    InstallColorSchemeUnit
-    InstallKeypress
-    RunTests
-    RunSyntaxTests
-    RunColorSchemeTests
-}
-
-# TODO: Remove when no longer needed.
-# Map of Legacy command names to current command names. Used to warn users of deprecated command names.
-$legacyCommandNames = @{
-    'install_package_control' = 'InstallPackageControl'
-    'install_color_scheme_unit' = 'InstallColorSchemeUnit'
-    'install_keypress' = 'InstallKeypress'
-    'run_tests' = 'RunTests'
-    'run_syntax_tests' = 'RunSyntaxTests'
-    'run_color_scheme_tests' = 'RunColorSchemeTests'
-}
-
-# TODO: Remove when no longer needed.
-if ($legacyCommandNames.ContainsKey($command)) {
-    write-warning "The command name '$command' is deprecated. Consider using '$($legacyCommandNames[$command])' instead."
-    $command = $legacyCommandNames[$command]
-}
-
-# Stop if we didn't get a valid command name.
-if (![enum]::IsDefined([CiCommand], $command)) {
-    throw ("The value of the 'Command' parameter must be one of: $([enum]::GetNames([CiCommand]) -join ", ")")
-}
-
-switch ([CiCommand]$command){
-    [CiCommand]::Bootstrap { Bootstrap }
-    [CiCommand]::InstallPackageControl { InstallPackageControl }
-    [CiCommand]::InstallColorSchemeUnit { InstallColorSchemeUnit }
-    [CiCommand]::InstallKeypress { InstallKeypress }
-    [CiCommand]::RunTests { RunTests -Coverage:$coverage }
-    [CiCommand]::RunSyntaxTests { RunTests -TestSyntax }
-    [CiCommand]::RunColorSchemeTests { RunTests -TestColorScheme }
+switch ($command){
+    'bootstrap' { Bootstrap }
+    'install_package_control' { InstallPackageControl }
+    'install_color_scheme_unit' { InstallColorSchemeUnit }
+    'install_keypress' { InstallKeypress }
+    'run_tests' { RunTests -Coverage:$coverage }
+    'run_tests' { RunTests -TestSyntax }
+    'run_tests' { RunTests -TestColorScheme }
 }
