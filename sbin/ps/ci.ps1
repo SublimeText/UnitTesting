@@ -24,6 +24,8 @@ if (!$env:UNITTESTING_BOOTSTRAPPED) {
 . $UnitTestingPowerShellScriptsDirectory\ci_config.ps1
 . $UnitTestingPowerShellScriptsDirectory\utils.ps1
 
+throw "stop"
+
 function Bootstrap {
     [CmdletBinding()]
     param([switch] $with_color_scheme_unit)
