@@ -142,16 +142,12 @@ if (![enum]::IsDefined([CiCommand], $command)) {
     throw ("The value of the 'Command' parameter must be one of: $([enum]::GetNames([CiCommand]) -join ", ")")
 }
 
-try {
-    switch ([CiCommand]$command){
-        [CiCommand]::Bootstrap { Bootstrap }
-        [CiCommand]::InstallPackageControl { InstallPackageControl }
-        [CiCommand]::InstallColorSchemeUnit { InstallColorSchemeUnit }
-        [CiCommand]::InstallKeypress { InstallKeypress }
-        [CiCommand]::RunTests { RunTests -Coverage:$coverage }
-        [CiCommand]::RunSyntaxTests { RunTests -TestSyntax }
-        [CiCommand]::RunColorSchemeTests { RunTests -TestColorScheme }
-    }
-} catch {
-    throw $_
+switch ([CiCommand]$command){
+    [CiCommand]::Bootstrap { Bootstrap }
+    [CiCommand]::InstallPackageControl { InstallPackageControl }
+    [CiCommand]::InstallColorSchemeUnit { InstallColorSchemeUnit }
+    [CiCommand]::InstallKeypress { InstallKeypress }
+    [CiCommand]::RunTests { RunTests -Coverage:$coverage }
+    [CiCommand]::RunSyntaxTests { RunTests -TestSyntax }
+    [CiCommand]::RunColorSchemeTests { RunTests -TestColorScheme }
 }
