@@ -2,9 +2,10 @@
 param(
     [Parameter(Mandatory = $true, Position = 0)]
     [string]$command,
-    [Parameter(Mandatory = $false)]
     [switch] $coverage
 )
+
+throw "stop"
 
 $ErrorActionPreference = 'stop'
 
@@ -20,8 +21,6 @@ if (!$env:UNITTESTING_BOOTSTRAPPED) {
 
     $env:UNITTESTING_BOOTSTRAPPED = 1
 }
-
-throw "stop"
 
 . $UnitTestingPowerShellScriptsDirectory\ci_config.ps1
 . $UnitTestingPowerShellScriptsDirectory\utils.ps1
