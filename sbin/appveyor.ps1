@@ -32,6 +32,6 @@ if (!$env:UNITTESTING_BOOTSTRAPPED) {
 
 . $UnitTestingPowerShellScriptsDirectory\ci_config.ps1
 
-@PSBoundParameters
+$PSBoundParameters
 
 & $UnitTestingPowerShellScriptsDirectory\ci.ps1 @PSBoundParameters
