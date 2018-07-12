@@ -21,10 +21,11 @@ if (!$env:UNITTESTING_BOOTSTRAPPED) {
     $env:UNITTESTING_BOOTSTRAPPED = 1
 }
 
+throw "stop"
+
 . $UnitTestingPowerShellScriptsDirectory\ci_config.ps1
 . $UnitTestingPowerShellScriptsDirectory\utils.ps1
 
-throw "stop"
 
 function Bootstrap {
     [CmdletBinding()]
