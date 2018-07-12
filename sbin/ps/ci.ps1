@@ -1,10 +1,11 @@
 [CmdletBinding()]
 param(
-    [Parameter(Mandatory = $false, Position = 0)]
+    [Parameter(Mandatory = $true, Position = 0)]
     [string]$command,
-    [Parameter(Mandatory = $false)]
     [switch] $coverage
 )
+
+throw "stop"
 
 $ErrorActionPreference = 'stop'
 
@@ -23,6 +24,7 @@ if (!$env:UNITTESTING_BOOTSTRAPPED) {
 
 . $UnitTestingPowerShellScriptsDirectory\ci_config.ps1
 . $UnitTestingPowerShellScriptsDirectory\utils.ps1
+
 
 function Bootstrap {
     [CmdletBinding()]
