@@ -102,7 +102,8 @@ function RunTests {
     param([switch]$TestSyntax, [switch]$TestColorScheme, [switch]$Coverage)
 
     # TODO: Change script name to conform to PS conventions.
-    & "$UnitTestingSublimeTextPackagesDirectory\sbin\run_tests.ps1" $env:PACKAGE -verbose @PSBoundParameters
+    # TODO: Do not use verbose by default.
+    & "$UnitTestingSublimeTextPackagesDirectory\sbin\run_tests.ps1" $PackageUnderTestName -verbose @PSBoundParameters
 
     stop-process -force -processname sublime_text -ea silentlycontinue
     start-sleep -seconds 2
