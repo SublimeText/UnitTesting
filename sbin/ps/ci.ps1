@@ -1,9 +1,35 @@
+<#
+.SYNOPSIS
+The ci.ps1 script controls the execution of Unittesting-related commands in a CI
+environment.
+
+.DESCRIPTION
+The ci.ps1 script controls de execution of commands related to the Unittesting
+package used to write tests for Sublime Text packages and plugins. The ci.ps1
+script is meant to be used in a CI server (Windows-only at present). The ci.ps1
+script is the entry point for users.
+
+.PARAMETER Command
+The name of the command to be executed. Must be a member of the [CiCommand]
+enumeration.
+
+.PARAMETER Coverage
+If true, coverage statistics will be calculated.
+
+.NOTES
+The ci.ps1 script supersedes the appveyor.ps1 script. If you can choose, use
+ci.ps1 from now on. The ci.ps1 script is a drop-in replacement for appveyor.ps1.
+
+On first execution, ci.ps1 bootstraps itself by downloading required files and
+copying them to a temp directory from which they are then used.
+
+#>
 [CmdletBinding()]
 param(
     [Parameter(Mandatory=$false, Position=0)]
-    [string]$command,
+    [string]$Command,
     [Parameter(Mandatory=$false)]
-    [switch] $coverage
+    [switch]$Coverage
 )
 
 # Stop execution on any error. PS default is to continue on non-terminating errors.
@@ -97,11 +123,11 @@ enum CiCommand {
 # TODO: Remove when no longer needed.
 # Map of Legacy command names to current command names. Used to warn users of deprecated command names.
 $legacyCommandNames = @{
-    'install_package_control' = 'InstallPackageControl',
-    'install_color_scheme_unit' = 'InstallColorSchemeUnit',
-    'install_keypress' = 'InstallKeypress',
-    'run_tests' = 'RunTests',
-    'run_syntax_tests' = 'RunSyntaxTests',
+    'install_package_control' = 'InstallPackageControl'
+    'install_color_scheme_unit' = 'InstallColorSchemeUnit'
+    'install_keypress' = 'InstallKeypress'
+    'run_tests' = 'RunTests'
+    'run_syntax_tests' = 'RunSyntaxTests'
     'run_color_scheme_tests' = 'RunColorSchemeTests'
 }
 
@@ -116,7 +142,7 @@ if (![enum]::IsDefined([CiCommand], $command)) {
     throw ("The value of the 'Command' parameter must be one of: $([enum]::GetNames([CiCommand]) -join ", ")")
 }
 
-try{
+try {
     switch ([CiCommand]$command){
         [CiCommand]::Bootstrap { Bootstrap }
         [CiCommand]::InstallPackageControl { InstallPackageControl }
@@ -126,6 +152,6 @@ try{
         [CiCommand]::RunSyntaxTests { RunTests -TestSyntax }
         [CiCommand]::RunColorSchemeTests { RunTests -TestColorScheme }
     }
-}catch {
+} catch {
     throw $_
 }
