@@ -30,8 +30,8 @@ param(
     [Parameter(Position=0, Mandatory=$true)]
     [ValidateSet('bootstrap', 'install_package_control', 'install_color_scheme_unit',
         'install_keypress', 'run_tests')]
-    [string]$Command,
-    [switch]$Coverage
+    [string]$command,
+    [switch]$coverage
 )
 
 # Stop execution on any error. PS default is to continue on non-terminating errors.
@@ -99,7 +99,7 @@ function InstallKeypress {
 
 function RunTests {
     [CmdletBinding()]
-    param([switch]$TestSyntax, [switch]$TestColorScheme, [switch]$Coverage)
+    param([switch]$syntax_test, [switch]$color_scheme_test, [switch]$coverage)
 
     # TODO: Change script name to conform to PS conventions.
     # TODO: Do not use verbose by default.
@@ -114,7 +114,7 @@ switch ($command){
     'install_package_control' { InstallPackageControl }
     'install_color_scheme_unit' { InstallColorSchemeUnit }
     'install_keypress' { InstallKeypress }
-    'run_tests' { RunTests -Coverage:$coverage }
-    'run_syntax_tests' { RunTests -TestSyntax }
-    'run_color_scheme_tests' { RunTests -TestColorScheme }
+    'run_tests' { RunTests -coverage:$coverage }
+    'run_syntax_tests' { RunTests -syntax_test }
+    'run_color_scheme_tests' { RunTests -color_scheme_test }
 }
