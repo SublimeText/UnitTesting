@@ -33,5 +33,6 @@ if (!$env:UNITTESTING_BOOTSTRAPPED) {
 . $UnitTestingPowerShellScriptsDirectory\ci_config.ps1
 
 "command: $command, coverage: $coverage"
+"UnitTestingPowerShellScriptsDirectory: $UnitTestingPowerShellScriptsDirectory"
 
 & $UnitTestingPowerShellScriptsDirectory\ci.ps1 -Command $Command -Coverage:$Coverage
