@@ -28,9 +28,8 @@ use it.
 #>
 [CmdletBinding()]
 param(
-    [Parameter(Mandatory=$false, Position=0)]
+    [Parameter(Position=0)]
     [string]$Command,
-    [Parameter(Mandatory=$false)]
     [switch]$Coverage
 )
 
