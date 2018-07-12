@@ -34,4 +34,4 @@ if (!$env:UNITTESTING_BOOTSTRAPPED) {
 
 "command: $command, coverage: $coverage"
 
-& $UnitTestingPowerShellScriptsDirectory\ci.ps1 @PSBoundParameters
+& $UnitTestingPowerShellScriptsDirectory\ci.ps1 -Command $Command -Coverage:$Coverage
