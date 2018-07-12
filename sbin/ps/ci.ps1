@@ -115,6 +115,6 @@ switch ($command){
     'install_color_scheme_unit' { InstallColorSchemeUnit }
     'install_keypress' { InstallKeypress }
     'run_tests' { RunTests -Coverage:$coverage }
-    'run_tests' { RunTests -TestSyntax }
-    'run_tests' { RunTests -TestColorScheme }
+    'run_syntax_tests' { RunTests -TestSyntax }
+    'run_color_scheme_tests' { RunTests -TestColorScheme }
 }
