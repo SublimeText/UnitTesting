@@ -74,23 +74,10 @@ function InstallKeypress {
 
 function RunTests {
     [CmdletBinding()]
-    param(
-        [switch] $syntax_test,
-        [switch] $color_scheme_test,
-        [switch] $coverage
-    )
+    param([switch]$TestSyntax, [switch]$TestColorScheme, [switch]$Coverage)
 
-    $script = "$UnitTestingSublimeTextPackagesDirectory\sbin\run_tests.ps1"
-
-    if ($syntax_test) {
-        & $script $env:PACKAGE -verbose -syntax_test
-    } elseif ($color_scheme_test) {
-        & $script $env:PACKAGE -verbose -color_scheme_test
-    } elseif ($coverage) {
-        & $script $env:PACKAGE -verbose -coverage
-    } else {
-        & $script $env:PACKAGE -verbose
-    }
+    # TODO: Change script name to conform to PS conventions.
+    & "$UnitTestingSublimeTextPackagesDirectory\sbin\run_tests.ps1" $env:PACKAGE -verbose @PSBoundParameters
 
     stop-process -force -processname sublime_text -ea silentlycontinue
     start-sleep -seconds 2
@@ -135,9 +122,9 @@ try{
         [CiCommand]::InstallPackageControl { InstallPackageControl }
         [CiCommand]::InstallColorSchemeUnit { InstallColorSchemeUnit }
         [CiCommand]::InstallKeypress { InstallKeypress }
-        [CiCommand]::RunTests { RunTests -coverage:$coverage }
-        [CiCommand]::RunSyntaxTests { RunTests -syntax_test}
-        [CiCommand]::RunColorSchemeTests { RunTests -color_scheme_test}
+        [CiCommand]::RunTests { RunTests -Coverage:$coverage }
+        [CiCommand]::RunSyntaxTests { RunTests -TestSyntax }
+        [CiCommand]::RunColorSchemeTests { RunTests -TestColorScheme }
     }
 }catch {
     throw $_
