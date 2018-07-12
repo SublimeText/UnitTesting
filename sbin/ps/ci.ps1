@@ -55,9 +55,6 @@ if (!$env:UNITTESTING_BOOTSTRAPPED) {
 . $UnitTestingPowerShellScriptsDirectory\utils.ps1
 
 function Bootstrap {
-    [CmdletBinding()]
-    param([switch] $with_color_scheme_unit)
-
     ensureCreateDirectory $SublimeTextPackagesDirectory
 
     # Copy plugin files to Packages/<Package> folder.
