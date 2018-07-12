@@ -10,7 +10,7 @@
 # NOTE: The following parameters must mirror exactly those of ps\ci.ps1.
 [CmdletBinding()]
 param(
-    [Parameter(Position=0, Mandatory=$true)]
+    [Parameter(Mandatory = $true, Position = 0)]
     [string]$command,
     [switch] $coverage
 )
@@ -31,5 +31,7 @@ if (!$env:UNITTESTING_BOOTSTRAPPED) {
 }
 
 . $UnitTestingPowerShellScriptsDirectory\ci_config.ps1
+
+@PSBoundParameters
 
 & $UnitTestingPowerShellScriptsDirectory\ci.ps1 @PSBoundParameters
