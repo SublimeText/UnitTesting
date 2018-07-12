@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param(
-    [Parameter(Mandatory = $false, Position = 0)]
+    [Parameter(Mandatory = $true, Position = 0)]
     [string]$command,
     [Parameter(Mandatory = $false)]
     [switch] $coverage
