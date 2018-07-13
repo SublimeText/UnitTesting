@@ -46,6 +46,10 @@ for ($i=1; $i -le 20; $i++) {
     }
 }
 
-extractZipToDirectory "${env:Temp}\$filename" "C:\st"
+try {
+    extractZipToDirectory "${env:Temp}\$filename" "C:\st"
+} catch {
+    throw "could not extract Sublime Text zip archive"
+}
 
 New-Item -itemtype directory "C:\st\Data\Packages\User" -force >$null
