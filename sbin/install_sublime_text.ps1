@@ -27,39 +27,45 @@ function getDownloadUrl {
 
 $downloadUrl = $null
 
+logVerbose "fetching download url..."
+
 for ($i=1; $i -le $MaxRetries; $i++) {
     try {
         $downloadUrl = getDownloadUrl $SublimeTextUrl
         break
     } catch {
         if ($i -eq $MaxRetries) {
-            throw "could not download Sublime Text from '$SublimeTextUrl'"
+            throw "could not download Sublime Text from '$SublimeTextUrl' after $MaxRetries retries"
         }
         start-sleep -seconds 3
     }
 }
 
-logVerbose "downloading $downloadUrl..."
-
 $downloadUrl = [Uri]::EscapeUriString($downloadUrl)
-$filename = Split-Path $downloadUrl -leaf
+$filename = split-path $downloadUrl -leaf
+$archivePath = join-path $env:TEMP $filename
+
+logVerbose "downloading $downloadUrl..."
 
 for ($i=1; $i -le $MaxRetries; $i++) {
     try {
-        downloadFile $downloadUrl (join-path $env:TEMP $filename)
+        downloadFile $downloadUrl $archivePath
         break
     } catch {
         if ($i -eq $MaxRetries) {
-            throw "could not download Sublime Text"
+            throw "could not download Sublime Text after $MaxRetries retries"
         }
         start-sleep -seconds 3
     }
 }
 
 try {
-    extractZipToDirectory "${env:Temp}\$filename" "C:\st"
+    extractZipToDirectory $archivePath $SublimeTextDirectory
 } catch {
-    throw "could not extract Sublime Text zip archive"
+    throw "could not extract Sublime Text zip from '$archivePath' to '$SublimeTextDirectory'"
 }
 
-ensureCreateDirectory "C:\st\Data\Packages\User"
+logVerbose "installed Sublime Text $Version in '$SublimeTextDirectory'"
+logVerbose "creating $SublimeTextPackagesDirectory\User..."
+
+ensureCreateDirectory "$SublimeTextPackagesDirectory\User"
