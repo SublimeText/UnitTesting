@@ -6,10 +6,6 @@ param(
 
 $ErrorActionPreference = 'stop'
 
-if (-not $Version) {
-    throw "Missing Sublime Text version"
-}
-
 write-verbose "installing sublime text $Version"
 
 $url = $null
