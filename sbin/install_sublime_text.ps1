@@ -6,7 +6,8 @@ param(
 
 $ErrorActionPreference = 'stop'
 
-write-verbose "installing sublime text $Version"
+# TODO: improve logging overall.
+write-verbose "installing sublime text $Version..."
 
 $url = $null
 for ($i=1; $i -le 20; $i++) {
@@ -22,15 +23,15 @@ for ($i=1; $i -le 20; $i++) {
         start-sleep -s 3
     }
 }
+
 if (-not $url) {
     throw "could not download Sublime Text binary"
 }
 
-write-verbose "downloading $url"
+write-verbose "downloading $url..."
 
-$url = [System.Uri]::EscapeUriString($url)
+$url = [Uri]::EscapeUriString($url)
 $filename = Split-Path $url -leaf
-
 
 for ($i=1; $i -le 20; $i++) {
     try {
