@@ -46,7 +46,6 @@ for ($i=1; $i -le 20; $i++) {
     }
 }
 
-Add-Type -AssemblyName System.IO.Compression.FileSystem
-[System.IO.Compression.ZipFile]::ExtractToDirectory("${env:Temp}\$filename", "C:\st")
+extractZipToDirectory "${env:Temp}\$filename" "C:\st"
 
 New-Item -itemtype directory "C:\st\Data\Packages\User" -force >$null
