@@ -1,20 +1,21 @@
 [CmdletBinding()]
 param(
-    [int]$st = ${env:SUBLIME_TEXT_VERSION}
+    [ValidateSet('2', '3')]
+    [int]$Version = $SublimeTextVersion
 )
 
 
 try{
-    if (-not $st) {
+    if (-not $Version) {
         throw "Missing Sublime Text version"
     }
 
-    write-verbose "installing sublime text $st"
+    write-verbose "installing sublime text $Version"
 
     $url = $null
     for ($i=1; $i -le 20; $i++) {
         try {
-            foreach ( $link in (Invoke-WebRequest "http://www.sublimetext.com/$st" -UseBasicParsing).Links ) {
+            foreach ( $link in (Invoke-WebRequest "http://www.sublimetext.com/$Version" -UseBasicParsing).Links ) {
                 if ( $link.href.endsWith("x64.zip") ) {
                    $url = $link.href
                    break
