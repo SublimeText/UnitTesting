@@ -6,43 +6,53 @@ param(
 
 $ErrorActionPreference = 'stop'
 
+$script:MaxRetries = 20
+$script:SublimeTextUrl = "http://www.sublimetext.com/$Version"
+
 . $PSScriptRoot\ps\utils.ps1
 
 # TODO: improve logging overall.
 write-verbose "installing sublime text $Version..."
 
-$url = $null
-for ($i=1; $i -le 20; $i++) {
-    try {
-        foreach ( $link in (Invoke-WebRequest "http://www.sublimetext.com/$Version" -UseBasicParsing).Links ) {
-            if ( $link.href.endsWith("x64.zip") ) {
-               $url = $link.href
-               break
-            }
+function getDownloadUrl {
+    param([string]$Url)
+    $html = Invoke-WebRequest $Url -UseBasicParsing
+    foreach ($link in $html.Links) {
+        if ($link.href.endsWith('x64.zip')) {
+           $link.href
+           break
         }
-        break
-    } catch {
-        if ($i -eq 20) {
-            throw "could not download Sublime Text"
-        }
-        start-sleep -s 3
     }
 }
 
-write-verbose "downloading $url..."
+$downloadUrl = $null
 
-$url = [Uri]::EscapeUriString($url)
-$filename = Split-Path $url -leaf
-
-for ($i=1; $i -le 20; $i++) {
+for ($i=1; $i -le $MaxRetries; $i++) {
     try {
-        downloadFile $url (join-path $env:TEMP $filename)
+        $downloadUrl = getDownloadUrl $SublimeTextUrl
         break
     } catch {
-        if ($i -eq 20) {
+        if ($i -eq $MaxRetries) {
+            throw "could not download Sublime Text from '$SublimeTextUrl'"
+        }
+        start-sleep -seconds 3
+    }
+}
+
+write-verbose "downloading $downloadUrl..."
+
+$downloadUrl = [Uri]::EscapeUriString($downloadUrl)
+$filename = Split-Path $downloadUrl -leaf
+
+for ($i=1; $i -le $MaxRetries; $i++) {
+    try {
+        downloadFile $downloadUrl (join-path $env:TEMP $filename)
+        break
+    } catch {
+        if ($i -eq $MaxRetries) {
             throw "could not download Sublime Text"
         }
-        start-sleep -s 3
+        start-sleep -seconds 3
     }
 }
 
