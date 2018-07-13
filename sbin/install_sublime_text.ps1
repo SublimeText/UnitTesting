@@ -60,7 +60,7 @@ for ($i=1; $i -le $MaxRetries; $i++) {
 }
 
 try {
-    extractZipToDirectory $archivePath $SublimeTextDirectory
+    expand-archive -LiteralPath $archivePath -DestinationPath $SublimeTextDirectory
 } catch {
     throw "could not extract Sublime Text zip from '$archivePath' to '$SublimeTextDirectory'"
 }
