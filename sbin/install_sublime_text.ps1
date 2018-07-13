@@ -1,3 +1,10 @@
+<#
+.SYNOPSIS
+Installs Sublime Text.
+
+.PARAMETER Version
+The major version of Sublime Text to be installed.
+#>
 [CmdletBinding()]
 param(
     [ValidateSet('2', '3')]
