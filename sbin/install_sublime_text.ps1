@@ -6,6 +6,8 @@ param(
 
 $ErrorActionPreference = 'stop'
 
+. $PSScriptRoot\utils.ps1
+
 # TODO: improve logging overall.
 write-verbose "installing sublime text $Version..."
 
@@ -20,12 +22,11 @@ for ($i=1; $i -le 20; $i++) {
         }
         break
     } catch {
+        if ($i -eq 20) {
+            throw "could not download Sublime Text"
+        }
         start-sleep -s 3
     }
-}
-
-if (-not $url) {
-    throw "could not download Sublime Text binary"
 }
 
 write-verbose "downloading $url..."
@@ -35,9 +36,12 @@ $filename = Split-Path $url -leaf
 
 for ($i=1; $i -le 20; $i++) {
     try {
-        (New-Object System.Net.WebClient).DownloadFile($url, "${env:Temp}\$filename")
+        downloadFile $url (join-path $env:TEMP $filename)
         break
     } catch {
+        if ($i -eq 20) {
+            throw "could not download Sublime Text"
+        }
         start-sleep -s 3
     }
 }

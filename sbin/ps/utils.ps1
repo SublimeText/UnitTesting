@@ -1,3 +1,9 @@
+$script:webClient = new-object System.Net.WebClient
+
+function downloadFile {
+    param([string]$source, [string]$target)
+    $webClient.DownloadFile($source, $target)
+}
 
 function ensureCreateDirectory {
     param([string]$Path)
