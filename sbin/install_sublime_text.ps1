@@ -52,4 +52,4 @@ try {
     throw "could not extract Sublime Text zip archive"
 }
 
-New-Item -itemtype directory "C:\st\Data\Packages\User" -force >$null
+ensureCreateDirectory "C:\st\Data\Packages\User"
