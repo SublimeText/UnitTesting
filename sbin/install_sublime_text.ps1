@@ -4,6 +4,7 @@ param(
     [int]$Version = $SublimeTextVersion
 )
 
+$ErrorActionPreference = 'stop'
 
 if (-not $Version) {
     throw "Missing Sublime Text version"
