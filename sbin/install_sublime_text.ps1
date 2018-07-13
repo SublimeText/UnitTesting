@@ -12,7 +12,7 @@ $script:SublimeTextUrl = "http://www.sublimetext.com/$Version"
 . $PSScriptRoot\ps\utils.ps1
 
 # TODO: improve logging overall.
-write-verbose "installing sublime text $Version..."
+logVerbose "installing sublime text $Version..."
 
 function getDownloadUrl {
     param([string]$Url)
@@ -39,7 +39,7 @@ for ($i=1; $i -le $MaxRetries; $i++) {
     }
 }
 
-write-verbose "downloading $downloadUrl..."
+logVerbose "downloading $downloadUrl..."
 
 $downloadUrl = [Uri]::EscapeUriString($downloadUrl)
 $filename = Split-Path $downloadUrl -leaf
