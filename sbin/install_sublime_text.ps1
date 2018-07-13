@@ -6,7 +6,7 @@ param(
 
 $ErrorActionPreference = 'stop'
 
-. $PSScriptRoot\utils.ps1
+. $PSScriptRoot\ps\utils.ps1
 
 # TODO: improve logging overall.
 write-verbose "installing sublime text $Version..."
