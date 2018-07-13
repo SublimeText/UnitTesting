@@ -6,8 +6,8 @@ param(
 
 $ErrorActionPreference = 'stop'
 
-$script:MaxRetries = 20
-$script:SublimeTextUrl = "http://www.sublimetext.com/$Version"
+$private:MaxRetries = 20
+$private:SublimeTextUrl = "http://www.sublimetext.com/$Version"
 
 . $PSScriptRoot\ps\utils.ps1
 
