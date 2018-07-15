@@ -1,53 +1,78 @@
+<#
+.SYNOPSIS
+Installs Sublime Text.
+
+.PARAMETER Version
+The major version of Sublime Text to be installed.
+#>
 [CmdletBinding()]
 param(
-    [int]$st = ${env:SUBLIME_TEXT_VERSION}
+    [ValidateSet('2', '3')]
+    [int]$Version = $SublimeTextVersion
 )
 
+$ErrorActionPreference = 'stop'
 
-try{
-    if (-not $st) {
-        throw "Missing Sublime Text version"
-    }
+$private:MaxRetries = 20
+$private:SublimeTextUrl = "http://www.sublimetext.com/$Version"
 
-    write-verbose "installing sublime text $st"
+. $PSScriptRoot\ps\utils.ps1
 
-    $url = $null
-    for ($i=1; $i -le 20; $i++) {
-        try {
-            foreach ( $link in (Invoke-WebRequest "http://www.sublimetext.com/$st" -UseBasicParsing).Links ) {
-                if ( $link.href.endsWith("x64.zip") ) {
-                   $url = $link.href
-                   break
-                }
-            }
-            break
-        } catch {
-            start-sleep -s 3
+# TODO: improve logging overall.
+logVerbose "installing sublime text $Version..."
+
+function getDownloadUrl {
+    param([string]$Url)
+    $html = Invoke-WebRequest $Url -UseBasicParsing
+    foreach ($link in $html.Links) {
+        if ($link.href.endsWith('x64.zip')) {
+           $link.href
+           break
         }
     }
-    if (-not $url) {
-        throw "could not download Sublime Text binary"
-    }
-
-    write-verbose "downloading $url"
-
-    $url = [System.Uri]::EscapeUriString($url)
-    $filename = Split-Path $url -leaf
-
-
-    for ($i=1; $i -le 20; $i++) {
-        try {
-            (New-Object System.Net.WebClient).DownloadFile($url, "${env:Temp}\$filename")
-            break
-        } catch {
-            start-sleep -s 3
-        }
-    }
-
-    Add-Type -AssemblyName System.IO.Compression.FileSystem
-    [System.IO.Compression.ZipFile]::ExtractToDirectory("${env:Temp}\$filename", "C:\st")
-
-    New-Item -itemtype directory "C:\st\Data\Packages\User" -force >$null
-}catch {
-    throw $_
 }
+
+$downloadUrl = $null
+
+logVerbose "fetching download url..."
+
+for ($i=1; $i -le $MaxRetries; $i++) {
+    try {
+        $downloadUrl = getDownloadUrl $SublimeTextUrl
+        break
+    } catch {
+        if ($i -eq $MaxRetries) {
+            throw "could not download Sublime Text from '$SublimeTextUrl' after $MaxRetries retries"
+        }
+        start-sleep -seconds 3
+    }
+}
+
+$downloadUrl = [Uri]::EscapeUriString($downloadUrl)
+$filename = split-path $downloadUrl -leaf
+$archivePath = join-path $env:TEMP $filename
+
+logVerbose "downloading $downloadUrl..."
+
+for ($i=1; $i -le $MaxRetries; $i++) {
+    try {
+        downloadFile $downloadUrl $archivePath
+        break
+    } catch {
+        if ($i -eq $MaxRetries) {
+            throw "could not download Sublime Text after $MaxRetries retries"
+        }
+        start-sleep -seconds 3
+    }
+}
+
+try {
+    expand-archive -LiteralPath $archivePath -DestinationPath $SublimeTextDirectory
+} catch {
+    throw "could not extract Sublime Text zip from '$archivePath' to '$SublimeTextDirectory'"
+}
+
+logVerbose "installed Sublime Text $Version in '$SublimeTextDirectory'"
+logVerbose "creating $SublimeTextPackagesDirectory\User..."
+
+ensureCreateDirectory "$SublimeTextPackagesDirectory\User"

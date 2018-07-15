@@ -1,3 +1,16 @@
+Add-Type -AssemblyName System.IO.Compression.FileSystem
+
+$script:webClient = new-object System.Net.WebClient
+
+function downloadFile {
+    param([string]$source, [string]$target)
+    $webClient.DownloadFile($source, $target)
+}
+
+function extractZipToDirectory {
+    param([string]$Source, [string]$Target)
+    [System.IO.Compression.ZipFile]::ExtractToDirectory($Source, $Target)
+}
 
 function ensureCreateDirectory {
     param([string]$Path)
