@@ -13,12 +13,18 @@ class Unit:
 
         self.output = s.get('output', None)
         self.syntax_test = s.get('syntax_test', False)
+        self.syntax_compatibility = s.get('syntax_compatibility', False)
         self.color_scheme_test = s.get('color_scheme_test', False)
         self.coverage = s.get('coverage', False)
 
     def run(self):
         if self.syntax_test:
             sublime.run_command("unit_testing_syntax", {
+                "package": self.package,
+                "output": self.output
+            })
+        elif self.syntax_compatibility:
+            sublime.run_command("unit_testing_syntax_compatibility", {
                 "package": self.package,
                 "output": self.output
             })

@@ -25,6 +25,7 @@ from unittesting import UnitTestingCurrentFileCommand  # noqa: F401
 from unittesting import UnitTestingCurrentPackageCommand  # noqa: F401
 from unittesting import UnitTestingCurrentPackageCoverageCommand  # noqa: F401
 from unittesting import UnitTestingSyntaxCommand  # noqa: F401
+from unittesting import UnitTestingSyntaxCompatibilityCommand  # noqa: F401
 from unittesting import UnitTestingColorSchemeCommand  # noqa: F401
 
 
@@ -36,5 +37,6 @@ __all__ = [
     "UnitTestingCurrentPackageCommand",
     "UnitTestingCurrentPackageCoverageCommand",
     "UnitTestingSyntaxCommand",
+    "UnitTestingSyntaxCompatibilityCommand",
     "UnitTestingColorSchemeCommand"
 ]
