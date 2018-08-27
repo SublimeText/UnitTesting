@@ -76,8 +76,8 @@ class UnitTestingSyntaxCompatibilityCommand(UnitTestingSyntaxBase):
                 results = sublime_api.incompatible_syntax_patterns(syntax)
                 for location, _, message in results:
                     stream.write("%s:%d:%d: %s\n" % (syntax, location[0] + 1,
-                                                   location[0] + location[1],
-                                                   message))
+                                                     location[0] + location[1],
+                                                     message))
                 if results:
                     total_errors += len(results)
                     total_failed_syntaxes += 1
