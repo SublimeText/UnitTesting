@@ -5,6 +5,8 @@ param(
     [Parameter(Mandatory = $false)]
     [switch] $syntax_test,
     [Parameter(Mandatory = $false)]
+    [switch] $syntax_compatibility,
+    [Parameter(Mandatory = $false)]
     [switch] $color_scheme_test,
     [Parameter(Mandatory = $false)]
     [switch] $coverage
@@ -43,6 +45,7 @@ if ($found -eq 0) {
         "package" = $PackageToTest;
         "output" = $outFile;
         "syntax_test" = $syntax_test.IsPresent;
+        "syntax_compatibility" = $syntax_compatibility.IsPresent;
         'color_scheme_test' = $color_scheme_test.IsPresent;
         "coverage" = $coverage.IsPresent
     }

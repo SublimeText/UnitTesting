@@ -186,12 +186,14 @@ def main(default_schedule_info):
 if __name__ == '__main__':
     parser = optparse.OptionParser()
     parser.add_option('--syntax-test', action='store_true')
+    parser.add_option('--syntax-compatibility', action='store_true')
     parser.add_option('--color-scheme-test', action='store_true')
     parser.add_option('--coverage', action='store_true')
 
     options, remainder = parser.parse_args()
 
     syntax_test = options.syntax_test
+    syntax_compatibility = options.syntax_compatibility
     color_scheme_test = options.color_scheme_test
     coverage = options.coverage
     package_under_test = remainder[0] if len(remainder) > 0 else "UnitTesting"
@@ -199,6 +201,7 @@ if __name__ == '__main__':
     default_schedule_info = {
         'package': package_under_test,
         'syntax_test': syntax_test,
+        'syntax_compatibility': syntax_compatibility,
         'color_scheme_test': color_scheme_test,
         'coverage': coverage,
     }

@@ -153,6 +153,9 @@ case $COMMAND in
     "run_syntax_tests")
         RunTests "--syntax-test" "$@"
         ;;
+    "run_syntax_compatibility")
+        RunTests "--syntax-compatibility" "$@"
+        ;;
     "run_color_scheme_tests")
         RunTests "--color-scheme-test" "$@"
         ;;

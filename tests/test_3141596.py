@@ -37,7 +37,8 @@ def cleanup_package(package):
         pass
 
 
-def prepare_package(package, output=None, syntax_test=False, color_scheme_test=False, delay=None):
+def prepare_package(package, output=None, syntax_test=False, syntax_compatibility=False,
+                    color_scheme_test=False, delay=None):
     def wrapper(func):
         @wraps(func)
         def real_wrapper(self):
@@ -59,6 +60,9 @@ def prepare_package(package, output=None, syntax_test=False, color_scheme_test=F
             if syntax_test:
                 sublime.run_command(
                     "unit_testing_syntax", {"package": package, "output": outfile})
+            elif syntax_compatibility:
+                sublime.run_command(
+                    "unit_testing_syntax_compatibility", {"package": package, "output": outfile})
             elif color_scheme_test:
                 sublime.run_command(
                     "unit_testing_color_scheme", {"package": package, "output": outfile})
@@ -135,6 +139,14 @@ class TestSyntax(UnitTestingTestCase):
     @prepare_package("_Syntax_Error", syntax_test=True, delay=1000)
     def test_error_syntax(self, txt):
         self.assertRegexContains(txt, r'^ERROR: No syntax_test')
+
+    @prepare_package("_Syntax_Compat_Failure", syntax_compatibility=True, delay=1000)
+    def test_fail_syntax_compatibility(self, txt):
+        self.assertRegexContains(txt, r'^FAILED: 3 errors in 1 of 1 syntaxes$')
+
+    @prepare_package("_Syntax_Compat_Success", syntax_compatibility=True, delay=1000)
+    def test_success_syntax_compatibility(self, txt):
+        self.assertOk(txt)
 
 
 class TestColorScheme(UnitTestingTestCase):

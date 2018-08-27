@@ -1,0 +1,11 @@
+%YAML 1.2
+---
+# http://www.sublimetext.com/docs/3/syntax.html
+name: Test
+scope: source.test
+
+contexts:
+  main:
+    - match: '(a|b)++'
+    - match: '(?<=\s)'
+    - match: '(?>a|ab)'
