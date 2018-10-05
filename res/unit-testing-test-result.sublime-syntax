@@ -1,0 +1,61 @@
+%YAML 1.2
+---
+# http://www.sublimetext.com/docs/3/syntax.html
+name: UnitTesting Test Result
+scope: text.test-result
+hidden: true
+contexts:
+  main:
+
+    # verbosity <= 1
+    - match: '(?=^[\\.sEF]+$)'
+      push:
+        - match: $
+          pop: true
+        - match: s
+          scope: markup.changed
+        - match: E|F
+          scope: markup.deleted
+
+    # verbosity >= 2
+    - match: .+(\.\.\.)
+      captures:
+        1: markup.ignored
+      push:
+        - match: $
+          pop: true
+        - match: ok
+          scope: markup.inserted
+        - match: ERROR|FAIL
+          scope: markup.deleted
+        - match: "skipped.*"
+          scope: markup.changed
+
+    - match: ^OK.*
+      scope: markup.inserted
+
+    - match: ^FAILED.*
+      scope: markup.deleted
+
+    - match: '======================================================================'
+      scope: markup.ignored
+      push:
+        - match: '----------------------------------------------------------------------'
+          scope: markup.ignored
+          pop: true
+        - match: ^ERROR|FAIL
+          scope: markup.deleted
+
+    - match: ^----------------------------------------------------------------------$
+      scope: markup.ignored
+
+    - include: scope:source.diff
+
+    - match: 'File "(.*)"(?:, line ([0-9]+)(?:, in (.*))?)?'
+      captures:
+        1: markup.underline.link
+        2: constant.numeric
+        3: entity.name
+
+    - match: ^UnitTesting.*
+      scope: markup.ignored
