@@ -1,3 +1,17 @@
+# v1.3.5
+
+   - refactor ci.ps1 and install_sublime_text.ps1
+   - Add command to test for syntax compatibility.
+   - various improvements
+
+  Contributors:
+   - Guillermo López-Anglada
+   - guillermooo
+   - herr kaste
+   - Randy Lai
+   - ehuss
+
+
 # v1.3.4
 
    - fix appveyor issue (#121)
