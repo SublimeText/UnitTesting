@@ -47,4 +47,15 @@ class UnitTestingCurrentFileCommand(UnitTestingCommand):
         if not test_file:
             test_file = ""
 
-        super(UnitTestingCurrentFileCommand, self).run("{}:{}".format(project_name, test_file))
+        sublime.set_timeout_async(
+            lambda: super(UnitTestingCurrentFileCommand, self).run(
+                "{}:{}".format(project_name, test_file)))
+
+    def unit_testing(self, stream, package, settings):
+        # ideally, we should reuse same function in UnitTestingCurrentPackageCommand
+        # but it is easier to copy it to here
+        parent = super(UnitTestingCurrentFileCommand, self)
+        if settings["reload_package_on_testing"]:
+            self.reload_package(
+                package, dummy=True, show_reload_progress=settings["show_reload_progress"])
+        parent.unit_testing(stream, package, settings)
