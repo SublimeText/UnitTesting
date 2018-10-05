@@ -37,8 +37,6 @@ class UnitTestingCoverageCommand(UnitTestingCommand):
         cov = coverage.Coverage(
             data_file=data_file, config_file=config_file, include=include, omit=omit)
         cov.start()
-        if settings["reload_package_on_testing"]:
-            self.reload_package(package, dummy=False, show_reload_progress=False)
 
         def cleanup():
             stream.write("\n")
