@@ -129,7 +129,7 @@ class UnitTestingMixin(object):
         else:
             if not os.path.isabs(output):
                 if sublime.platform() == "windows":
-                    output.replace("/", "\\")
+                    output = output.replace("/", "\\")
                 output = os.path.join(sublime.packages_path(), package, output)
             if os.path.exists(output):
                 os.remove(output)
