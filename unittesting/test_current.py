@@ -5,14 +5,14 @@ from .test_coverage import UnitTestingCoverageCommand
 
 
 class UnitTestingCurrentPackageCommand(UnitTestingCommand):
-    def run(self):
+    def run(self, **kwargs):
         project_name = self.current_package_name
         if not project_name:
             sublime.message_dialog("Cannot determine package name.")
             return
 
         sublime.set_timeout_async(
-            lambda: super(UnitTestingCurrentPackageCommand, self).run(project_name))
+            lambda: super(UnitTestingCurrentPackageCommand, self).run(project_name, **kwargs))
 
     def unit_testing(self, stream, package, settings):
         parent = super(UnitTestingCurrentPackageCommand, self)
@@ -24,20 +24,20 @@ class UnitTestingCurrentPackageCommand(UnitTestingCommand):
 
 class UnitTestingCurrentPackageCoverageCommand(UnitTestingCoverageCommand):
 
-    def run(self):
+    def run(self, **kwargs):
         project_name = self.current_package_name
         if not project_name:
             sublime.message_dialog("Cannot determine package name.")
             return
 
-        super(UnitTestingCurrentPackageCoverageCommand, self).run(project_name)
+        super(UnitTestingCurrentPackageCoverageCommand, self).run(project_name, **kwargs)
 
     def is_enabled(self):
         return "coverage" in sys.modules
 
 
 class UnitTestingCurrentFileCommand(UnitTestingCommand):
-    def run(self):
+    def run(self, **kwargs):
         project_name = self.current_package_name
         if not project_name:
             sublime.message_dialog("Cannot determine package name.")
@@ -49,7 +49,10 @@ class UnitTestingCurrentFileCommand(UnitTestingCommand):
 
         sublime.set_timeout_async(
             lambda: super(UnitTestingCurrentFileCommand, self).run(
-                "{}:{}".format(project_name, test_file)))
+                "{}:{}".format(project_name, test_file),
+                **kwargs
+            )
+        )
 
     def unit_testing(self, stream, package, settings):
         # ideally, we should reuse same function in UnitTestingCurrentPackageCommand

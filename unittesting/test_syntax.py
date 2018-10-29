@@ -8,10 +8,10 @@ import sublime_api
 
 class UnitTestingSyntaxBase(sublime_plugin.ApplicationCommand, UnitTestingMixin):
 
-    def run(self, package=None, **kargs):
+    def run(self, package=None, **kwargs):
         if not package:
             return
-        settings = self.load_unittesting_settings(package, **kargs)
+        settings = self.load_unittesting_settings(package, kwargs)
         stream = self.load_stream(package, settings)
         self.syntax_testing(stream, package)
 
