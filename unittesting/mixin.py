@@ -79,6 +79,7 @@ class UnitTestingMixin(object):
         pattern = kargs["pattern"] if "pattern" in kargs else None
         output = kargs["output"] if "output" in kargs else None
         capture_console = False
+        generate_html_report = False
 
         jfile = os.path.join(sublime.packages_path(), package, "unittesting.json")
         if os.path.exists(jfile):
@@ -91,6 +92,7 @@ class UnitTestingMixin(object):
                 "reload_package_on_testing", reload_package_on_testing)
             show_reload_progress = ss.get("show_reload_progress", show_reload_progress)
             capture_console = ss.get("capture_console", False)
+            generate_html_report = ss.get("generate_html_report", generate_html_report)
             if pattern is None:
                 pattern = ss.get("pattern")
             if not output:
@@ -108,7 +110,8 @@ class UnitTestingMixin(object):
             "show_reload_progress": show_reload_progress,
             "pattern": pattern,
             "output": output,
-            "capture_console": capture_console
+            "capture_console": capture_console,
+            "generate_html_report": generate_html_report
         }
 
     def default_output(self, package):

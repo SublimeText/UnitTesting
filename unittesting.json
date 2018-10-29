@@ -7,5 +7,6 @@
     "capture_console": false,
     "reload_package_on_testing": true,
     "show_reload_progress": true,
-    "output": null
+    "output": null,
+    "generate_html_report": false
 }
