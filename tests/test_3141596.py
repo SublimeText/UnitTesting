@@ -67,8 +67,13 @@ def prepare_package(package, output=None, syntax_test=False, syntax_compatibilit
                 sublime.run_command(
                     "unit_testing_color_scheme", {"package": package, "output": outfile})
             else:
-                sublime.run_command(
-                    "unit_testing", {"package": package, "output": outfile})
+                args = {"package": package}
+                if outfile:
+                    # Command args have the highest precedence. Passing down
+                    # 'None' is not what we want, the intention is to omit it
+                    # so that the value from 'unittesting.json' wins.
+                    args["output"] = outfile
+                sublime.run_command("unit_testing", args)
 
             if delay:
                 yield delay

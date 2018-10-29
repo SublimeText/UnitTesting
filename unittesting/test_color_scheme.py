@@ -6,12 +6,12 @@ from .const import DONE_MESSAGE
 
 class UnitTestingColorSchemeCommand(ApplicationCommand, UnitTestingMixin):
 
-    def run(self, package=None, **kargs):
+    def run(self, package=None, **kwargs):
         if not package:
             return
 
         window = sublime.active_window()
-        settings = self.load_unittesting_settings(package, **kargs)
+        settings = self.load_unittesting_settings(package, kwargs)
         stream = self.load_stream(package, settings)
 
         try:

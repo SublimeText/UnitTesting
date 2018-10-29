@@ -1,3 +1,4 @@
+from collections import ChainMap
 import os
 import sys
 import re
@@ -9,6 +10,21 @@ from .utils import reload_package
 from .utils import ProgressBar
 
 import sublime
+
+
+DEFAULT_SETTINGS = {
+    "tests_dir": "tests",
+    "pattern": "test*.py",
+    "async": False,
+    "deferred": False,
+    "verbosity": 2,
+    "output": None,
+    "reload_package_on_testing": True,
+    "show_reload_progress": True,
+    "start_coverage_after_reload": False,
+    "generate_html_report": False,
+    "capture_console": False,
+}
 
 
 def casedpath(path):
@@ -68,55 +84,11 @@ class UnitTestingMixin(object):
             'Package:', package, callback, None, None)
         view.run_command("select_all")
 
-    def load_unittesting_settings(self, package, **kargs):
-        # default settings
-        tests_dir = "tests"
-        use_async = False
-        deferred = False
-        verbosity = 2
-        reload_package_on_testing = True
-        start_coverage_after_reload = False
-        show_reload_progress = True
-        pattern = kargs["pattern"] if "pattern" in kargs else None
-        output = kargs["output"] if "output" in kargs else None
-        capture_console = False
-        generate_html_report = False
-
+    def load_unittesting_settings(self, package, options):
         jfile = os.path.join(sublime.packages_path(), package, "unittesting.json")
-        if os.path.exists(jfile):
-            ss = JsonFile(jfile).load()
-            tests_dir = ss.get("tests_dir", tests_dir)
-            use_async = ss.get("async", use_async)
-            deferred = ss.get("deferred", deferred)
-            verbosity = ss.get("verbosity", verbosity)
-            reload_package_on_testing = ss.get(
-                "reload_package_on_testing", reload_package_on_testing)
-            start_coverage_after_reload = ss.get(
-                "start_coverage_after_reload", start_coverage_after_reload)
-            show_reload_progress = ss.get("show_reload_progress", show_reload_progress)
-            capture_console = ss.get("capture_console", False)
-            generate_html_report = ss.get("generate_html_report", generate_html_report)
-            if pattern is None:
-                pattern = ss.get("pattern")
-            if not output:
-                output = ss.get("output")
+        package_settings = JsonFile(jfile).load() if os.path.exists(jfile) else {}
 
-        if pattern is None:
-            pattern = "test*.py"
-
-        return {
-            "tests_dir": tests_dir,
-            "async": use_async,
-            "deferred": deferred,
-            "verbosity": verbosity,
-            "reload_package_on_testing": reload_package_on_testing,
-            "start_coverage_after_reload": start_coverage_after_reload,
-            "show_reload_progress": show_reload_progress,
-            "pattern": pattern,
-            "output": output,
-            "capture_console": capture_console,
-            "generate_html_report": generate_html_report
-        }
+        return ChainMap({}, options, package_settings, DEFAULT_SETTINGS)
 
     def default_output(self, package):
         outputdir = os.path.join(

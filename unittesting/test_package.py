@@ -13,13 +13,18 @@ import threading
 
 class UnitTestingCommand(sublime_plugin.ApplicationCommand, UnitTestingMixin):
 
-    def run(self, package=None, **kargs):
+    def run(self, package=None, **kwargs):
         if not package:
-            self.prompt_package(lambda x: self.run(x, **kargs))
+            self.prompt_package(lambda x: self.run(x, **kwargs))
             return
 
         package, pattern = self.input_parser(package)
-        settings = self.load_unittesting_settings(package, pattern=pattern, **kargs)
+        if pattern is not None:
+            # kwargs have the highest precedence when evaluating the settings,
+            # so we sure don't want to pass `None` down
+            kwargs['pattern'] = pattern
+
+        settings = self.load_unittesting_settings(package, kwargs)
         stream = self.load_stream(package, settings)
 
         if settings["async"]:
