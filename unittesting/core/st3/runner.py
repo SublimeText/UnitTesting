@@ -5,7 +5,7 @@ import sublime
 
 
 def defer(delay, callback, *args, **kwargs):
-    sublime.set_timeout(lambda: callback(*args, **kwargs), delay)
+    sublime.set_timeout_async(lambda: callback(*args, **kwargs), delay)
 
 
 class DeferringTextTestRunner(TextTestRunner):
@@ -40,7 +40,7 @@ class DeferringTextTestRunner(TextTestRunner):
                     startTestRun()
                 try:
                     deferred = test(result)
-                    defer(10, _continue_testing, deferred)
+                    _continue_testing(deferred)
 
                 except Exception as e:
                     _handle_error(e)
@@ -57,7 +57,7 @@ class DeferringTextTestRunner(TextTestRunner):
                 elif isinstance(condition, int):
                     defer(condition, _continue_testing, deferred)
                 else:
-                    defer(10, _continue_testing, deferred)
+                    defer(0, _continue_testing, deferred)
 
             except StopIteration:
                 _stop_testing()
@@ -132,4 +132,4 @@ class DeferringTextTestRunner(TextTestRunner):
             else:
                 self.stream.write("\n")
 
-        sublime.set_timeout(_start_testing, 10)
+        _start_testing()
