@@ -1,3 +1,4 @@
+from functools import partial
 import time
 from unittest.runner import TextTestRunner, registerResult
 import warnings
@@ -5,11 +6,15 @@ import sublime
 
 
 def defer(delay, callback, *args, **kwargs):
-    sublime.set_timeout_async(lambda: callback(*args, **kwargs), delay)
+    sublime.set_timeout_async(partial(callback, *args, **kwargs), delay)
 
 
 class DeferringTextTestRunner(TextTestRunner):
     """This test runner runs tests in deferred slices."""
+
+    # How can this be user configurable?
+    # controlled_timing = False
+    controlled_timing = True
 
     def run(self, test):
         """Run the given test case or test suite."""
