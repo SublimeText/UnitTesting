@@ -49,10 +49,10 @@ class DeferringTextTestRunner(TextTestRunner):
             try:
                 condition = next(deferred)
                 if callable(condition):
-                    defer(100, _wait_condition, deferred, condition)
+                    defer(0, _wait_condition, deferred, condition)
                 elif isinstance(condition, dict) and "condition" in condition and \
                         callable(condition["condition"]):
-                    period = condition.get("period", 100)
+                    period = condition.get("period", 5)
                     defer(period, _wait_condition, deferred, **condition)
                 elif isinstance(condition, int):
                     defer(condition, _continue_testing, deferred)
@@ -66,15 +66,15 @@ class DeferringTextTestRunner(TextTestRunner):
             except Exception as e:
                 _handle_error(e)
 
-        def _wait_condition(deferred, condition, period=100, timeout=10000, start_time=None):
+        def _wait_condition(deferred, condition, period=5, timeout=10000, start_time=None):
             if start_time is None:
                 start_time = time.time()
 
             if condition():
-                defer(10, _continue_testing, deferred)
+                _continue_testing(deferred)
             elif (time.time() - start_time) * 1000 >= timeout:
                 self.stream.writeln("Condition timeout, continue anyway.")
-                defer(10, _continue_testing, deferred)
+                _continue_testing(deferred)
             else:
                 defer(period, _wait_condition, deferred, condition, period, timeout, start_time)
 
