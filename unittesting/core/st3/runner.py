@@ -24,8 +24,12 @@ class DeferringTextTestRunner(TextTestRunner):
         result.failfast = self.failfast
         result.buffer = self.buffer
         startTime = time.time()
+        original_set_timeout_async = sublime.set_timeout_async
 
         def _start_testing():
+            if self.controlled_timing:
+                sublime.set_timeout_async = sublime.set_timeout
+
             with warnings.catch_warnings():
                 if self.warnings:
                     # if self.warnings is set, use it to filter all the warnings
@@ -91,6 +95,9 @@ class DeferringTextTestRunner(TextTestRunner):
             raise e
 
         def _stop_testing():
+            if self.controlled_timing:
+                sublime.set_timeout_async = original_set_timeout_async
+
             with warnings.catch_warnings():
                 stopTestRun = getattr(result, 'stopTestRun', None)
                 if stopTestRun is not None:
