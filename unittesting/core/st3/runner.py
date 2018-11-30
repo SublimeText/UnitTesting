@@ -45,9 +45,13 @@ class DeferringTextTestRunner(TextTestRunner):
                 except Exception as e:
                     _handle_error(e)
 
-        def _continue_testing(deferred):
+        def _continue_testing(deferred, send_value=None, throw_value=None):
             try:
-                condition = next(deferred)
+                if throw_value:
+                    condition = deferred.throw(throw_value)
+                else:
+                    condition = deferred.send(send_value)
+
                 if callable(condition):
                     defer(100, _wait_condition, deferred, condition)
                 elif isinstance(condition, dict) and "condition" in condition and \
@@ -70,8 +74,14 @@ class DeferringTextTestRunner(TextTestRunner):
             if start_time is None:
                 start_time = time.time()
 
-            if condition():
-                defer(10, _continue_testing, deferred)
+            try:
+                send_value = condition()
+            except Exception as e:
+                defer(10, _continue_testing, deferred, throw_value=e)
+                return
+
+            if send_value:
+                defer(10, _continue_testing, deferred, send_value=send_value)
             elif (time.time() - start_time) * 1000 >= timeout:
                 self.stream.writeln("Condition timeout, continue anyway.")
                 defer(10, _continue_testing, deferred)
