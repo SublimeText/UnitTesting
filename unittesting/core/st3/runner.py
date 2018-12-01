@@ -95,8 +95,11 @@ class DeferringTextTestRunner(TextTestRunner):
             if send_value:
                 defer(10, _continue_testing, deferred, send_value=send_value)
             elif (time.time() - start_time) * 1000 >= timeout:
-                self.stream.writeln("Condition timeout, continue anyway.")
-                defer(10, _continue_testing, deferred)
+                error = TimeoutError(
+                    'Condition not fulfilled within {:.2f} seconds'
+                    .format(timeout / 1000)
+                )
+                defer(10, _continue_testing, deferred, throw_value=error)
             else:
                 defer(period, _wait_condition, deferred, condition, period, timeout, start_time)
 
