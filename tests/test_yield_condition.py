@@ -15,3 +15,16 @@ class TestYieldConditionsHandlingInDeferredTestCase(DeferrableTestCase):
         rv = yield lambda: 'Hans Peter'
 
         self.assertEqual(rv, 'Hans Peter')
+
+    def test_handle_condition_timeout_as_failure(self):
+        try:
+            yield {
+                'condition': lambda: True is False,
+                'timeout': 100
+            }
+            self.fail('Unmet condition should have thrown')
+        except TimeoutError as e:
+            self.assertEqual(
+                str(e),
+                'Condition not fulfilled within 0.10 seconds'
+            )
