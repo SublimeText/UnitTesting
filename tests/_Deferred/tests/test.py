@@ -46,16 +46,3 @@ class TestDeferrable(DeferrableTestCase):
         yield condition
 
         self.assertEqual(x[0], 1)
-
-    def test_condition_timeout(self):
-        x = []
-
-        def append():
-            x.append(1)
-
-        sublime.set_timeout(append, 100)
-
-        # wait until condition timeout
-        yield {"condition": lambda: False, "timeout": 500}
-
-        self.assertEqual(x[0], 1)
