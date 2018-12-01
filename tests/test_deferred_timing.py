@@ -26,7 +26,6 @@ class TestTimingInDeferredTestCase(DeferrableTestCase):
             run_in_worker(work, 1, 0.5)   # add task (A)
             run_in_worker(work, 2)        # add task (B)
 
-
         uut()   # after that task queue has: (A)..(B)
         yield   # add task (C) and wait for (C)
         expected = [1, 2]
@@ -51,11 +50,11 @@ class TestTimingInDeferredTestCase(DeferrableTestCase):
         # task queue now: (A)..(B)
 
         yield  # add task (C) and wait for (C)
-               # (A) runs, (B) runs and adds task (D), (C) resolves
+        #        (A) runs, (B) runs and adds task (D), (C) resolves
         expected = [1]
         self.assertEqual(messages, expected)
         # task queue now: (D)
         yield  # add task (E) and wait for it
-               # (D) runs and (E) resolves
+        #        (D) runs and (E) resolves
         expected = [1, 2]
         self.assertEqual(messages, expected)
