@@ -6,8 +6,14 @@ import sublime
 
 
 def defer(delay, callback, *args, **kwargs):
+    # Rely on late binding in case a user patches it
     sublime.set_timeout(partial(callback, *args, **kwargs), delay)
 
+
+AWAIT_WORKER = 'AWAIT_WORKER'
+# Extract `set_timeout_async`, t.i. *avoid* late binding, in case a user
+# patches it
+run_on_worker = sublime.set_timeout_async
 
 
 class DeferringTextTestRunner(TextTestRunner):
@@ -58,6 +64,10 @@ class DeferringTextTestRunner(TextTestRunner):
                     defer(period, _wait_condition, deferred, **condition)
                 elif isinstance(condition, int):
                     defer(condition, _continue_testing, deferred)
+                elif condition == AWAIT_WORKER:
+                    run_on_worker(
+                        partial(defer, 0, _continue_testing, deferred)
+                    )
                 else:
                     defer(0, _continue_testing, deferred)
 
