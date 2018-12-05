@@ -1,4 +1,4 @@
-from .core import DeferrableTestCase
+from .core import DeferrableTestCase, AWAIT_WORKER
 from .scheduler import UnitTestingRunSchedulerCommand
 from .scheduler import run_scheduler
 from .test_package import UnitTestingCommand
@@ -22,5 +22,6 @@ __all__ = [
     "UnitTestingCurrentPackageCoverageCommand",
     "UnitTestingSyntaxCommand",
     "UnitTestingSyntaxCompatibilityCommand",
-    "UnitTestingColorSchemeCommand"
+    "UnitTestingColorSchemeCommand",
+    "AWAIT_WORKER"
 ]
