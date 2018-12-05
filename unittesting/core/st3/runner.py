@@ -6,7 +6,8 @@ import sublime
 
 
 def defer(delay, callback, *args, **kwargs):
-    sublime.set_timeout_async(partial(callback, *args, **kwargs), delay)
+    sublime.set_timeout(partial(callback, *args, **kwargs), delay)
+
 
 
 class DeferringTextTestRunner(TextTestRunner):
