@@ -63,16 +63,10 @@ class DeferrableTestCase(unittest.TestCase):
             outcome = _Outcome()
             self._outcomeForDoCleanups = outcome
 
-            deferred = self._executeTestPart(self.setUp, outcome)
-            if isiterable(deferred):
-                yield from deferred
+            yield from self._executeTestPart(self.setUp, outcome)
             if outcome.success:
-                deferred = self._executeTestPart(testMethod, outcome, isTest=True)
-                if isiterable(deferred):
-                    yield from deferred
-                deferred = self._executeTestPart(self.tearDown, outcome)
-                if isiterable(deferred):
-                    yield from deferred
+                yield from self._executeTestPart(testMethod, outcome, isTest=True)
+                yield from self._executeTestPart(self.tearDown, outcome)
 
             yield from self.doCleanups()
             if outcome.success:
