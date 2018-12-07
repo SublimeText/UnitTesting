@@ -62,13 +62,6 @@ class UnitTestingMixin(object):
 
         return None
 
-    @property
-    def current_test_file(self):
-        current_file = sublime.active_window().active_view().file_name()
-        if current_file and current_file.endswith(".py"):
-            current_file = os.path.basename(current_file)
-        return current_file
-
     def input_parser(self, package):
         m = re.match(r'([^:]+):(.+)', package)
         if m:

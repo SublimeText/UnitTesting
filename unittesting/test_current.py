@@ -1,3 +1,5 @@
+from fnmatch import fnmatch
+import os
 import sublime
 import sys
 from .test_package import UnitTestingCommand
@@ -43,9 +45,20 @@ class UnitTestingCurrentFileCommand(UnitTestingCommand):
             sublime.message_dialog("Cannot determine package name.")
             return
 
-        test_file = self.current_test_file
-        if not test_file:
-            test_file = ""
+        window = sublime.active_window()
+        if not window:
+            return
+
+        view = window.active_view()
+
+        settings = self.load_unittesting_settings(project_name, kwargs)
+        current_file = (view and view.file_name()) or ''
+        file_name = os.path.basename(current_file)
+        if file_name and fnmatch(file_name, settings['pattern']):
+            test_file = file_name
+            window.settings().set('last_test_file', test_file)
+        else:
+            test_file = window.settings().get('last_test_file') or current_file
 
         sublime.set_timeout_async(
             lambda: super(UnitTestingCurrentFileCommand, self).run(
