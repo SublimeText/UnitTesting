@@ -1,9 +1,9 @@
 from unittesting import DeferrableTestCase
 
 
-class TestDoCleanups(DeferrableTestCase):
+class TestExplicitDoCleanups(DeferrableTestCase):
 
-    def test_ensure_do_cleanups_works(self):
+    def test_manually_calling_do_cleanups_works(self):
         messages = []
 
         def work(message):
@@ -13,3 +13,14 @@ class TestDoCleanups(DeferrableTestCase):
         yield from self.doCleanups()
 
         self.assertEqual(messages, [1])
+
+
+cleanup_called = []
+
+
+class TestImplicitDoCleanupsOnTeardown(DeferrableTestCase):
+    def test_a_prepare(self):
+        self.addCleanup(lambda: cleanup_called.append(1))
+
+    def test_b_assert(self):
+        self.assertEqual(cleanup_called, [1])
