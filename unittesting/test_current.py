@@ -56,9 +56,12 @@ class UnitTestingCurrentFileCommand(UnitTestingCommand):
         file_name = os.path.basename(current_file)
         if file_name and fnmatch(file_name, settings['pattern']):
             test_file = file_name
-            window.settings().set('last_test_file', test_file)
+            window.settings().set('UnitTesting.last_test_file', test_file)
         else:
-            test_file = window.settings().get('last_test_file') or current_file
+            test_file = (
+                window.settings().get('UnitTesting.last_test_file')
+                or current_file
+            )
 
         sublime.set_timeout_async(
             lambda: super(UnitTestingCurrentFileCommand, self).run(
