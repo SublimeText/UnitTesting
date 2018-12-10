@@ -3,6 +3,7 @@
     "pattern" : "test*.py",
     "async": false,
     "deferred": true,
+    "fast_timings": true,
     "verbosity": 2,
     "capture_console": false,
     "reload_package_on_testing": true,
