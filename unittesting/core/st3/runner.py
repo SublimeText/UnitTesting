@@ -7,7 +7,7 @@ import sublime
 
 def defer(delay, callback, *args, **kwargs):
     # Rely on late binding in case a user patches it
-    sublime.set_timeout(lambda: callback(*args, **kwargs), delay)
+    sublime.set_timeout(partial(callback, *args, **kwargs), delay)
 
 
 AWAIT_WORKER = 'AWAIT_WORKER'
