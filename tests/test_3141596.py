@@ -38,7 +38,7 @@ def cleanup_package(package):
 
 
 def prepare_package(package, output=None, syntax_test=False, syntax_compatibility=False,
-                    color_scheme_test=False, delay=None):
+                    color_scheme_test=False, delay=100):
     def wrapper(func):
         @wraps(func)
         def real_wrapper(self):
