@@ -1,5 +1,8 @@
-import sublime
+import collections
 import os
+import threading
+
+import sublime
 
 
 class OutputPanel:
@@ -30,21 +33,35 @@ class OutputPanel:
         self.output_view.assign_syntax("Packages/UnitTesting/res/unit-testing-test-result.sublime-syntax")
         self.closed = False
 
+        self.text_queue_lock = threading.Lock()
+        self.text_queue = collections.deque()
+
     def write(self, s):
-        self.output_view.set_read_only(False)
-        self.output_view.run_command('append', {'characters': s}),
-        self.output_view.set_read_only(True)
-        self.output_view.show(self.output_view.size())
+        with self.text_queue_lock:
+            self.text_queue.append(s)
 
     def writeln(self, s):
         self.write(s + "\n")
 
+    def _write(self):
+        with self.text_queue_lock:
+            text = ''
+            while self.text_queue:
+                text += self.text_queue.popleft()
+
+        self.output_view.set_read_only(False)
+        self.output_view.run_command(
+            'append',
+            {'characters': text, 'force': True, 'scroll_to_end': True}
+        )
+        self.output_view.set_read_only(True)
+
     def flush(self):
-        pass
+        self._write()
 
     def show(self):
         self.window.run_command("show_panel", {"panel": "output." + self.name})
 
     def close(self):
+        self.flush()
         self.closed = True
-        pass
