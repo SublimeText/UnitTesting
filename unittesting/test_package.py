@@ -6,8 +6,8 @@ import logging
 from unittest import TextTestRunner, TestSuite
 from .core import (
     TestLoader,
-    FastDeferringTextTestRunner,
     DeferringTextTestRunner,
+    LegacyDeferringTextTestRunner,
     DeferrableTestCase
 )
 from .mixin import UnitTestingMixin
@@ -67,8 +67,8 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand, UnitTestingMixin):
             )
             # use deferred test runner or default test runner
             if settings["deferred"]:
-                if settings["fast_timings"]:
-                    testRunner = FastDeferringTextTestRunner(stream, verbosity=settings["verbosity"])
+                if settings["legacy_runner"]:
+                    testRunner = LegacyDeferringTextTestRunner(stream, verbosity=settings["verbosity"])
                 else:
                     testRunner = DeferringTextTestRunner(stream, verbosity=settings["verbosity"])
             else:

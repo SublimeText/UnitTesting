@@ -1,4 +1,3 @@
-from functools import partial
 import time
 from unittest.runner import TextTestRunner, registerResult
 import warnings
@@ -6,19 +5,10 @@ import sublime
 
 
 def defer(delay, callback, *args, **kwargs):
-    # Rely on late binding in case a user patches it
-    sublime.set_timeout(partial(callback, *args, **kwargs), delay)
+    sublime.set_timeout(lambda: callback(*args, **kwargs), delay)
 
 
-DEFAULT_CONDITION_POLL_TIME = 17
-DEFAULT_CONDITION_TIMEOUT = 4000
-AWAIT_WORKER = 'AWAIT_WORKER'
-# Extract `set_timeout_async`, t.i. *avoid* late binding, in case a user
-# patches it
-run_on_worker = sublime.set_timeout_async
-
-
-class FastDeferringTextTestRunner(TextTestRunner):
+class LegacyDeferringTextTestRunner(TextTestRunner):
     """This test runner runs tests in deferred slices."""
 
     def run(self, test):
@@ -50,32 +40,24 @@ class FastDeferringTextTestRunner(TextTestRunner):
                     startTestRun()
                 try:
                     deferred = test(result)
-                    _continue_testing(deferred)
+                    defer(10, _continue_testing, deferred)
 
                 except Exception as e:
                     _handle_error(e)
 
-        def _continue_testing(deferred, send_value=None, throw_value=None):
+        def _continue_testing(deferred):
             try:
-                if throw_value:
-                    condition = deferred.throw(throw_value)
-                else:
-                    condition = deferred.send(send_value)
-
+                condition = next(deferred)
                 if callable(condition):
-                    defer(0, _wait_condition, deferred, condition)
+                    defer(100, _wait_condition, deferred, condition)
                 elif isinstance(condition, dict) and "condition" in condition and \
                         callable(condition["condition"]):
-                    period = condition.get("period", DEFAULT_CONDITION_POLL_TIME)
+                    period = condition.get("period", 100)
                     defer(period, _wait_condition, deferred, **condition)
                 elif isinstance(condition, int):
                     defer(condition, _continue_testing, deferred)
-                elif condition == AWAIT_WORKER:
-                    run_on_worker(
-                        partial(defer, 0, _continue_testing, deferred)
-                    )
                 else:
-                    defer(0, _continue_testing, deferred)
+                    defer(10, _continue_testing, deferred)
 
             except StopIteration:
                 _stop_testing()
@@ -84,29 +66,15 @@ class FastDeferringTextTestRunner(TextTestRunner):
             except Exception as e:
                 _handle_error(e)
 
-        def _wait_condition(
-            deferred, condition,
-            period=DEFAULT_CONDITION_POLL_TIME,
-            timeout=DEFAULT_CONDITION_TIMEOUT,
-            start_time=None
-        ):
+        def _wait_condition(deferred, condition, period=100, timeout=10000, start_time=None):
             if start_time is None:
                 start_time = time.time()
 
-            try:
-                send_value = condition()
-            except Exception as e:
-                _continue_testing(deferred, throw_value=e)
-                return
-
-            if send_value:
-                _continue_testing(deferred, send_value=send_value)
+            if condition():
+                defer(10, _continue_testing, deferred)
             elif (time.time() - start_time) * 1000 >= timeout:
-                error = TimeoutError(
-                    'Condition not fulfilled within {:.2f} seconds'
-                    .format(timeout / 1000)
-                )
-                _continue_testing(deferred, throw_value=error)
+                self.stream.writeln("Condition timeout, continue anyway.")
+                defer(10, _continue_testing, deferred)
             else:
                 defer(period, _wait_condition, deferred, condition, period, timeout, start_time)
 
@@ -164,4 +132,4 @@ class FastDeferringTextTestRunner(TextTestRunner):
             else:
                 self.stream.write("\n")
 
-        _start_testing()
+        sublime.set_timeout(_start_testing, 10)
