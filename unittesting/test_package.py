@@ -4,7 +4,12 @@ import sys
 import os
 import logging
 from unittest import TextTestRunner, TestSuite
-from .core import TestLoader, DeferringTextTestRunner, DeferrableTestCase
+from .core import (
+    TestLoader,
+    DeferringTextTestRunner,
+    LegacyDeferringTextTestRunner,
+    DeferrableTestCase
+)
 from .mixin import UnitTestingMixin
 from .const import DONE_MESSAGE
 from .utils import ProgressBar, StdioSplitter
@@ -62,7 +67,10 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand, UnitTestingMixin):
             )
             # use deferred test runner or default test runner
             if settings["deferred"]:
-                testRunner = DeferringTextTestRunner(stream, verbosity=settings["verbosity"])
+                if settings["legacy_runner"]:
+                    testRunner = LegacyDeferringTextTestRunner(stream, verbosity=settings["verbosity"])
+                else:
+                    testRunner = DeferringTextTestRunner(stream, verbosity=settings["verbosity"])
             else:
                 self.verify_testsuite(tests)
                 testRunner = TextTestRunner(stream, verbosity=settings["verbosity"])

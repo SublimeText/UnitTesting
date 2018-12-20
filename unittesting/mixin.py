@@ -17,6 +17,7 @@ DEFAULT_SETTINGS = {
     "pattern": "test*.py",
     "async": False,
     "deferred": False,
+    "legacy_runner": True,
     "verbosity": 2,
     "output": None,
     "reload_package_on_testing": True,
@@ -61,13 +62,6 @@ class UnitTestingMixin(object):
                 return os.path.basename(first_folder)
 
         return None
-
-    @property
-    def current_test_file(self):
-        current_file = sublime.active_window().active_view().file_name()
-        if current_file and current_file.endswith(".py"):
-            current_file = os.path.basename(current_file)
-        return current_file
 
     def input_parser(self, package):
         m = re.match(r'([^:]+):(.+)', package)

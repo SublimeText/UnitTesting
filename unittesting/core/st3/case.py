@@ -63,18 +63,12 @@ class DeferrableTestCase(unittest.TestCase):
             outcome = _Outcome()
             self._outcomeForDoCleanups = outcome
 
-            deferred = self._executeTestPart(self.setUp, outcome)
-            if isiterable(deferred):
-                yield from deferred
+            yield from self._executeTestPart(self.setUp, outcome)
             if outcome.success:
-                deferred = self._executeTestPart(testMethod, outcome, isTest=True)
-                if isiterable(deferred):
-                    yield from deferred
-                deferred = self._executeTestPart(self.tearDown, outcome)
-                if isiterable(deferred):
-                    yield from deferred
+                yield from self._executeTestPart(testMethod, outcome, isTest=True)
+                yield from self._executeTestPart(self.tearDown, outcome)
 
-            self.doCleanups()
+            yield from self.doCleanups()
             if outcome.success:
                 result.addSuccess(self)
             else:
@@ -110,3 +104,18 @@ class DeferrableTestCase(unittest.TestCase):
                 stopTestRun = getattr(result, 'stopTestRun', None)
                 if stopTestRun is not None:
                     stopTestRun()
+
+    def doCleanups(self):
+        """Execute all cleanup functions.
+
+        Normally called for you after tearDown.
+        """
+        outcome = self._outcomeForDoCleanups or _Outcome()
+        while self._cleanups:
+            function, args, kwargs = self._cleanups.pop()
+            part = lambda: function(*args, **kwargs)  # noqa: E731
+            yield from self._executeTestPart(part, outcome)
+
+        # return this for backwards compatibility
+        # even though we no longer us it internally
+        return outcome.success
