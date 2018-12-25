@@ -1,3 +1,22 @@
+# v1.4.0
+
+   - Introduce a faster test runner, it could be enable by specifying the
+     option `legacy_runner` in unittesting.json. The default value of
+     `legacy_runner` is set as `true` for the moment. We are deprecating
+     the original test runner and will change the default value of `legacy_runner`
+     to `false` at some point in the future.
+   - Discarded/lost windows fix on unittesting/mixin.py (#139)
+   - Optionally generate html report (#141)
+   - Allow starting coverage after reload (#140)
+   - Optimize output panel by writing less often
+
+  Contributors:
+   - thom
+   - evandrocoan
+   - Randy Lai
+   - herr kaste
+
+
 # v1.3.5
 
    - refactor ci.ps1 and install_sublime_text.ps1
