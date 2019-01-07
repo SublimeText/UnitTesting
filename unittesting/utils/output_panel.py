@@ -31,6 +31,7 @@ class OutputPanel:
         settings.set("scroll_past_end", scroll_past_end)
 
         self.output_view.assign_syntax("Packages/UnitTesting/res/unit-testing-test-result.sublime-syntax")
+        self.output_view.set_read_only(True)
         self.closed = False
 
         self.text_queue_lock = threading.Lock()
