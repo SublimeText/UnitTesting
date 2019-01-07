@@ -1,8 +1,22 @@
+from functools import wraps
 import sys
 import unittest
 import warnings
 from unittest.case import _ExpectedFailure, _UnexpectedSuccess, SkipTest, _Outcome
 from ...utils import isiterable
+
+
+def expectedFailure(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        try:
+            deferred = func(*args, **kwargs)
+            if isiterable(deferred):
+                yield from deferred
+        except Exception:
+            raise _ExpectedFailure(sys.exc_info())
+        raise _UnexpectedSuccess
+    return wrapper
 
 
 class DeferrableTestCase(unittest.TestCase):
