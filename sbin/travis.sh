@@ -73,6 +73,24 @@ Bootstrap() {
         echo
     fi
 
+    SUBLIME_LIB_PATH="$STP/coverage"
+    if [ "$SUBLIME_TEXT_VERSION" -eq 3 ] && [ ! -d "$SUBLIME_LIB_PATH" ]; then
+
+        SUBLIME_LIB_URL="https://github.com/SublimeText/sublime_lib"
+
+        if [ -z $SUBLIME_LIB_TAG ]; then
+            # latest tag
+            SUBLIME_LIB_TAG=$(git ls-remote --tags "$SUBLIME_LIB_URL" |
+                  sed 's|.*/\(.*\)$|\1|' | grep -v '\^' |
+                  sort -t. -k1,1nr -k2,2nr -k3,3nr | head -n1)
+        fi
+
+        echo "download sublime-coverage tag: $SUBLIME_LIB_TAG"
+        git clone --quiet --depth 1 --branch $SUBLIME_LIB_TAG "$SUBLIME_LIB_URL" "$SUBLIME_LIB_PATH"
+        git -C "$SUBLIME_LIB_PATH" rev-parse HEAD
+        echo
+    fi
+
     sh "$STP/UnitTesting/sbin/install_sublime_text.sh"
 }
 

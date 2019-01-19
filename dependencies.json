@@ -1,7 +1,8 @@
 {
     "*": {
-        ">3000": [
-            "coverage"
+        "*": [
+            "coverage",
+            "sublime_lib"
         ]
     }
 }
