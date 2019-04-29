@@ -25,6 +25,7 @@ DEFAULT_SETTINGS = {
     "start_coverage_after_reload": False,
     "generate_html_report": False,
     "capture_console": False,
+    "failfast": False
 }
 
 
