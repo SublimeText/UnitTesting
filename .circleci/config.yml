@@ -17,7 +17,7 @@ jobs:
           sudo sed -i '/jessie-backports/d' /etc/apt/sources.list
           sudo sed -i '/jessie-updates/d' /etc/apt/sources.list
           sudo apt-get update
-          sudo apt-get install libglib2.0-0 libgtk2.0-0
+          sudo apt-get install libglib2.0-0 libgtk-3-0 
       - run: |
           export DISPLAY=:99.0
           Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
