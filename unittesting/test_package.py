@@ -68,12 +68,14 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand, UnitTestingMixin):
             # use deferred test runner or default test runner
             if settings["deferred"]:
                 if settings["legacy_runner"]:
-                    testRunner = LegacyDeferringTextTestRunner(stream, verbosity=settings["verbosity"])
+                    testRunner = LegacyDeferringTextTestRunner(stream, verbosity=settings["verbosity"],
+                                                               failfast=settings['failfast'])
                 else:
-                    testRunner = DeferringTextTestRunner(stream, verbosity=settings["verbosity"])
+                    testRunner = DeferringTextTestRunner(stream, verbosity=settings["verbosity"],
+                                                         failfast=settings['failfast'])
             else:
                 self.verify_testsuite(tests)
-                testRunner = TextTestRunner(stream, verbosity=settings["verbosity"])
+                testRunner = TextTestRunner(stream, verbosity=settings["verbosity"], failfast=settings['failfast'])
 
             testRunner.run(tests)
 
