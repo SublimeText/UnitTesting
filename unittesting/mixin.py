@@ -17,7 +17,7 @@ DEFAULT_SETTINGS = {
     "pattern": "test*.py",
     "async": False,
     "deferred": False,
-    "legacy_runner": True,
+    "legacy_runner": False,
     "verbosity": 2,
     "output": None,
     "reload_package_on_testing": True,
