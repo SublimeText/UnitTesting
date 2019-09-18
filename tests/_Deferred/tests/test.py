@@ -1,6 +1,6 @@
 import sublime
 from unittest import TestCase  # FIXME Import unused? # noqa: F401
-from unittesting import DeferrableTestCase
+from unittesting import DeferrableTestCase, expectedFailure
 
 
 class TestDeferrable(DeferrableTestCase):
@@ -47,6 +47,7 @@ class TestDeferrable(DeferrableTestCase):
 
         self.assertEqual(x[0], 1)
 
+    @expectedFailure
     def test_condition_timeout(self):
         x = []
 
