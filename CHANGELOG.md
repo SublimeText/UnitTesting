@@ -1,6 +1,7 @@
 # v1.4.1
 
    - The default value of `legacy_runner` is now set to `false`.
+   - Added `failfast` option
 
 # v1.4.0
 
