@@ -213,6 +213,11 @@ It is recommended to add the following in your `.sublime-project` file so that <
 ]
 ```
 
+### Docker container
+
+Check https://github.com/randy3k/UnitTesting-docker
+
+
 ### Credits
 Thanks [guillermooo](https://github.com/guillermooo) and [philippotto](https://github.com/philippotto) for their efforts in AppVeyor and Travis CI macOS support.
 
