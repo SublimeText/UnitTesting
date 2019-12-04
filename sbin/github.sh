@@ -11,7 +11,7 @@ elif [ ! -f /tmp/ci.sh ]; then
     CISH="/tmp/ci.sh"
 fi
 
-REPONAME="$CIRCLE_PROJECT_REPONAME"
+REPONAME="${GITHUB_REPOSITORY#*/}"
 PACKAGE=${PACKAGE:-$REPONAME}
 
 . "$CISH"

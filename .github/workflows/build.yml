@@ -1,0 +1,35 @@
+name: build
+
+on: [push, pull_request]
+
+jobs:
+  linux:
+    runs-on: ubuntu-latest
+    container: randy3k/unittesting
+    steps:
+    - uses: actions/checkout@v1
+    - run: sh -e /etc/init.d/xvfb start
+    - run: |
+        PATH="$HOME/.local/bin:$PATH"
+        sh sbin/github.sh bootstrap
+        sh sbin/github.sh install_color_scheme_unit
+        sh sbin/github.sh install_package_control
+        sh sbin/github.sh run_tests --coverage
+    - run: |
+        apt-get install python3-pip -y
+        pip3 install codecov
+        codecov
+
+  macos:
+    runs-on: macOS-latest
+    steps:
+    - uses: actions/checkout@v1
+    - run: |
+        export PATH="$HOME/.local/bin:$PATH"
+        sh sbin/github.sh bootstrap
+        sh sbin/github.sh install_color_scheme_unit
+        sh sbin/github.sh install_package_control
+        sh sbin/github.sh run_tests --coverage
+    - run: |
+        pip3 install codecov
+        codecov

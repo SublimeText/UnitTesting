@@ -37,17 +37,22 @@ param(
 # Stop execution on any error. PS default is to continue on non-terminating errors.
 $ErrorActionPreference = 'stop'
 
-$global:UnitTestingPowerShellScriptsDirectory = $env:TEMP
+if (!$UnitTestingPowerShellScriptsDirectory) {
+    $global:UnitTestingPowerShellScriptsDirectory = $env:TEMP
+}
+
+function downloadScriptIfNotExist {
+    param([string]$FileName)
+    if (-Not (Test-Path (join-path $UnitTestingPowerShellScriptsDirectory $FileName))) {
+        invoke-webrequest "https://raw.githubusercontent.com/SublimeText/UnitTesting/master/sbin/ps/$FileName" -outfile "$UnitTestingPowerShellScriptsDirectory\$FileName"
+    }
+}
 
 # Do one-time environment initialization if needed.
 if (!$env:UNITTESTING_BOOTSTRAPPED) {
     write-output "[UnitTesting] bootstrapping environment..."
-
-    # Download scripts for basic operation.
-    invoke-webrequest "https://raw.githubusercontent.com/SublimeText/UnitTesting/master/sbin/ps/ci_config.ps1" -outfile "$UnitTestingPowerShellScriptsDirectory\ci_config.ps1"
-    invoke-webrequest "https://raw.githubusercontent.com/SublimeText/UnitTesting/master/sbin/ps/utils.ps1" -outfile "$UnitTestingPowerShellScriptsDirectory\utils.ps1"
-    invoke-webrequest "https://raw.githubusercontent.com/SublimeText/UnitTesting/master/sbin/ps/ci.ps1" -outfile "$UnitTestingPowerShellScriptsDirectory\ci.ps1"
-
+    downloadScriptIfNotExist "ci_config.ps1"
+    downloadScriptIfNotExist "utils.ps1"
     $env:UNITTESTING_BOOTSTRAPPED = 1
 }
 
@@ -58,16 +63,8 @@ function Bootstrap {
     ensureCreateDirectory $SublimeTextPackagesDirectory
 
     # Copy plugin files to Packages/<Package> folder.
-    if ($PackageUnderTestName -eq $SymbolCopyAll){
-        logVerbose "creating directory for package under test at $PackageUnderTestSublimeTextPackagesDirectory..."
-        ensureCreateDirectory $PackageUnderTestSublimeTextPackagesDirectory
-        logVerbose "copying current directory contents to $PackageUnderTestSublimeTextPackagesDirectory..."
-        # TODO: create junctions for all packages.
-        ensureCopyDirectoryContents . $SublimeTextPackagesDirectory
-    } else {
-        logVerbose "creating directory junction to package under test at $PackageUnderTestSublimeTextPackagesDirectory..."
-        ensureCreateDirectoryJunction $PackageUnderTestSublimeTextPackagesDirectory .
-    }
+    logVerbose "creating directory junction to package under test at $PackageUnderTestSublimeTextPackagesDirectory..."
+    ensureCreateDirectoryJunction $PackageUnderTestSublimeTextPackagesDirectory .
 
     # Clone UnitTesting into Packages/UnitTesting.
     if (pathExists -Negate $UnitTestingSublimeTextPackagesDirectory) {

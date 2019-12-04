@@ -81,6 +81,7 @@ def wait_for_output(path, schedule, timeout=30):
 
     while not check_is_output_available():
         print(".", end="")
+        sys.stdout.flush()
         needs_newline = True
 
         if check_has_timed_out():
@@ -95,13 +96,12 @@ def wait_for_output(path, schedule, timeout=30):
 
 
 def start_sublime_text():
-    cmd = ["subl"]
-    if not _is_windows:
-        # In some Linux/macOS CI environments, starting ST simply with `subl`
-        # causes the CI process to time out. Using `subl &` seems to solve
-        # this.
-        cmd.append("&")
-    subprocess.Popen([' '.join(cmd)], shell=True)
+    subprocess.Popen("subl", shell=True)
+
+
+def kill_sublime_text():
+    subprocess.Popen("pkill [Ss]ubl || true", shell=True)
+    subprocess.Popen("pkill plugin_host || true", shell=True)
 
 
 def read_output(path):
@@ -156,31 +156,33 @@ def main(default_schedule_info):
 
     default_schedule_info['output'] = output_file
 
-    create_dir_if_not_exists(output_dir)
-    delete_file_if_exists(output_file)
-    delete_file_if_exists(coverage_file)
-
-    create_schedule(package_under_test, output_file, default_schedule_info)
-    delete_file_if_exists(SCHEDULE_RUNNER_TARGET)
-    copy_file_if_not_exists(SCHEDULE_RUNNER_SOURCE, SCHEDULE_RUNNER_TARGET)
-
-    start_sublime_text()
-
-    try:
-        print("Wait for tests output...", end="")
-        wait_for_output(output_file, SCHEDULE_RUNNER_TARGET)
-
-        print("Start to read output...")
-        if not read_output(output_file):
-            sys.exit(1)
-    except ValueError:
-        print("Timeout: Could not obtain tests output.")
-        print("Maybe Sublime Text is not responding or the tests output"
-              "is being written to the wrong file.")
-        sys.exit(1)
-    finally:
-        restore_coverage_file(coverage_file, package_under_test)
+    for i in range(3):
+        create_dir_if_not_exists(output_dir)
+        delete_file_if_exists(output_file)
+        delete_file_if_exists(coverage_file)
+        create_schedule(package_under_test, output_file, default_schedule_info)
         delete_file_if_exists(SCHEDULE_RUNNER_TARGET)
+        copy_file_if_not_exists(SCHEDULE_RUNNER_SOURCE, SCHEDULE_RUNNER_TARGET)
+        start_sublime_text()
+        try:
+            print("Wait for tests output...", end="")
+            wait_for_output(output_file, SCHEDULE_RUNNER_TARGET)
+            break
+        except ValueError:
+            if i == 2:
+                print("Timeout: Could not obtain tests output.")
+                print("Maybe Sublime Text is not responding or the tests output "
+                      "is being written to the wrong file.")
+                delete_file_if_exists(SCHEDULE_RUNNER_TARGET)
+                sys.exit(1)
+            kill_sublime_text()
+            time.sleep(2)
+
+    print("Start to read output...")
+    if not read_output(output_file):
+        sys.exit(1)
+    restore_coverage_file(coverage_file, package_under_test)
+    delete_file_if_exists(SCHEDULE_RUNNER_TARGET)
 
 
 if __name__ == '__main__':

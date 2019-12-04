@@ -24,11 +24,7 @@ class UnitTestingSyntaxCommand(UnitTestingSyntaxBase):
 
         try:
             tests = sublime.find_resources("syntax_test*")
-            if package != "__all__":
-                tests = [t for t in tests if t.startswith("Packages/%s/" % package)]
-
-            # remove UnitTesting syntax_tests
-            tests = [t for t in tests if not t.startswith("Packages/UnitTesting/")]
+            tests = [t for t in tests if t.startswith("Packages/%s/" % package)]
 
             if not tests:
                 raise RuntimeError("No syntax_test files are found in %s!" % package)
@@ -60,11 +56,7 @@ class UnitTestingSyntaxCompatibilityCommand(UnitTestingSyntaxBase):
     def syntax_testing(self, stream, package):
         try:
             syntaxes = sublime.find_resources("*.sublime-syntax")
-            if package != "__all__":
-                syntaxes = [s for s in syntaxes if s.startswith("Packages/%s/" % package)]
-
-            # remove UnitTesting syntax_tests
-            syntaxes = [s for s in syntaxes if not s.startswith("Packages/UnitTesting/")]
+            syntaxes = [s for s in syntaxes if s.startswith("Packages/%s/" % package)]
 
             if not syntaxes:
                 raise RuntimeError("No sublime-syntax files found in %s!" % package)

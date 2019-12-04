@@ -33,9 +33,10 @@ if (!$env:UNITTESTING_BOOTSTRAPPED) {
 
     logVerbose "setting global constants and variables..."
 
-    # TODO: If we used directory junctions here too, we wouldn't need this?
-    # This constant means that the entire contents of the source directory must be copied to the target directory.
-    makeGlobalConstant SymbolCopyAll '__all__'
+    # default to Sublime Text 3
+    if (!$env:SUBLIME_TEXT_VERSION) {
+        $env:SUBLIME_TEXT_VERSION = "3"
+    }
 
     # The major version of Sublime Text.
     makeGlobalConstant SublimeTextVersion (ensureValue $env:SUBLIME_TEXT_VERSION '^2|3$' -message "the environment variable SUBLIME_TEXT_VERSION must be set to '2' or '3'")

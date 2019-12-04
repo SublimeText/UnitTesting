@@ -2,11 +2,6 @@
 # refer to https://github.com/randy3k/UnitTesting-example/blob/master/appveyor.yml
 
 environment:
-    global:
-        # Your package name
-        PACKAGE: "UnitTesting"
-        SUBLIME_TEXT_VERSION : "3"
-
     matrix:
         - PCINSTALL: false
         - PCINSTALL: true
