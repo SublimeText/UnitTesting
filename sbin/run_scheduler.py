@@ -1,3 +1,3 @@
-from unittesting import run_scheduler
+from .unittesting import run_scheduler
 
 run_scheduler()
