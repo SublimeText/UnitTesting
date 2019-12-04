@@ -42,11 +42,16 @@ it is missing, UnitTesting will ignore the `tests` directory.
 
 ## Continuous Integration
 
+### GitHub Actions
+
+To enable GitHub Actions, copy the file [appveyor.yml](https://github.com/randy3k/UnitTesting-example/blob/master/.github/workflows/build.yml) to
+your repository.
+
+
 ### Circle CI
 
 To enable Circle CI Linux and macOS builds, copy the file
-[.circleci/config.yml](https://github.com/randy3k/UnitTesting-example/blob/master/.circleci/config.yml) to your repository and change the environmental variable `PACKAGE` to the name of
-your package. Log in to [Circle CI](https://circleci.com) and add a new project.
+[.circleci/config.yml](https://github.com/randy3k/UnitTesting-example/blob/master/.circleci/config.yml) to your repository. Log in to [Circle CI](https://circleci.com) and add a new project.
 
 Circle CI doesn't offer free macOS plan by default, but you could contact them for access if your package is open sourced:
 
@@ -56,22 +61,18 @@ Circle CI doesn't offer free macOS plan by default, but you could contact them f
 
 To enable Travis CI Linux and macOS builds, copy the file:
 [.travis.yml](https://github.com/randy3k/UnitTesting-example/blob/master/.travis.yml)
-(caution: with a beginning dot) to your repository and
-change the environment variable `PACKAGE` to the name of
-your package. Log in to [Travis CI](https://travis-ci.com/) to enable CI for your package..
+(caution: with a beginning dot) to your repository. Log in to [Travis CI](https://travis-ci.com/) to enable CI for your package..
 
 ### AppVeyor CI
 
-To enable AppVeyor Windows builds, copy the file `appveyor.yml` to
-your repository, change the `PACKAGE` variable in
-[appveyor.yml](https://github.com/randy3k/UnitTesting-example/blob/master/appveyor.yml).
-Log in to [AppVeyor](http://www.appveyor.com) and add your repository
+To enable AppVeyor Windows builds, copy the file [appveyor.yml](https://github.com/randy3k/UnitTesting-example/blob/master/appveyor.yml) to
+your repository. Log in to [AppVeyor](http://www.appveyor.com) and add your repository
 as a new project.
 
 
 ## Coverage reports
 
-We support Codecov, Coveralls and Codacy. Codacov is slightly more favorable as it
+We support Codecov, Coveralls and Codacy. Codacov is recommended as it
 supports merging reports from different CIs.
 
 
@@ -82,6 +83,7 @@ To submit coverage report to [codecov.io](https://codecov.io/):
 1. install [codecov](https://pypi.python.org/pypi/codecov)
 2. run `codecov` after success
 
+For GitHub Actions, copy the `CODECOV_TOKEN` from codecov.io to GitHub's Secret tab.
 
 ### Coveralls
 
