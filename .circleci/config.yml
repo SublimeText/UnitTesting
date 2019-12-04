@@ -6,7 +6,7 @@ version: 2
 jobs:
   build-linux:
     docker:
-      - image: randy3k/unittesting
+      - image: sublimetext/unittesting
     steps:
       - checkout
       - run: sh -e /etc/init.d/xvfb start

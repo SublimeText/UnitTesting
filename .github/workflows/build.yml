@@ -8,7 +8,7 @@ on: [push, pull_request]
 jobs:
   linux:
     runs-on: ubuntu-latest
-    container: randy3k/unittesting
+    container: sublimetext/unittesting
     steps:
     - uses: actions/checkout@v1
     - run: sh -e /etc/init.d/xvfb start
