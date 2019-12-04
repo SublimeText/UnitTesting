@@ -33,3 +33,16 @@ jobs:
     - run: |
         pip3 install codecov
         codecov
+
+  windows:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v1
+    - run: |
+        ./sbin/github.ps1 "bootstrap" -verbose
+        ./sbin/github.ps1 "install_color_scheme_unit" -verbose
+        ./sbin/github.ps1 "install_package_control" -verbose
+        ./sbin/github.ps1 "run_tests" -coverage -verbose
+    - run: |
+        pip3 install codecov
+        codecov
