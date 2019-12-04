@@ -17,19 +17,17 @@ def plugin_loaded():
         if sublime.platform() == "osx":
             cmd = "sleep 1; pkill [Ss]ubl; pkill plugin_host; sleep 1; "
             if restart:
-                cmd = cmd + "subl &"
+                cmd = cmd + "osascript -e 'tell application \"Sublime Text\" to activate'"
         elif sublime.platform() == "linux":
             cmd = "sleep 1; pkill [Ss]ubl; pkill plugin_host; sleep 1; "
             if restart:
-                cmd = cmd + "subl &"
+                cmd = cmd + "subl"
         elif sublime.platform() == "windows":
             cmd = "sleep 1 & taskkill /F /im sublime_text.exe & sleep 1 "
             if restart:
                 cmd = cmd + "& \"C:\\st\\sublime_text.exe\""
-        try:
-            subprocess.Popen(cmd, shell=True)
-        except Exception:
-            pass
+
+        subprocess.Popen(cmd, shell=True)
 
     def touch(file_name):
         f = os.path.join(
@@ -62,7 +60,7 @@ def plugin_loaded():
 
                 if len(missing_dependencies) == 0:
                     touch("success")
-                    sublime.set_timeout(lambda: kill_subl(), 2000)
+                    kill_subl()
                 else:
                     with open(logfile, "a") as f:
                         f.write("missing dependencies:" + "\n")

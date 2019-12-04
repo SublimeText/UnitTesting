@@ -36,7 +36,7 @@ fi
 PC_PATH="$STIP/Package Control.sublime-package"
 if [ ! -f "$PC_PATH" ]; then
     PC_URL="https://packagecontrol.io/Package Control.sublime-package"
-    curl -L "$PC_URL" -o "$PC_PATH"
+    curl -s -L "$PC_URL" -o "$PC_PATH"
 fi
 
 PCH_PATH="$STP/0_install_package_control_helper"
