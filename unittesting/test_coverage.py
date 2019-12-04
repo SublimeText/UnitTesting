@@ -40,6 +40,7 @@ class UnitTestingCoverageCommand(UnitTestingCommand):
             cov.start()
         if settings["reload_package_on_testing"]:
             # we cannot reload ourself, at least on linux
+            # TODO: investigate the cause
             if package != "UnitTesting" or sublime.platform() != "linux":
                 self.reload_package(package, dummy=False, show_reload_progress=False)
         if settings['start_coverage_after_reload']:

@@ -215,7 +215,7 @@ It is recommended to add the following in your `.sublime-project` file so that <
 
 ### Docker container
 
-Check https://github.com/randy3k/UnitTesting-docker
+Check https://github.com/SublimeText/UnitTesting/docker
 
 
 ### Credits
