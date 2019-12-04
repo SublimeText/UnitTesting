@@ -1,6 +1,7 @@
 UnitTesting
 ===================
 
+[![Github Action](https://github.com/SublimeText/UnitTesting/workflows/build/badge.svg)](https://github.com/SublimeText/UnitTesting/actions)
 [![CircleCI](https://circleci.com/gh/SublimeText/UnitTesting/tree/master.svg?style=shield)](https://circleci.com/gh/SublimeText/UnitTesting/tree/master)
 [![Build Status](https://travis-ci.org/SublimeText/UnitTesting.svg?branch=master)](https://travis-ci.org/SublimeText/UnitTesting)
 [![Build status](https://ci.appveyor.com/api/projects/status/github/SublimeText/UnitTesting?branch=master&svg=true)](https://ci.appveyor.com/project/randy3k/UnitTesting/branch/master)
@@ -44,7 +45,7 @@ it is missing, UnitTesting will ignore the `tests` directory.
 
 ### GitHub Actions
 
-To enable GitHub Actions, copy the file [appveyor.yml](https://github.com/randy3k/UnitTesting-example/blob/master/.github/workflows/build.yml) to
+To enable GitHub Actions, copy the file [build.yml](https://github.com/randy3k/UnitTesting-example/blob/master/.github/workflows/build.yml) to
 your repository.
 
 
