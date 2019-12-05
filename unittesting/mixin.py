@@ -127,8 +127,6 @@ class UnitTestingMixin(object):
 
             try:
                 reload_package(package, dummy=dummy, verbose=True)
-            except Exception:
-                sublime.status_message("Fail to reload {}.".format(package))
             finally:
                 progress_bar.stop()
 

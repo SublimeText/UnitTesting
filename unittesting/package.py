@@ -19,17 +19,18 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand, UnitTestingMixin):
     fallback33 = "unit_testing33"
 
     def run(self, package=None, **kwargs):
+        if not package:
+            self.prompt_package(lambda x: self.run(x, **kwargs))
+            return
+
+        package, pattern = self.input_parser(package)
+
         if sys.version_info >= (3, 8) and self.package_python_version(package) == "3.3":
             print("run unit_testing in python 3.3")
             kwargs["package"] = package
             sublime.set_timeout(lambda: sublime.run_command(self.fallback33, kwargs))
             return
 
-        if not package:
-            self.prompt_package(lambda x: self.run(x, **kwargs))
-            return
-
-        package, pattern = self.input_parser(package)
         if pattern is not None:
             # kwargs have the highest precedence when evaluating the settings,
             # so we sure don't want to pass `None` down
