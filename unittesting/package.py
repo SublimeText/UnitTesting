@@ -68,9 +68,12 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand, UnitTestingMixin):
             # use custom loader which supports reloading modules
             self.remove_test_modules(package, settings["tests_dir"])
             loader = TestLoader(settings["deferred"])
-            tests = loader.discover(os.path.join(
-                sublime.packages_path(), package, settings["tests_dir"]), settings["pattern"]
-            )
+            package_dir = os.path.join(sublime.packages_path(), package)
+            start_dir = os.path.join(package_dir, settings["tests_dir"])
+            if os.path.exists(os.path.join(start_dir, "__init__.py")):
+                tests = loader.discover(start_dir, settings["pattern"], top_level_dir=package_dir)
+            else:
+                tests = loader.discover(start_dir, settings["pattern"])
             # use deferred test runner or default test runner
             if settings["deferred"]:
                 if settings["legacy_runner"]:
