@@ -7,7 +7,6 @@ from unittest import TextTestRunner, TestSuite
 from .core import (
     TestLoader,
     DeferringTextTestRunner,
-    LegacyDeferringTextTestRunner,
     DeferrableTestCase
 )
 from .mixin import UnitTestingMixin
@@ -17,8 +16,15 @@ import threading
 
 
 class UnitTestingCommand(sublime_plugin.ApplicationCommand, UnitTestingMixin):
+    fallback33 = "unit_testing33"
 
     def run(self, package=None, **kwargs):
+        if sys.version_info >= (3, 8) and self.package_python_version(package) == "3.3":
+            print("run unit_testing in python 3.3")
+            kwargs["package"] = package
+            sublime.set_timeout(lambda: sublime.run_command(self.fallback33, kwargs))
+            return
+
         if not package:
             self.prompt_package(lambda x: self.run(x, **kwargs))
             return
@@ -68,11 +74,9 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand, UnitTestingMixin):
             # use deferred test runner or default test runner
             if settings["deferred"]:
                 if settings["legacy_runner"]:
-                    testRunner = LegacyDeferringTextTestRunner(stream, verbosity=settings["verbosity"],
-                                                               failfast=settings['failfast'])
-                else:
-                    testRunner = DeferringTextTestRunner(stream, verbosity=settings["verbosity"],
-                                                         failfast=settings['failfast'])
+                    raise Exception("`legacy_runner=True` is deprecated.")
+                testRunner = DeferringTextTestRunner(
+                    stream, verbosity=settings["verbosity"], failfast=settings['failfast'])
             else:
                 self.verify_testsuite(tests)
                 testRunner = TextTestRunner(stream, verbosity=settings["verbosity"], failfast=settings['failfast'])
@@ -81,7 +85,9 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand, UnitTestingMixin):
 
         except Exception as e:
             if not stream.closed:
+                import traceback
                 stream.write("ERROR: %s\n" % e)
+                traceback.print_exc(file=stream)
             # force clean up
             testRunner = None
         finally:

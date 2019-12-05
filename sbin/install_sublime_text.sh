@@ -61,7 +61,7 @@ if [ $(uname) = 'Darwin'  ]; then
         # make `subl` available
         open "$HOME/Applications/$SUBLIME_TEXT.app"
         sleep 2
-        osascript -e "tell application "'"'"$SUBLIME_TEXT"'"'" to quit"
+        pkill '[Ss]ubl' || true
         pkill 'plugin_host' || true
         sleep 2
     fi
@@ -93,7 +93,7 @@ else
         # make `subl` available
         "$HOME/$SUBLIME_TEXT/sublime_text" &
         sleep 2
-        pkill sublime_text
+        pkill '[Ss]ubl' || true
         pkill 'plugin_host' || true
         sleep 2
     fi

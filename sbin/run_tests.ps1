@@ -12,6 +12,8 @@ param(
     [switch] $coverage
 )
 
+$ErrorActionPreference = 'stop'
+
 # UTF8 encoding without preamble (default in .NET is with preamble).
 new-variable -name 'UTF8Encoding' -option CONSTANT -scope 'script' `
              -value (new-object System.Text.UTF8Encoding -argumentlist $false)
@@ -24,76 +26,86 @@ $outDir = "$packagesPath\User\UnitTesting\$PackageToTest"
 $outFile = "$outDir\result"
 $coverageFile = "$outDir\coverage"
 [void] (new-item -itemtype file $outFile -force)
-
 remove-item $outFile -force -erroraction silentlycontinue
 
-# Configure packages to be tested.
-$jpath = "$packagesPath\User\UnitTesting\schedule.json"
-if (test-path $jpath) {
-    $schedule = convertfrom-json "$(get-content $jpath)"
-}
-else {
-    [void] (new-item -itemtype file -path $jpath -force)
-    # Only way of using encoding object.
-    [System.IO.File]::WriteAllText($jpath, "[]", $UTF8Encoding)
-    $schedule = convertfrom-json "$(get-content $jpath)"
-}
-
-$found = (@($schedule | foreach-object { $_.package }) -eq $PackageToTest).length
-if ($found -eq 0) {
-    $schedule_info = @{
-        "package" = $PackageToTest;
-        "output" = $outFile;
-        "syntax_test" = $syntax_test.IsPresent;
-        "syntax_compatibility" = $syntax_compatibility.IsPresent;
-        'color_scheme_test' = $color_scheme_test.IsPresent;
-        "coverage" = $coverage.IsPresent
-    }
-    write-verbose "Schedule:"
-    foreach ($h in $schedule_info.GetEnumerator()) {
-        write-verbose "  $($h.Name): $($h.Value)"
-    }
-
-    $schedule += $schedule_info
-}
-
-[System.IO.File]::WriteAllText(
-    $jpath, (convertto-json $schedule), $UTF8Encoding)
-
-
-# inject scheduler
 $schedule_source = "$packagesPath\UnitTesting\sbin\run_scheduler.py"
 $schedule_target = "$packagesPath\UnitTesting\zzz_run_scheduler.py"
 
-if (test-path $schedule_target) {
-    remove-item $schedule_target -force
+
+function addSchedule {
+    # Configure packages to be tested.
+    $jpath = "$packagesPath\User\UnitTesting\schedule.json"
+    if (test-path $jpath) {
+        $schedule = convertfrom-json "$(get-content $jpath)"
+    }
+    else {
+        [void] (new-item -itemtype file -path $jpath -force)
+        # Only way of using encoding object.
+        [System.IO.File]::WriteAllText($jpath, "[]", $UTF8Encoding)
+        $schedule = convertfrom-json "$(get-content $jpath)"
+    }
+
+    $found = (@($schedule | foreach-object { $_.package }) -eq $PackageToTest).length
+    if ($found -eq 0) {
+        $schedule_info = @{
+            "package" = $PackageToTest;
+            "output" = $outFile;
+            "syntax_test" = $syntax_test.IsPresent;
+            "syntax_compatibility" = $syntax_compatibility.IsPresent;
+            'color_scheme_test' = $color_scheme_test.IsPresent;
+            "coverage" = $coverage.IsPresent
+        }
+        write-verbose "Schedule:"
+        foreach ($h in $schedule_info.GetEnumerator()) {
+            write-verbose "  $($h.Name): $($h.Value)"
+        }
+
+        $schedule += $schedule_info
+    }
+
+    [System.IO.File]::WriteAllText(
+        $jpath, (convertto-json $schedule), $UTF8Encoding)
 }
 
-if (-not (test-path $schedule_target)) {
-    copy-item $schedule_source $schedule_target -force
+
+function injectScheduler {
+    if (test-path $schedule_target) {
+        remove-item $schedule_target -force
+    }
+
+    if (-not (test-path $schedule_target)) {
+        copy-item $schedule_source $schedule_target -force
+    }
 }
 
-# launch sublime
-$sublimeIsRunning = get-process 'sublime_text' -erroraction silentlycontinue
-
-# XXX(guillermooo): we cannot start the editor minimized?
-if($sublimeIsRunning -eq $null) {
+for ($i=1; $i -le 3; $i++) {
+    addSchedule
+    injectScheduler
     start-process $stPath
-}
-
-$startTime = get-date
-while (-not (test-path $outFile) -or (get-item $outFile).length -eq 0) {
-    write-host -nonewline "."
-    if (((get-date) - $startTime).totalseconds -ge 60) {
-        write-host
+    $startTime = get-date
+    $timeout = $false
+    while (-not (test-path $outFile) -or (get-item $outFile).length -eq 0) {
+        write-host -nonewline "."
+        if (((get-date) - $startTime).totalseconds -ge 10) {
+            write-host
+            $timeout = $true
+            if ($i -eq 3) {
+                throw "Timeout: Sublime Text is not responding."
+            }
+            break
+        }
+        start-sleep -seconds 1
+    }
+    if ($timeout) {
+        stop-process -force -processname sublime_text -ea silentlycontinue
         if (test-path $schedule_target) {
             remove-item $schedule_target -force
         }
-        throw "Timeout: Sublime Text is not responding."
+        continue
     }
-    start-sleep -seconds 1
+    write-host
+    break
 }
-write-host
 
 write-verbose "start to read output"
 

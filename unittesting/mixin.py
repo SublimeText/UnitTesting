@@ -17,7 +17,7 @@ DEFAULT_SETTINGS = {
     "pattern": "test*.py",
     "async": False,
     "deferred": False,
-    "legacy_runner": False,
+    "legacy_runner": False,  # shall not used anymore
     "verbosity": 2,
     "output": None,
     "reload_package_on_testing": True,
@@ -46,6 +46,15 @@ def relative_to_spp(path):
 
 
 class UnitTestingMixin(object):
+
+    def package_python_version(self, package):
+        if sublime.version() < '4000':
+            return "3.3"
+        try:
+            version = sublime.load_resource("Packages/{}/.python-version".format(package))
+        except FileNotFoundError:
+            version = "3.3"
+        return version
 
     @property
     def current_package_name(self):

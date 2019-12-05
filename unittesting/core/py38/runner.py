@@ -1,3 +1,4 @@
+from functools import partial
 import time
 from unittest.runner import TextTestRunner, registerResult
 import warnings
@@ -5,10 +6,19 @@ import sublime
 
 
 def defer(delay, callback, *args, **kwargs):
-    sublime.set_timeout(lambda: callback(*args, **kwargs), delay)
+    # Rely on late binding in case a user patches it
+    sublime.set_timeout(partial(callback, *args, **kwargs), delay)
 
 
-class LegacyDeferringTextTestRunner(TextTestRunner):
+DEFAULT_CONDITION_POLL_TIME = 17
+DEFAULT_CONDITION_TIMEOUT = 4000
+AWAIT_WORKER = 'AWAIT_WORKER'
+# Extract `set_timeout_async`, t.i. *avoid* late binding, in case a user
+# patches it
+run_on_worker = sublime.set_timeout_async
+
+
+class DeferringTextTestRunner(TextTestRunner):
     """This test runner runs tests in deferred slices."""
 
     def run(self, test):
@@ -18,7 +28,8 @@ class LegacyDeferringTextTestRunner(TextTestRunner):
         registerResult(result)
         result.failfast = self.failfast
         result.buffer = self.buffer
-        startTime = time.time()
+        result.tb_locals = self.tb_locals
+        startTime = time.perf_counter()
 
         def _start_testing():
             with warnings.catch_warnings():
@@ -31,33 +42,43 @@ class LegacyDeferringTextTestRunner(TextTestRunner):
                     # noisy.  The -Wd and -Wa flags can be used to bypass this
                     # only when self.warnings is None.
                     if self.warnings in ['default', 'always']:
-                        warnings.filterwarnings(
-                            'module',
-                            category=DeprecationWarning,
-                            message='Please use assert\\w+ instead.')
+                        warnings.filterwarnings('module',
+                                                category=DeprecationWarning,
+                                                message=r'Please use assert\w+ instead.')
                 startTestRun = getattr(result, 'startTestRun', None)
                 if startTestRun is not None:
                     startTestRun()
                 try:
                     deferred = test(result)
-                    defer(10, _continue_testing, deferred)
-
+                    _continue_testing(deferred)
                 except Exception as e:
                     _handle_error(e)
+                finally:
+                    stopTestRun = getattr(result, 'stopTestRun', None)
+                    if stopTestRun is not None:
+                        stopTestRun()
 
-        def _continue_testing(deferred):
+        def _continue_testing(deferred, send_value=None, throw_value=None):
             try:
-                condition = next(deferred)
+                if throw_value:
+                    condition = deferred.throw(throw_value)
+                else:
+                    condition = deferred.send(send_value)
+
                 if callable(condition):
-                    defer(100, _wait_condition, deferred, condition)
+                    defer(0, _wait_condition, deferred, condition)
                 elif isinstance(condition, dict) and "condition" in condition and \
                         callable(condition["condition"]):
-                    period = condition.get("period", 100)
+                    period = condition.get("period", DEFAULT_CONDITION_POLL_TIME)
                     defer(period, _wait_condition, deferred, **condition)
                 elif isinstance(condition, int):
                     defer(condition, _continue_testing, deferred)
+                elif condition == AWAIT_WORKER:
+                    run_on_worker(
+                        partial(defer, 0, _continue_testing, deferred)
+                    )
                 else:
-                    defer(10, _continue_testing, deferred)
+                    defer(0, _continue_testing, deferred)
 
             except StopIteration:
                 _stop_testing()
@@ -66,15 +87,29 @@ class LegacyDeferringTextTestRunner(TextTestRunner):
             except Exception as e:
                 _handle_error(e)
 
-        def _wait_condition(deferred, condition, period=100, timeout=10000, start_time=None):
+        def _wait_condition(
+            deferred, condition,
+            period=DEFAULT_CONDITION_POLL_TIME,
+            timeout=DEFAULT_CONDITION_TIMEOUT,
+            start_time=None
+        ):
             if start_time is None:
                 start_time = time.time()
 
-            if condition():
-                defer(10, _continue_testing, deferred)
+            try:
+                send_value = condition()
+            except Exception as e:
+                _continue_testing(deferred, throw_value=e)
+                return
+
+            if send_value:
+                _continue_testing(deferred, send_value=send_value)
             elif (time.time() - start_time) * 1000 >= timeout:
-                self.stream.writeln("Condition timeout, continue anyway.")
-                defer(10, _continue_testing, deferred)
+                error = TimeoutError(
+                    'Condition not fulfilled within {:.2f} seconds'
+                    .format(timeout / 1000)
+                )
+                _continue_testing(deferred, throw_value=error)
             else:
                 defer(period, _wait_condition, deferred, condition, period, timeout, start_time)
 
@@ -91,7 +126,7 @@ class LegacyDeferringTextTestRunner(TextTestRunner):
                 if stopTestRun is not None:
                     stopTestRun()
 
-            stopTime = time.time()
+            stopTime = time.perf_counter()
             timeTaken = stopTime - startTime
             result.printErrors()
             if hasattr(result, 'separator2'):
@@ -132,4 +167,4 @@ class LegacyDeferringTextTestRunner(TextTestRunner):
             else:
                 self.stream.write("\n")
 
-        sublime.set_timeout(_start_testing, 10)
+        _start_testing()

@@ -8,7 +8,13 @@ UnitTesting
 [![codecov](https://codecov.io/gh/SublimeText/UnitTesting/branch/master/graph/badge.svg)](https://codecov.io/gh/SublimeText/UnitTesting)
 <a href="https://packagecontrol.io/packages/UnitTesting"><img src="https://packagecontrol.herokuapp.com/downloads/UnitTesting.svg"></a>
 
-This is a unittest framework for Sublime Text 3. It runs unittest testcases on local machines and CI services such as Travis CI, Circle CI and AppVeyor. It also supports testing syntax_test files for the new [sublime-syntax](https://www.sublimetext.com/docs/3/syntax.html) format.
+This is a unittest framework for Sublime Text. It runs unittest testcases on local machines and CI services such as Travis CI, Circle CI and AppVeyor. It also supports testing syntax_test files for the new [sublime-syntax](https://www.sublimetext.com/docs/3/syntax.html) format.
+
+## Sublime Text 4
+
+Sublime Text 4 is now supported.
+- As Package Control has not yet support python 3.8, `coverage` on Python 3.8 packages are not working now.
+- Only local testing is possible and CI services are also not available now.
 
 ## Preparation
 
