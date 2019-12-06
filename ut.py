@@ -57,20 +57,21 @@ def plugin_loaded():
         data = sublime.load_resource("Packages/UnitTesting/py33/ut.py")
         with open(os.path.join(UT33, "ut.py"), 'w') as f:
             f.write(data.replace("\r\n", "\n"))
-        with open(os.path.join(UT33, ".package-reloader"), 'w') as f:
-            f.write("UnitTesting")
+        with open(os.path.join(UT33, ".package_reloader.json"), 'w') as f:
+            f.write("{\"dependencies\" : [\"UnitTesting\"]}")
 
 
 def plugin_unloaded():
-    UT33 = os.path.join(sublime.packages_path(), "UnitTesting33")
-    try:
-        from AutomaticPackageReloader.package_reloader import reload_lock
-        reloading = not reload_lock.acquire(blocking=False)
-    except ImportError:
-        reloading = False
-
-    if os.path.exists(UT33) and not reloading:
+    if sys.version_info >= (3, 8):
+        UT33 = os.path.join(sublime.packages_path(), "UnitTesting33")
         try:
-            shutil.rmtree(UT33)
-        except Exception:
-            pass
+            from AutomaticPackageReloader.package_reloader import reload_lock
+            reloading = not reload_lock.acquire(blocking=False)
+        except ImportError:
+            reloading = False
+
+        if os.path.exists(UT33) and not reloading:
+            try:
+                shutil.rmtree(UT33)
+            except Exception:
+                pass
