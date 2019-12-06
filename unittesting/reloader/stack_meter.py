@@ -5,10 +5,10 @@ class StackMeter:
         super().__init__()
         self.depth = depth
 
-    def __enter__(self):
+    def __enter__(self):  # noqa
         depth = self.depth
         self.depth += 1
         return depth
 
-    def __exit__(self, *exc_info):
+    def __exit__(self, *exc_info):  # noqa
         self.depth -= 1

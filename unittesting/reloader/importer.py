@@ -24,7 +24,7 @@ class ReloadingImporter():
 
             imp.reload(module)
 
-    def __import__(self, name, globals=None, locals=None, fromlist=(), level=0):
+    def __import__(self, name, globals=None, locals=None, fromlist=(), level=0):  # noqa
         module = self._orig___import__(name, globals, locals, fromlist, level)
 
         self.reload(module)
@@ -45,11 +45,11 @@ class ReloadingImporter():
 
         return module
 
-    def __enter__(self):
+    def __enter__(self):  # noqa
         self._orig___import__ = __import__
         builtins.__import__ = self.__import__
         return self
 
-    def __exit__(self, exc_type, exc_value, traceback):
+    def __exit__(self, exc_type, exc_value, traceback):  # noqa
         builtins.__import__ = self._orig___import__
         del self._orig___import__

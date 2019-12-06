@@ -7,7 +7,10 @@ except ImportError:
 
 else:
     def resolve_parents(root_name):
-        """Given the name of a dependency, return all dependencies and packages
+        """
+        Resolve parents.
+
+        Given the name of a dependency, return all dependencies and packages
         that require that dependency, directly or indirectly.
         """
         manager = PackageManager()

@@ -53,7 +53,7 @@ def get_package_modules(package_names):
     # get all the top level plugins in case they were removed from sys.modules
     for path in sublime.find_resources("*.py"):
         for pkg_name in package_names:
-            if posixpath.dirname(path) == 'Packages/'+pkg_name:
+            if posixpath.dirname(path) == 'Packages/' + pkg_name:
                 yield pkg_name + '.' + posixpath.basename(posixpath.splitext(path)[0]), True
 
 
