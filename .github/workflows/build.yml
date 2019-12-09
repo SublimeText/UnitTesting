@@ -16,36 +16,36 @@ jobs:
     env:
       SUBLIME_TEXT_ARCH: ${{ matrix.arch }}
     steps:
-    - uses: actions/checkout@v1
-    - run: sh -e /etc/init.d/xvfb start
-    - run: |
-        PATH="$HOME/.local/bin:$PATH"
-        sh sbin/github.sh bootstrap
-        sh sbin/github.sh install_color_scheme_unit
-        sh sbin/github.sh install_package_control
-        sh sbin/github.sh run_tests --coverage
-    - run: |
-        apt-get install python3-pip -y
-        pip3 install codecov
-        codecov
-      env:
-        CODECOV_TOKEN: ${{secrets.CODECOV_TOKEN}}
+      - uses: actions/checkout@v1
+      - run: sh -e /etc/init.d/xvfb start
+      - run: |
+          PATH="$HOME/.local/bin:$PATH"
+          sh sbin/github.sh bootstrap
+          sh sbin/github.sh install_color_scheme_unit
+          sh sbin/github.sh install_package_control
+          sh sbin/github.sh run_tests --coverage
+      - run: |
+          apt-get install python3-pip -y
+          pip3 install codecov
+          codecov
+        env:
+          CODECOV_TOKEN: ${{secrets.CODECOV_TOKEN}}
 
   macos:
     runs-on: macOS-latest
     steps:
-    - uses: actions/checkout@v1
-    - run: |
-        export PATH="$HOME/.local/bin:$PATH"
-        sh sbin/github.sh bootstrap
-        sh sbin/github.sh install_color_scheme_unit
-        sh sbin/github.sh install_package_control
-        sh sbin/github.sh run_tests --coverage
-    - run: |
-        pip3 install codecov
-        codecov
-      env:
-        CODECOV_TOKEN: ${{secrets.CODECOV_TOKEN}}
+      - uses: actions/checkout@v1
+      - run: |
+          export PATH="$HOME/.local/bin:$PATH"
+          sh sbin/github.sh bootstrap
+          sh sbin/github.sh install_color_scheme_unit
+          sh sbin/github.sh install_package_control
+          sh sbin/github.sh run_tests --coverage
+      - run: |
+          pip3 install codecov
+          codecov
+        env:
+          CODECOV_TOKEN: ${{secrets.CODECOV_TOKEN}}
 
   windows:
     runs-on: windows-latest
@@ -56,14 +56,14 @@ jobs:
     env:
       SUBLIME_TEXT_ARCH: ${{ matrix.arch }}
     steps:
-    - uses: actions/checkout@v1
-    - run: |
-        ./sbin/github.ps1 "bootstrap" -verbose
-        ./sbin/github.ps1 "install_color_scheme_unit" -verbose
-        ./sbin/github.ps1 "install_package_control" -verbose
-        ./sbin/github.ps1 "run_tests" -coverage -verbose
-    - run: |
-        pip3 install codecov
-        codecov
-      env:
-        CODECOV_TOKEN: ${{secrets.CODECOV_TOKEN}}
+      - uses: actions/checkout@v1
+      - run: |
+          ./sbin/github.ps1 "bootstrap" -verbose
+          ./sbin/github.ps1 "install_color_scheme_unit" -verbose
+          ./sbin/github.ps1 "install_package_control" -verbose
+          ./sbin/github.ps1 "run_tests" -coverage -verbose
+      - run: |
+          pip3 install codecov
+          codecov
+        env:
+          CODECOV_TOKEN: ${{secrets.CODECOV_TOKEN}}
