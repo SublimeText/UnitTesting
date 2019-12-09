@@ -8,7 +8,10 @@ The major version of Sublime Text to be installed.
 [CmdletBinding()]
 param(
     [ValidateSet('2', '3')]
-    [int]$Version = $SublimeTextVersion
+    [int]$Version = $SublimeTextVersion,
+    [Parameter(Mandatory=$false)]
+    [ValidateSet('x32', 'x64')]
+    [string]$Arch = $SublimeTextArch
 )
 
 $ErrorActionPreference = 'stop'
@@ -25,9 +28,16 @@ function getDownloadUrl {
     param([string]$Url)
     $html = Invoke-WebRequest $Url -UseBasicParsing
     foreach ($link in $html.Links) {
-        if ($link.href.endsWith('x64.zip')) {
-           $link.href
-           break
+        if ($Arch -eq 'x64') {
+            if ($link.href.endsWith("$Arch.zip")) {
+               $link.href
+               break
+            }
+        } else {
+            if ($link.href -match ".*(?<!x64)\.zip") {
+               $link.href
+               break
+            }
         }
     }
 }

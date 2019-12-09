@@ -9,6 +9,12 @@ jobs:
   linux:
     runs-on: ubuntu-latest
     container: sublimetext/unittesting
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [x32, x64]
+    env:
+      SUBLIME_TEXT_ARCH: ${{ matrix.arch }}
     steps:
     - uses: actions/checkout@v1
     - run: sh -e /etc/init.d/xvfb start
@@ -43,6 +49,12 @@ jobs:
 
   windows:
     runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [x32, x64]
+    env:
+      SUBLIME_TEXT_ARCH: ${{ matrix.arch }}
     steps:
     - uses: actions/checkout@v1
     - run: |

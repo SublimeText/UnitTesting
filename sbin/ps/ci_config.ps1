@@ -44,6 +44,8 @@ if (!$env:UNITTESTING_BOOTSTRAPPED) {
     makeGlobalConstant IsSublimeTextVersion3 ($SublimeTextVersion -eq 3)
     # True if SublimeTextVersion is 2.
     makeGlobalConstant IsSublimeTextVersion2 ($SublimeTextVersion -eq 2)
+    # The arch of Sublime Text (x32 or x64)
+    makeGlobalConstant SublimeTextArch (eitherOr $env:SUBLIME_TEXT_ARCH "x64")
     # The path to the Sublime Text binaries directory.
     makeGlobalConstant SublimeTextDirectory (eitherOr $env:SUBLIME_TEXT_DIRECTORY "$env:SystemDrive\st")
     # The path to the Sublime Text executable helper.

@@ -5,6 +5,7 @@
 set -e
 
 SUBLIME_TEXT_VERSION=${SUBLIME_TEXT_VERSION:-3}
+SUBLIME_TEXT_ARCH=${SUBLIME_TEXT_ARCH:-x64}
 
 if [ $(uname) = 'Darwin' ]; then
     STP="$HOME/Library/Application Support/Sublime Text $SUBLIME_TEXT_VERSION/Packages"

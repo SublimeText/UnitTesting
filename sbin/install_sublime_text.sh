@@ -8,6 +8,12 @@ while [ "$#" -ne 0 ]; do
         --st)
             SUBLIME_TEXT_VERSION="$2"
             shift 2
+            continue
+        ;;
+        --arch)
+            SUBLIME_TEXT_ARCH="$2"
+            shift 2
+            continue
         ;;
         *)
             echo "Unknown option: $1"
@@ -19,6 +25,10 @@ done
 if [ -z $SUBLIME_TEXT_VERSION ]; then
     echo "Missing Sublime Text version"
     exit 1
+fi
+
+if [ -z $SUBLIME_TEXT_ARCH ]; then
+    SUBLIME_TEXT_ARCH=x64
 fi
 
 STWEB="https://www.sublimetext.com/$SUBLIME_TEXT_VERSION"
@@ -75,7 +85,11 @@ else
         fi
         echo "installing sublime text $SUBLIME_TEXT_VERSION"
         for i in {1..20}; do
-            URL=$(curl -s "$STWEB" | sed -n 's/.*href="\([^"]*x64\.tar\.bz2\)".*/\1/p')
+            if [ "$SUBLIME_TEXT_ARCH" = "x64" ]; then
+                URL=$(curl -s "$STWEB" | sed -n 's/.*href="\([^"]*x64\.tar\.bz2\)".*/\1/p')
+            else
+                URL=$(curl -s "$STWEB" | sed -n 's/.*href="\([^"]*x32\.tar\.bz2\)".*/\1/p')
+            fi
             [ -n "$URL" ] && break || sleep 3
         done
         if [ -z "$URL" ]; then
