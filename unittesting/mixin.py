@@ -4,9 +4,9 @@ import sys
 import re
 from glob import glob
 
+from .reloader import reload_package
 from .utils import OutputPanel
 from .utils import JsonFile
-from .utils import reload_package
 from .utils import ProgressBar
 
 import sublime
@@ -17,7 +17,7 @@ DEFAULT_SETTINGS = {
     "pattern": "test*.py",
     "async": False,
     "deferred": False,
-    "legacy_runner": False,
+    "legacy_runner": False,  # shall not used anymore
     "verbosity": 2,
     "output": None,
     "reload_package_on_testing": True,
@@ -46,6 +46,15 @@ def relative_to_spp(path):
 
 
 class UnitTestingMixin(object):
+
+    def package_python_version(self, package):
+        if sublime.version() < '4000':
+            return "3.3"
+        try:
+            version = sublime.load_resource("Packages/{}/.python-version".format(package))
+        except FileNotFoundError:
+            version = "3.3"
+        return version
 
     @property
     def current_package_name(self):
@@ -118,8 +127,6 @@ class UnitTestingMixin(object):
 
             try:
                 reload_package(package, dummy=dummy, verbose=True)
-            except Exception:
-                sublime.status_message("Fail to reload {}.".format(package))
             finally:
                 progress_bar.stop()
 
@@ -128,6 +135,9 @@ class UnitTestingMixin(object):
             reload_package(package, dummy=dummy, verbose=False)
 
     def remove_test_modules(self, package, tests_dir):
+        tests_dir = os.path.join(sublime.packages_path(), package, tests_dir)
+        real_tests_dir = os.path.realpath(tests_dir)
+
         modules = {}
         # make a copy of sys.modules
         for mname in sys.modules:
@@ -143,14 +153,11 @@ class UnitTestingMixin(object):
                     continue
             except Exception:
                 continue
-
-            tests_dir = os.path.join(sublime.packages_path(), package, tests_dir)
-            real_tests_dir = os.path.realpath(tests_dir)
             if os.path.realpath(mpath).startswith(real_tests_dir):
                 del sys.modules[mname]
 
-            # remove tests dir in sys.path
-            if tests_dir in sys.path:
-                sys.path.remove(tests_dir)
-            elif real_tests_dir in sys.path:
-                sys.path.remove(real_tests_dir)
+        # remove tests dir in sys.path
+        if tests_dir in sys.path:
+            sys.path.remove(tests_dir)
+        elif real_tests_dir in sys.path:
+            sys.path.remove(real_tests_dir)

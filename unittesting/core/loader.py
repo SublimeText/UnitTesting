@@ -9,3 +9,4 @@ class UnitTestingLoader(TestLoader):
             self.suiteClass = DeferrableTestSuite
         else:
             self.suiteClass = TestSuite
+        super().__init__()

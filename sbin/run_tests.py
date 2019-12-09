@@ -66,7 +66,7 @@ def create_schedule(package, output_file, default_schedule):
         f.write(json.dumps(schedule, ensure_ascii=False, indent=True))
 
 
-def wait_for_output(path, schedule, timeout=30):
+def wait_for_output(path, schedule, timeout=10):
     start_time = time.time()
     needs_newline = False
 

@@ -1,20 +1,22 @@
 from fnmatch import fnmatch
 import os
 import sublime
-import sys
-from .test_package import UnitTestingCommand
-from .test_coverage import UnitTestingCoverageCommand
+from .package import UnitTestingCommand
+from .coverage import UnitTestingCoverageCommand
 
 
 class UnitTestingCurrentPackageCommand(UnitTestingCommand):
+    fallback33 = "unit_testing33_current_package"
+
     def run(self, **kwargs):
         project_name = self.current_package_name
         if not project_name:
             sublime.message_dialog("Cannot determine package name.")
             return
 
+        kwargs["package"] = project_name
         sublime.set_timeout_async(
-            lambda: super(UnitTestingCurrentPackageCommand, self).run(project_name, **kwargs))
+            lambda: super(UnitTestingCurrentPackageCommand, self).run(**kwargs))
 
     def unit_testing(self, stream, package, settings):
         parent = super(UnitTestingCurrentPackageCommand, self)
@@ -24,21 +26,9 @@ class UnitTestingCurrentPackageCommand(UnitTestingCommand):
         parent.unit_testing(stream, package, settings)
 
 
-class UnitTestingCurrentPackageCoverageCommand(UnitTestingCoverageCommand):
-
-    def run(self, **kwargs):
-        project_name = self.current_package_name
-        if not project_name:
-            sublime.message_dialog("Cannot determine package name.")
-            return
-
-        super(UnitTestingCurrentPackageCoverageCommand, self).run(project_name, **kwargs)
-
-    def is_enabled(self):
-        return "coverage" in sys.modules
-
-
 class UnitTestingCurrentFileCommand(UnitTestingCommand):
+    fallback33 = "unit_testing33_current_file"
+
     def run(self, **kwargs):
         project_name = self.current_package_name
         if not project_name:
@@ -63,11 +53,9 @@ class UnitTestingCurrentFileCommand(UnitTestingCommand):
                 or current_file
             )
 
+        kwargs["package"] = "{}:{}".format(project_name, test_file)
         sublime.set_timeout_async(
-            lambda: super(UnitTestingCurrentFileCommand, self).run(
-                "{}:{}".format(project_name, test_file),
-                **kwargs
-            )
+            lambda: super(UnitTestingCurrentFileCommand, self).run(**kwargs)
         )
 
     def unit_testing(self, stream, package, settings):
@@ -78,3 +66,16 @@ class UnitTestingCurrentFileCommand(UnitTestingCommand):
             self.reload_package(
                 package, dummy=True, show_reload_progress=settings["show_reload_progress"])
         parent.unit_testing(stream, package, settings)
+
+
+class UnitTestingCurrentPackageCoverageCommand(UnitTestingCoverageCommand):
+    fallback33 = "unit_testing33_current_package_coverage"
+
+    def run(self, **kwargs):
+        project_name = self.current_package_name
+        if not project_name:
+            sublime.message_dialog("Cannot determine package name.")
+            return
+
+        kwargs["package"] = project_name
+        super(UnitTestingCurrentPackageCoverageCommand, self).run(**kwargs)

@@ -25,7 +25,7 @@ def plugin_loaded():
         elif sublime.platform() == "windows":
             cmd = "sleep 1 & taskkill /F /im sublime_text.exe & sleep 1 "
             if restart:
-                cmd = cmd + "& \"C:\\st\\sublime_text.exe\""
+                cmd = cmd + "& \"{}\"".format(sublime.executable_path())
 
         subprocess.Popen(cmd, shell=True)
 

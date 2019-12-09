@@ -7,7 +7,6 @@ from unittest import TextTestRunner, TestSuite
 from .core import (
     TestLoader,
     DeferringTextTestRunner,
-    LegacyDeferringTextTestRunner,
     DeferrableTestCase
 )
 from .mixin import UnitTestingMixin
@@ -17,6 +16,7 @@ import threading
 
 
 class UnitTestingCommand(sublime_plugin.ApplicationCommand, UnitTestingMixin):
+    fallback33 = "unit_testing33"
 
     def run(self, package=None, **kwargs):
         if not package:
@@ -24,6 +24,13 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand, UnitTestingMixin):
             return
 
         package, pattern = self.input_parser(package)
+
+        if sys.version_info >= (3, 8) and self.package_python_version(package) == "3.3":
+            print("run unit_testing in python 3.3")
+            kwargs["package"] = package
+            sublime.set_timeout(lambda: sublime.run_command(self.fallback33, kwargs))
+            return
+
         if pattern is not None:
             # kwargs have the highest precedence when evaluating the settings,
             # so we sure don't want to pass `None` down
@@ -62,17 +69,18 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand, UnitTestingMixin):
             # use custom loader which supports reloading modules
             self.remove_test_modules(package, settings["tests_dir"])
             loader = TestLoader(settings["deferred"])
-            tests = loader.discover(os.path.join(
-                sublime.packages_path(), package, settings["tests_dir"]), settings["pattern"]
-            )
+            package_dir = os.path.join(sublime.packages_path(), package)
+            start_dir = os.path.join(package_dir, settings["tests_dir"])
+            if os.path.exists(os.path.join(start_dir, "__init__.py")):
+                tests = loader.discover(start_dir, settings["pattern"], top_level_dir=package_dir)
+            else:
+                tests = loader.discover(start_dir, settings["pattern"])
             # use deferred test runner or default test runner
             if settings["deferred"]:
                 if settings["legacy_runner"]:
-                    testRunner = LegacyDeferringTextTestRunner(stream, verbosity=settings["verbosity"],
-                                                               failfast=settings['failfast'])
-                else:
-                    testRunner = DeferringTextTestRunner(stream, verbosity=settings["verbosity"],
-                                                         failfast=settings['failfast'])
+                    raise Exception("`legacy_runner=True` is deprecated.")
+                testRunner = DeferringTextTestRunner(
+                    stream, verbosity=settings["verbosity"], failfast=settings['failfast'])
             else:
                 self.verify_testsuite(tests)
                 testRunner = TextTestRunner(stream, verbosity=settings["verbosity"], failfast=settings['failfast'])
@@ -81,7 +89,9 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand, UnitTestingMixin):
 
         except Exception as e:
             if not stream.closed:
+                import traceback
                 stream.write("ERROR: %s\n" % e)
+                traceback.print_exc(file=stream)
             # force clean up
             testRunner = None
         finally:

@@ -2,7 +2,7 @@ import sublime
 import os
 import sys
 import re
-from .test_package import UnitTestingCommand
+from .package import UnitTestingCommand
 
 try:
     import coverage
@@ -11,6 +11,7 @@ except Exception:
 
 
 class UnitTestingCoverageCommand(UnitTestingCommand):
+    fallback33 = "unit_testing33_coverage"
 
     def unit_testing(self, stream, package, settings):
         package_path = os.path.join(sublime.packages_path(), package)
@@ -58,4 +59,5 @@ class UnitTestingCoverageCommand(UnitTestingCommand):
         super().unit_testing(stream, package, settings, [cleanup])
 
     def is_enabled(self):
-        return "coverage" in sys.modules
+        # we assume it is always true for python 3.8 to allow falling back to python 3.3
+        return "coverage" in sys.modules or sys.version_info >= (3, 8)
