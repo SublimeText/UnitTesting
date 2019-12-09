@@ -49,6 +49,13 @@ it is missing, UnitTesting will ignore the `tests` directory.
 
 ## Continuous Integration
 
+These environmental variables are used in the CIs.
+
+- `PACKAGE`: the package name, it is needed if the repo name is different from the package name.
+- `SUBLIME_TEXT_VERSION`: 2 or 3
+- `SUBLIME_TEXT_ARCH`: `x32` or `x64`
+- `UNITTESTING_TAG`: a specific version of UnitTesting to use
+
 ### GitHub Actions
 
 To enable GitHub Actions, copy the file [build.yml](https://github.com/randy3k/UnitTesting-example/blob/master/.github/workflows/build.yml) to
