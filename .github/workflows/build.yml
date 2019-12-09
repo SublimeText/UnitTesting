@@ -8,11 +8,11 @@ on: [push, pull_request]
 jobs:
   linux:
     runs-on: ubuntu-latest
-    container: sublimetext/unittesting
     strategy:
       fail-fast: false
       matrix:
         arch: [x32, x64]
+    container: sublimetext/unittesting:${{ matrix.arch }}
     env:
       SUBLIME_TEXT_ARCH: ${{ matrix.arch }}
     steps:
