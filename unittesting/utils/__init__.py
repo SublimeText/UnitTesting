@@ -11,4 +11,5 @@ __all__ = [
     "StdioSplitter",
     "ProgressBar",
     "isiterable",
+    "reload_package"
 ]

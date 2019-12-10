@@ -117,6 +117,8 @@ def reload_package(pkg_name, dummy=True, verbose=True):
 
 def reload_dependency(dependency_name, dummy=True, verbose=True):
     """
+    Reload.
+
     Package Control dependencies aren't regular packages, so we don't want to
     call `sublime_plugin.unload_module` or `sublime_plugin.reload_plugin`.
     Instead, we manually unload all of the modules in the dependency and then
