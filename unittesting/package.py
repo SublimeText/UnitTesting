@@ -102,7 +102,12 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand, UnitTestingMixin):
                     progress_bar.stop()
 
                     for hook in cleanup_hooks:
-                        hook()
+                        try:
+                            hook()
+                        except Exception as e:
+                            import traceback
+                            stream.write("ERROR: %s\n" % e)
+                            traceback.print_exc(file=stream)
 
                     if not hasattr(stream, 'window'):
                         # If it's an output panel don't print done message,
