@@ -4,7 +4,7 @@ import sys
 import re
 from glob import glob
 
-from .reloader import reload_package
+from .utils import reload_package
 from .utils import OutputPanel
 from .utils import JsonFile
 from .utils import ProgressBar
