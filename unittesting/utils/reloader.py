@@ -63,8 +63,8 @@ def get_package_modules(pkg_name):
     )
 
     def module_in_package(module):
-        file = getattr(module, '__file__', '')
-        paths = getattr(module, '__path__', ())
+        file = getattr(module, '__file__', '') or ''
+        paths = getattr(module, '__path__', ()) or ''
         return (
             in_installed_path(file) or any(map(in_installed_path, paths)) or
             in_package_path(file) or any(map(in_package_path, paths))
