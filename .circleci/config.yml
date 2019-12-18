@@ -21,6 +21,7 @@ jobs:
           sh sbin/circleci.sh run_tests --coverage
       - run: |
           apt-get install python3-pip -y
+          pip3 install coverage==4.5.3
           pip3 install codecov
           codecov
 
@@ -37,6 +38,7 @@ jobs:
           sh sbin/circleci.sh run_tests --coverage
       - run: |
           brew upgrade python
+          pip3 install coverage==4.5.3
           pip3 install codecov
           codecov
 
@@ -50,6 +52,7 @@ jobs:
           ./sbin/circleci.ps1 "install_package_control" -verbose
           ./sbin/circleci.ps1 "run_tests" -coverage -verbose
       - run: |
+          pip install coverage==4.5.3
           pip install codecov
           codecov
 

@@ -29,6 +29,7 @@ script:
     - sh sbin/travis.sh run_tests --coverage
 
 after_success:
+    - pip3 install coverage==4.5.3
     - pip3 install codecov;
     - codecov
 

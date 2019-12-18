@@ -19,5 +19,6 @@ test_script:
 after_test:
     - "SET PYTHON=C:\\Python33"
     - "SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
+    - pip install coverage==4.5.3
     - pip install codecov
     - codecov
