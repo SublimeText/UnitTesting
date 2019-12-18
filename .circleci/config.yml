@@ -59,4 +59,5 @@ workflows:
     jobs:
       - build-linux
       - build-macos
-      - build-windows
+      # ciricleci keeps saying we are out of credits, disable it for now
+      # - build-windows
