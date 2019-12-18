@@ -61,8 +61,8 @@ Following CI's are supported.
 |                 | Linux | macOS | Windows |
 |-----------------|-------|-------|---------|
 | GitHub Actions  | ✅    | ✅    |   ✅   |
+| CircleCI        | ✅    | ✅    |   ✅   |
 | Travis CI       | ✅    | ✅    |        |
-| CircleCI        | ✅    | ✅    |        |
 | AppVeyor        |       |       |   ✅   |
 
 
@@ -74,10 +74,10 @@ your repository.
 
 ### Circle CI
 
-To enable Circle CI Linux and macOS builds, copy the file
+To enable Circle CI builds, copy the file
 [.circleci/config.yml](https://github.com/randy3k/UnitTesting-example/blob/master/.circleci/config.yml) to your repository. Log in to [Circle CI](https://circleci.com) and add a new project.
 
-Circle CI doesn't offer free macOS plan by default, but you could contact them for access if your package is open sourced:
+Circle CI doesn't offer free macOS plan at the moment, but you could contact them for access if your package is open sourced:
 
 > We also offer the Seed plan for macOS open-source projects. Contact us at billing@circleci.com for access. If you are building a bigger open-source project and need more resources, let us know how we can help you!
 

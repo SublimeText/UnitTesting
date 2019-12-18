@@ -1,7 +1,10 @@
-version: 2
+version: 2.1
 
 # if you are looking for a working example
 # refer to https://github.com/randy3k/UnitTesting-example/blob/master/.circleci/config.yml
+
+orbs:
+  win: circleci/windows@2.2.0
 
 jobs:
   build-linux:
@@ -37,9 +40,23 @@ jobs:
           pip3 install codecov
           codecov
 
+  build-windows:
+    executor: win/default
+    steps:
+      - checkout
+      - run: |
+          ./sbin/circleci.ps1 "bootstrap" -verbose
+          ./sbin/circleci.ps1 "install_color_scheme_unit" -verbose
+          ./sbin/circleci.ps1 "install_package_control" -verbose
+          ./sbin/circleci.ps1 "run_tests" -coverage -verbose
+      - run: |
+          pip install codecov
+          codecov
+
 workflows:
   version: 2
   build_and_test:
     jobs:
       - build-linux
       - build-macos
+      - build-windows
