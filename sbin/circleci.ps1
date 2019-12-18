@@ -23,7 +23,7 @@ if (Test-Path (join-path $PSScriptRoot 'ps')) {
 function downloadScriptIfNotExist {
     param([string]$FileName)
     if (-Not (Test-Path (join-path $UnitTestingPowerShellScriptsDirectory $FileName))) {
-        invoke-webrequest "https://raw.githubusercontent.com/SublimeText/UnitTesting/master/sbin/ps/$FileName" -outfile "$UnitTestingPowerShellScriptsDirectory\$FileName"
+        (new-object net.webclient).DownloadFile("https://raw.githubusercontent.com/SublimeText/UnitTesting/master/sbin/ps/$FileName", "$UnitTestingPowerShellScriptsDirectory\$FileName")
     }
 }
 
