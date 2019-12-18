@@ -12,9 +12,9 @@ This is a unittest framework for Sublime Text. It runs unittest testcases on loc
 
 ## Sublime Text 4
 
-Sublime Text 4 is now supported.
-- As Package Control has not yet support python 3.8, `coverage` on Python 3.8 packages are not working now.
-- Only local testing is possible and CI services are also not available now.
+Sublime Text 4 is now supported (with some caveats)
+- Running `coverage` on Python 3.8 packages is not working now.
+- Only local testing is supported now (CI services are not working).
 
 ## Preparation
 
@@ -172,7 +172,7 @@ asynchronous codes.
 
 An example would be found in [here](https://github.com/randy3k/UnitTesting-example/tree/deferred).
 
-To activate deferred testing on Travis CI and AppVeyor, put the following line in
+To activate deferred testing, put the following line in
 `unittesting.json`.
 
 ```
@@ -210,7 +210,7 @@ example would be found in
 [here](https://github.com/randy3k/UnitTesting-example/tree/async).
 
 However, it is known that async test does not work very well with coverage.
-In general, it is recommended to use deferred testing over async testing since there is
+In general, it is **recommended** to use deferred testing over async testing since there is
 no need to worry about race condition.
 
 
