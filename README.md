@@ -56,6 +56,16 @@ These environmental variables are used in the CIs.
 - `SUBLIME_TEXT_ARCH`: `x32` or `x64`
 - `UNITTESTING_TAG`: a specific version of UnitTesting to use
 
+Following CI's are supported.
+
+|                 | Linux | macOS | Windows |
+|-----------------|-------|-------|---------|
+| GitHub Actions  | ✅    | ✅    |   ✅   |
+| Travis CI       | ✅    | ✅    |        |
+| CircleCI        | ✅    | ✅    |        |
+| AppVeyor        |       |       |   ✅   |
+
+
 ### GitHub Actions
 
 To enable GitHub Actions, copy the file [build.yml](https://github.com/randy3k/UnitTesting-example/blob/master/.github/workflows/build.yml) to
