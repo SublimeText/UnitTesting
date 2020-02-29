@@ -25,6 +25,7 @@ jobs:
           sh sbin/github.sh install_package_control
           sh sbin/github.sh run_tests --coverage
       - run: |
+          apt-get update
           apt-get install python3-pip -y
           pip3 install coverage==4.5.4 codecov==2.0.15
           codecov
