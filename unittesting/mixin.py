@@ -106,13 +106,11 @@ class UnitTestingMixin(object):
     def load_stream(self, package, settings):
         tcp_port = settings.get("tcp_port")
         if tcp_port is None:
-            print("tcp_port is None :(")
             output_panel = OutputPanel(
                 'UnitTesting', file_regex=r'File "([^"]*)", line (\d+)')
             output_panel.show()
             stream = output_panel
         else:
-            print("tcp_port is not None :)")
             conn = socket.create_connection(('localhost', tcp_port))
             stream = conn.makefile('w')
 
