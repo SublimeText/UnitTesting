@@ -4,20 +4,6 @@ import sublime_plugin
 from .utils import JsonFile
 
 
-_is_loaded = False
-
-
-def set_loaded(b):
-    global _is_loaded
-    print("setting _is_loaded to", b)
-    _is_loaded = b
-
-
-def is_loaded():
-    global _is_loaded
-    return _is_loaded
-
-
 class Unit:
 
     def __init__(self, s):
