@@ -2,6 +2,7 @@ from collections import ChainMap
 import os
 import sys
 import re
+import socket
 from glob import glob
 
 from .utils import reload_package
@@ -103,20 +104,17 @@ class UnitTestingMixin(object):
         return outfile
 
     def load_stream(self, package, settings):
-        output = settings["output"]
-        if not output or output == "<panel>":
+        tcp_port = settings.get("tcp_port")
+        if tcp_port is None:
+            print("tcp_port is None :(")
             output_panel = OutputPanel(
                 'UnitTesting', file_regex=r'File "([^"]*)", line (\d+)')
             output_panel.show()
             stream = output_panel
         else:
-            if not os.path.isabs(output):
-                if sublime.platform() == "windows":
-                    output = output.replace("/", "\\")
-                output = os.path.join(sublime.packages_path(), package, output)
-            if os.path.exists(output):
-                os.remove(output)
-            stream = open(output, "w")
+            print("tcp_port is not None :)")
+            conn = socket.create_connection(('localhost', tcp_port))
+            stream = conn.makefile('w')
 
         return stream
 

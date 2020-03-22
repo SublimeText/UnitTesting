@@ -6,7 +6,6 @@ Usage:
 2. python path/to/run_tests.py PACKAGE
 """
 
-from __future__ import print_function
 import json
 import optparse
 import os
@@ -14,7 +13,10 @@ import re
 import shutil
 import subprocess
 import sys
+import asyncio
 import time
+from typing import Any, Dict, Optional
+
 
 # todo: allow different sublime versions
 
@@ -23,8 +25,6 @@ UT_OUTPUT_DIR_PATH = os.path.realpath(os.path.join(PACKAGES_DIR_PATH, 'User', 'U
 SCHEDULE_FILE_PATH = os.path.realpath(os.path.join(UT_OUTPUT_DIR_PATH, 'schedule.json'))
 UT_DIR_PATH = os.path.realpath(os.path.join(PACKAGES_DIR_PATH, 'UnitTesting'))
 UT_SBIN_PATH = os.path.realpath(os.path.join(PACKAGES_DIR_PATH, 'UnitTesting', 'sbin'))
-SCHEDULE_RUNNER_SOURCE = os.path.join(UT_SBIN_PATH, "run_scheduler.py")
-SCHEDULE_RUNNER_TARGET = os.path.join(UT_DIR_PATH, "zzz_run_scheduler.py")
 RX_RESULT = re.compile(r'^(?P<result>OK|FAILED|ERROR)', re.MULTILINE)
 RX_DONE = re.compile(r'^UnitTesting: Done\.$', re.MULTILINE)
 
@@ -46,7 +46,7 @@ def copy_file_if_not_exists(source, target):
         shutil.copyfile(source, target)
 
 
-def create_schedule(package, output_file, default_schedule):
+def create_schedule(package, default_schedule):
     schedule = []
 
     try:
@@ -66,76 +66,56 @@ def create_schedule(package, output_file, default_schedule):
         f.write(json.dumps(schedule, ensure_ascii=False, indent=True))
 
 
-def wait_for_output(path, schedule, timeout=10):
-    start_time = time.time()
-    needs_newline = False
-
-    def check_has_timed_out():
-        return time.time() - start_time > timeout
-
-    def check_is_output_available():
-        try:
-            return os.stat(path).st_size != 0
-        except Exception:
-            pass
-
-    while not check_is_output_available():
-        print(".", end="")
-        sys.stdout.flush()
-        needs_newline = True
-
-        if check_has_timed_out():
-            print()
-            delete_file_if_exists(schedule)
-            raise ValueError('timeout')
-
-        time.sleep(1)
-    else:
-        if needs_newline:
-            print()
+def blocking_shell_cmd(cmd: str) -> int:
+    p = subprocess.Popen(
+        cmd, shell=True, stdout=subprocess.DEVNULL, stdin=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL)
+    return p.wait()
 
 
 def start_sublime_text():
-    subprocess.Popen("subl &", shell=True)
+    return blocking_shell_cmd("subl &")
 
 
 def kill_sublime_text():
-    subprocess.Popen("pkill [Ss]ubl || true", shell=True)
-    subprocess.Popen("pkill plugin_host || true", shell=True)
+    blocking_shell_cmd("pkill [Ss]ubl || true")
+    blocking_shell_cmd("pkill plugin_host || true")
 
 
-def read_output(path):
-    # todo: use notification instead of polling
-    success = None
+def run_sublime_application_command(
+    cmd: str,
+    args: Optional[Dict[str, Any]] = None
+) -> int:
+    if args is not None:
+        command = f"{cmd} '{json.dumps(args)}'"
+    else:
+        command = cmd
+    return blocking_shell_cmd(f"subl --command {command}")
 
-    def check_is_success(result):
-        try:
-            return RX_RESULT.search(result).group('result') == 'OK'
-        except AttributeError:
-            return success
 
-    def check_is_done(result):
-        return RX_DONE.search(result) is not None
+success: Optional[bool] = None
 
-    with open(path, 'r') as f:
-        while True:
-            offset = f.tell()
-            result = f.read()
 
-            print(result, end="")
-
-            # Keep checking while we don't have a definite result.
-            success = check_is_success(result)
-
-            if check_is_done(result):
-                assert success is not None, 'final test result must not be None'
-                break
-            elif not result:
-                f.seek(offset)
-
-            time.sleep(0.2)
-
-    return success
+async def read_output(
+    reader: asyncio.StreamReader,
+    _: asyncio.StreamWriter
+) -> None:
+    try:
+        while not reader.at_eof():
+            line = str(await reader.readline(), encoding='UTF-8').rstrip()
+            print(line)
+            global success
+            match = RX_RESULT.search(line)
+            if match:
+                success = match.group('result') == 'OK'
+            else:
+                match = RX_DONE.search(line)
+                if match:
+                    assert success is not None
+                    asyncio.get_running_loop().stop()
+    except Exception as ex:
+        print("ERROR:", ex, file=sys.stderr)
+        asyncio.get_running_loop().stop()
 
 
 def restore_coverage_file(path, package):
@@ -151,38 +131,30 @@ def restore_coverage_file(path, package):
 def main(default_schedule_info):
     package_under_test = default_schedule_info['package']
     output_dir = os.path.join(UT_OUTPUT_DIR_PATH, package_under_test)
-    output_file = os.path.join(output_dir, "result")
+    ping_file = os.path.join(UT_OUTPUT_DIR_PATH, "ready")
     coverage_file = os.path.join(output_dir, "coverage")
-
-    default_schedule_info['output'] = output_file
-
-    for i in range(3):
-        create_dir_if_not_exists(output_dir)
-        delete_file_if_exists(output_file)
-        delete_file_if_exists(coverage_file)
-        create_schedule(package_under_test, output_file, default_schedule_info)
-        delete_file_if_exists(SCHEDULE_RUNNER_TARGET)
-        copy_file_if_not_exists(SCHEDULE_RUNNER_SOURCE, SCHEDULE_RUNNER_TARGET)
-        start_sublime_text()
-        try:
-            print("Wait for tests output...", end="")
-            wait_for_output(output_file, SCHEDULE_RUNNER_TARGET)
-            break
-        except ValueError:
-            if i == 2:
-                print("Timeout: Could not obtain tests output.")
-                print("Maybe Sublime Text is not responding or the tests output "
-                      "is being written to the wrong file.")
-                delete_file_if_exists(SCHEDULE_RUNNER_TARGET)
-                sys.exit(1)
-            kill_sublime_text()
-            time.sleep(2)
-
-    print("Start to read output...")
-    if not read_output(output_file):
-        sys.exit(1)
+    port = 34151
+    default_schedule_info['tcp_port'] = port
+    create_dir_if_not_exists(output_dir)
+    create_schedule(package_under_test, default_schedule_info)
+    delete_file_if_exists(coverage_file)
+    delete_file_if_exists(ping_file)
+    start_sublime_text()
+    coro = asyncio.start_server(read_output, host='localhost', port=port)
+    loop = asyncio.get_event_loop()
+    server = loop.run_until_complete(coro)
+    while not os.path.exists(ping_file):
+        time.sleep(0.1)
+        run_sublime_application_command("unit_testing_ping")
+    delete_file_if_exists(ping_file)
+    run_sublime_application_command("unit_testing_run_scheduler")
+    loop.run_forever()
+    server.close()
+    loop.run_until_complete(server.wait_closed())
+    loop.close()
+    kill_sublime_text()
     restore_coverage_file(coverage_file, package_under_test)
-    delete_file_if_exists(SCHEDULE_RUNNER_TARGET)
+    exit(0 if success else 1)
 
 
 if __name__ == '__main__':

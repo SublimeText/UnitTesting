@@ -1,48 +1,47 @@
 import os
-import threading
-import time
 import sublime
 import sublime_plugin
 from .utils import JsonFile
 
 
+_is_loaded = False
+
+
+def set_loaded(b):
+    global _is_loaded
+    print("setting _is_loaded to", b)
+    _is_loaded = b
+
+
+def is_loaded():
+    global _is_loaded
+    return _is_loaded
+
+
 class Unit:
 
     def __init__(self, s):
-        self.package = s['package']
-
-        self.output = s.get('output', None)
         self.syntax_test = s.get('syntax_test', False)
         self.syntax_compatibility = s.get('syntax_compatibility', False)
         self.color_scheme_test = s.get('color_scheme_test', False)
         self.coverage = s.get('coverage', False)
+        self.kwargs = {"package": s['package']}
+        tcp_port = s.get('tcp_port')
+        if tcp_port is not None:
+            self.kwargs["tcp_port"] = tcp_port
 
     def run(self):
         if self.syntax_test:
-            sublime.run_command("unit_testing_syntax", {
-                "package": self.package,
-                "output": self.output
-            })
+            command = "unit_testing_syntax"
         elif self.syntax_compatibility:
-            sublime.run_command("unit_testing_syntax_compatibility", {
-                "package": self.package,
-                "output": self.output
-            })
+            command = "unit_testing_syntax_compatibility"
         elif self.color_scheme_test:
-            sublime.run_command("unit_testing_color_scheme", {
-                "package": self.package,
-                "output": self.output
-            })
+            command = "unit_testing_color_scheme"
         elif self.coverage:
-            sublime.run_command("unit_testing_coverage", {
-                "package": self.package,
-                "output": self.output
-            })
+            command = "unit_testing_coverage"
         else:
-            sublime.run_command("unit_testing", {
-                "package": self.package,
-                "output": self.output
-            })
+            command = "unit_testing"
+        sublime.run_command(command, self.kwargs)
 
 
 class Scheduler:
@@ -71,23 +70,15 @@ class Scheduler:
 
 
 class UnitTestingRunSchedulerCommand(sublime_plugin.ApplicationCommand):
-    ready = False
 
     def run(self):
-        UnitTestingRunSchedulerCommand.ready = True
-        scheduler = Scheduler()
-        sublime.set_timeout(scheduler.run, 2000)
+        Scheduler().run()
 
 
-def try_running_scheduler():
-    while not UnitTestingRunSchedulerCommand.ready:
-        sublime.set_timeout(
-            lambda: sublime.run_command("unit_testing_run_scheduler"), 1)
+class UnitTestingPingCommand(sublime_plugin.ApplicationCommand):
 
-        time.sleep(1)
-
-
-def run_scheduler():
-    UnitTestingRunSchedulerCommand.ready = False
-    th = threading.Thread(target=try_running_scheduler)
-    th.start()
+    def run(self):
+        ready_file = os.path.join(
+            sublime.packages_path(), "User", "UnitTesting", "ready")
+        with open(ready_file, 'w') as fp:
+            print("ready", file=fp)
