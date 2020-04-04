@@ -33,7 +33,7 @@ jobs:
           CODECOV_TOKEN: ${{secrets.CODECOV_TOKEN}}
 
   macos:
-    runs-on: macOS-latest
+    runs-on: macos-latest
     steps:
       - uses: actions/checkout@v1
       - run: |
