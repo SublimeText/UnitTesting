@@ -1,3 +1,10 @@
+# v1.5.0
+   - support Sublime Text 4
+   - refactor ci script and support github actions
+   - use relative import to fix the reloading issue
+   - support x32
+   - Hide the test syntaxes and the success/failure color schemes
+
 # v1.4.1
 
    - The default value of `legacy_runner` is now set to `false`.
