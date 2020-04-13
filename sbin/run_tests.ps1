@@ -60,7 +60,7 @@ function addSchedule {
             write-verbose "  $($h.Name): $($h.Value)"
         }
 
-        $schedule += $schedule_info
+        $schedule += @($schedule_info)
     }
 
     [System.IO.File]::WriteAllText(
