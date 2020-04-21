@@ -96,7 +96,7 @@ def wait_for_output(path, schedule, timeout=10):
 
 
 def start_sublime_text():
-    subprocess.Popen("subl &", shell=True)
+    subprocess.Popen("subl --stay &", shell=True)
 
 
 def kill_sublime_text():
