@@ -96,7 +96,7 @@ as a new project.
 
 ## Coverage reports
 
-We support Codecov, Coveralls and Codacy. Codacov is recommended as it
+We support Codecov, Coveralls and Codacy. Codecov is recommended as it
 supports merging reports from different CIs.
 
 
