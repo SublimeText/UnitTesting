@@ -11,10 +11,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        arch: [x32, x64]
-    container: sublimetext/unittesting:${{ matrix.arch }}
+        version: [3, 4]
+    container: sublimetext/unittesting
     env:
-      SUBLIME_TEXT_ARCH: ${{ matrix.arch }}
+      SUBLIME_TEXT_VERSION: ${{ matrix.version }}
     steps:
       - uses: actions/checkout@v1
       - run: sh -e /etc/init.d/xvfb start
@@ -23,17 +23,24 @@ jobs:
           sh sbin/github.sh bootstrap
           sh sbin/github.sh install_color_scheme_unit
           sh sbin/github.sh install_package_control
-          sh sbin/github.sh run_tests --coverage
-      - run: |
-          apt-get update
-          apt-get install python3-pip -y
-          pip3 install coverage==4.5.4 codecov==2.0.15
-          codecov
-        env:
-          CODECOV_TOKEN: ${{secrets.CODECOV_TOKEN}}
+          # sh sbin/github.sh run_tests --coverage
+          sh sbin/github.sh run_tests
+      # - run: |
+      #     apt-get update
+      #     apt-get install python3-pip -y
+      #     pip3 install coverage==4.5.4 codecov==2.0.15
+      #     codecov
+      #   env:
+      #     CODECOV_TOKEN: ${{secrets.CODECOV_TOKEN}}
 
   macos:
     runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        version: [3, 4]
+    env:
+      SUBLIME_TEXT_VERSION: ${{ matrix.version }}
     steps:
       - uses: actions/checkout@v1
       - run: |
@@ -41,12 +48,13 @@ jobs:
           sh sbin/github.sh bootstrap
           sh sbin/github.sh install_color_scheme_unit
           sh sbin/github.sh install_package_control
-          sh sbin/github.sh run_tests --coverage
-      - run: |
-          pip3 install coverage==4.5.4 codecov==2.0.15
-          codecov
-        env:
-          CODECOV_TOKEN: ${{secrets.CODECOV_TOKEN}}
+          # sh sbin/github.sh run_tests --coverage
+          sh sbin/github.sh run_tests
+      # - run: |
+      #     pip3 install coverage==4.5.4 codecov==2.0.15
+      #     codecov
+      #   env:
+      #     CODECOV_TOKEN: ${{secrets.CODECOV_TOKEN}}
 
   windows:
     runs-on: windows-latest
@@ -62,9 +70,10 @@ jobs:
           ./sbin/github.ps1 "bootstrap" -verbose
           ./sbin/github.ps1 "install_color_scheme_unit" -verbose
           ./sbin/github.ps1 "install_package_control" -verbose
+          # ./sbin/github.ps1 "run_tests" -coverage -verbose
           ./sbin/github.ps1 "run_tests" -coverage -verbose
-      - run: |
-          pip3 install coverage==4.5.4 codecov==2.0.15
-          codecov
-        env:
-          CODECOV_TOKEN: ${{secrets.CODECOV_TOKEN}}
+      # - run: |
+      #     pip3 install coverage==4.5.4 codecov==2.0.15
+      #     codecov
+      #   env:
+      #     CODECOV_TOKEN: ${{secrets.CODECOV_TOKEN}}

@@ -21,10 +21,18 @@ if [ -z $SUBLIME_TEXT_VERSION ]; then
     exit 1
 fi
 
-if [ $(uname) = 'Darwin' ]; then
-    STP="$HOME/Library/Application Support/Sublime Text $SUBLIME_TEXT_VERSION/Packages"
+if [ $SUBLIME_TEXT_VERSION -ge 4 ]; then
+    if [ $(uname) = 'Darwin' ]; then
+        STP="$HOME/Library/Application Support/Sublime Text/Packages"
+    else
+        STP="$HOME/.config/sublime-text/Packages"
+    fi
 else
-    STP="$HOME/.config/sublime-text-$SUBLIME_TEXT_VERSION/Packages"
+    if [ $(uname) = 'Darwin' ]; then
+        STP="$HOME/Library/Application Support/Sublime Text $SUBLIME_TEXT_VERSION/Packages"
+    else
+        STP="$HOME/.config/sublime-text-$SUBLIME_TEXT_VERSION/Packages"
+    fi
 fi
 
 STIP="${STP%/*}/Installed Packages"
