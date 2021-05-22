@@ -98,6 +98,10 @@ function RunTests {
     [CmdletBinding()]
     param([switch]$syntax_test, [switch]$syntax_compatibility, [switch]$color_scheme_test, [switch]$coverage)
 
+    if (($coverage.IsPresent) -and ($SublimeTextVersion -eq 4)) {
+        throw "Coverage is not yet supported in Sublime Text 4"
+    }
+
     # TODO: Change script name to conform to PS conventions.
     # TODO: Do not use verbose by default.
     & "$UnitTestingSublimeTextPackagesDirectory\sbin\run_tests.ps1" $PackageUnderTestName -verbose @PSBoundParameters
