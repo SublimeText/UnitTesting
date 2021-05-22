@@ -32,7 +32,7 @@ if [ -z $SUBLIME_TEXT_ARCH ]; then
 fi
 
 if [ $SUBLIME_TEXT_VERSION -ge 4 ] && [ "$SUBLIME_TEXT_ARCH" != "x64" ]; then
-    echo "wrong value of $SUBLIME_TEXT_ARCH for version $SUBLIME_TEXT_ARCH"
+    echo "wrong value of $SUBLIME_TEXT_ARCH for Sublime Text version $SUBLIME_TEXT_VERSION"
     exit 1
 fi
 
