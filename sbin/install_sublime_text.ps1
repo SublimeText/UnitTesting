@@ -7,7 +7,7 @@ The major version of Sublime Text to be installed.
 #>
 [CmdletBinding()]
 param(
-    [ValidateSet('2', '3')]
+    [ValidateSet('2', '3', '4')]
     [int]$Version = $SublimeTextVersion,
     [Parameter(Mandatory=$false)]
     [ValidateSet('x32', 'x64')]
@@ -17,9 +17,17 @@ param(
 $ErrorActionPreference = 'stop'
 
 $private:MaxRetries = 20
-$private:SublimeTextUrl = "http://www.sublimetext.com/$Version"
+if ($Version -ge 4) {
+    $private:SublimeTextUrl = "http://www.sublimetext.com/download"
+} else {
+    $private:SublimeTextUrl = "http://www.sublimetext.com/$Version"
+}
 
 . $PSScriptRoot\ps\utils.ps1
+
+if (($Version -ge 4) -and ($Arch -eq 'x32')) {
+    throw "wrong value of $Arch for Sublime Text version $Version."
+}
 
 # TODO: improve logging overall.
 logVerbose "installing sublime text $Version..."
