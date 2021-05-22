@@ -63,7 +63,7 @@ fi
 
 
 # launch sublime text in background
-for i in {1..2}; do
+for i in {1..3}; do
     subl &
 
     ENDTIME=$(( $(date +%s) + 60 ))

@@ -25,7 +25,7 @@ try{
     $BASE = Split-Path -parent $PSCommandPath
     Copy-Item "$BASE\pc_helper.py" "$PCH_PATH\pc_helper.py"
 
-    for ($i=1; $i -le 2; $i++) {
+    for ($i=1; $i -le 3; $i++) {
 
         & "C:\st\sublime_text.exe"
         $startTime = get-date
