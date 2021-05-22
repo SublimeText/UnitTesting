@@ -14,7 +14,7 @@ This is a unittest framework for Sublime Text. It runs unittest testcases on loc
 
 Sublime Text 4 is now supported (with some caveats)
 - Running `coverage` on Python 3.8 packages is not working now.
-- Only local testing is supported now (CI services are not working).
+- ~~Only local testing is supported now (CI services are not working).~~
 
 ## Preparation
 
