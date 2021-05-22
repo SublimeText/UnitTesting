@@ -71,7 +71,7 @@ jobs:
           ./sbin/github.ps1 "install_color_scheme_unit" -verbose
           ./sbin/github.ps1 "install_package_control" -verbose
           # ./sbin/github.ps1 "run_tests" -coverage -verbose
-          ./sbin/github.ps1 "run_tests" -coverage -verbose
+          ./sbin/github.ps1 "run_tests" -verbose
       # - run: |
       #     pip3 install coverage==4.5.4 codecov==2.0.15
       #     codecov
