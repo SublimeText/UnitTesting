@@ -31,8 +31,7 @@ class TempDirectoryTestCase(DeferrableTestCase):
             for d in cls.window.folders():
                 # on Windows, `cls._temp_dir` is lowered cased,
                 # `os.path.normcase` is needed for comparison.
-                print(cls._temp_dir, os.path.normcase(d))
-                if cls._temp_dir == os.path.normcase(d):
+                if cls._temp_dir.lower() == os.path.normcase(d).lower():
                     return True
 
         yield condition
