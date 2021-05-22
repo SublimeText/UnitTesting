@@ -4,7 +4,7 @@
     "async": false,
     "deferred": true,
     "verbosity": 2,
-    "capture_console": true,
+    "capture_console": false,
     "failfast": false,
     "reload_package_on_testing": true,
     "start_coverage_after_reload": false,
