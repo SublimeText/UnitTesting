@@ -76,7 +76,7 @@ function Bootstrap {
     }
 
     # Clone coverage plugin into Packages/coverage.
-    installPackageForSublimeTextVersion3IfNotPresent $CoverageSublimeTextPackagesDirectory $env:COVERAGE_TAG $CoverageRepositoryUrl
+    installPackageForSublimeTextIfNotPresent $CoverageSublimeTextPackagesDirectory $env:COVERAGE_TAG $CoverageRepositoryUrl
 
     & "$UnitTestingSublimeTextPackagesDirectory\sbin\install_sublime_text.ps1" -verbose
 }
@@ -87,16 +87,20 @@ function InstallPackageControl {
 }
 
 function InstallColorSchemeUnit {
-    installPackageForSublimeTextVersion3IfNotPresent $ColorSchemeUnitSublimeTextPackagesDirectory $env:COLOR_SCHEME_UNIT_TAG $ColorSchemeUnitRepositoryUrl
+    installPackageForSublimeTextIfNotPresent $ColorSchemeUnitSublimeTextPackagesDirectory $env:COLOR_SCHEME_UNIT_TAG $ColorSchemeUnitRepositoryUrl
 }
 
 function InstallKeypress {
-    installPackageForSublimeTextVersion3IfNotPresent $KeyPressSublimeTextPackagesDirectory $env:KEYPRESS_TAG $KeyPressRepositoryUrl
+    installPackageForSublimeTextIfNotPresent $KeyPressSublimeTextPackagesDirectory $env:KEYPRESS_TAG $KeyPressRepositoryUrl
 }
 
 function RunTests {
     [CmdletBinding()]
     param([switch]$syntax_test, [switch]$syntax_compatibility, [switch]$color_scheme_test, [switch]$coverage)
+
+    if (($coverage.IsPresent) -and ($SublimeTextVersion -eq 4)) {
+        throw "Coverage is not yet supported in Sublime Text 4"
+    }
 
     # TODO: Change script name to conform to PS conventions.
     # TODO: Do not use verbose by default.

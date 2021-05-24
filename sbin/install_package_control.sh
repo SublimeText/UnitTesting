@@ -21,10 +21,18 @@ if [ -z $SUBLIME_TEXT_VERSION ]; then
     exit 1
 fi
 
-if [ $(uname) = 'Darwin' ]; then
-    STP="$HOME/Library/Application Support/Sublime Text $SUBLIME_TEXT_VERSION/Packages"
+if [ $SUBLIME_TEXT_VERSION -ge 4 ]; then
+    if [ $(uname) = 'Darwin' ]; then
+        STP="$HOME/Library/Application Support/Sublime Text/Packages"
+    else
+        STP="$HOME/.config/sublime-text/Packages"
+    fi
 else
-    STP="$HOME/.config/sublime-text-$SUBLIME_TEXT_VERSION/Packages"
+    if [ $(uname) = 'Darwin' ]; then
+        STP="$HOME/Library/Application Support/Sublime Text $SUBLIME_TEXT_VERSION/Packages"
+    else
+        STP="$HOME/.config/sublime-text-$SUBLIME_TEXT_VERSION/Packages"
+    fi
 fi
 
 STIP="${STP%/*}/Installed Packages"
@@ -39,6 +47,12 @@ if [ ! -f "$PC_PATH" ]; then
     curl -s -L "$PC_URL" -o "$PC_PATH"
 fi
 
+if [ ! -f "$STP/User/Package Control.sublime-settings" ]; then
+    echo creating Package Control.sublime-settings
+    # make sure Pakcage Control does not complain
+    echo '{"ignore_vcs_packages": true }' > "$STP/User/Package Control.sublime-settings"
+fi
+
 PCH_PATH="$STP/0_install_package_control_helper"
 
 if [ ! -d "$PCH_PATH" ]; then
@@ -49,7 +63,7 @@ fi
 
 
 # launch sublime text in background
-for i in {1..2}; do
+for i in {1..3}; do
     subl &
 
     ENDTIME=$(( $(date +%s) + 60 ))
@@ -75,11 +89,5 @@ fi
 
 rm -rf "$PCH_PATH"
 echo ""
-
-if [ ! -f "$STP/User/Package Control.sublime-settings" ]; then
-    echo creating Package Control.sublime-settings
-    # make sure Pakcage Control does not complain
-    echo '{"ignore_vcs_packages": true }' > "$STP/User/Package Control.sublime-settings"
-fi
 
 echo "Package Control installed."

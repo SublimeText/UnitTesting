@@ -7,10 +7,18 @@ set -e
 SUBLIME_TEXT_VERSION=${SUBLIME_TEXT_VERSION:-3}
 SUBLIME_TEXT_ARCH=${SUBLIME_TEXT_ARCH:-x64}
 
-if [ $(uname) = 'Darwin' ]; then
-    STP="$HOME/Library/Application Support/Sublime Text $SUBLIME_TEXT_VERSION/Packages"
+if [ $SUBLIME_TEXT_VERSION -ge 4 ]; then
+    if [ $(uname) = 'Darwin' ]; then
+        STP="$HOME/Library/Application Support/Sublime Text/Packages"
+    else
+        STP="$HOME/.config/sublime-text/Packages"
+    fi
 else
-    STP="$HOME/.config/sublime-text-$SUBLIME_TEXT_VERSION/Packages"
+    if [ $(uname) = 'Darwin' ]; then
+        STP="$HOME/Library/Application Support/Sublime Text $SUBLIME_TEXT_VERSION/Packages"
+    else
+        STP="$HOME/.config/sublime-text-$SUBLIME_TEXT_VERSION/Packages"
+    fi
 fi
 
 Bootstrap() {
@@ -134,6 +142,10 @@ InstallPackageControl() {
 }
 
 RunTests() {
+    if [ -n "$(echo "$@" | grep -e '--coverage\b')" ] && [ "$SUBLIME_TEXT_VERSION" -eq 4 ]; then
+        echo "Coverage is not yet supported in Sublime Text 4"
+        exit 1
+    fi
     if [ -z "$1" ]; then
         python "$STP/UnitTesting/sbin/run_tests.py" "$PACKAGE"
     else

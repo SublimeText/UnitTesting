@@ -12,13 +12,20 @@ try{
     $PC_URL = "https://packagecontrol.io/Package Control.sublime-package"
     (New-Object System.Net.WebClient).DownloadFile($PC_URL, $PC_PATH)
 
+    $PC_SETTINGS = "C:\st\Data\Packages\User\Package Control.sublime-settings"
+
+    if (-not (test-path $PC_SETTINGS)) {
+        write-verbose "creating Package Control.sublime-settings"
+        "{`"ignore_vcs_packages`": true }" | out-file -filepath $PC_SETTINGS -encoding ascii
+    }
+
     $PCH_PATH = "$STP\0_install_package_control_helper"
     New-Item -itemtype directory $PCH_PATH -force >$null
 
     $BASE = Split-Path -parent $PSCommandPath
     Copy-Item "$BASE\pc_helper.py" "$PCH_PATH\pc_helper.py"
 
-    for ($i=1; $i -le 2; $i++) {
+    for ($i=1; $i -le 3; $i++) {
 
         & "C:\st\sublime_text.exe"
         $startTime = get-date
@@ -44,13 +51,6 @@ try{
 
     remove-item "$PCH_PATH" -Recurse -Force
     write-host
-
-    $PC_SETTINGS = "C:\st\Data\Packages\User\Package Control.sublime-settings"
-
-    if (-not (test-path $PC_SETTINGS)) {
-        write-verbose "creating Package Control.sublime-settings"
-        "{`"ignore_vcs_packages`": true }" | out-file -filepath $PC_SETTINGS -encoding ascii
-    }
 
     write-verbose "Package Control installed."
 

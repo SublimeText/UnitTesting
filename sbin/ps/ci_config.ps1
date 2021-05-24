@@ -39,11 +39,7 @@ if (!$env:UNITTESTING_BOOTSTRAPPED) {
     }
 
     # The major version of Sublime Text.
-    makeGlobalConstant SublimeTextVersion (ensureValue $env:SUBLIME_TEXT_VERSION '^2|3$' -message "the environment variable SUBLIME_TEXT_VERSION must be set to '2' or '3'")
-    # True if SublimeTextVersion is 3.
-    makeGlobalConstant IsSublimeTextVersion3 ($SublimeTextVersion -eq 3)
-    # True if SublimeTextVersion is 2.
-    makeGlobalConstant IsSublimeTextVersion2 ($SublimeTextVersion -eq 2)
+    makeGlobalConstant SublimeTextVersion (ensureValue $env:SUBLIME_TEXT_VERSION '^2|3|4$' -message "the environment variable SUBLIME_TEXT_VERSION must be set to '2', '3' or '4'")
     # The arch of Sublime Text (x32 or x64)
     makeGlobalConstant SublimeTextArch (eitherOr $env:SUBLIME_TEXT_ARCH "x64")
     # The path to the Sublime Text binaries directory.

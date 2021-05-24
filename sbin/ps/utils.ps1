@@ -124,9 +124,9 @@ function pathExists {
     if (!$Negate) { test-path $Path } else { !(test-path $Path) }
 }
 
-function installPackageForSublimeTextVersion3IfNotPresent {
+function installPackageForSublimeTextIfNotPresent {
     param([string]$Path, [string]$PreferredTag, [string]$RepositoryUrl)
-    if ($IsSublimeTextVersion3 -and (pathExists -Negate $Path)) {
+    if (pathExists -Negate $Path) {
         cloneRepositoryTag $PreferredTag $RepositoryUrl $Path
     }
 }
