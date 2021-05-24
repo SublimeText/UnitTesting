@@ -37,7 +37,6 @@ jobs:
           sh sbin/circleci.sh install_package_control
           sh sbin/circleci.sh run_tests --coverage
       - run: |
-          brew upgrade python
           pip3 install coverage==4.5.4 codecov==2.0.15
           codecov
 
