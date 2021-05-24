@@ -52,8 +52,8 @@ it is missing, UnitTesting will ignore the `tests` directory.
 These environmental variables are used in the CIs.
 
 - `PACKAGE`: the package name, it is needed if the repo name is different from the package name.
-- `SUBLIME_TEXT_VERSION`: 2 or 3
-- `SUBLIME_TEXT_ARCH`: `x32` or `x64`
+- `SUBLIME_TEXT_VERSION`: 3 or 4
+- `SUBLIME_TEXT_ARCH`: `x32` (Sublime Text 3 only) or `x64`
 - `UNITTESTING_TAG`: a specific version of UnitTesting to use
 
 Following CI's are supported.
