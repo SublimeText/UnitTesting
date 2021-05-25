@@ -1,3 +1,6 @@
+# 1.5.2
+   - support CI testing for Sublime Text 4
+
 # v1.5.0
    - support Sublime Text 4
    - refactor ci script and support github actions
