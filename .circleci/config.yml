@@ -60,4 +60,4 @@ workflows:
       - build-linux
       - build-macos
       # ciricleci keeps saying we are out of credits, disable it for now
-      - build-windows
+      # - build-windows
