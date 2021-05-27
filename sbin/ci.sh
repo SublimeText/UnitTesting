@@ -142,10 +142,10 @@ InstallPackageControl() {
 }
 
 RunTests() {
-    if [ -n "$(echo "$@" | grep -e '--coverage\b')" ] && [ "$SUBLIME_TEXT_VERSION" -eq 4 ]; then
-        echo "Coverage is not yet supported in Sublime Text 4"
-        exit 1
-    fi
+    # if [ -n "$(echo "$@" | grep -e '--coverage\b')" ] && [ "$SUBLIME_TEXT_VERSION" -eq 4 ]; then
+    #     echo "Coverage is not yet supported in Sublime Text 4"
+    #     exit 1
+    # fi
     if [ -z "$1" ]; then
         python "$STP/UnitTesting/sbin/run_tests.py" "$PACKAGE"
     else
