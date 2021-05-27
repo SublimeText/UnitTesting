@@ -26,11 +26,12 @@ install:
 
 script:
     - flake8 --statistics
-    - sh sbin/travis.sh run_tests --coverage
+    - sh sbin/travis.sh run_tests
+    # - sh sbin/travis.sh run_tests --coverage
 
-after_success:
-    - pip3 install coverage==4.5.4 codecov==2.0.15
-    - codecov
+# after_success:
+#     - pip3 install coverage==4.5.4 codecov==2.0.15
+#     - codecov
 
 notifications:
     email:

@@ -18,12 +18,13 @@ jobs:
           sh sbin/circleci.sh bootstrap
           sh sbin/circleci.sh install_color_scheme_unit
           sh sbin/circleci.sh install_package_control
-          sh sbin/circleci.sh run_tests --coverage
-      - run: |
-          apt-get update
-          apt-get install python3-pip -y
-          pip3 install coverage==4.5.4 codecov==2.0.15
-          codecov
+          # sh sbin/circleci.sh run_tests --coverage
+          sh sbin/circleci.sh run_tests
+      # - run: |
+      #     apt-get update
+      #     apt-get install python3-pip -y
+      #     pip3 install coverage==4.5.4 codecov==2.0.15
+      #     codecov
 
   build-macos:
     macos:
@@ -35,10 +36,11 @@ jobs:
           sh sbin/circleci.sh bootstrap
           sh sbin/circleci.sh install_color_scheme_unit
           sh sbin/circleci.sh install_package_control
-          sh sbin/circleci.sh run_tests --coverage
-      - run: |
-          pip3 install coverage==4.5.4 codecov==2.0.15
-          codecov
+          # sh sbin/circleci.sh run_tests --coverage
+          sh sbin/circleci.sh run_tests
+      # - run: |
+      #     pip3 install coverage==4.5.4 codecov==2.0.15
+      #     codecov
 
   build-windows:
     executor: win/default
@@ -48,10 +50,11 @@ jobs:
           ./sbin/circleci.ps1 "bootstrap" -verbose
           ./sbin/circleci.ps1 "install_color_scheme_unit" -verbose
           ./sbin/circleci.ps1 "install_package_control" -verbose
-          ./sbin/circleci.ps1 "run_tests" -coverage -verbose
-      - run: |
-          pip install coverage==4.5.4 codecov==2.0.15
-          codecov
+          # ./sbin/circleci.ps1 "run_tests" -coverage -verbose
+          ./sbin/circleci.ps1 "run_tests" -verbose
+      # - run: |
+      #     pip install coverage==4.5.4 codecov==2.0.15
+      #     codecov
 
 workflows:
   version: 2
