@@ -79,6 +79,11 @@ function Bootstrap {
     installPackageForSublimeTextIfNotPresent $CoverageSublimeTextPackagesDirectory $env:COVERAGE_TAG $CoverageRepositoryUrl
 
     & "$UnitTestingSublimeTextPackagesDirectory\sbin\install_sublime_text.ps1" -verbose
+
+    # block update popup
+    if ($env:CI -ne $null) {
+        New-NetFirewallRule -DisplayName "Block sublimetext.com IP address" -Direction Outbound -LocalPort Any -Protocol TCP -Action Block -RemoteAddress "45.55.41.223"
+    }
 }
 
 function InstallPackageControl {
