@@ -33,9 +33,9 @@ if (!$env:UNITTESTING_BOOTSTRAPPED) {
 
     logVerbose "setting global constants and variables..."
 
-    # default to Sublime Text 3
+    # default to Sublime Text 4
     if (!$env:SUBLIME_TEXT_VERSION) {
-        $env:SUBLIME_TEXT_VERSION = "3"
+        $env:SUBLIME_TEXT_VERSION = "4"
     }
 
     # The major version of Sublime Text.
