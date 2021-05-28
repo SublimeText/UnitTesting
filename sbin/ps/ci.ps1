@@ -81,7 +81,7 @@ function Bootstrap {
     & "$UnitTestingSublimeTextPackagesDirectory\sbin\install_sublime_text.ps1" -verbose
 
     # block update popup
-    if ($env:CI -ne $null) {
+    if (($env:CI -ne $null) -and ($env:SUBLIME_TEXT_VERSION -le 3)) {
         New-NetFirewallRule -DisplayName "Block sublimetext.com IP address" -Direction Outbound -LocalPort Any -Protocol TCP -Action Block -RemoteAddress "45.55.41.223"
     }
 }

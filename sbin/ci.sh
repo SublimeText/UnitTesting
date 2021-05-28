@@ -45,13 +45,13 @@ Bootstrap() {
 
     InstallSublimeText
 
-    if [ -n "$CI" ]; then
+    if [ -n "$CI" ] && [ $SUBLIME_TEXT_VERSION -le 3 ]; then
         # block update popup
         if [ $(uname) = 'Darwin' ]; then
             sudo route -n add -host 45.55.41.223 127.0.0.1
         else
             sudo apt install -y net-tools
-            sudo route add -host 45.55.41.223 reject || true
+            sudo route add -host 45.55.41.223 reject || echo "See https://github.com/SublimeText/UnitTesting/issues/190#issuecomment-850133753"
         fi
     fi
 }
