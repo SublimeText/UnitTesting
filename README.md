@@ -2,19 +2,23 @@ UnitTesting
 ===================
 
 [![Github Action](https://github.com/SublimeText/UnitTesting/workflows/build/badge.svg)](https://github.com/SublimeText/UnitTesting/actions)
-[![CircleCI](https://circleci.com/gh/SublimeText/UnitTesting/tree/master.svg?style=shield)](https://circleci.com/gh/SublimeText/UnitTesting/tree/master)
-[![Build Status](https://travis-ci.org/SublimeText/UnitTesting.svg?branch=master)](https://travis-ci.org/SublimeText/UnitTesting)
-[![Build status](https://ci.appveyor.com/api/projects/status/github/SublimeText/UnitTesting?branch=master&svg=true)](https://ci.appveyor.com/project/randy3k/UnitTesting/branch/master)
 [![codecov](https://codecov.io/gh/SublimeText/UnitTesting/branch/master/graph/badge.svg)](https://codecov.io/gh/SublimeText/UnitTesting)
 <a href="https://packagecontrol.io/packages/UnitTesting"><img src="https://packagecontrol.herokuapp.com/downloads/UnitTesting.svg"></a>
 
 This is a unittest framework for Sublime Text. It runs unittest testcases on local machines and CI services such as Travis CI, Circle CI and AppVeyor. It also supports testing syntax_test files for the new [sublime-syntax](https://www.sublimetext.com/docs/3/syntax.html) format.
 
+## Deprecation of supports of CircleCI, Travis and Appveyor.
+
+It is too much work to maintain supports for circleci, travis, appveyor and github actions and the same time.
+As most users host their projects on github, we are going to only support github actions and deprecate supports for circleci, travis and appveyor.
+
+There is no plan to remove the corresponding scripts from the repo in a near future, but they are not maintained any more and may be removed if they are broken.
+
+
 ## Sublime Text 4
 
-Sublime Text 4 is now supported (with some caveats)
-- Running `coverage` on Python 3.8 packages is not working now.
-- ~~Only local testing is supported now (CI services are not working).~~
+Sublime Text 4 is now supported. However test coverage on Python 3.8 packages is still not working now.
+
 
 ## Preparation
 
@@ -47,51 +51,17 @@ it is missing, UnitTesting will ignore the `tests` directory.
 
 
 
-## Continuous Integration
+## GitHub Actions
 
-These environmental variables are used in the CIs.
+These environmental variables are used
 
 - `PACKAGE`: the package name, it is needed if the repo name is different from the package name.
 - `SUBLIME_TEXT_VERSION`: 3 or 4
 - `SUBLIME_TEXT_ARCH`: `x32` (Sublime Text 3 only) or `x64`
 - `UNITTESTING_TAG`: a specific version of UnitTesting to use
 
-Following CI's are supported.
-
-|                 | Linux | macOS | Windows |
-|-----------------|-------|-------|---------|
-| GitHub Actions  | ✅    | ✅    |   ✅   |
-| CircleCI        | ✅    | ✅    |   ✅   |
-| Travis CI       | ✅    | ✅    |        |
-| AppVeyor        |       |       |   ✅   |
-
-
-### GitHub Actions
-
 To enable GitHub Actions, copy the file [build.yml](https://github.com/randy3k/UnitTesting-example/blob/master/.github/workflows/build.yml) to
 your repository.
-
-
-### Circle CI
-
-To enable Circle CI builds, copy the file
-[.circleci/config.yml](https://github.com/randy3k/UnitTesting-example/blob/master/.circleci/config.yml) to your repository. Log in to [Circle CI](https://circleci.com) and add a new project.
-
-Circle CI doesn't offer free macOS plan at the moment, but you could contact them for access if your package is open sourced:
-
-> We also offer the Seed plan for macOS open-source projects. Contact us at billing@circleci.com for access. If you are building a bigger open-source project and need more resources, let us know how we can help you!
-
-### Travis CI
-
-To enable Travis CI Linux and macOS builds, copy the file:
-[.travis.yml](https://github.com/randy3k/UnitTesting-example/blob/master/.travis.yml)
-(caution: with a beginning dot) to your repository. Log in to [Travis CI](https://travis-ci.com/) to enable CI for your package..
-
-### AppVeyor CI
-
-To enable AppVeyor Windows builds, copy the file [appveyor.yml](https://github.com/randy3k/UnitTesting-example/blob/master/appveyor.yml) to
-your repository. Log in to [AppVeyor](http://www.appveyor.com) and add your repository
-as a new project.
 
 
 ## Coverage reports
