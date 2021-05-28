@@ -9,7 +9,7 @@ This is a unittest framework for Sublime Text. It runs unittest testcases on loc
 
 ## Deprecation of supports of CircleCI, Travis and Appveyor.
 
-It is too much work to maintain supports for circleci, travis, appveyor and github actions and the same time.
+It is too much work to maintain supports for circleci, travis, appveyor and github actions at the same time.
 As most users host their projects on github, we are going to only support github actions and deprecate supports for circleci, travis and appveyor.
 
 There is no plan to remove the corresponding scripts from the repo in a near future, but they are not maintained any more and may be removed if they are broken.
