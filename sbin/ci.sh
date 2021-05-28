@@ -50,9 +50,8 @@ Bootstrap() {
         if [ $(uname) = 'Darwin' ]; then
             sudo route -n add -host 45.55.41.223 127.0.0.1
         else
-            echo ""
-            # sudo apt install -y net-tools
-            # sudo route add -host 45.55.41.223 reject
+            sudo apt install -y net-tools
+            sudo route add -host 45.55.41.223 reject
         fi
     fi
 }

@@ -12,7 +12,9 @@ jobs:
       fail-fast: false
       matrix:
         version: [3, 4]
-    container: sublimetext/unittesting
+    container:
+      image: sublimetext/unittesting
+      options: --cap-add=NET_ADMIN
     env:
       SUBLIME_TEXT_VERSION: ${{ matrix.version }}
     steps:
