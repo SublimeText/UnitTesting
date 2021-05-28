@@ -51,7 +51,7 @@ Bootstrap() {
             sudo route -n add -host 45.55.41.223 127.0.0.1
         else
             sudo apt install -y net-tools
-            sudo route add -host 45.55.41.223 reject
+            sudo route add -host 45.55.41.223 reject || true
         fi
     fi
 }

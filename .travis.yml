@@ -13,6 +13,18 @@ matrix:
         - os: osx
           language: generic
           env: PCINSTALL=true
+        - os: linux
+          language: python
+          env: SUBLIME_TEXT_VERSION=3
+        - os: linux
+          language: python
+          env: SUBLIME_TEXT_VERSION=3 PCINSTALL=true
+        - os: osx
+          language: generic
+          env: SUBLIME_TEXT_VERSION=3
+        - os: osx
+          language: generic
+          env: SUBLIME_TEXT_VERSION=3 PCINSTALL=true
 
 services:
     - xvfb
