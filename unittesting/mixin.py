@@ -51,7 +51,7 @@ class UnitTestingMixin(object):
         if sublime.version() < '4000':
             return "3.3"
         try:
-            version = sublime.load_resource("Packages/{}/.python-version".format(package))
+            version = sublime.load_resource("Packages/{}/.python-version".format(package)).strip()
         except FileNotFoundError:
             version = "3.3"
         return version
