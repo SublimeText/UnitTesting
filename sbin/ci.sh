@@ -34,10 +34,12 @@ Bootstrap() {
         cp -r ./ "$STP/$PACKAGE"
     fi
 
+    local UT_NAME="UnitTesting"
+    local UT_PATH="$STP/$UT_NAME"
     if [ ! -d "$UT_PATH" ]; then
         local UT_TAG=$(getLatestUnitTestingBuildTag \
             "$UNITTESTING_TAG" "$SUBLIME_TEXT_VERSION" "https://github.com/SublimeText/UnitTesting")
-        InstallPackage "UnitTesting" "$UT_TAG" "https://github.com/SublimeText/UnitTesting"
+        InstallPackage "$UT_NAME" "$UT_TAG" "https://github.com/SublimeText/UnitTesting"
     fi
 
     InstallPackage "coverage" "$COVERAGE_TAG" "https://github.com/codexns/sublime-coverage"
