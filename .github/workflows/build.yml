@@ -25,6 +25,7 @@ jobs:
           sh sbin/github.sh bootstrap
           sh sbin/github.sh install_color_scheme_unit
           sh sbin/github.sh install_package_control
+          # sh sbin/github.sh install_package Terminus master https://github.com/randy3k/Terminus
           # sh sbin/github.sh run_tests --coverage
           sh sbin/github.sh run_tests
       # - run: |
@@ -50,6 +51,7 @@ jobs:
           sh sbin/github.sh bootstrap
           sh sbin/github.sh install_color_scheme_unit
           sh sbin/github.sh install_package_control
+          # sh sbin/github.sh install_package Terminus master https://github.com/randy3k/Terminus
           # sh sbin/github.sh run_tests --coverage
           sh sbin/github.sh run_tests
       # - run: |
