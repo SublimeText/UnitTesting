@@ -116,10 +116,9 @@ cloneRepositoryTag() {
 }
 
 InstallPackage() {
-    local PackageDir="$1"
+    local DEST="$STP/$1"
     local PreferredTag="$2"
     local URL="$3"
-    local DEST="$STP/$PackageDir"
     if [ ! -d "$DEST" ]; then
         mkdir -p "$DEST"
         cloneRepositoryTag "$PreferredTag" "$URL" "$DEST"
