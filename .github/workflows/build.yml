@@ -74,6 +74,7 @@ jobs:
           ./sbin/github.ps1 "bootstrap" -verbose
           ./sbin/github.ps1 "install_color_scheme_unit" -verbose
           ./sbin/github.ps1 "install_package_control" -verbose
+          # ./sbin/github.ps1 "install_package" Terminus master https://github.com/randy3k/Terminus -verbose
           # ./sbin/github.ps1 "run_tests" -coverage -verbose
           ./sbin/github.ps1 "run_tests" -verbose
       # - run: |

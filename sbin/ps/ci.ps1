@@ -87,6 +87,11 @@ function Bootstrap {
 }
 
 function InstallPackageControl {
+    param([string]$PackageName, [string]$PackageTag, [string]$PackageUrl)
+    installPackageForSublimeTextIfNotPresent $PackageName $PackageTag $PackageUrl
+}
+
+function InstallPackageControl {
     remove-item $CoverageSublimeTextPackagesDirectory -Force -Recurse
     & "$UnitTestingSublimeTextPackagesDirectory\sbin\install_package_control.ps1" -verbose
 }
@@ -117,6 +122,7 @@ function RunTests {
 
 switch ($command){
     'bootstrap' { Bootstrap }
+    'install_package' { InstallPackage }
     'install_package_control' { InstallPackageControl }
     'install_color_scheme_unit' { InstallColorSchemeUnit }
     'install_keypress' { InstallKeypress }
