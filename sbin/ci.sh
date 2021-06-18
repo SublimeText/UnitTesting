@@ -118,7 +118,7 @@ InstallPackage() {
     local PreferredTag="$2"
     local URL="$3"
     local DEST="$STP/$PackageDir"
-    if [ ! -d "$PackageDir" ]; then
+    if [ ! -d "$DEST" ]; then
         mkdir -p "$DEST"
         cloneRepositoryTag "$PreferredTag" "$URL" "$DEST"
     fi
