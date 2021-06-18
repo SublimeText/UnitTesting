@@ -34,14 +34,15 @@ Bootstrap() {
         cp -r ./ "$STP/$PACKAGE"
     fi
 
-    local UT_PATH="$STP/UnitTesting"
+    local UT_NAME="UnitTesting"
+    local UT_PATH="$STP/$UT_NAME"
     if [ ! -d "$UT_PATH" ]; then
         local UT_TAG=$(getLatestUnitTestingBuildTag \
             "$UNITTESTING_TAG" "$SUBLIME_TEXT_VERSION" "https://github.com/SublimeText/UnitTesting")
-        InstallPackage "$UT_PATH" "$UT_TAG" "https://github.com/SublimeText/UnitTesting"
+        InstallPackage "$UT_NAME" "$UT_TAG" "https://github.com/SublimeText/UnitTesting"
     fi
 
-    InstallPackage "$STP/coverage" "$COVERAGE_TAG" "https://github.com/codexns/sublime-coverage"
+    InstallPackage "coverage" "$COVERAGE_TAG" "https://github.com/codexns/sublime-coverage"
 
     InstallSublimeText
 
@@ -115,7 +116,7 @@ cloneRepositoryTag() {
 }
 
 InstallPackage() {
-    local DEST="$1"
+    local DEST="$STP/$1"
     local PreferredTag="$2"
     local URL="$3"
     if [ ! -d "$DEST" ]; then
@@ -125,18 +126,16 @@ InstallPackage() {
 }
 
 InstallColorSchemeUnit() {
-    local CSU_PATH="$STP/ColorSchemeUnit"
     local CSU_URL="https://github.com/gerardroche/sublime-color-scheme-unit"
     if [ "$SUBLIME_TEXT_VERSION" -ge 3 ]; then
-        InstallPackage "$CSU_PATH" "$COLOR_SCHEME_UNIT_TAG" "$CSU_URL"
+        InstallPackage "ColorSchemeUnit" "$COLOR_SCHEME_UNIT_TAG" "$CSU_URL"
     fi
 }
 
 InstallKeypress() {
-    local KP_PATH="$STP/Keypress"
     local KP_URL="https://github.com/randy3k/Keypress"
     if [ "$SUBLIME_TEXT_VERSION" -ge 3 ]; then
-        InstallPackage "$KP_PATH" "$KEYPRESS_TAG" "$KP_URL"
+        InstallPackage "Keypress" "$KEYPRESS_TAG" "$KP_URL"
     fi
 }
 
@@ -174,6 +173,9 @@ echo "Running command: ${COMMAND} $@"
 case $COMMAND in
     "bootstrap")
         Bootstrap "$@"
+        ;;
+    "install_package")
+        InstallPackage "$@"
         ;;
     "install_package_control")
         InstallPackageControl "$@"
