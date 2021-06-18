@@ -86,7 +86,7 @@ function Bootstrap {
     }
 }
 
-function InstallPackageControl {
+function InstallPackage {
     param([string]$PackageName, [string]$PackageTag, [string]$PackageUrl)
     installPackageForSublimeTextIfNotPresent $PackageName $PackageTag $PackageUrl
 }
