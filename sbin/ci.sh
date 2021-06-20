@@ -30,7 +30,7 @@ Bootstrap() {
 
     # Copy plugin files to Packages/<Package> folder.
     if [ -z "$SkipPackageCopy" ]; then
-        copyTestedPackage
+        CopyTestedPackage
     fi
 
     local UT_NAME="UnitTesting"
@@ -114,7 +114,11 @@ cloneRepositoryTag() {
     gitGetHeadRevisionName "$DEST"
 }
 
-copyTestedPackage() {
+CopyTestedPackage() {
+    local OverwriteExisting="$1"
+    if [ -d "$STP/$PACKAGE" ] && [ -n "$OverwriteExisting" ]; then
+        rm -rf "${STP:?}/${PACKAGE:?}"
+    fi
     if [ ! -d "$STP/$PACKAGE" ]; then
         # symlink does not play well with coverage
         echo "copy the package to sublime package directory"
@@ -183,7 +187,7 @@ case $COMMAND in
         Bootstrap "$@"
         ;;
     "copy_tested_package")
-        copyTestedPackage "$@"
+        CopyTestedPackage "$@"
         ;;
     "install_package")
         InstallPackage "$@"
