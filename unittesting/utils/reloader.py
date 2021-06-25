@@ -146,13 +146,21 @@ def load_dummy(verbose):
     """
     if verbose:
         dprint("installing dummy package")
-    dummy = "_dummy_package"
-    dummy_py = os.path.join(sublime.packages_path(), "%s.py" % dummy)
+
+    if sys.version_info >= (3, 8):
+        # in ST 4, User package is always loaded in python 3.8
+        dummy_name = "User._dummy"
+        dummy_py = os.path.join(sublime.packages_path(), "User", "_dummy.py")
+    else:
+        # in ST 4, packages under Packages are always loaded in python 3.3
+        dummy_name = "_dummy"
+        dummy_py = os.path.join(sublime.packages_path(), "_dummy.py")
+
     with open(dummy_py, "w"):
         pass
 
     def remove_dummy(trial=0):
-        if dummy in sys.modules:
+        if dummy_name in sys.modules:
             if verbose:
                 dprint("removing dummy package")
             try:
@@ -171,7 +179,7 @@ def load_dummy(verbose):
     condition = threading.Condition()
 
     def after_remove_dummy(trial=0):
-        if dummy not in sys.modules:
+        if dummy_name not in sys.modules:
             condition.acquire()
             condition.notify()
             condition.release()
