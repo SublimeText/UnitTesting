@@ -22,16 +22,15 @@ else
 fi
 
 Bootstrap() {
+    local SkipPackageCopy="$1"
+
     # Disable warnings about detached HEAD
     # https://stackoverflow.com/questions/36794501
     git config --global advice.detachedHead false
 
     # Copy plugin files to Packages/<Package> folder.
-    if [ ! -d "$STP/$PACKAGE" ]; then
-        # symlink does not play well with coverage
-        echo "copy the package to sublime package directory"
-        mkdir -p "$STP/$PACKAGE"
-        cp -r ./ "$STP/$PACKAGE"
+    if [ -z "$SkipPackageCopy" ]; then
+        CopyTestedPackage
     fi
 
     local UT_NAME="UnitTesting"
@@ -115,6 +114,19 @@ cloneRepositoryTag() {
     gitGetHeadRevisionName "$DEST"
 }
 
+CopyTestedPackage() {
+    local OverwriteExisting="$1"
+    if [ -d "$STP/$PACKAGE" ] && [ -n "$OverwriteExisting" ]; then
+        rm -rf "${STP:?}/${PACKAGE:?}"
+    fi
+    if [ ! -d "$STP/$PACKAGE" ]; then
+        # symlink does not play well with coverage
+        echo "copy the package to sublime package directory"
+        mkdir -p "$STP/$PACKAGE"
+        cp -r ./ "$STP/$PACKAGE"
+    fi
+}
+
 InstallPackage() {
     local DEST="$STP/$1"
     local PreferredTag="$2"
@@ -173,6 +185,9 @@ echo "Running command: ${COMMAND} $@"
 case $COMMAND in
     "bootstrap")
         Bootstrap "$@"
+        ;;
+    "copy_tested_package")
+        CopyTestedPackage "$@"
         ;;
     "install_package")
         InstallPackage "$@"
