@@ -76,6 +76,7 @@ if [ $(uname) = 'Darwin'  ]; then
             echo "could not download Sublime Text binary"
             exit 1
         fi
+        URL=$(echo "$URL" | sed 's/ /%20/')
         echo "downloading $URL"
         for i in {1..20}; do
             if [ $SUBLIME_TEXT_VERSION -ge 4 ]; then
