@@ -1,3 +1,10 @@
+# 1.5.5
+   - default to ST version 4
+   - reject sublime text ip
+   - Strip whitespace when reading `.python-version`
+   - Expose install_package CI command for installing arbitrary packages (Merge d03b414)
+   - Fix dummy loading under python 3.8
+
 # 1.5.2
    - support CI testing for Sublime Text 4
 
