@@ -5,7 +5,7 @@ on:
     branches: [main, master]
     paths:
       - 'docker/**'
-      - '.github/workflows/docker.yaml'
+      - '.github/workflows/*.yaml'
   schedule:
     - cron: "22 2 * * 2"
 
