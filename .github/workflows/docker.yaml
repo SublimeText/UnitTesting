@@ -23,16 +23,21 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Extract metadata (tags, labels) for Docker
-        id: meta
-        uses: docker/metadata-action@v3
-        with:
-          images: sublimetext/unittesting
-
-      - name: Build and push Docker image
+      - name: Build and push x64 image
         uses: docker/build-push-action@v2
         with:
           context: ./docker/
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          tags:
+            - sublimetext/unittesting:latest
+            - sublimetext/unittesting:x64
+
+      - name: Build and push x32 image
+        uses: docker/build-push-action@v2
+        with:
+          context: ./docker/
+          push: true
+          build-args: |
+            arch=i386
+          tags:
+            - sublimetext/unittesting:x32
