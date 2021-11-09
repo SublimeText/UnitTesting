@@ -1,7 +1,6 @@
 name: Publish Docker image
 
 on:
-  push:
   schedule:
     - cron: "22 2 * * 2"
 
