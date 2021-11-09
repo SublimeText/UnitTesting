@@ -2,6 +2,7 @@ name: Publish Docker image
 
 on:
   push:
+    branches: [main, master]
     paths:
       - 'docker/**'
       - '.github/workflows/docker.yaml'
