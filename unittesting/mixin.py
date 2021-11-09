@@ -15,8 +15,8 @@ import sublime
 DEFAULT_SETTINGS = {
     "tests_dir": "tests",
     "pattern": "test*.py",
-    "async": False,
-    "deferred": False,
+    "async": False,          # deprecated
+    "deferred": True,
     "legacy_runner": False,  # shall not used anymore
     "verbosity": 2,
     "output": None,

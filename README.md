@@ -77,8 +77,6 @@ To submit coverage report to [codecov.io](https://codecov.io/):
 1. install [codecov](https://pypi.python.org/pypi/codecov)
 2. run `codecov` after success
 
-For GitHub Actions, copy the `CODECOV_TOKEN` from codecov.io to GitHub's Secret tab.
-
 ### Coveralls
 
 To submit coverage report to [coveralls.io](https://coveralls.io/):
@@ -168,7 +166,7 @@ the following
 - Otherwise, the `yield` statement would yeild to any queued jobs.
 
 
-### Async testing
+### Async testing (deprecated)
 
 By default, the tests are running in the main thread and can block the
 graphic inference. Asychronized testing could be used if you need the

@@ -40,6 +40,7 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand, UnitTestingMixin):
         stream = self.load_stream(package, settings)
 
         if settings["async"]:
+            stream.writeln("async runner is deprecated, consider using the DeferrableTestCase.")
             threading.Thread(target=lambda: self.unit_testing(stream, package, settings)).start()
         else:
             self.unit_testing(stream, package, settings)
