@@ -76,8 +76,8 @@ runs:
     - run: |
         . $GITHUB_ACTION_PATH/../../scripts/utils.sh
 
-        # Copy plugin files to Packages/<Package> folder.
-        if [ ! -d "$STP/$PACKAGE" ]; then
+        # Copy plugin files to Packages/<Package> folder if files are checked out.
+        if [ -d "./.git" ] && [ ! -d "$STP/$PACKAGE" ]; then
             # symlink does not play well with coverage
             echo "copy the package to sublime package directory"
             mkdir -p "$STP/$PACKAGE"
@@ -90,7 +90,7 @@ runs:
             InstallPackage "$UT_NAME" "https://github.com/SublimeText/UnitTesting" "${{ inputs.unittesting-version }}"
         fi
         if [ "${{ inputs.install-coverage }}" = "true" ]; then
-          InstallPackage "coverage" "https://github.com/codexns/sublime-coverage" "${{ inputs.coverage-version }}"
+            InstallPackage "coverage" "https://github.com/codexns/sublime-coverage" "${{ inputs.coverage-version }}"
         fi
       shell: bash
     - if: (runner.os == 'Linux' || runner.os == 'macOS') && inputs.install-package-control == 'true'
