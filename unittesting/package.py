@@ -26,7 +26,7 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand, UnitTestingMixin):
         package, pattern = self.input_parser(package)
 
         if sys.version_info >= (3, 8) and self.package_python_version(package) == "3.3":
-            print("run unit_testing in python 3.3")
+            print("run {} in python 3.3".format(self.fallback33))
             kwargs["package"] = package
             sublime.set_timeout(lambda: sublime.run_command(self.fallback33, kwargs))
             return

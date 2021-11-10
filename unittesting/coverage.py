@@ -5,6 +5,14 @@ import re
 from .package import UnitTestingCommand
 
 
+try:
+    import coverage  # noqa
+    coverage.Coverage  # noqa
+    coverage_loaded = True
+except Exception:
+    coverage_loaded = False
+
+
 class UnitTestingCoverageCommand(UnitTestingCommand):
     fallback33 = "unit_testing33_coverage"
 
@@ -30,14 +38,6 @@ class UnitTestingCoverageCommand(UnitTestingCommand):
         else:
             config_file = None
 
-        try:
-            import coverage  # noqa
-            import coverage.Coverage # noqa
-            coverage_loaded = True
-        except Exception:
-            stream.write("Warning: coverage cannot be loaded.\n\n")
-            coverage_loaded = False
-
         if coverage_loaded:
             cov = coverage.Coverage(
                 data_file=data_file, config_file=config_file, include=include, omit=omit)
@@ -62,6 +62,7 @@ class UnitTestingCoverageCommand(UnitTestingCommand):
                 cov.save()
             super().unit_testing(stream, package, settings, [cleanup])
         else:
+            stream.write("Warning: coverage cannot be loaded.\n\n")
             super().unit_testing(stream, package, settings, [])
 
     def is_enabled(self):
