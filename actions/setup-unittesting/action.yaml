@@ -10,10 +10,10 @@ inputs:
     required: true
     default: x64
   package-name:
-    description: (Optional) package name. Derived from repo name if empty.
+    description: Package name. Derived from repo name if empty.
     default: ''
   unittesting-version:
-    description: (Optional) Version of UnitTesting. Default to the latest release.
+    description: Version of UnitTesting. Default to the latest release.
     required: false
     default: ''
   install-coverage:
@@ -21,7 +21,7 @@ inputs:
     required: true
     default: true
   coverage-version:
-    description: (Optional) Version of UnitTesting. Default to the latest release.
+    description: Version of coverage. Default to the latest release.
     required: false
     default: ''
   install-package-control:

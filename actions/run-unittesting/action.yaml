@@ -5,14 +5,21 @@ inputs:
     description: Run with coverage report
     required: true
     default: false
+  package-name:
+    description: Package name. Derived from repo name if empty.
+    default: ''
 runs:
   using: 'composite'
   steps:
     - run: |
         . $GITHUB_ACTION_PATH/../../scripts/utils.sh
+
+        PACKAGE_TO_TEST="${{ inputs.package-name }}"
+        PACKAGE_TO_TEST=${PACKAGE_TO_TEST:-$PACKAGE}
+
         if [ "${{ inputs.coverage }}" == "true" ]; then
-          python3 "$STP/UnitTesting/scripts/run_tests.py" $PACKAGE --coverage
+          python3 "$STP/UnitTesting/scripts/run_tests.py" $PACKAGE_TO_TEST --coverage
         else
-          python3 "$STP/UnitTesting/scripts/run_tests.py" $PACKAGE
+          python3 "$STP/UnitTesting/scripts/run_tests.py" $PACKAGE_TO_TEST
         fi
       shell: bash
