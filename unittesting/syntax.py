@@ -76,7 +76,7 @@ class UnitTestingSyntaxCompatibilityCommand(UnitTestingSyntaxBase):
                     total_errors += len(results)
                     total_failed_syntaxes += 1
 
-            error_noun = "errors" if total_failed_syntaxes > 1 else "error"
+            error_noun = "errors" if total_errors > 1 else "error"
             syntax_noun = "syntaxes" if len(syntaxes) > 1 else "syntax"
             if total_errors:
                 stream.write("FAILED: %d %s in %d of %d %s\n" % (

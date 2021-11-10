@@ -144,7 +144,7 @@ class TestSyntax(UnitTestingTestCase):
 
     @prepare_package("_Syntax_Failure", syntax_test=True)
     def test_fail_syntax(self, txt):
-        self.assertRegexContains(txt, r'^FAILED: 1 of 21 assertions in 1 files failed$')
+        self.assertRegexContains(txt, r'^FAILED: 1 of 21 assertions in 1 file failed$')
 
     @prepare_package("_Syntax_Success", syntax_test=True)
     def test_success_syntax(self, txt):
@@ -156,7 +156,7 @@ class TestSyntax(UnitTestingTestCase):
 
     @prepare_package("_Syntax_Compat_Failure", syntax_compatibility=True)
     def test_fail_syntax_compatibility(self, txt):
-        self.assertRegexContains(txt, r'^FAILED: 3 errors in 1 of 1 syntaxes$')
+        self.assertRegexContains(txt, r'^FAILED: 3 errors in 1 of 1 syntax$')
 
     @prepare_package("_Syntax_Compat_Success", syntax_compatibility=True)
     def test_success_syntax_compatibility(self, txt):
