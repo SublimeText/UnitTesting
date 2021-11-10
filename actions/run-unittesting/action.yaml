@@ -1,13 +1,13 @@
 name: Run UnitTesting
 description: Run UnitTesting
 inputs:
+  package-name:
+    description: Package name. Derived from repo name if empty.
+    default: ''
   coverage:
     description: Run with coverage report
     required: true
     default: false
-  package-name:
-    description: Package name. Derived from repo name if empty.
-    default: ''
 runs:
   using: 'composite'
   steps:
