@@ -35,12 +35,14 @@ class UnitTestingSyntaxCommand(UnitTestingSyntaxBase):
                     failed_assertions += len(test_output_lines)
                     for line in test_output_lines:
                         stream.write(line + "\n")
+
+            file_noun = "files" if len(tests) > 1 else "file"
             if failed_assertions > 0:
-                stream.write("FAILED: %d of %d assertions in %d files failed\n" %
-                             (failed_assertions, total_assertions, len(tests)))
+                stream.write("FAILED: %d of %d assertions in %d %s failed\n" %
+                             (failed_assertions, total_assertions, len(tests), file_noun))
             else:
-                stream.write("Success: %d assertions in %s files passed\n" %
-                             (total_assertions, len(tests)))
+                stream.write("Success: %d assertions in %s %s passed\n" %
+                             (total_assertions, len(tests), file_noun))
                 stream.write("OK\n")
         except Exception as e:
             if not stream.closed:
@@ -74,11 +76,13 @@ class UnitTestingSyntaxCompatibilityCommand(UnitTestingSyntaxBase):
                     total_errors += len(results)
                     total_failed_syntaxes += 1
 
+            error_noun = "errors" if total_failed_syntaxes > 1 else "error"
+            syntax_noun = "syntaxes" if len(syntaxes) > 1 else "syntax"
             if total_errors:
-                stream.write("FAILED: %d errors in %d of %d syntaxes\n" % (
-                    total_errors, total_failed_syntaxes, len(syntaxes)))
+                stream.write("FAILED: %d %s in %d of %d %s\n" % (
+                    total_errors, error_noun, total_failed_syntaxes, len(syntaxes), syntax_noun))
             else:
-                stream.write("Success: %d syntaxes passed\n" % (len(syntaxes),))
+                stream.write("Success: %d %s passed\n" % (len(syntaxes), syntax_noun))
                 stream.write("OK\n")
         except Exception as e:
             if not stream.closed:
