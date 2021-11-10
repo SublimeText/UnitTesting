@@ -30,13 +30,7 @@ jobs:
       - uses: "./actions/run-tests"
         with:
           coverage: true
-      - run: |
-          if [ -f ./.coverage ]; then
-            pip3 install coverage==4.5.4
-            coverage xml -o coverage.xml
-          fi
-        shell: bash
-      - uses: codecov/codecov-action@v2
+          codecov-upload: true
 
   # test against latest released UnitTesting
   test-actions-aginst-latest:

@@ -8,6 +8,10 @@ inputs:
     description: Run with coverage report
     required: true
     default: false
+  codecov-upload:
+    description: Upload coverage report to codecov.
+    required: true
+    default: false
 runs:
   using: 'composite'
   steps:
@@ -23,3 +27,12 @@ runs:
           python3 "$GITHUB_ACTION_PATH/../../scripts/run_tests.py" $PACKAGE_TO_TEST
         fi
       shell: bash
+    - if: inputs.codecov == 'true'
+      run: |
+        if [ -f ./.coverage ]; then
+          pip3 install coverage==4.5.4
+          coverage xml -o coverage.xml
+        fi
+      shell: bash
+    - if: inputs.codecov == 'true'
+      uses: codecov/codecov-action@v2

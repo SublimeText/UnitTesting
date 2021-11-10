@@ -75,7 +75,7 @@ jobs:
       - uses: codecov/codecov-action@v2
 ```
 
-Remarks: actions are released in the branch `v1`. Any bug fixes will also be pushed to the same branch later unless there
+Remarks: actions are released in the branch [`v1`](https://github.com/SublimeText/UnitTesting/tree/v1). Any minor changes will be pushed to the same branch unless there
 are breaking changes.
 
 ## Testing syntax_test files
