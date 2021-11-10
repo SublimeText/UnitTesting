@@ -46,6 +46,8 @@ it is missing, UnitTesting will ignore the `tests` directory.
 
 Basic: put the following in your workflow.
 ```yaml
+name: test
+
 on: [push, pull_request]
 
 jobs:
