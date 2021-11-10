@@ -1,0 +1,21 @@
+name: Run syntax tests
+description: Run syntax tests
+inputs:
+  package-name:
+    description: Package name. Derived from repo name if empty.
+    default: ''
+  compatibility:
+    description: Test regex compatibility of the new syntax engine.
+    default: true
+runs:
+  using: 'composite'
+  steps:
+    - run: |
+        PACKAGE_TO_TEST="${{ inputs.package-name }}"
+        PACKAGE_TO_TEST=${PACKAGE_TO_TEST:-$PACKAGE}
+        python3 "$GITHUB_ACTION_PATH/../../scripts/run_tests.py" $PACKAGE_TO_TEST --syntax-test
+
+        if [ "${{ inputs.compatibility }}" == "true" ]; then
+          python3 "$GITHUB_ACTION_PATH/../../scripts/run_tests.py" $PACKAGE_TO_TEST --syntax-compatibility
+        fi
+      shell: bash

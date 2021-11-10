@@ -16,8 +16,6 @@ runs:
   using: 'composite'
   steps:
     - run: |
-        . $GITHUB_ACTION_PATH/../../scripts/utils.sh
-
         PACKAGE_TO_TEST="${{ inputs.package-name }}"
         PACKAGE_TO_TEST=${PACKAGE_TO_TEST:-$PACKAGE}
 
