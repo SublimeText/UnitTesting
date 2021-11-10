@@ -97,7 +97,7 @@ def wait_for_output(path, schedule, timeout=10):
 
 def start_sublime_text():
     if _is_windows:
-        subprocess.Popen("c:\\st\\sublime_text.exe")
+        subprocess.Popen("sublime_text.exe")
     else:
         subprocess.Popen("subl --stay &", shell=True)
 
