@@ -123,6 +123,10 @@ class TestUnitTesting(UnitTestingTestCase):
     def test_error(self, txt):
         self.assertRegexContains(txt, r'^ERROR')
 
+    @prepare_package("_Empty")
+    def test_empty(self, txt):
+        self.assertRegexContains(txt, r'^No tests are found.')
+
     @prepare_package("_Output", "tests/result")
     def test_output(self, txt):
         self.assertOk(txt)

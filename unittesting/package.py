@@ -69,11 +69,15 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand, UnitTestingMixin):
         testRunner = None
         progress_bar = ProgressBar("Testing %s" % package)
         progress_bar.start()
+        is_empty_test = False
 
-        package_dir = os.path.join(sublime.packages_path(), package)
-        start_dir = os.path.join(package_dir, settings["tests_dir"])
-        is_empty_test = not os.path.isdir(start_dir)
         try:
+            package_dir = os.path.join(sublime.packages_path(), package)
+            if not os.path.isdir(package_dir):
+                raise FileNotFoundError("{} does not exists.".format(package_dir))
+
+            start_dir = os.path.join(package_dir, settings["tests_dir"])
+            is_empty_test = not os.path.isdir(start_dir)
             if not is_empty_test:
                 # use custom loader which supports reloading modules
                 self.remove_test_modules(package, settings["tests_dir"])
