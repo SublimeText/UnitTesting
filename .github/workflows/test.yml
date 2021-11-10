@@ -27,7 +27,9 @@ jobs:
         with:
           coverage: true
       - run: |
-          pip3 install coverage
-          coverage xml -o coverage.xml
+          if [ -f ./.coverage ]; then
+            pip3 install coverage==4.5.4
+            coverage xml -o coverage.xml
+          fi
         shell: bash
       - uses: codecov/codecov-action@v2
