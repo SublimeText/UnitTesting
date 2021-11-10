@@ -9,7 +9,9 @@ jobs:
   cancel-previous-runs:
     runs-on: ubuntu-latest
     steps:
-      - uses: randy3k/gh-actions/cancel-previous-runs@main
+      - uses: styfle/cancel-workflow-action@0.9.1
+        with:
+          access_token: ${{ github.token }}
 
   run-tests:
     strategy:

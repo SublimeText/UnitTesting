@@ -14,12 +14,13 @@ runs:
     - run: |
         . $GITHUB_ACTION_PATH/../../scripts/utils.sh
 
+        export SUBLIME_TEXT_PACKAGES=$STP
         PACKAGE_TO_TEST="${{ inputs.package-name }}"
         PACKAGE_TO_TEST=${PACKAGE_TO_TEST:-$PACKAGE}
 
         if [ "${{ inputs.coverage }}" == "true" ]; then
-          python3 "$STP/UnitTesting/scripts/run_tests.py" $PACKAGE_TO_TEST --coverage
+          python3 "$GITHUB_ACTION_PATH/../../scripts/run_tests.py" $PACKAGE_TO_TEST --coverage
         else
-          python3 "$STP/UnitTesting/scripts/run_tests.py" $PACKAGE_TO_TEST
+          python3 "$GITHUB_ACTION_PATH/../../scripts/run_tests.py" $PACKAGE_TO_TEST
         fi
       shell: bash

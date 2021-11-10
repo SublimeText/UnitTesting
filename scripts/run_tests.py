@@ -18,7 +18,7 @@ import time
 
 # todo: allow different sublime versions
 
-PACKAGES_DIR_PATH = os.path.realpath(os.path.join(os.path.dirname(__file__), '..', '..'))
+PACKAGES_DIR_PATH = os.environ.get("SUBLIME_TEXT_PACKAGES", os.path.realpath(os.path.join(os.path.dirname(__file__), '..', '..')))
 UT_OUTPUT_DIR_PATH = os.path.realpath(os.path.join(PACKAGES_DIR_PATH, 'User', 'UnitTesting'))
 SCHEDULE_FILE_PATH = os.path.realpath(os.path.join(UT_OUTPUT_DIR_PATH, 'schedule.json'))
 UT_DIR_PATH = os.path.realpath(os.path.join(PACKAGES_DIR_PATH, 'UnitTesting'))
