@@ -1,0 +1,35 @@
+# if you are looking for a working example
+# refer to https://github.com/randy3k/UnitTesting-example/blob/master/.github/workflows/build.yml
+
+name: Test
+
+on: [push, pull_request]
+
+jobs:
+  cancel-previous-runs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: randy3k/gh-actions/cancel-previous-runs@main
+
+  check:
+    strategy:
+      fail-fast: false
+      matrix:
+        st-version: [3, 4]
+        os: ["ubuntu-latest", "macOS-latest", "windows-latest"]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: "./actions/setup-unittesting"
+        with:
+          sublime-text-version: ${{ matrix.st-version }}
+      - uses: "./actions/run-unittesting"
+        with:
+          coverage: true
+      - name: upload coverage report
+        run: |
+          if [ -f "./.coverage" ]; then
+            pip3 install coverage==4.5.4 codecov==2.0.15
+            codecov
+          fi
+        shell: bash

@@ -1,0 +1,94 @@
+name: Setup the testing environment for Sublime Text
+description: Setup the testing environment for Sublime Text
+inputs:
+  sublime-text-version:
+    description: Sublime Text Version (3 or 4).
+    required: true
+    default: 4
+  sublime-text-arch:
+    description: Sublime Text Version Arch. It could be x32 for Sublime Text 3.
+    required: true
+    default: x64
+  package-name:
+    description: (Optional) package name. Derived from repo name if empty.
+    default: ''
+  unittesting-version:
+    description: (Optional) Version of UnitTesting. Default to the latest release.
+    required: false
+    default: ''
+  coverage-version:
+    description: (Optional) Version of UnitTesting. Default to the latest release.
+    required: false
+    default: ''
+runs:
+  using: 'composite'
+  steps:
+    - name: Set environmental variables
+      run: |
+        echo "SUBLIME_TEXT_VERSION=${{ inputs.sublime-text-version }}" >> $GITHUB_ENV
+        echo "SUBLIME_TEXT_ARCH=${{ inputs.sublime-text-arch }}" >> $GITHUB_ENV
+        REPONAME="${GITHUB_REPOSITORY#*/}"
+        PACKAGE="${{ inputs.package-name }}"
+        echo "PACKAGE=${PACKAGE:-$REPONAME}" >> $GITHUB_ENV
+      shell: bash
+    - if: runner.os == 'Linux' || runner.os == 'macOS'
+      run: |
+        echo "PATH=$HOME/.local/bin:$PATH" >> $GITHUB_ENV
+      shell: bash
+    - if: runner.os == 'Windows'
+      run: |
+        echo "PATH=/c/st:$PATH" >> $GITHUB_ENV
+      shell: bash
+    - if: runner.os == 'Linux'
+      run: |
+        sudo bash $GITHUB_ACTION_PATH/../../scripts/install_ubuntu_sys_req.sh
+        echo "DISPLAY=:1" >> $GITHUB_ENV
+        sudo cp $GITHUB_ACTION_PATH/../../scripts/xvfb /etc/init.d/xvfb
+        sudo chmod +x /etc/init.d/xvfb
+      shell: bash
+    - if: runner.os == 'Linux'
+      run: sudo sh -e /etc/init.d/xvfb start
+      shell: bash
+    - if: runner.os == 'Linux' || runner.os == 'macOS'
+      run: |
+        . $GITHUB_ACTION_PATH/../../scripts/install_sublime_text.sh
+      shell: bash
+    - if: runner.os == 'Windows'
+      run: |
+        pwsh $Env:GITHUB_ACTION_PATH/../../scripts/install_sublime_text.ps1 --verbose
+      shell: pwsh
+    - run: |
+        # Disable warnings about detached HEAD
+        # https://stackoverflow.com/questions/36794501
+        git config --global advice.detachedHead false
+
+        # block sublime text website ip
+        bash $GITHUB_ACTION_PATH/../../scripts/block_ip.sh
+      shell: bash
+    - run: |
+        . $GITHUB_ACTION_PATH/../../scripts/utils.sh
+
+        # Copy plugin files to Packages/<Package> folder.
+        if [ ! -d "$STP/$PACKAGE" ]; then
+            # symlink does not play well with coverage
+            echo "copy the package to sublime package directory"
+            mkdir -p "$STP/$PACKAGE"
+            cp -r ./ "$STP/$PACKAGE"
+        fi
+
+        UT_NAME="UnitTesting"
+        UT_PATH="$STP/$UT_NAME"
+        if [ ! -d "$UT_PATH" ]; then
+            InstallPackage "$UT_NAME" "https://github.com/SublimeText/UnitTesting" "${{ inputs.unittesting-version }}"
+        fi
+
+        InstallPackage "coverage" "https://github.com/codexns/sublime-coverage" "${{ inputs.coverage-version }}"
+      shell: bash
+    - if: runner.os == 'Linux' || runner.os == 'macOS'
+      run: |
+        bash $GITHUB_ACTION_PATH/../../scripts/install_package_control.sh
+      shell: bash
+    - if: runner.os == 'Windows'
+      run: |
+        pwsh $Env:GITHUB_ACTION_PATH/../../scripts/install_package_control.ps1 --verbose
+      shell: pwsh

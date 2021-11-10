@@ -5,20 +5,12 @@ UnitTesting
 [![codecov](https://codecov.io/gh/SublimeText/UnitTesting/branch/master/graph/badge.svg)](https://codecov.io/gh/SublimeText/UnitTesting)
 <a href="https://packagecontrol.io/packages/UnitTesting"><img src="https://packagecontrol.herokuapp.com/downloads/UnitTesting.svg"></a>
 
-This is a unittest framework for Sublime Text. It runs unittest testcases on local machines and CI services such as Travis CI, Circle CI and AppVeyor. It also supports testing syntax_test files for the new [sublime-syntax](https://www.sublimetext.com/docs/3/syntax.html) format.
-
-## Deprecation of supports of CircleCI, Travis and Appveyor.
-
-It is too much work to maintain supports for circleci, travis, appveyor and github actions at the same time.
-As most users host their projects on github, we are going to only support github actions and deprecate supports for circleci, travis and appveyor.
-
-There is no plan to remove the corresponding scripts from the repo in a near future, but they are not maintained any more and may be removed if they are broken.
+This is a unittest framework for Sublime Text. It runs unittest testcases on local machines and via Github Actions. It also supports testing syntax_test files for the new [sublime-syntax](https://www.sublimetext.com/docs/3/syntax.html) format and sublime-color-scheme files.
 
 
 ## Sublime Text 4
 
-Sublime Text 4 is now supported. However test coverage on Python 3.8 packages is still not working now.
-
+Sublime Text 4 is now supported. Due to Package Control, test coverage on Python 3.8 packages is still not working now.
 
 ## Preparation
 
@@ -50,19 +42,37 @@ The file [.coveragerc](.coveragerc) is used to control the coverage configuratio
 it is missing, UnitTesting will ignore the `tests` directory.
 
 
-
 ## GitHub Actions
 
-These environmental variables are used
+Basic: put the following in your workflow.
+```yaml
+on: [push, pull_request]
 
-- `PACKAGE`: the package name, it is needed if the repo name is different from the package name.
-- `SUBLIME_TEXT_VERSION`: 3 or 4
-- `SUBLIME_TEXT_ARCH`: `x32` (Sublime Text 3 only) or `x64`
-- `UNITTESTING_TAG`: a specific version of UnitTesting to use
-
-To enable GitHub Actions, copy the file [build.yml](https://github.com/randy3k/UnitTesting-example/blob/master/.github/workflows/build.yml) to
-your repository.
-
+jobs:
+  check:
+    strategy:
+      fail-fast: false
+      matrix:
+        st-version: [3, 4]
+        os: ["ubuntu-latest", "macOS-latest", "windows-latest"]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: SublimeText/UnitTesting/actions/setup-unittesting@master
+        with:
+          sublime-text-version: ${{ matrix.st-version }}
+          unittesting-version: master  # for now
+      - uses: SublimeText/UnitTesting/actions/run-unittesting@master
+        with:
+          coverage: true
+      - name: upload coverage report
+        run: |
+          if [ -f "./.coverage" ]; then
+            pip3 install coverage==4.5.4 codecov==2.0.15
+            codecov
+          fi
+        shell: bash
+```
 
 ## Coverage reports
 
@@ -97,12 +107,6 @@ To submit coverage report to [codacy.com](https://www.codacy.com):
 2. generate the xml report: `coverage xml -o coverage.xml`
 3. run `python-codacy-coverage`
 
-
-## Installing Package Control and Dependencies
-
-If your package uses Package Control dependencies, you may want to install
-Package Control by uncommenting the line of `install_package_control` in
-Travis CI and AppVeyor configuration files.
 
 
 ## Testing syntax_test files
@@ -140,13 +144,6 @@ asynchronous codes.
 
 An example would be found in [here](https://github.com/randy3k/UnitTesting-example/tree/deferred).
 
-To activate deferred testing, put the following line in
-`unittesting.json`.
-
-```
-    "deferred": true,
-```
-
 PS: this idea was inspired by [Plugin UnitTest Harness](https://bitbucket.org/klorenz/sublimepluginunittestharness).
 
 
@@ -165,32 +162,6 @@ the following
 
 - Otherwise, the `yield` statement would yeild to any queued jobs.
 
-
-### Async testing (deprecated)
-
-By default, the tests are running in the main thread and can block the
-graphic inference. Asychronized testing could be used if you need the
-interface to respond.
-
-Async tests are usually slower than the sync tests because the interface takes
-time to respond but it is useful when there are blocking codes in the tests. An
-example would be found in
-[here](https://github.com/randy3k/UnitTesting-example/tree/async).
-
-However, it is known that async test does not work very well with coverage.
-In general, it is **recommended** to use deferred testing over async testing since there is
-no need to worry about race condition.
-
-
-To activate async testing on Travis CI and AppVeyor, put the following line in
-`unittesting.json`.
-
-```
-    "async": true,
-```
-
-Note: if `async` is true, `deferred` is forced to be `false` (relaxation of this is in progress)
-
 ## Others
 
 ### Add `Test Current Package` build
@@ -206,11 +177,6 @@ It is recommended to add the following in your `.sublime-project` file so that <
   }
 ]
 ```
-
-### Docker container
-
-Check https://github.com/SublimeText/UnitTesting/tree/master/docker
-
 
 ### Credits
 Thanks [guillermooo](https://github.com/guillermooo) and [philippotto](https://github.com/philippotto) for their efforts in AppVeyor and Travis CI macOS support.

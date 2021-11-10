@@ -35,28 +35,38 @@ class UnitTestingCoverageCommand(UnitTestingCommand):
         else:
             config_file = None
 
-        cov = coverage.Coverage(
-            data_file=data_file, config_file=config_file, include=include, omit=omit)
-        if not settings['start_coverage_after_reload']:
-            cov.start()
-        if settings["reload_package_on_testing"]:
-            self.reload_package(package, dummy=False, show_reload_progress=False)
-        if settings['start_coverage_after_reload']:
-            cov.start()
+        try:
+            import coverage.Coverage
+            coverage_loaded = True
+        except Exception:
+            stream.write("Warning: coverage cannot be loaded.\n\n")
+            coverage_loaded = False
 
-        def cleanup():
-            stream.write("\n")
-            cov.stop()
-            coverage.files.RELATIVE_DIR = os.path.normcase(package_path + os.sep)
-            ignore_errors = cov.get_option("report:ignore_errors")
-            show_missing = cov.get_option("report:show_missing")
-            cov.report(file=stream, ignore_errors=ignore_errors, show_missing=show_missing)
-            if settings['generate_html_report']:
-                html_output_dir = os.path.join(package_path, 'htmlcov')
-                cov.html_report(directory=html_output_dir, ignore_errors=ignore_errors)
-            cov.save()
+        if coverage_loaded:
+            cov = coverage.Coverage(
+                data_file=data_file, config_file=config_file, include=include, omit=omit)
 
-        super().unit_testing(stream, package, settings, [cleanup])
+            if not settings['start_coverage_after_reload']:
+                cov.start()
+            if settings["reload_package_on_testing"]:
+                self.reload_package(package, dummy=False, show_reload_progress=False)
+            if settings['start_coverage_after_reload']:
+                cov.start()
+
+            def cleanup():
+                stream.write("\n")
+                cov.stop()
+                coverage.files.RELATIVE_DIR = os.path.normcase(package_path + os.sep)
+                ignore_errors = cov.get_option("report:ignore_errors")
+                show_missing = cov.get_option("report:show_missing")
+                cov.report(file=stream, ignore_errors=ignore_errors, show_missing=show_missing)
+                if settings['generate_html_report']:
+                    html_output_dir = os.path.join(package_path, 'htmlcov')
+                    cov.html_report(directory=html_output_dir, ignore_errors=ignore_errors)
+                cov.save()
+            super().unit_testing(stream, package, settings, [cleanup])
+        else:
+            super().unit_testing(stream, package, settings, [])
 
     def is_enabled(self):
         # we assume it is always true for python 3.8 to allow falling back to python 3.3
