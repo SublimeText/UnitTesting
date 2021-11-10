@@ -22,10 +22,10 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
-      - uses: "./actions/setup-unittesting"
+      - uses: "./actions/setup"
         with:
           sublime-text-version: ${{ matrix.st-version }}
-      - uses: "./actions/run-unittesting"
+      - uses: "./actions/run-tests"
         with:
           coverage: true
       - run: |

@@ -60,10 +60,10 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
-      - uses: SublimeText/UnitTesting/actions/setup-unittesting@v1
+      - uses: SublimeText/UnitTesting/actions/setup@v1
         with:
           sublime-text-version: ${{ matrix.st-version }}
-      - uses: SublimeText/UnitTesting/actions/run-unittesting@v1
+      - uses: SublimeText/UnitTesting/actions/run-tests@v1
         with:
           coverage: true
       - run: |
