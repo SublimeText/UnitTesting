@@ -67,9 +67,13 @@ jobs:
       - uses: SublimeText/UnitTesting/actions/run-unittesting@master
         with:
           coverage: true
+      - run: |
+          if [ -f ./.coverage ]; then
+            pip3 install coverage==4.5.4
+            coverage xml -o coverage.xml
+          fi
+        shell: bash
       - uses: codecov/codecov-action@v2
-        with:
-          files: .coverage
 ```
 
 ## Testing syntax_test files
