@@ -26,12 +26,6 @@ jobs:
       - uses: "./actions/run-unittesting"
         with:
           coverage: true
-      - name: upload coverage report
-        env:
-          CODECOV_TOKEN: ${{secrets.CODECOV_TOKEN}}
-        run: |
-          if [ -f "./.coverage" ]; then
-            pip3 install coverage==4.5.4 codecov==2.0.15
-            codecov
-          fi
-        shell: bash
+      - uses: codecov/codecov-action@v2
+        with:
+          files: .coverage

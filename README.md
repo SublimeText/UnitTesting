@@ -67,51 +67,10 @@ jobs:
       - uses: SublimeText/UnitTesting/actions/run-unittesting@master
         with:
           coverage: true
-      - name: upload coverage report
-        env:
-          CODECOV_TOKEN: ${{secrets.CODECOV_TOKEN}}
-        run: |
-          if [ -f "./.coverage" ]; then
-            pip3 install coverage==4.5.4 codecov==2.0.15
-            codecov
-          fi
-        shell: bash
+      - uses: codecov/codecov-action@v2
+        with:
+          files: .coverage
 ```
-
-## Coverage reports
-
-We support Codecov, Coveralls and Codacy. Codecov is recommended as it
-supports merging reports from different CIs.
-
-
-### Codecov
-
-To submit coverage report to [codecov.io](https://codecov.io/):
-
-1. install [codecov](https://pypi.python.org/pypi/codecov)
-2. run `codecov` after success
-
-### Coveralls
-
-To submit coverage report to [coveralls.io](https://coveralls.io/):
-
-1. install [python-coveralls](https://pypi.python.org/pypi/python-coveralls/)
-2. run `coveralls` after success
-
-### Codacy
-
-To submit coverage report to [codacy.com](https://www.codacy.com):
-
-1. install both coverage and codacy-coverage
-
-    ```
-    pip install coverage codacy-coverage
-    ```
-
-2. generate the xml report: `coverage xml -o coverage.xml`
-3. run `python-codacy-coverage`
-
-
 
 ## Testing syntax_test files
 
