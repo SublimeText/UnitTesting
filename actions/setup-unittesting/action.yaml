@@ -39,13 +39,17 @@ runs:
         PACKAGE="${{ inputs.package-name }}"
         echo "PACKAGE=${PACKAGE:-$REPONAME}" >> $GITHUB_ENV
       shell: bash
-    - if: runner.os == 'Linux' || runner.os == 'macOS'
+    - name: Setup SUBLIME_TEXT_PACKAGES
       run: |
-        echo "PATH=$HOME/.local/bin:$PATH" >> $GITHUB_ENV
+        . $GITHUB_ACTION_PATH/../../scripts/utils.sh
+        echo "SUBLIME_TEXT_PACKAGES=$STP" >> $GITHUB_ENV
       shell: bash
-    - if: runner.os == 'Windows'
-      run: |
-        echo "PATH=/c/st:$PATH" >> $GITHUB_ENV
+    - run: |
+        if [ "${{ runner.os }}" = "Windows" ]; then
+          echo "c:\st" >> $GITHUB_PATH
+        else
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+        fi
       shell: bash
     - if: runner.os == 'Linux'
       run: |
@@ -59,7 +63,7 @@ runs:
       shell: bash
     - if: runner.os == 'Linux' || runner.os == 'macOS'
       run: |
-        . $GITHUB_ACTION_PATH/../../scripts/install_sublime_text.sh
+        bash $GITHUB_ACTION_PATH/../../scripts/install_sublime_text.sh
       shell: bash
     - if: runner.os == 'Windows'
       run: |
@@ -77,15 +81,15 @@ runs:
         . $GITHUB_ACTION_PATH/../../scripts/utils.sh
 
         # Copy plugin files to Packages/<Package> folder if files are checked out.
-        if [ -d "./.git" ] && [ ! -d "$STP/$PACKAGE" ]; then
+        if [ -d "./.git" ] && [ ! -d "$SUBLIME_TEXT_PACKAGES/$PACKAGE" ]; then
             # symlink does not play well with coverage
             echo "copy the package to sublime package directory"
-            mkdir -p "$STP/$PACKAGE"
-            cp -r ./ "$STP/$PACKAGE"
+            mkdir -p "$SUBLIME_TEXT_PACKAGES/$PACKAGE"
+            cp -r ./ "$SUBLIME_TEXT_PACKAGES/$PACKAGE"
         fi
 
         UT_NAME="UnitTesting"
-        UT_PATH="$STP/$UT_NAME"
+        UT_PATH="$SUBLIME_TEXT_PACKAGES/$UT_NAME"
         if [ ! -d "$UT_PATH" ]; then
             InstallPackage "$UT_NAME" "https://github.com/SublimeText/UnitTesting" "${{ inputs.unittesting-version }}"
         fi

@@ -14,7 +14,6 @@ runs:
     - run: |
         . $GITHUB_ACTION_PATH/../../scripts/utils.sh
 
-        export SUBLIME_TEXT_PACKAGES=$STP
         PACKAGE_TO_TEST="${{ inputs.package-name }}"
         PACKAGE_TO_TEST=${PACKAGE_TO_TEST:-$PACKAGE}
 
