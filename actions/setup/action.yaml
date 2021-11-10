@@ -43,9 +43,6 @@ runs:
       run: |
         echo "SUBLIME_TEXT_VERSION=${{ inputs.sublime-text-version }}" >> $GITHUB_ENV
         echo "SUBLIME_TEXT_ARCH=${{ inputs.sublime-text-arch }}" >> $GITHUB_ENV
-        REPONAME="${GITHUB_REPOSITORY#*/}"
-        PACKAGE="${{ inputs.package-name }}"
-        echo "PACKAGE=${PACKAGE:-$REPONAME}" >> $GITHUB_ENV
       shell: bash
     - name: Setup SUBLIME_TEXT_PACKAGES
       run: |
@@ -86,6 +83,9 @@ runs:
         bash $GITHUB_ACTION_PATH/../../scripts/block_ip.sh
       shell: bash
     - run: |
+        PACKAGE="${{ inputs.package-name }}"
+        PACKAGE="${PACKAGE:-${GITHUB_REPOSITORY#*/}}"
+
         . $GITHUB_ACTION_PATH/../../scripts/utils.sh
 
         # Copy plugin files to Packages/<Package> folder if files are checked out.

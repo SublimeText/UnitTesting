@@ -16,13 +16,13 @@ runs:
   using: 'composite'
   steps:
     - run: |
-        PACKAGE_TO_TEST="${{ inputs.package-name }}"
-        PACKAGE_TO_TEST=${PACKAGE_TO_TEST:-$PACKAGE}
+        PACKAGE="${{ inputs.package-name }}"
+        PACKAGE="${PACKAGE:-${GITHUB_REPOSITORY#*/}}"
 
         if [ "${{ inputs.coverage }}" == "true" ]; then
-          python3 "$GITHUB_ACTION_PATH/../../scripts/run_tests.py" $PACKAGE_TO_TEST --coverage
+          python3 "$GITHUB_ACTION_PATH/../../scripts/run_tests.py" "$PACKAGE" --coverage
         else
-          python3 "$GITHUB_ACTION_PATH/../../scripts/run_tests.py" $PACKAGE_TO_TEST
+          python3 "$GITHUB_ACTION_PATH/../../scripts/run_tests.py" "$PACKAGE"
         fi
       shell: bash
     - if: inputs.codecov == 'true'

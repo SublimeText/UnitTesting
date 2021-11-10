@@ -11,11 +11,12 @@ runs:
   using: 'composite'
   steps:
     - run: |
-        PACKAGE_TO_TEST="${{ inputs.package-name }}"
-        PACKAGE_TO_TEST=${PACKAGE_TO_TEST:-$PACKAGE}
-        python3 "$GITHUB_ACTION_PATH/../../scripts/run_tests.py" $PACKAGE_TO_TEST --syntax-test
+        PACKAGE="${{ inputs.package-name }}"
+        PACKAGE="${PACKAGE:-${GITHUB_REPOSITORY#*/}}"
+
+        python3 "$GITHUB_ACTION_PATH/../../scripts/run_tests.py" "$PACKAGE" --syntax-test
 
         if [ "${{ inputs.compatibility }}" == "true" ]; then
-          python3 "$GITHUB_ACTION_PATH/../../scripts/run_tests.py" $PACKAGE_TO_TEST --syntax-compatibility
+          python3 "$GITHUB_ACTION_PATH/../../scripts/run_tests.py" "$PACKAGE" --syntax-compatibility
         fi
       shell: bash
