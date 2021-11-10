@@ -103,11 +103,7 @@ variable in `unittesting.json`.
 Tests can be written using the Deferrable testcase, such that you are
 able to run sublime commands from your test cases and yield control to sublime
 text runtime and continue the execution later. Would be useful to test
-asynchronous codes.
-
-An example would be found in [here](https://github.com/randy3k/UnitTesting-example/tree/deferred).
-
-PS: this idea was inspired by [Plugin UnitTest Harness](https://bitbucket.org/klorenz/sublimepluginunittestharness).
+asynchronous codes. The idea was inspired by [Plugin UnitTest Harness](https://bitbucket.org/klorenz/sublimepluginunittestharness).
 
 
 [DeferrableTestCase][1] is used to write the test cases. They are executed by
@@ -124,6 +120,8 @@ the following
   generator after `x` ms.
 
 - Otherwise, the `yield` statement would yeild to any queued jobs.
+
+An example would be found in [here](https://github.com/randy3k/UnitTesting-example/blob/master/tests/test_defer.py).
 
 ## Others
 
