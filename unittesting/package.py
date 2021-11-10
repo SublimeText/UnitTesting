@@ -63,6 +63,8 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand, UnitTestingMixin):
 
         if settings["async"]:
             stream.write("#####\nasync runner is deprecated, consider using the DeferrableTestCase.\n#####\n\n")
+            # force deferred to False
+            settings["deferred"] = False
 
         testRunner = None
         progress_bar = ProgressBar("Testing %s" % package)
