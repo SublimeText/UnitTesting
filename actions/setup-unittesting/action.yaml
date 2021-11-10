@@ -16,10 +16,18 @@ inputs:
     description: (Optional) Version of UnitTesting. Default to the latest release.
     required: false
     default: ''
+  install-coverage:
+    description: Whether to install package control.
+    required: true
+    default: true
   coverage-version:
     description: (Optional) Version of UnitTesting. Default to the latest release.
     required: false
     default: ''
+  install-package-control:
+    description: Whether to install package control.
+    required: true
+    default: true
 runs:
   using: 'composite'
   steps:
@@ -81,14 +89,15 @@ runs:
         if [ ! -d "$UT_PATH" ]; then
             InstallPackage "$UT_NAME" "https://github.com/SublimeText/UnitTesting" "${{ inputs.unittesting-version }}"
         fi
-
-        InstallPackage "coverage" "https://github.com/codexns/sublime-coverage" "${{ inputs.coverage-version }}"
+        if [ "${{ inputs.install-coverage }}" = "true" ]; then
+          InstallPackage "coverage" "https://github.com/codexns/sublime-coverage" "${{ inputs.coverage-version }}"
+        fi
       shell: bash
-    - if: runner.os == 'Linux' || runner.os == 'macOS'
+    - if: (runner.os == 'Linux' || runner.os == 'macOS') && inputs.install-package-control == 'true'
       run: |
         bash $GITHUB_ACTION_PATH/../../scripts/install_package_control.sh
       shell: bash
-    - if: runner.os == 'Windows'
+    - if: runner.os == 'Windows' && inputs.install-package-control == 'true'
       run: |
         pwsh $Env:GITHUB_ACTION_PATH/../../scripts/install_package_control.ps1 --verbose
       shell: pwsh
