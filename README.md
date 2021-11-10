@@ -75,7 +75,7 @@ jobs:
       - uses: codecov/codecov-action@v2
 ```
 
-Remarks: actions are released in the tag `v1`. Any bug fixes will also be pushed to the same tag later unless there
+Remarks: actions are released in the branch `v1`. Any bug fixes will also be pushed to the same branch later unless there
 are breaking changes.
 
 ## Testing syntax_test files
