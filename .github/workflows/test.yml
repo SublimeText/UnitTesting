@@ -49,6 +49,5 @@ jobs:
       - uses: "./actions/setup"
         with:
           sublime-text-version: ${{ matrix.st-version }}
+          install-package: false
       - uses: "./actions/run-tests"
-        with:
-          coverage: true
