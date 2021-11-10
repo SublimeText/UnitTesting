@@ -13,6 +13,7 @@ jobs:
         with:
           access_token: ${{ github.token }}
 
+  # test against dev version of UnitTesting
   run-tests:
     strategy:
       fail-fast: false
@@ -37,7 +38,8 @@ jobs:
         shell: bash
       - uses: codecov/codecov-action@v2
 
-  test-actions:
+  # test against latest released UnitTesting
+  test-actions-aginst-latest:
     strategy:
       fail-fast: false
       matrix:
