@@ -64,7 +64,3 @@ class UnitTestingCoverageCommand(UnitTestingCommand):
         else:
             stream.write("Warning: coverage cannot be loaded.\n\n")
             super().unit_testing(stream, package, settings, [])
-
-    def is_enabled(self):
-        # we assume it is always true for python 3.8 to allow falling back to python 3.3
-        return "coverage" in sys.modules or sys.version_info >= (3, 8)
