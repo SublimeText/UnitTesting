@@ -1,5 +1,6 @@
 # 1.5.6
-
+   - Use deferred runner in default
+   - Improve coverage support in ST 4
 
 # 1.5.5
    - default to ST version 4
