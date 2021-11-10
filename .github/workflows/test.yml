@@ -27,6 +27,8 @@ jobs:
         with:
           coverage: true
       - name: upload coverage report
+        env:
+          CODECOV_TOKEN: ${{secrets.CODECOV_TOKEN}}
         run: |
           if [ -f "./.coverage" ]; then
             pip3 install coverage==4.5.4 codecov==2.0.15
