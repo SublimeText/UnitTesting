@@ -26,6 +26,8 @@ jobs:
       - uses: "./actions/run-unittesting"
         with:
           coverage: true
+      - run: |
+          pip3 install coverage
+          coverage xml -o coverage.xml
+        shell: bash
       - uses: codecov/codecov-action@v2
-        with:
-          files: .coverage
