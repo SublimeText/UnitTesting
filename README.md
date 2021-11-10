@@ -60,11 +60,10 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
-      - uses: SublimeText/UnitTesting/actions/setup-unittesting@master
+      - uses: SublimeText/UnitTesting/actions/setup-unittesting@v1
         with:
           sublime-text-version: ${{ matrix.st-version }}
-          unittesting-version: master  # for now
-      - uses: SublimeText/UnitTesting/actions/run-unittesting@master
+      - uses: SublimeText/UnitTesting/actions/run-unittesting@v1
         with:
           coverage: true
       - run: |
@@ -75,6 +74,9 @@ jobs:
         shell: bash
       - uses: codecov/codecov-action@v2
 ```
+
+Remarks: actions are released in the tag `v1`. Any bug fixes will also be pushed to the same tag later unless there
+are breaking changes.
 
 ## Testing syntax_test files
 
