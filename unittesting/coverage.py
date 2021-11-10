@@ -4,11 +4,6 @@ import sys
 import re
 from .package import UnitTestingCommand
 
-try:
-    import coverage
-except Exception:
-    print("coverage not found.")
-
 
 class UnitTestingCoverageCommand(UnitTestingCommand):
     fallback33 = "unit_testing33_coverage"
@@ -36,7 +31,8 @@ class UnitTestingCoverageCommand(UnitTestingCommand):
             config_file = None
 
         try:
-            import coverage.Coverage
+            import coverage  # noqa
+            import coverage.Coverage # noqa
             coverage_loaded = True
         except Exception:
             stream.write("Warning: coverage cannot be loaded.\n\n")

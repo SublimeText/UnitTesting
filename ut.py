@@ -59,6 +59,8 @@ def plugin_loaded():
             f.write(data.replace("\r\n", "\n"))
         with open(os.path.join(UT33, ".package_reloader.json"), 'w') as f:
             f.write("{\"dependencies\" : [\"UnitTesting\"]}")
+        with open(os.path.join(UT33, "dependencies.json"), 'w') as f:
+            f.write("""{"*": {">3000": ["coverage"] } }""")
 
 
 def plugin_unloaded():

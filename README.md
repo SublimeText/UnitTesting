@@ -51,7 +51,7 @@ name: test
 on: [push, pull_request]
 
 jobs:
-  check:
+  run-tests:
     strategy:
       fail-fast: false
       matrix:

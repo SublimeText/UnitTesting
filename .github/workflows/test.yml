@@ -11,7 +11,7 @@ jobs:
     steps:
       - uses: randy3k/gh-actions/cancel-previous-runs@main
 
-  check:
+  run-tests:
     strategy:
       fail-fast: false
       matrix:
