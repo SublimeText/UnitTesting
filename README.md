@@ -69,7 +69,7 @@ jobs:
           codecov-upload: true
 ```
 
-Remarks: actions are released in the branch [`v1`](https://github.com/SublimeText/UnitTesting/tree/v1). Any minor changes will be pushed to the same branch unless there
+Remarks: actions are released in the branch [`v1`](https://github.com/SublimeText/UnitTesting/tree/v1). Minor changes will be pushed to the same branch unless there
 are breaking changes.
 
 ## Testing syntax_test files
