@@ -70,27 +70,29 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand, UnitTestingMixin):
         progress_bar = ProgressBar("Testing %s" % package)
         progress_bar.start()
 
+        package_dir = os.path.join(sublime.packages_path(), package)
+        start_dir = os.path.join(package_dir, settings["tests_dir"])
+        is_empty_test = not os.path.isdir(start_dir)
         try:
-            # use custom loader which supports reloading modules
-            self.remove_test_modules(package, settings["tests_dir"])
-            loader = TestLoader(settings["deferred"])
-            package_dir = os.path.join(sublime.packages_path(), package)
-            start_dir = os.path.join(package_dir, settings["tests_dir"])
-            if os.path.exists(os.path.join(start_dir, "__init__.py")):
-                tests = loader.discover(start_dir, settings["pattern"], top_level_dir=package_dir)
-            else:
-                tests = loader.discover(start_dir, settings["pattern"])
-            # use deferred test runner or default test runner
-            if settings["deferred"]:
-                if settings["legacy_runner"]:
-                    raise Exception("`legacy_runner=True` is deprecated.")
-                testRunner = DeferringTextTestRunner(
-                    stream, verbosity=settings["verbosity"], failfast=settings['failfast'])
-            else:
-                self.verify_testsuite(tests)
-                testRunner = TextTestRunner(stream, verbosity=settings["verbosity"], failfast=settings['failfast'])
+            if not is_empty_test:
+                # use custom loader which supports reloading modules
+                self.remove_test_modules(package, settings["tests_dir"])
+                loader = TestLoader(settings["deferred"])
+                if os.path.exists(os.path.join(start_dir, "__init__.py")):
+                    tests = loader.discover(start_dir, settings["pattern"], top_level_dir=package_dir)
+                else:
+                    tests = loader.discover(start_dir, settings["pattern"])
+                # use deferred test runner or default test runner
+                if settings["deferred"]:
+                    if settings["legacy_runner"]:
+                        raise Exception("`legacy_runner=True` is deprecated.")
+                    testRunner = DeferringTextTestRunner(
+                        stream, verbosity=settings["verbosity"], failfast=settings['failfast'])
+                else:
+                    self.verify_testsuite(tests)
+                    testRunner = TextTestRunner(stream, verbosity=settings["verbosity"], failfast=settings['failfast'])
 
-            testRunner.run(tests)
+                testRunner.run(tests)
 
         except Exception as e:
             if not stream.closed:
@@ -113,6 +115,9 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand, UnitTestingMixin):
                             import traceback
                             stream.write("ERROR: %s\n" % e)
                             traceback.print_exc(file=stream)
+
+                    if is_empty_test:
+                        stream.write("No tests are found.\n\nOK\n")
 
                     if not hasattr(stream, 'window'):
                         # If it's an output panel don't print done message,
