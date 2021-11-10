@@ -25,6 +25,7 @@ jobs:
       - uses: "./actions/setup"
         with:
           sublime-text-version: ${{ matrix.st-version }}
+          install-unittesting: false
       - uses: "./actions/run-tests"
         with:
           coverage: true
@@ -35,3 +36,19 @@ jobs:
           fi
         shell: bash
       - uses: codecov/codecov-action@v2
+
+  test-actions:
+    strategy:
+      fail-fast: false
+      matrix:
+        st-version: [3, 4]
+        os: ["ubuntu-latest", "macOS-latest", "windows-latest"]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: "./actions/setup"
+        with:
+          sublime-text-version: ${{ matrix.st-version }}
+      - uses: "./actions/run-tests"
+        with:
+          coverage: true

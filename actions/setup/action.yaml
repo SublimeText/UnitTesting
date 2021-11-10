@@ -12,6 +12,14 @@ inputs:
     description: Sublime Text Version Arch. It could be x32 for Sublime Text 3.
     required: true
     default: x64
+  install-package:
+    description: Whether to install the checked out package.
+    required: true
+    default: true
+  install-unittesting:
+    description: Whether to install UnitTesting.
+    required: true
+    default: true
   unittesting-version:
     description: Version of UnitTesting. Use latest release if empty.
     required: false
@@ -81,17 +89,17 @@ runs:
         . $GITHUB_ACTION_PATH/../../scripts/utils.sh
 
         # Copy plugin files to Packages/<Package> folder if files are checked out.
-        if [ -d "./.git" ] && [ ! -d "$SUBLIME_TEXT_PACKAGES/$PACKAGE" ]; then
-            # symlink does not play well with coverage
-            echo "copy the package to sublime package directory"
-            mkdir -p "$SUBLIME_TEXT_PACKAGES/$PACKAGE"
-            cp -r ./ "$SUBLIME_TEXT_PACKAGES/$PACKAGE"
+        if [ "${{ inputs.install-unittesting }}" = "true" ]; then
+          if [ -d "./.git" ] && [ ! -d "$SUBLIME_TEXT_PACKAGES/$PACKAGE" ]; then
+              # symlink does not play well with coverage
+              echo "copy the package to sublime package directory"
+              mkdir -p "$SUBLIME_TEXT_PACKAGES/$PACKAGE"
+              cp -r ./ "$SUBLIME_TEXT_PACKAGES/$PACKAGE"
+          fi
         fi
 
-        UT_NAME="UnitTesting"
-        UT_PATH="$SUBLIME_TEXT_PACKAGES/$UT_NAME"
-        if [ ! -d "$UT_PATH" ]; then
-            InstallPackage "$UT_NAME" "https://github.com/SublimeText/UnitTesting" "${{ inputs.unittesting-version }}"
+        if [ "${{ inputs.install-unittesting }}" = "true" ]; then
+            InstallPackage "UnitTesting" "https://github.com/SublimeText/UnitTesting" "${{ inputs.unittesting-version }}"
         fi
         if [ "${{ inputs.install-coverage }}" = "true" ]; then
             InstallPackage "coverage" "https://github.com/codexns/sublime-coverage" "${{ inputs.coverage-version }}"
