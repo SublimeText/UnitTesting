@@ -1,11 +1,3 @@
-import sys
-from importlib.machinery import PathFinder
-
-
-loader = PathFinder.find_module("UnitTesting")
-mod = loader.load_module("UnitTesting")
-sys.modules["UnitTesting"] = mod
-
 from UnitTesting import ut as ut38  # noqa
 
 
