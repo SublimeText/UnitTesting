@@ -56,10 +56,6 @@ def create_schedule(package, output_file, default_schedule):
         pass
 
     if not any(s['package'] == package for s in schedule):
-        print('Schedule:')
-        for k, v in default_schedule.items():
-            print('  %s: %s' % (k, v))
-
         schedule.append(default_schedule)
 
     with open(SCHEDULE_FILE_PATH, 'w') as f:
