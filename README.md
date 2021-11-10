@@ -66,13 +66,7 @@ jobs:
       - uses: SublimeText/UnitTesting/actions/run-tests@v1
         with:
           coverage: true
-      - run: |
-          if [ -f ./.coverage ]; then
-            pip3 install coverage==4.5.4
-            coverage xml -o coverage.xml
-          fi
-        shell: bash
-      - uses: codecov/codecov-action@v2
+          codecov-upload: true
 ```
 
 Remarks: actions are released in the branch [`v1`](https://github.com/SublimeText/UnitTesting/tree/v1). Any minor changes will be pushed to the same branch unless there
@@ -80,8 +74,20 @@ are breaking changes.
 
 ## Testing syntax_test files
 
-Check [this](https://github.com/randy3k/UnitTesting-example/tree/syntax) for an example.
+```yaml
+name: test-syntax
 
+on: [push, pull_request]
+
+jobs:
+  run-syntax-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: SublimeText/UnitTesting/actions/setup@v1
+      - uses: SublimeText/UnitTesting/actions/run-syntax-tests@v1
+```
+Check [this](https://github.com/randy3k/UnitTesting-example) for an example.
 
 ## Options
 
