@@ -13,65 +13,19 @@ jobs:
         with:
           access_token: ${{ github.token }}
 
-  # test against dev version of UnitTesting
-  run-tests:
-    strategy:
-      fail-fast: false
-      matrix:
-        st-version: [3, 4]
-        os: ["ubuntu-latest", "macOS-latest", "windows-latest"]
-    runs-on: ${{ matrix.os }}
-    steps:
-      - uses: actions/checkout@v2
-      - uses: "./actions/setup"
-        with:
-          sublime-text-version: ${{ matrix.st-version }}
-          install-unittesting: false
-      - uses: "./actions/run-tests"
-        with:
-          coverage: true
-          codecov-upload: true
-
-  # test against latest released UnitTesting
-  test-actions-aginst-latest:
-    strategy:
-      fail-fast: false
-      matrix:
-        st-version: [3, 4]
-        os: ["ubuntu-latest", "macOS-latest", "windows-latest"]
-    runs-on: ${{ matrix.os }}
-    steps:
-      - uses: actions/checkout@v2
-      - uses: "./actions/setup"
-        with:
-          sublime-text-version: ${{ matrix.st-version }}
-          install-package: false
-      - uses: "./actions/run-tests"
-
-  test-install-extra-packages:
-    strategy:
-      fail-fast: false
-      matrix:
-        os: ["ubuntu-latest", "windows-latest"]
-    runs-on: ${{ matrix.os }}
-    steps:
-      - uses: actions/checkout@v2
-      - uses: "./actions/setup"
-        with:
-          install-package: false
-          install-unittesting: false
-          extra-packages: |
-            SublimeText/UnitTesting
-            randy3k/UnitTesting-example@master
-      - uses: "./actions/run-tests"
-        with:
-          package-name: UnitTesting-example
-
   test-get-repo-name:
     runs-on: "ubuntu-latest"
     steps:
       - uses: actions/checkout@v2
         with:
           repository: randy3k/UnitTesting-example
-      - uses: SublimeText/UnitTesting/actions/setup@master
-      - uses: SublimeText/UnitTesting/actions/run-tests@master
+      - run: |
+          echo $PWD
+          echo ${{ github.workspace }}
+          printenv|sort
+
+          echo $(git config --get remote.origin.url) | wc -c
+
+          REPO=$(git config --get remote.origin.url)
+          echo ${REPO#https://github.com/}
+        shell: bash

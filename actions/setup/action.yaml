@@ -107,11 +107,17 @@ runs:
       shell: bash
     - run: |
         . $GITHUB_ACTION_PATH/../../scripts/utils.sh
+
+        echo $(git config --local --get remote.origin.url)
+
+        echo "gitRemoteURL" = "$(gitRemoteURL)"
+
         REPO="$(gitRemoteURL)"
         REPO="${REPO:-$GITHUB_REPOSITORY}"
         PACKAGE="${{ inputs.package-name }}"
         PACKAGE="${PACKAGE:-${REPO#*/}}"
 
+        echo PACKAGE = $PACKAGE
 
         # Copy plugin files to Packages/<Package> folder if files are checked out.
         if [ "${{ inputs.install-package }}" = "true" ]; then
