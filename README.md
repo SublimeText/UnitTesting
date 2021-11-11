@@ -1,7 +1,7 @@
 UnitTesting
 ===================
 
-[![Github Action](https://github.com/SublimeText/UnitTesting/workflows/build/badge.svg)](https://github.com/SublimeText/UnitTesting/actions)
+[![test](https://github.com/SublimeText/UnitTesting/actions/workflows/test.yml/badge.svg)](https://github.com/SublimeText/UnitTesting/actions/workflows/test.yml)
 [![codecov](https://codecov.io/gh/SublimeText/UnitTesting/branch/master/graph/badge.svg)](https://codecov.io/gh/SublimeText/UnitTesting)
 <a href="https://packagecontrol.io/packages/UnitTesting"><img src="https://packagecontrol.herokuapp.com/downloads/UnitTesting.svg"></a>
 
