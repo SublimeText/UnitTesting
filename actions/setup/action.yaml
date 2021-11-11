@@ -118,10 +118,14 @@ runs:
             REPO=${${REMOTEURL#https://github.com/}%\.git}
           fi
         fi
+
+        echo REPO is "$REPO"
+
         PACKAGE_FROM_INPUTS="${{ inputs.package-name }}"
         PACKAGE="${PACKAGE_FROM_INPUTS:-${REPO#*/}}"
 
         echo "PACKAGE=$PACKAGE" >> $GITHUB_ENV
+        cd -
       shell: bash
     - run: |
         . $GITHUB_ACTION_PATH/../../scripts/utils.sh

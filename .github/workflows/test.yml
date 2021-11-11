@@ -48,7 +48,7 @@ jobs:
           install-package: false
       - uses: "./actions/run-tests"
 
-  test-install-extra-packages:
+  test-install-extra-packages-and-package-path:
     strategy:
       fail-fast: false
       matrix:
@@ -56,13 +56,16 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
-      - uses: "./actions/setup"
         with:
-          install-package: false
+          repository: randy3k/UnitTesting-example
+          path: UnitTesting-example
+      - uses: actions/checkout@v2
+        with:
+          path: UnitTesting
+      - uses: "./UnitTesting/actions/setup"
+        with:
+          package-path: UnitTesting-example
           install-unittesting: false
           extra-packages: |
             SublimeText/UnitTesting
-            randy3k/UnitTesting-example@master
-      - uses: "./actions/run-tests"
-        with:
-          package-name: UnitTesting-example
+      - uses: "./UnitTesting/actions/run-tests"
