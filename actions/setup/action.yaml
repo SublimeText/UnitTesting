@@ -134,10 +134,10 @@ runs:
                 REPO="${BASH_REMATCH[3]}"
                 SHA="${BASH_REMATCH[4]}"
             elif [[ "$x" =~ ^(.*)/(.*)@(.*)$ ]]; then
-                PKG="${BASH_REMATCH[3]}"
+                PKG="${BASH_REMATCH[2]}"
                 USER="${BASH_REMATCH[1]}"
-                REPO="${BASH_REMATCH[3]}"
-                SHA="${BASH_REMATCH[4]}"
+                REPO="${BASH_REMATCH[2]}"
+                SHA="${BASH_REMATCH[3]}"
             else
               continue
             fi
