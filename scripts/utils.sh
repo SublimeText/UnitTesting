@@ -28,5 +28,6 @@ InstallPackage() {
     if [ ! -d "$DEST" ]; then
         mkdir -p "$DEST"
         gitCloneTag "$URL" "$TAG" "$DEST"
+        rm -rf "$DEST/.git"
     fi
 }

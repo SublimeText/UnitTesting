@@ -13,14 +13,16 @@ $STPU = "C:\st\Data\Packages\User"
 New-Item -itemtype directory $STPU -force >$null
 
 $PC_PATH = "$STIP\Package Control.sublime-package"
-$PC_URL = "https://packagecontrol.io/Package Control.sublime-package"
-(New-Object System.Net.WebClient).DownloadFile($PC_URL, $PC_PATH)
+if (-not (test-path $PC_PATH)) {
+    $PC_URL = "https://packagecontrol.io/Package Control.sublime-package"
+    (New-Object System.Net.WebClient).DownloadFile($PC_URL, $PC_PATH)
+}
 
 $PC_SETTINGS = "C:\st\Data\Packages\User\Package Control.sublime-settings"
 
 if (-not (test-path $PC_SETTINGS)) {
     write-verbose "creating Package Control.sublime-settings"
-    "{`"ignore_vcs_packages`": true, `"auto_upgrade`": false }" | out-file -filepath $PC_SETTINGS -encoding ascii
+    "{`"auto_upgrade`": false }" | out-file -filepath $PC_SETTINGS -encoding ascii
 }
 
 $PCH_PATH = "$STP\0_install_package_control_helper"

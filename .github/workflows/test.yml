@@ -18,9 +18,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: ["ubuntu-latest", "windows-latest"]
+        os: ["ubuntu-latest", "macOS-latest"]
     runs-on: ${{ matrix.os }}
     steps:
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '14'
       - uses: actions/checkout@v2
         with:
           repository: sublimelsp/lsp_utils
@@ -29,11 +32,8 @@ jobs:
           package-name: lsp_utils
           unittesting-version: deps
           extra-packages: |
-            sublimelsp/LSP
+            sublimelsp/LSP@main
             sublimelsp/LSP-pyright
-      - run: |
-          ls -l $SUBLIME_TEXT_PACKAGES/lsp_utils
-        shell: bash
       - uses: SublimeText/UnitTesting/actions/run-tests@deps
         with:
           package-name: lsp_utils

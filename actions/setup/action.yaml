@@ -118,9 +118,10 @@ runs:
               echo "copy the package to sublime package directory"
               mkdir -p "$SUBLIME_TEXT_PACKAGES/$PACKAGE"
               cp -r ./ "$SUBLIME_TEXT_PACKAGES/$PACKAGE"
+              # detached head will crash package control
+              rm -rf "$SUBLIME_TEXT_PACKAGES/$PACKAGE/.git"
           fi
         fi
-
         if [ "${{ inputs.install-unittesting }}" = "true" ]; then
             InstallPackage "UnitTesting" "https://github.com/SublimeText/UnitTesting" "${{ inputs.unittesting-version }}"
         fi
@@ -144,7 +145,6 @@ runs:
             fi
             InstallPackage "$PKG" "https://github.com/$USER/$REPO" "$SHA"
         done <<< "${{ inputs.extra-packages }}"
-
       shell: bash
     - if: (runner.os == 'Linux' || runner.os == 'macOS') && inputs.install-package-control == 'true'
       run: |
@@ -154,3 +154,17 @@ runs:
       run: |
         pwsh $Env:GITHUB_ACTION_PATH/../../scripts/install_package_control.ps1 --verbose
       shell: pwsh
+    - run: |
+        PACKAGE="${{ inputs.package-name }}"
+        PACKAGE="${PACKAGE:-${GITHUB_REPOSITORY#*/}}"
+
+        if [ "${{ inputs.install-package }}" = "true" ]; then
+          # package control may have updated the checked out repo, we need to restore it
+          if [ -f "$SUBLIME_TEXT_PACKAGES/$PACKAGE/dependency-metadata.json" ]; then
+            rm -rf "$SUBLIME_TEXT_PACKAGES/$PACKAGE"
+            cp -r ./ "$SUBLIME_TEXT_PACKAGES/$PACKAGE"
+            rm -rf "$SUBLIME_TEXT_PACKAGES/$PACKAGE/.git"
+            touch "$SUBLIME_TEXT_PACKAGES/$PACKAGE/.sublime-dependency"
+          fi
+        fi
+      shell: bash
