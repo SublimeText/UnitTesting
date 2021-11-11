@@ -13,42 +13,8 @@ jobs:
         with:
           access_token: ${{ github.token }}
 
-  # test against dev version of UnitTesting
-  run-tests:
-    strategy:
-      fail-fast: false
-      matrix:
-        st-version: [3, 4]
-        os: ["ubuntu-latest", "macOS-latest", "windows-latest"]
-    runs-on: ${{ matrix.os }}
-    steps:
-      - uses: actions/checkout@v2
-      - uses: "./actions/setup"
-        with:
-          sublime-text-version: ${{ matrix.st-version }}
-          install-unittesting: false
-      - uses: "./actions/run-tests"
-        with:
-          coverage: true
-          codecov-upload: true
 
-  # test against latest released UnitTesting
-  test-actions-aginst-latest:
-    strategy:
-      fail-fast: false
-      matrix:
-        st-version: [3, 4]
-        os: ["ubuntu-latest", "macOS-latest", "windows-latest"]
-    runs-on: ${{ matrix.os }}
-    steps:
-      - uses: actions/checkout@v2
-      - uses: "./actions/setup"
-        with:
-          sublime-text-version: ${{ matrix.st-version }}
-          install-package: false
-      - uses: "./actions/run-tests"
-
-  test-install-extra-packages:
+  test-install-dependencies:
     strategy:
       fail-fast: false
       matrix:
@@ -59,10 +25,12 @@ jobs:
       - uses: "./actions/setup"
         with:
           install-package: false
-          install-unittesting: false
           extra-packages: |
-            SublimeText/UnitTesting
-            randy3k/UnitTesting-example@master
+            sublimelsp/lsp_utils
+            sublimelsp/LSP-pyright
+      - run: |
+          ls -l $SUBLIME_TEXT_PACKAGES/lsp_utils
+        shell: bash
       - uses: "./actions/run-tests"
         with:
-          package-name: UnitTesting-example
+          package-name: lsp_utils
