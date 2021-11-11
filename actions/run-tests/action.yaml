@@ -16,8 +16,11 @@ runs:
   using: 'composite'
   steps:
     - run: |
+        . $GITHUB_ACTION_PATH/../../scripts/utils.sh
+        REPO="$(gitRemoteURL)"
+        REPO="${REPO:-$GITHUB_REPOSITORY}"
         PACKAGE="${{ inputs.package-name }}"
-        PACKAGE="${PACKAGE:-${GITHUB_REPOSITORY#*/}}"
+        PACKAGE="${PACKAGE:-${REPO#*/}}"
 
         if [ "${{ inputs.coverage }}" == "true" ]; then
           python3 "$GITHUB_ACTION_PATH/../../scripts/run_tests.py" "$PACKAGE" --coverage

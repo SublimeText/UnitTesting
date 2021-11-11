@@ -66,3 +66,12 @@ jobs:
       - uses: "./actions/run-tests"
         with:
           package-name: UnitTesting-example
+
+  test-get-repo-name:
+    runs-on: "ubuntu-latest"
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          repository: randy3k/UnitTesting-example
+      - uses: SublimeText/UnitTesting/actions/setup@master
+      - uses: SublimeText/UnitTesting/actions/run-tests@master

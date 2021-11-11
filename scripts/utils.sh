@@ -1,3 +1,15 @@
+gitRemoteURL() {
+    local repo
+    repo=$(git config --local --get remote.origin.url 2>/dev/null || true)
+    if [[ "$repo" =~ ^git@github.com:(.*)\.git$ ]]; then
+        echo "${BASH_REMATCH[1]}"
+    elif [[ "$repo" =~ ^https://github.com/(.*)\.git$ ]]; then
+        echo "${BASH_REMATCH[1]}"
+    elif [[ "$repo" =~ ^[a-zA-Z0-9_-]+/[a-zA-Z0-9_-]+$ ]]; then
+        echo "$repo"
+    fi
+}
+
 gitCloneTag() {
     local URL="$1"
     local TAG="$2"
