@@ -2,7 +2,7 @@ name: Run syntax tests
 description: Run syntax tests
 inputs:
   package-name:
-    description: Package name. Derived from repo name if empty.
+    description: Package name. Derived from setup step if empty.
     default: ''
   compatibility:
     description: Test regex compatibility of the new syntax engine.
@@ -11,8 +11,8 @@ runs:
   using: 'composite'
   steps:
     - run: |
-        PACKAGE="${{ inputs.package-name }}"
-        PACKAGE="${PACKAGE:-${GITHUB_REPOSITORY#*/}}"
+        PACKAGE_FROM_INPUTS="${{ inputs.package-name }}"
+        PACKAGE="${PACKAGE_FROM_INPUTS:-$PACKAGE}"
 
         python3 "$GITHUB_ACTION_PATH/../../scripts/run_tests.py" "$PACKAGE" --syntax-test
 

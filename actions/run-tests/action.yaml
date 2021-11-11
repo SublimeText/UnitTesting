@@ -18,6 +18,7 @@ runs:
     - run: |
         PACKAGE_FROM_INPUTS="${{ inputs.package-name }}"
         PACKAGE="${PACKAGE_FROM_INPUTS:-$PACKAGE}"
+
         if [ "${{ inputs.coverage }}" == "true" ]; then
           python3 "$GITHUB_ACTION_PATH/../../scripts/run_tests.py" "$PACKAGE" --coverage
         else
