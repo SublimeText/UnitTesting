@@ -2,7 +2,7 @@ name: Run UnitTesting
 description: Run UnitTesting
 inputs:
   package-name:
-    description: Package name. Derived from repo name if empty.
+    description: Package name. Derived from setup step if empty.
     default: ''
   coverage:
     description: Run with coverage report
@@ -16,15 +16,8 @@ runs:
   using: 'composite'
   steps:
     - run: |
-        REMOTEURL=$(git config --get remote.origin.url || true)
-        if [[ "REMOTEURL" =~ ^https://github.com/ ]]; then
-          REPO=${${REMOTEURL#https://github.com/}%\.git}
-        else
-          REPO="$GITHUB_REPOSITORY"
-        fi
-        PACKAGE="${{ inputs.package-name }}"
-        PACKAGE="${PACKAGE:-${REPO#*/}}"
-
+        PACKAGE_FROM_INPUTS="${{ inputs.package-name }}"
+        PACKAGE="${PACKAGE_FROM_INPUTS:-$PACKAGE}"
         if [ "${{ inputs.coverage }}" == "true" ]; then
           python3 "$GITHUB_ACTION_PATH/../../scripts/run_tests.py" "$PACKAGE" --coverage
         else

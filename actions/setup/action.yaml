@@ -16,6 +16,10 @@ inputs:
     description: Whether to install the checked out package.
     required: true
     default: true
+  package-path:
+    description: Where the package is located.
+    required: true
+    default: './'
   install-unittesting:
     description: Whether to install UnitTesting.
     required: true
@@ -106,26 +110,33 @@ runs:
         bash $GITHUB_ACTION_PATH/../../scripts/block_ip.sh
       shell: bash
     - run: |
-        REMOTEURL=$(git config --get remote.origin.url || true)
-        if [[ "REMOTEURL" =~ ^https://github.com/ ]]; then
-          REPO=${${REMOTEURL#https://github.com/}%\.git}
-        else
-          REPO="$GITHUB_REPOSITORY"
+        cd "${{ inputs.package-path }}"
+        REPO="$GITHUB_REPOSITORY"
+        if [ "${{ inputs.install-package }}" = "true" ]; then
+          REMOTEURL=$(git config --get remote.origin.url || true)
+          if [[ "REMOTEURL" =~ ^https://github.com/ ]]; then
+            REPO=${${REMOTEURL#https://github.com/}%\.git}
+          fi
         fi
-        PACKAGE="${{ inputs.package-name }}"
-        PACKAGE="${PACKAGE:-${REPO#*/}}"
+        PACKAGE_FROM_INPUTS="${{ inputs.package-name }}"
+        PACKAGE="${PACKAGE_FROM_INPUTS:-${REPO#*/}}"
 
+        echo "PACKAGE=$PACKAGE" >> $GITHUB_ENV
+      shell: bash
+    - run: |
         . $GITHUB_ACTION_PATH/../../scripts/utils.sh
 
         # Copy plugin files to Packages/<Package> folder if files are checked out.
         if [ "${{ inputs.install-package }}" = "true" ]; then
           if [ -d "./.git" ] && [ ! -d "$SUBLIME_TEXT_PACKAGES/$PACKAGE" ]; then
+              cd "${{ inputs.package-path }}"
               # symlink does not play well with coverage
               echo "copy the package to sublime package directory"
               mkdir -p "$SUBLIME_TEXT_PACKAGES/$PACKAGE"
               cp -r ./ "$SUBLIME_TEXT_PACKAGES/$PACKAGE"
               # detached head will crash package control
               rm -rf "$SUBLIME_TEXT_PACKAGES/$PACKAGE/.git"
+              cd -
           fi
         fi
         if [ "${{ inputs.install-unittesting }}" = "true" ]; then
@@ -161,22 +172,15 @@ runs:
         pwsh $Env:GITHUB_ACTION_PATH/../../scripts/install_package_control.ps1 --verbose
       shell: pwsh
     - run: |
-        REMOTEURL=$(git config --get remote.origin.url || true)
-        if [[ "REMOTEURL" =~ ^https://github.com/ ]]; then
-          REPO=${${REMOTEURL#https://github.com/}%\.git}
-        else
-          REPO="$GITHUB_REPOSITORY"
-        fi
-        PACKAGE="${{ inputs.package-name }}"
-        PACKAGE="${PACKAGE:-${REPO#*/}}"
-
         if [ "${{ inputs.install-package }}" = "true" ]; then
           # package control may have updated the checked out repo, we need to restore it
           if [ -f "$SUBLIME_TEXT_PACKAGES/$PACKAGE/dependency-metadata.json" ]; then
+            cd "${{ inputs.package-path }}"
             rm -rf "$SUBLIME_TEXT_PACKAGES/$PACKAGE"
             cp -r ./ "$SUBLIME_TEXT_PACKAGES/$PACKAGE"
             rm -rf "$SUBLIME_TEXT_PACKAGES/$PACKAGE/.git"
             touch "$SUBLIME_TEXT_PACKAGES/$PACKAGE/.sublime-dependency"
+            cd -
           fi
         fi
       shell: bash
