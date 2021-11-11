@@ -22,14 +22,19 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
-      - uses: "./actions/setup"
         with:
+          repository: sublimelsp/lsp_utils
+      - run: touch .sublime-dependency
+        shell: bash
+      - uses: SublimeText/UnitTesting/actions/setup@master
+        with:
+          package-name: lsp_utils
           extra-packages: |
-            sublimelsp/lsp_utils
+            sublimelsp/LSP
             sublimelsp/LSP-pyright
       - run: |
           ls -l $SUBLIME_TEXT_PACKAGES/lsp_utils
         shell: bash
-      - uses: "./actions/run-tests"
+      - uses: SublimeText/UnitTesting/actions/run-tests@master
         with:
           package-name: lsp_utils
