@@ -42,7 +42,7 @@ inputs:
     default: true
   extra-packages:
     description: |
-      A list of extra packages seperated by newline of the from package:user/repo@tag
+      A list of extra packages seperated by newline of the form package:user/repo@tag
       or just user/repo@tag if the repo name is the same as the repo name. "@tag" can
       be also be skipped to install the latest tag (assume sem-ver tags are used).
     required: false
