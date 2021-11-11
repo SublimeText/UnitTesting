@@ -106,12 +106,10 @@ runs:
         bash $GITHUB_ACTION_PATH/../../scripts/block_ip.sh
       shell: bash
     - run: |
-        . $GITHUB_ACTION_PATH/../../scripts/utils.sh
-        REPO="$(gitRemoteURL)"
-        REPO="${REPO:-$GITHUB_REPOSITORY}"
         PACKAGE="${{ inputs.package-name }}"
-        PACKAGE="${PACKAGE:-${REPO#*/}}"
+        PACKAGE="${PACKAGE:-${GITHUB_REPOSITORY#*/}}"
 
+        . $GITHUB_ACTION_PATH/../../scripts/utils.sh
 
         # Copy plugin files to Packages/<Package> folder if files are checked out.
         if [ "${{ inputs.install-package }}" = "true" ]; then
@@ -157,11 +155,8 @@ runs:
         pwsh $Env:GITHUB_ACTION_PATH/../../scripts/install_package_control.ps1 --verbose
       shell: pwsh
     - run: |
-        . $GITHUB_ACTION_PATH/../../scripts/utils.sh
-        REPO="$(gitRemoteURL)"
-        REPO="${REPO:-$GITHUB_REPOSITORY}"
         PACKAGE="${{ inputs.package-name }}"
-        PACKAGE="${PACKAGE:-${REPO#*/}}"
+        PACKAGE="${PACKAGE:-${GITHUB_REPOSITORY#*/}}"
 
         if [ "${{ inputs.install-package }}" = "true" ]; then
           # package control may have updated the checked out repo, we need to restore it
