@@ -106,8 +106,14 @@ runs:
         bash $GITHUB_ACTION_PATH/../../scripts/block_ip.sh
       shell: bash
     - run: |
+        REMOTEURL=$(git config --get remote.origin.url || true)
+        if [[ "REMOTEURL" =~ ^https://github.com/ ]]; then
+          REPO=${${REMOTEURL#https://github.com/}%\.git}
+        else
+          REPO="$GITHUB_REPOSITORY"
+        fi
         PACKAGE="${{ inputs.package-name }}"
-        PACKAGE="${PACKAGE:-${GITHUB_REPOSITORY#*/}}"
+        PACKAGE="${PACKAGE:-${REPO#*/}}"
 
         . $GITHUB_ACTION_PATH/../../scripts/utils.sh
 
@@ -155,8 +161,14 @@ runs:
         pwsh $Env:GITHUB_ACTION_PATH/../../scripts/install_package_control.ps1 --verbose
       shell: pwsh
     - run: |
+        REMOTEURL=$(git config --get remote.origin.url || true)
+        if [[ "REMOTEURL" =~ ^https://github.com/ ]]; then
+          REPO=${${REMOTEURL#https://github.com/}%\.git}
+        else
+          REPO="$GITHUB_REPOSITORY"
+        fi
         PACKAGE="${{ inputs.package-name }}"
-        PACKAGE="${PACKAGE:-${GITHUB_REPOSITORY#*/}}"
+        PACKAGE="${PACKAGE:-${REPO#*/}}"
 
         if [ "${{ inputs.install-package }}" = "true" ]; then
           # package control may have updated the checked out repo, we need to restore it

@@ -16,8 +16,14 @@ runs:
   using: 'composite'
   steps:
     - run: |
+        REMOTEURL=$(git config --get remote.origin.url || true)
+        if [[ "REMOTEURL" =~ ^https://github.com/ ]]; then
+          REPO=${${REMOTEURL#https://github.com/}%\.git}
+        else
+          REPO="$GITHUB_REPOSITORY"
+        fi
         PACKAGE="${{ inputs.package-name }}"
-        PACKAGE="${PACKAGE:-${GITHUB_REPOSITORY#*/}}"
+        PACKAGE="${PACKAGE:-${REPO#*/}}"
 
         if [ "${{ inputs.coverage }}" == "true" ]; then
           python3 "$GITHUB_ACTION_PATH/../../scripts/run_tests.py" "$PACKAGE" --coverage
