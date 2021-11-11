@@ -24,17 +24,16 @@ jobs:
       - uses: actions/checkout@v2
         with:
           repository: sublimelsp/lsp_utils
-      - run: touch .sublime-dependency
-        shell: bash
-      - uses: SublimeText/UnitTesting/actions/setup@master
+      - uses: SublimeText/UnitTesting/actions/setup@deps
         with:
           package-name: lsp_utils
+          unittesting-version: deps
           extra-packages: |
             sublimelsp/LSP
             sublimelsp/LSP-pyright
       - run: |
           ls -l $SUBLIME_TEXT_PACKAGES/lsp_utils
         shell: bash
-      - uses: SublimeText/UnitTesting/actions/run-tests@master
+      - uses: SublimeText/UnitTesting/actions/run-tests@deps
         with:
           package-name: lsp_utils
