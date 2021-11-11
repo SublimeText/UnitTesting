@@ -1,21 +1,3 @@
-if [ $SUBLIME_TEXT_VERSION -ge 4 ]; then
-    if [ $(uname) = 'Darwin' ]; then
-        STP="$HOME/Library/Application Support/Sublime Text/Packages"
-    elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
-        STP="$HOME/.config/sublime-text/Packages"
-    else
-        STP="/c/st/Data/Packages/"
-    fi
-else
-    if [ $(uname) = 'Darwin' ]; then
-        STP="$HOME/Library/Application Support/Sublime Text $SUBLIME_TEXT_VERSION/Packages"
-    elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
-        STP="$HOME/.config/sublime-text-$SUBLIME_TEXT_VERSION/Packages"
-    else
-        STP="/c/st/Data/Packages/"
-    fi
-fi
-
 gitCloneTag() {
     local URL="$1"
     local TAG="$2"
@@ -34,7 +16,7 @@ gitFetchLatestTagFromRepository() {
 }
 
 InstallPackage() {
-    local DEST="$STP/$1"
+    local DEST="$SUBLIME_TEXT_PACKAGES/$1"
     local URL="$2"
     local PreferredTag="$3"
     if [ -z "$PreferredTag" ]; then

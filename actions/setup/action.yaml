@@ -36,6 +36,12 @@ inputs:
     description: Whether to install package control.
     required: true
     default: true
+  extra-packages:
+    description: |
+      A list of extra packages seperated by newline of the from package:user/repo@tag
+      or just user/repo@tag if the repo name is the same as the repo name.
+    required: false
+
 runs:
   using: 'composite'
   steps:
@@ -46,7 +52,23 @@ runs:
       shell: bash
     - name: Setup SUBLIME_TEXT_PACKAGES
       run: |
-        . $GITHUB_ACTION_PATH/../../scripts/utils.sh
+        if [ $SUBLIME_TEXT_VERSION -ge 4 ]; then
+            if [ $(uname) = 'Darwin' ]; then
+                STP="$HOME/Library/Application Support/Sublime Text/Packages"
+            elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
+                STP="$HOME/.config/sublime-text/Packages"
+            else
+                STP="/c/st/Data/Packages/"
+            fi
+        else
+            if [ $(uname) = 'Darwin' ]; then
+                STP="$HOME/Library/Application Support/Sublime Text $SUBLIME_TEXT_VERSION/Packages"
+            elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
+                STP="$HOME/.config/sublime-text-$SUBLIME_TEXT_VERSION/Packages"
+            else
+                STP="/c/st/Data/Packages/"
+            fi
+        fi
         echo "SUBLIME_TEXT_PACKAGES=$STP" >> $GITHUB_ENV
       shell: bash
     - run: |
@@ -104,6 +126,24 @@ runs:
         if [ "${{ inputs.install-coverage }}" = "true" ]; then
             InstallPackage "coverage" "https://github.com/codexns/sublime-coverage" "${{ inputs.coverage-version }}"
         fi
+
+        while read -r x; do
+            if [[ "$x" =~ ^(.*):(.*)/(.*)@(.*)$ ]]; then
+                PKG="${BASH_REMATCH[1]}"
+                USER="${BASH_REMATCH[2]}"
+                REPO="${BASH_REMATCH[3]}"
+                SHA="${BASH_REMATCH[4]}"
+            elif [[ "$x" =~ ^(.*)/(.*)@(.*)$ ]]; then
+                PKG="${BASH_REMATCH[3]}"
+                USER="${BASH_REMATCH[1]}"
+                REPO="${BASH_REMATCH[3]}"
+                SHA="${BASH_REMATCH[4]}"
+            else
+              continue
+            fi
+            InstallPackage "$PKG" "https://github.com/$USER/$REPO" "$SHA"
+        done <<< "${{ inputs.extra-packages }}"
+
       shell: bash
     - if: (runner.os == 'Linux' || runner.os == 'macOS') && inputs.install-package-control == 'true'
       run: |

@@ -47,3 +47,22 @@ jobs:
           sublime-text-version: ${{ matrix.st-version }}
           install-package: false
       - uses: "./actions/run-tests"
+
+  test-install-extra-packages:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ["ubuntu-latest", "windows-latest"]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: "./actions/setup"
+        with:
+          install-package: false
+          install-unittesting: false
+          extra-packages: |
+            SublimeText/UnitTesting@master
+            randy3k/UnitTesting-example@master
+      - uses: "./actions/run-tests"
+        with:
+          pakcage-name: UnitTesting-example
