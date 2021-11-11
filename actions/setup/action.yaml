@@ -39,7 +39,8 @@ inputs:
   extra-packages:
     description: |
       A list of extra packages seperated by newline of the from package:user/repo@tag
-      or just user/repo@tag if the repo name is the same as the repo name.
+      or just user/repo@tag if the repo name is the same as the repo name. "@tag" can
+      be also be skipped to install the latest tag (assume sem-ver tags are used).
     required: false
 
 runs:
@@ -128,12 +129,12 @@ runs:
         fi
 
         while read -r x; do
-            if [[ "$x" =~ ^(.*):(.*)/(.*)@(.*)$ ]]; then
+            if [[ "$x" =~ ^(.*):(.*)/([^@]*)@?(.*)$ ]]; then
                 PKG="${BASH_REMATCH[1]}"
                 USER="${BASH_REMATCH[2]}"
                 REPO="${BASH_REMATCH[3]}"
                 SHA="${BASH_REMATCH[4]}"
-            elif [[ "$x" =~ ^(.*)/(.*)@(.*)$ ]]; then
+            elif [[ "$x" =~ ^(.*)/([^@]*)@?(.*)$ ]]; then
                 PKG="${BASH_REMATCH[2]}"
                 USER="${BASH_REMATCH[1]}"
                 REPO="${BASH_REMATCH[2]}"

@@ -61,8 +61,8 @@ jobs:
           install-package: false
           install-unittesting: false
           extra-packages: |
-            SublimeText/UnitTesting@master
+            SublimeText/UnitTesting
             randy3k/UnitTesting-example@master
       - uses: "./actions/run-tests"
         with:
-          pakcage-name: UnitTesting-example
+          package-name: UnitTesting-example
