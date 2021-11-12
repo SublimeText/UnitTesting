@@ -59,7 +59,7 @@ PCH_PATH="$STP/0_install_package_control_helper"
 if [ ! -d "$PCH_PATH" ]; then
     mkdir -p "$PCH_PATH"
     BASE=`dirname "$0"`
-    cp "$BASE"/install_package_control_helper.py.py "$PCH_PATH"/install_package_control_helper.py.py
+    cp "$BASE"/install_package_control_helper.py "$PCH_PATH"/install_package_control_helper.py
 fi
 
 
