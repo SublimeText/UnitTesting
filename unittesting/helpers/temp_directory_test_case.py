@@ -12,7 +12,13 @@ class TempDirectoryTestCase(DeferrableTestCase):
 
     @classmethod
     def setUpClass(cls):
-        """Create a temp directory for testing."""
+        """
+            Create a temp directory for testing.
+            Note that it is a generator, if you need to extend this method, you will
+            need to called
+                yield from super().setUpClass()
+            from the subclass.
+        """
         cls._temp_dir = tempfile.mkdtemp()
         nwindows = len(sublime.windows())
         original_window_id = sublime.active_window().id()
