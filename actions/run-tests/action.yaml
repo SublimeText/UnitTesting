@@ -25,12 +25,12 @@ runs:
           python3 "$GITHUB_ACTION_PATH/../../scripts/run_tests.py" "$PACKAGE"
         fi
       shell: bash
-    - if: inputs.codecov == 'true'
+    - if: inputs.codecov-upload == 'true'
       run: |
         if [ -f ./.coverage ]; then
           pip3 install coverage==4.5.4
           coverage xml -o coverage.xml
         fi
       shell: bash
-    - if: inputs.codecov == 'true'
+    - if: inputs.codecov-upload == 'true'
       uses: codecov/codecov-action@v2
