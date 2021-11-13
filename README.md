@@ -89,28 +89,8 @@ jobs:
 ```
 Check [this](https://github.com/randy3k/UnitTesting-example) for an example.
 
-## Options
 
-### Use a different test directory
-
-The default test directory is "tests". To change the test directory, add a
-file `unittesting.json` to your repo with the corresponding directory name, eg
-`unittest`:
-
-```
-    "tests_dir" : "unittest"
-```
-
-### Redirect test result to a file
-
-The test result could be redirected to a file by specifying the `output`
-variable in `unittesting.json`.
-
-```
-    "output" : "foo.txt"
-```
-
-### Deferred testing
+## Deferred testing
 
 Tests can be written using the Deferrable testcase, such that you are
 able to run sublime commands from your test cases and yield control to sublime
@@ -134,6 +114,26 @@ the following
 - Otherwise, the `yield` statement would yeild to any queued jobs.
 
 An example would be found in [here](https://github.com/randy3k/UnitTesting-example/blob/master/tests/test_defer.py).
+
+
+## Options
+
+UnitTesting could be configured by providing the following settings in `unittesting.json`
+
+| name                        | description                                                         | default value |
+| ----                        | ---                                                                 | ----          |
+| tests_dir                   | the name of the directory containing the tests                      | "tests"       |
+| pattern                     | the pattern to discover tests                                       | "test*.py"    |
+| deferred                    | whether to use deferred test runner                                 | true          |
+| verbosity                   | verbosity level                                                     | 2             |
+| output                      | name of the test output instead of showing <br> in the panel        | nil           |
+| show_reload_progress        | self explained                                                      | true          |
+| reload_package_on_testing   | reloading package will increase coverage rate                       | true          |
+| start_coverage_after_reload | self explained, irrelevent if  `reload_package_on_testing` is false | false         |
+| coverage_on_worker_thread   | (experimental)                                                      | false         |
+| generate_html_report        | generate coverage report for coverage                               | false         |
+| capture_console             | capture stdout and stderr in the test output                        | false         |
+| failfast                    | stop early if a test fails                                          | false         |
 
 ## Others
 

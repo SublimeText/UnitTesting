@@ -23,7 +23,7 @@ DEFAULT_SETTINGS = {
     "reload_package_on_testing": True,
     "show_reload_progress": True,
     "start_coverage_after_reload": False,
-    "start_coverage_on_worker_thread": False,  # experimental
+    "coverage_on_worker_thread": False,  # experimental
     "generate_html_report": False,
     "capture_console": False,
     "failfast": False

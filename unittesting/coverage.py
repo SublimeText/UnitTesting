@@ -49,7 +49,7 @@ class UnitTestingCoverageCommand(UnitTestingCommand):
             if settings['start_coverage_after_reload']:
                 cov.start()
 
-            if settings['start_coverage_on_worker_thread']:
+            if settings['coverage_on_worker_thread']:
                 import threading
                 original_set_timeout_async = sublime.set_timeout_async
 
@@ -64,7 +64,7 @@ class UnitTestingCoverageCommand(UnitTestingCommand):
                 sublime.set_timeout_async = set_timeout_async
 
             def cleanup():
-                if settings['start_coverage_on_worker_thread']:
+                if settings['coverage_on_worker_thread']:
                     sublime.set_timeout_async = original_set_timeout_async
 
                 stream.write("\n")
