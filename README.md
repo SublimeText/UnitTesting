@@ -108,10 +108,17 @@ the following
   runner continues the generator, if not, the runner will wait until the
   condition is met.
 
-- If the yielded object is an integer, say `x`, then it will [continue][4] the
+- the yielded object could be also a dictionary of the form `{"condition": callable, timeout: timeout}` 
+  to specify timeout.
+
+- if the yielded object is an integer, say `x`, then it will [continue][4] the
   generator after `x` ms.
 
-- Otherwise, the `yield` statement would yeild to any queued jobs.
+- `yield AWAIT_WORKER` would yield to a task in the worker thread.
+
+- otherwise, `yield` would yield to a task in the main thread.
+
+
 
 An example would be found in [here](https://github.com/randy3k/UnitTesting-example/blob/master/tests/test_defer.py).
 
@@ -155,7 +162,7 @@ It is recommended to add the following in your `.sublime-project` file so that <
 Thanks [guillermooo](https://github.com/guillermooo) and [philippotto](https://github.com/philippotto) for their early efforts in AppVeyor and Travis CI macOS support (though these services are not supported now).
 
 
-[1]: https://github.com/randy3k/UnitTesting/blob/dc810ee334bb031710b859478faaf50293880995/unittesting/core/st3/runner.py#L49
-[2]: https://github.com/randy3k/UnitTesting/blob/dc810ee334bb031710b859478faaf50293880995/unittesting/core/st3/runner.py#L7
-[3]: https://github.com/randy3k/UnitTesting/blob/dc810ee334bb031710b859478faaf50293880995/unittesting/core/st3/runner.py#L49
-[4]: https://github.com/randy3k/UnitTesting/blob/dc810ee334bb031710b859478faaf50293880995/unittesting/core/st3/runner.py#L57
+[1]: https://github.com/SublimeText/UnitTesting/blob/60e15d42d6ff96156408aec1999d6a16ddcf8e03/unittesting/core/py33/case.py#L22
+[2]: https://github.com/SublimeText/UnitTesting/blob/60e15d42d6ff96156408aec1999d6a16ddcf8e03/unittesting/core/py33/runner.py#L21
+[3]: https://github.com/SublimeText/UnitTesting/blob/60e15d42d6ff96156408aec1999d6a16ddcf8e03/unittesting/core/py33/runner.py#L65
+[4]: https://github.com/SublimeText/UnitTesting/blob/60e15d42d6ff96156408aec1999d6a16ddcf8e03/unittesting/core/py33/runner.py#L72
