@@ -49,8 +49,7 @@ inputs:
   display:
     description: |
       Virtual display used to to open Sublime Text headlessly in Ubuntu. Possible values
-      are "xvfb" and "turbovnc". Turbovnc supports graphic acceleration which may be
-      neccessary in some cases.
+      are "xvfb" and "turbovnc".
     required: true
     default: xvfb
 
