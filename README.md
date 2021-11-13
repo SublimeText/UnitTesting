@@ -152,7 +152,7 @@ It is recommended to add the following in your `.sublime-project` file so that <
 ```
 
 ### Credits
-Thanks [guillermooo](https://github.com/guillermooo) and [philippotto](https://github.com/philippotto) for their efforts in AppVeyor and Travis CI macOS support.
+Thanks [guillermooo](https://github.com/guillermooo) and [philippotto](https://github.com/philippotto) for their early efforts in AppVeyor and Travis CI macOS support (though these services are not supported now).
 
 
 [1]: https://github.com/randy3k/UnitTesting/blob/dc810ee334bb031710b859478faaf50293880995/unittesting/core/st3/runner.py#L49
