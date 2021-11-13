@@ -99,7 +99,7 @@ runs:
           sudo chmod +x /etc/init.d/xvfb
         else
           sudo apt-get update
-          sudo apt-get install gnome-session
+          sudo apt-get install gnome-control-center
           wget https://phoenixnap.dl.sourceforge.net/project/turbovnc/2.2.5/turbovnc_2.2.5_amd64.deb
           sudo dpkg -i turbovnc_2.2.5_amd64.deb
           echo "/opt/TurboVNC/bin" >> $GITHUB_PATH
