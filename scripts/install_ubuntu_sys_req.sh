@@ -5,6 +5,7 @@ set -e
 apt-get update
 apt-get install --no-install-recommends -y \
     xvfb \
+    icewm \
     libglib2.0-0 \
     libgtk-3-0 \
     psmisc \

@@ -109,6 +109,7 @@ runs:
       run: |
         if [ "${{ inputs.display }}" = "xvfb" ]; then
           sudo sh -e /etc/init.d/xvfb start
+          icewm &
         else
           mkdir $HOME/.vnc
           echo $RANDOM$RANDOM | vncpasswd -f > $HOME/.vnc/passwd
