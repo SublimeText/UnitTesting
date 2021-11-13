@@ -97,8 +97,6 @@ runs:
           sudo cp $GITHUB_ACTION_PATH/../../scripts/xvfb /etc/init.d/xvfb
           sudo chmod +x /etc/init.d/xvfb
         else
-          sudo apt-get update
-          sudo apt-get install ubuntu-session
           wget https://phoenixnap.dl.sourceforge.net/project/turbovnc/2.2.5/turbovnc_2.2.5_amd64.deb
           sudo dpkg -i turbovnc_2.2.5_amd64.deb
           echo "/opt/TurboVNC/bin" >> $GITHUB_PATH
@@ -113,7 +111,7 @@ runs:
           mkdir $HOME/.vnc
           echo $RANDOM$RANDOM | vncpasswd -f > $HOME/.vnc/passwd
           chmod 0600 $HOME/.vnc/passwd
-          vncserver $DISPLAY -geometry 1024x768 -depth 16 -rfbport 7582
+          vncserver $DISPLAY -geometry 1024x768 -depth 16 -rfbport 7582 -wm "icewm"
         fi
       shell: bash
     - if: runner.os == 'Linux' || runner.os == 'macOS'
