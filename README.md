@@ -104,19 +104,19 @@ functions, but also generators. If the test function is a generator, it does
 the following
 
 - if the yielded object is a callable, the runner will evaluate the
-  [callable][3] and check its returned value. If the result is `True`, the
-  runner continues the generator, if not, the runner will wait until the
-  condition is met.
-
-- the yielded object could be also a dictionary of the form `{"condition": callable, timeout: timeout}` 
-  to specify timeout.
+  [callable][3] and check its returned value. If the result is not `None`, 
+  the runner continues the generator, if not, the runner will wait until the
+  condition is met with the default timeout of 4s. The result of the callable
+  can be also retrieved from the `yield` statement. The yielded object could 
+  be also a dictionary of the form `{"condition": callable, timeout: timeout}` 
+  to specify timeout in ms.
 
 - if the yielded object is an integer, say `x`, then it will [continue][4] the
   generator after `x` ms.
 
 - `yield AWAIT_WORKER` would yield to a task in the worker thread.
 
-- otherwise, `yield` would yield to a task in the main thread.
+- otherwise, a single `yield` would yield to a task in the main thread.
 
 
 
