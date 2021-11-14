@@ -42,9 +42,9 @@ inputs:
     default: true
   extra-packages:
     description: |
-      A list of extra packages seperated by newline of the form package:user/repo@tag
-      or just user/repo@tag if the repo name is the same as the repo name. "@tag" can
-      be also be skipped to install the latest tag (assume sem-ver tags are used).
+      A list of extra packages seperated by newline of the form `package:user/repo@ref`
+      or just `user/repo@ref` if the repo name is the same as the repo name. `ref` could
+      be either a branch name, a tag name , or a prefix of tags e.g. `st3-`.
     required: false
   display:
     description: |
