@@ -94,9 +94,6 @@ runs:
         sudo bash $GITHUB_ACTION_PATH/../../scripts/install_ubuntu_sys_req.sh
         echo "DISPLAY=:1" >> $GITHUB_ENV
         if [ "${{ inputs.display }}" = "xvfb" ]; then
-          sudo cp $GITHUB_ACTION_PATH/../../scripts/xvfb /etc/init.d/xvfb
-          sudo chmod +x /etc/init.d/xvfb
-        else
           wget https://phoenixnap.dl.sourceforge.net/project/turbovnc/2.2.5/turbovnc_2.2.5_amd64.deb
           sudo dpkg -i turbovnc_2.2.5_amd64.deb
           echo "/opt/TurboVNC/bin" >> $GITHUB_PATH
@@ -105,7 +102,7 @@ runs:
     - if: runner.os == 'Linux'
       run: |
         if [ "${{ inputs.display }}" = "xvfb" ]; then
-          sudo sh -e /etc/init.d/xvfb start
+          Xvfb $DISPLAY -screen 0 1024x768x24 -ac +extension GLX +render -noreset &
           icewm &
         else
           mkdir $HOME/.vnc
