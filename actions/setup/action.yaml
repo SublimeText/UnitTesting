@@ -43,8 +43,9 @@ inputs:
   extra-packages:
     description: |
       A list of extra packages seperated by newline of the form `package:user/repo@ref`
-      or just `user/repo@ref` if the repo name is the same as the repo name. `ref` could
-      be either a branch name, a tag name , or a prefix of tags e.g. `st3-`.
+      or just `user/repo@ref` if the repo name is the same as the repo name. `@ref` could
+      be either a branch name, a tag name , or a prefix of tags e.g. `st3-` or simply left
+      empty. If an exact match is not found, the latest tag is determined by semver x.y.z.
     required: false
   display:
     description: |
