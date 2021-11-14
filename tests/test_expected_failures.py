@@ -18,29 +18,29 @@ class TestExpectedFailures(DeferrableTestCase):
     def test_direct_failure2(self):
         self.assertTrue(False)
 
-    @skipIf(sublime.version() >= '4000', "not applicable in Python 3.8")
     def test_expected_failure_coroutine(self):
         @expectedFailure
         def testitem():
             yield
             1 / 0
 
+        ex = ZeroDivisionError if sublime.version() >= "4000" else _ExpectedFailure
         try:
             yield from testitem()
-        except _ExpectedFailure:
+        except ex:
             pass
         else:
             self.fail('Expected _ExpectedFailure')
 
-    @skipIf(sublime.version() >= '4000', "not applicable in Python 3.8")
     def test_expected_failure(self):
         @expectedFailure
         def testitem():
             1 / 0
 
+        ex = ZeroDivisionError if sublime.version() >= "4000" else _ExpectedFailure
         try:
             yield from testitem()
-        except _ExpectedFailure:
+        except ex:
             pass
         else:
             self.fail('Expected _ExpectedFailure')
