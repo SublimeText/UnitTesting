@@ -108,7 +108,7 @@ runs:
           mkdir $HOME/.vnc
           echo $RANDOM$RANDOM | vncpasswd -f > $HOME/.vnc/passwd
           chmod 0600 $HOME/.vnc/passwd
-          vncserver $DISPLAY -geometry 1024x768 -depth 16 -rfbport 7582 -wm "icewm"
+          vncserver $DISPLAY -geometry 1024x768 -depth 24 -wm "icewm"
         fi
       shell: bash
     - if: runner.os == 'Linux' || runner.os == 'macOS'
