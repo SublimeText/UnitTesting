@@ -106,9 +106,9 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand, UnitTestingMixin):
             # force clean up
             testRunner = None
         finally:
-            def cleanup(status=0):
+            def cleanup():
                 if not settings["deferred"] or not testRunner or \
-                        testRunner.finished or status > 600:
+                        testRunner.finished:
                     self.remove_test_modules(package, settings["tests_dir"])
                     progress_bar.stop()
 
@@ -137,6 +137,6 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand, UnitTestingMixin):
                         # remove stream set by logging.root.addHandler
                         logging.root.removeHandler(handler)
                 else:
-                    sublime.set_timeout(lambda: cleanup(status + 1), 500)
+                    sublime.set_timeout(lambda: cleanup(), 500)
 
             cleanup()
