@@ -113,9 +113,9 @@ runs:
           Xvfb $DISPLAY -screen 0 1024x768x24 -ac +extension GLX +render -noreset &
           sleep 1
           if [ "${{ inputs.window-manager }}" = "icewm" ]; then
-            icewm &
+            nohup icewm &
           elif [ "${{ inputs.window-manager }}" = "fluxbox" ]; then
-            fluxbox &
+            nohup fluxbox &
           fi
         elif [ "${{ inputs.display }}" = "turbovnc" ]; then
           mkdir $HOME/.vnc
