@@ -4,11 +4,11 @@ set -e
 
 apt-get update
 apt-get install --no-install-recommends -y \
-    xvfb \
     libglib2.0-0 \
     libgtk-3-0 \
     psmisc \
-    locales locales-all
+    locales \
+    locales-all
 
 
 if [ "$SUBLIME_TEXT_ARCH" = "x32" ]; then
