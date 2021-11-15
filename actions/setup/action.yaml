@@ -102,7 +102,7 @@ runs:
           echo "/opt/TurboVNC/bin" >> $GITHUB_PATH
         fi
         if [ "${{ inputs.window-manager }}" = "xfce" ]; then
-          sudo apt-get install xfce4 xfce4-goodies
+          sudo apt-get install --no-install-recommends xfce4 xfce4-goodies
         elif [ "${{ inputs.window-manager }}" = "icewm" ]; then
           sudo apt-get install icewm
         elif [ "${{ inputs.window-manager }}" = "fluxbox" ]; then
