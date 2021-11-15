@@ -16,8 +16,13 @@ class TempDirectoryTestCase(DeferrableTestCase):
             Create a temp directory for testing.
             Note that it is a generator, if you need to extend this method, you will
             need to called
+
                 yield from super().setUpClass()
-            from the subclass.
+
+            from the subclass. If the subclass has multiple parents, `super().setUpClass`
+            may not be a generator at all, you might want to run setUpClass manually
+
+                yield from TempDirectoryTestCase.setUpClass.__func__(cls)
         """
         cls._temp_dir = tempfile.mkdtemp()
         nwindows = len(sublime.windows())
