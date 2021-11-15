@@ -27,5 +27,6 @@ InstallPackage() {
     if [ ! -d "$dest" ]; then
         mkdir -p "$dest"
         git clone --quiet --depth 1 --branch "$tag" "$url" "$dest"
+        rm -rf "$dest/.git"
     fi
 }
