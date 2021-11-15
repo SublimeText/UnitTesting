@@ -107,6 +107,7 @@ runs:
         if [ "${{ inputs.display }}" = "xvfb" ]; then
           Xvfb $DISPLAY -screen 0 1024x768x24 -ac +extension GLX +render -noreset &
           if [ "${{ inputs.window-manager }}" = "icewm" ]; then
+            sleep 3
             icewm &
           fi
         elif [ "${{ inputs.display }}" = "turbovnc" ]; then
