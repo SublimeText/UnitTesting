@@ -54,7 +54,7 @@ inputs:
   window-manager:
     description: internal and experimental only
     required: true
-    default: "icewm"
+    default: "fluxbox"
 
 runs:
   using: 'composite'
