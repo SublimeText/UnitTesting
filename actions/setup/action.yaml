@@ -101,21 +101,28 @@ runs:
           sudo dpkg -i turbovnc_2.2.5_amd64.deb
           echo "/opt/TurboVNC/bin" >> $GITHUB_PATH
         fi
+        if [ "${{ inputs.window-manager }}" = "icewm" ]; then
+          sudo apt-get install icewm
+        elif [ "${{ inputs.window-manager }}" = "fluxbox" ]; then
+          sudo apt-get install fluxbox
+        fi
       shell: bash
     - if: runner.os == 'Linux'
       run: |
         if [ "${{ inputs.display }}" = "xvfb" ]; then
           Xvfb $DISPLAY -screen 0 1024x768x24 -ac +extension GLX +render -noreset &
+          sleep 1
           if [ "${{ inputs.window-manager }}" = "icewm" ]; then
-            sleep 1
             icewm &
+          elif [ "${{ inputs.window-manager }}" = "fluxbox" ]; then
+            fluxbox &
           fi
         elif [ "${{ inputs.display }}" = "turbovnc" ]; then
           mkdir $HOME/.vnc
           echo $RANDOM$RANDOM | vncpasswd -f > $HOME/.vnc/passwd
           chmod 0600 $HOME/.vnc/passwd
-          if [ "${{ inputs.window-manager }}" = "icewm" ]; then
-            vncserver $DISPLAY -geometry 1024x768 -depth 24 -wm "icewm"
+          if [ -n "${{ inputs.window-manager }}" ]; then
+            vncserver $DISPLAY -geometry 1024x768 -depth 24 -wm "${{ inputs.window-manager }}"
           else
             vncserver $DISPLAY -geometry 1024x768 -depth 24
           fi
