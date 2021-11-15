@@ -50,6 +50,8 @@ __all__ = [
 
 
 def plugin_loaded():
+    import json
+
     if sys.version_info >= (3, 8):
         UT33 = os.path.join(sublime.packages_path(), "UnitTesting33")
         if not os.path.exists(UT33):
@@ -58,9 +60,12 @@ def plugin_loaded():
         with open(os.path.join(UT33, "ut.py"), 'w') as f:
             f.write(data.replace("\r\n", "\n"))
         with open(os.path.join(UT33, ".package_reloader.json"), 'w') as f:
-            f.write("{\"dependencies\" : [\"UnitTesting\"]}")
+            f.write(json.dumps({
+                "dependencies": ["UnitTesting"],
+                "extra_modules": ["unittesting.helpers"]
+            }))
         with open(os.path.join(UT33, "dependencies.json"), 'w') as f:
-            f.write("""{"*": {">3000": ["coverage"] } }""")
+            f.write(json.dumps({"*": {">3000": ["coverage"]}}))
 
 
 def plugin_unloaded():
