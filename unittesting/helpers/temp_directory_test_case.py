@@ -13,6 +13,11 @@ class TempDirectoryTestCase(DeferrableTestCase):
 
     @classmethod
     def setWindowFolder(cls):
+        project_data = cls.window.project_data() or {}
+        folders = project_data.get("folders", [])
+        if len(folders) == 1 and folders[0]["path"] == cls._temp_dir:
+            return
+
         project_data = {"folders": [{"path": cls._temp_dir}]}
         cls.window.set_project_data(project_data)
 
