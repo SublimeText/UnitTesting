@@ -54,8 +54,7 @@ inputs:
   window-manager:
     description: internal and experimental only
     required: true
-    default: "fluxbox"
-
+    default: icevm
 runs:
   using: 'composite'
   steps:
@@ -104,12 +103,14 @@ runs:
           sudo dpkg -i turbovnc_2.2.5_amd64.deb
           echo "/opt/TurboVNC/bin" >> $GITHUB_PATH
         fi
-        if [ "${{ inputs.window-manager }}" = "xfce" ]; then
-          sudo apt-get install --no-install-recommends xfce4 xfce4-goodies dbus-x11
-        elif [ "${{ inputs.window-manager }}" = "icewm" ]; then
-          sudo apt-get install icewm
-        elif [ "${{ inputs.window-manager }}" = "fluxbox" ]; then
-          sudo apt-get install fluxbox
+        if [ "${{ inputs.display }}" != "false" ]; then
+          if [ "${{ inputs.window-manager }}" = "xfce" ]; then
+            sudo apt-get install --no-install-recommends xfce4 xfce4-goodies dbus-x11
+          elif [ "${{ inputs.window-manager }}" = "icewm" ]; then
+            sudo apt-get install icewm
+          elif [ "${{ inputs.window-manager }}" = "fluxbox" ]; then
+            sudo apt-get install fluxbox
+          fi
         fi
       shell: bash
     - if: runner.os == 'Linux'
