@@ -131,10 +131,10 @@ runs:
           chmod 0600 $HOME/.vnc/passwd
           if [ "${{ inputs.window-manager }}" = "xfce" ]; then
             vncserver $DISPLAY -geometry 1024x768 -depth 24 -wm "startxfce4"
-          elif [ -n "${{ inputs.window-manager }}" ]; then
-            vncserver $DISPLAY -geometry 1024x768 -depth 24 -wm "${{ inputs.window-manager }}"
-          else
+          elif [ "${{ inputs.window-manager }}" = "false" ]; then
             vncserver $DISPLAY -geometry 1024x768 -depth 24
+          else
+            vncserver $DISPLAY -geometry 1024x768 -depth 24 -wm "${{ inputs.window-manager }}"
           fi
         fi
       shell: bash
