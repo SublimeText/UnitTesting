@@ -13,8 +13,7 @@ jobs:
         with:
           access_token: ${{ github.token }}
 
-  # test against dev version of UnitTesting
-  run-tests:
+  test-both-actions-and-package:
     strategy:
       fail-fast: false
       matrix:
@@ -32,23 +31,33 @@ jobs:
           coverage: true
           codecov-upload: true
 
-  # test against latest released UnitTesting
-  test-actions-aginst-latest:
+  test-actions:  # with latest released unittesting
     strategy:
       fail-fast: false
       matrix:
-        st-version: [3, 4]
         os: ["ubuntu-latest", "macOS-latest", "windows-latest"]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
       - uses: "./actions/setup"
         with:
-          sublime-text-version: ${{ matrix.st-version }}
           install-package: false
       - uses: "./actions/run-tests"
 
-  test-install-extra-packages-and-package-path:
+  test-package:  # with v1 actions
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ["ubuntu-latest", "macOS-latest", "windows-latest"]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: SublimeText/UnitTesting/actions/setup@v1
+        with:
+          install-unittesting: false
+      - uses: SublimeText/UnitTesting/actions/setup@v1
+
+  test-as-extra-package:
     strategy:
       fail-fast: false
       matrix:
