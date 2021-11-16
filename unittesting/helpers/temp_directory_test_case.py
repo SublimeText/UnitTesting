@@ -9,6 +9,21 @@ class TempDirectoryTestCase(DeferrableTestCase):
     """Create a temp directory and open it."""
 
     _temp_dir = None
+    window = None
+
+    @classmethod
+    def setWindowFolder(cls):
+        project_data = {"folders": [{"path": cls._temp_dir}]}
+        cls.window.set_project_data(project_data)
+
+        def condition():
+            for d in cls.window.folders():
+                # on Windows, `cls._temp_dir` is lowered cased,
+                # `os.path.normcase` is needed for comparison.
+                if cls._temp_dir.lower() == os.path.normcase(d).lower():
+                    return True
+
+        yield condition
 
     @classmethod
     def setUpClass(cls):
@@ -35,17 +50,7 @@ class TempDirectoryTestCase(DeferrableTestCase):
 
         cls.window = sublime.active_window()
 
-        project_data = dict(folders=[dict(follow_symlinks=True, path=cls._temp_dir)])
-        cls.window.set_project_data(project_data)
-
-        def condition():
-            for d in cls.window.folders():
-                # on Windows, `cls._temp_dir` is lowered cased,
-                # `os.path.normcase` is needed for comparison.
-                if cls._temp_dir.lower() == os.path.normcase(d).lower():
-                    return True
-
-        yield condition
+        yield from cls.setWindowFolder()
 
     @classmethod
     def tearDownClass(cls):
