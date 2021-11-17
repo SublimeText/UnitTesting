@@ -1,3 +1,8 @@
+# 1.5.7
+
+  - tearDownClass of TempDirectoryTestCase is now a generator
+  - add OverridePreferencesTestCase
+
 # 1.5.6
    - Use deferred runner in default
    - Improve coverage support in ST 4
