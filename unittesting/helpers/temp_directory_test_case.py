@@ -35,14 +35,12 @@ class TempDirectoryTestCase(DeferrableTestCase):
         """
             Create a temp directory for testing.
             Note that it is a generator, if you need to extend this method, you will
-            need to called
+            need to call
 
                 yield from super().setUpClass()
 
-            from the subclass. If the subclass has multiple parents, `super().setUpClass`
-            may not be a generator at all, you might want to run setUpClass manually
-
-                yield from TempDirectoryTestCase.setUpClass.__func__(cls)
+            from the subclass. Note that if the subclass has multiple parents,
+            `super().setUpClass` may not be a generator at all depends on the order.
         """
         cls._temp_dir = tempfile.mkdtemp()
         nwindows = len(sublime.windows())
@@ -57,6 +55,10 @@ class TempDirectoryTestCase(DeferrableTestCase):
 
         yield from cls.setWindowFolder()
 
+        x = super().setUpClass()
+        if hasattr(x, '__iter__'):
+            yield from x
+
     @classmethod
     def tearDownClass(cls):
         # need at least one window in order to keep sublime running
@@ -70,3 +72,7 @@ class TempDirectoryTestCase(DeferrableTestCase):
                     print("Cannot remove {}".format(cls._temp_dir))
 
             sublime.set_timeout(remove_temp_dir, 1000)
+
+        x = super().tearDownClass()
+        if hasattr(x, '__iter__'):
+            yield from x

@@ -33,6 +33,10 @@ class OverridePreferencesTestCase(DeferrableTestCase):
             yield 500
             s.clear_on_change(on_change_key)
 
+        x = super().setUpClass()
+        if hasattr(x, '__iter__'):
+            yield from x
+
     @classmethod
     def tearDownClass(cls):
         for settings_file_name, settings in cls.override_preferences.items():
@@ -45,3 +49,7 @@ class OverridePreferencesTestCase(DeferrableTestCase):
                     os.unlink(settings_path)
                 except Exception:
                     pass
+
+        x = super().tearDownClass()
+        if hasattr(x, '__iter__'):
+            yield from x
