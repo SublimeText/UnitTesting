@@ -3,6 +3,7 @@ name: merge-v1
 on:
   push:
     tags:
+      - '*'
 
 jobs:
   merge-branch:
