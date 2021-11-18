@@ -78,3 +78,4 @@ jobs:
           extra-packages: |
             SublimeText/UnitTesting
       - uses: "./UnitTesting/actions/run-tests"
+      - uses: "./UnitTesting/actions/run-syntax-tests"
