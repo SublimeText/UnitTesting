@@ -104,6 +104,12 @@ if [ $(uname) = 'Darwin'  ]; then
             echo '{"close_windows_when_empty": false }' > "$STP/User/Preferences.sublime-settings"
         fi
 
+        # Workaround for an issue on macOS 11 where opening the app would
+        # randomly fail with kLSNoExecutableErr.
+        # See https://github.com/SublimeText/UnitTesting/issues/200
+        /System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister \
+            -f "$HOME/Applications/$SUBLIME_TEXT.app"
+
         # make `subl` available
         open "$HOME/Applications/$SUBLIME_TEXT.app"
         sleep 2
