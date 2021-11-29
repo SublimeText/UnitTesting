@@ -1,4 +1,4 @@
-name: merge-v1
+name: merge-to-v1
 
 on:
   push:
@@ -6,13 +6,17 @@ on:
       - '*'
 
 jobs:
-  merge-branch:
+  merge-to-v1:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: everlytic/branch-merge@1.1.2
+      - uses: actions/github-script@v5
         with:
-          github_token: ${{ github.token }}
-          source_ref: ${{ github.ref }}
-          target_branch: v1
-          commit_message_template: 'Merged {source_ref} into {target_branch}'
+          script: |
+            await github.rest.repos.merge({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              base: "v1",
+              head: context.sha,
+              commit_message: "Merge to v1"
+            });
