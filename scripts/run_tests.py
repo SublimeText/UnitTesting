@@ -15,6 +15,7 @@ import shutil
 import subprocess
 import sys
 import time
+import threading
 
 # todo: allow different sublime versions
 
@@ -108,9 +109,12 @@ def kill_sublime_text():
         subprocess.Popen("pkill plugin_host || true", shell=True)
 
 
-def read_output(path):
+def read_output(path, timeout=5 * 60):
     # todo: use notification instead of polling
     success = None
+    done = False
+    lines = []
+    linebuffer = [""]
 
     def check_is_success(result):
         try:
@@ -118,26 +122,54 @@ def read_output(path):
         except AttributeError:
             return success
 
-    def check_is_done(result):
-        return RX_DONE.search(result) is not None
+    lock = threading.Lock()
 
-    with open(path, 'r') as f:
-        while True:
-            offset = f.tell()
-            result = f.read()
+    def reader():
+        with open(path, 'r') as f:
+            while not done:
+                offset = f.tell()
+                line = f.readline()
+                if line.endswith("\n"):
+                    with lock:
+                        lines.append(line)
+                else:
+                    with lock:
+                        linebuffer[0] = line
+                    f.seek(offset)
+                    time.sleep(0.2)
 
-            print(result, end="")
+    # run the reader in thread to avoid blocking
+    t = threading.Thread(target=reader)
+    t.start()
+    last_update_time = time.time()
 
-            # Keep checking while we don't have a definite result.
-            success = check_is_success(result)
+    while not done:
+        if time.time() - last_update_time > timeout:
+            with lock:
+                print(linebuffer[0])
+            done = True
+            raise TimeoutError()
 
-            if check_is_done(result):
-                assert success is not None, 'final test result must not be None'
-                break
-            elif not result:
-                f.seek(offset)
+        # consume one line
+        with lock:
+            if lines:
+                last_update_time = time.time()
+                line = lines.pop(0)
+            else:
+                line = None
 
+        if line is None:
             time.sleep(0.2)
+            continue
+
+        print(line, end="")
+        # Keep checking while we don't have a definite result.
+        success = check_is_success(line)
+
+        if RX_DONE.search(line) is not None:
+            done = True
+            assert success is not None, 'Cannot determine test results.'
+            break
 
     return success
 
@@ -183,7 +215,12 @@ def main(default_schedule_info):
             time.sleep(2)
 
     print("Start to read output...")
-    if not read_output(output_file):
+    try:
+        if not read_output(output_file):
+            sys.exit(1)
+    except TimeoutError:
+        print("Timeout: output is frozen.")
+        delete_file_if_exists(SCHEDULE_RUNNER_TARGET)
         sys.exit(1)
     restore_coverage_file(coverage_file, package_under_test)
     delete_file_if_exists(SCHEDULE_RUNNER_TARGET)
