@@ -11,7 +11,7 @@ $ErrorActionPreference = 'stop'
 
 $private:MaxRetries = 20
 if ($Version -ge 4) {
-    $private:SublimeTextUrl = "http://www.sublimetext.com/download"
+    $private:SublimeTextUrl = "http://www.sublimetext.com/download_thanks"
 } else {
     $private:SublimeTextUrl = "http://www.sublimetext.com/$Version"
 }
