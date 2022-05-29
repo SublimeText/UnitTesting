@@ -1,3 +1,7 @@
+# 1.5.8
+
+  - Update Sublime Text 4 download link
+
 # 1.5.7
 
   - tearDownClass of TempDirectoryTestCase is now a generator
