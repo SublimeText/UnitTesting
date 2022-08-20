@@ -10,7 +10,7 @@ This is a unittest framework for Sublime Text. It runs unittest testcases on loc
 
 ## Sublime Text 4
 
-Sublime Text 4 is now supported. Test coverage on Python 3.8 packages is still not working until Package Control supports Python 3.8.
+Sublime Text 4 is now supported and testing works for Python 3.8 packages. Though test coverage wouldn't work unless Package Control supports Python 3.8.
 
 ## Preparation
 
