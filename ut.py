@@ -48,24 +48,66 @@ __all__ = [
     "UnitTestingColorSchemeCommand"
 ]
 
+UT33_CODE = """
+from UnitTesting import ut as ut38  # noqa
+
+
+class UnitTesting33Command(ut38.UnitTestingCommand):
+    pass
+
+
+class UnitTesting33CoverageCommand(ut38.UnitTestingCoverageCommand):
+    pass
+
+
+class UnitTesting33CurrentPackageCommand(ut38.UnitTestingCurrentPackageCommand):
+    pass
+
+
+class UnitTesting33CurrentPackageCoverageCommand(ut38.UnitTestingCurrentPackageCoverageCommand):
+    pass
+
+
+class UnitTesting33CurrentFileCommand(ut38.UnitTestingCurrentFileCommand):
+    pass
+
+
+class UnitTesting33ColorSchemeCommand(ut38.UnitTestingColorSchemeCommand):
+    pass
+"""
+
 
 def plugin_loaded():
-    import json
-
     if sys.version_info >= (3, 8):
+        import json
+
         UT33 = os.path.join(sublime.packages_path(), "UnitTesting33")
-        if not os.path.exists(UT33):
-            os.makedirs(UT33)
-        data = sublime.load_resource("Packages/UnitTesting/py33/ut.py")
-        with open(os.path.join(UT33, "ut.py"), 'w') as f:
-            f.write(data.replace("\r\n", "\n"))
-        with open(os.path.join(UT33, ".package_reloader.json"), 'w') as f:
-            f.write(json.dumps({
-                "dependencies": ["UnitTesting"],
-                "extra_modules": ["unittesting.helpers"]
-            }))
-        with open(os.path.join(UT33, "dependencies.json"), 'w') as f:
-            f.write(json.dumps({"*": {">3000": ["coverage"]}}))
+        os.makedirs(UT33, exist_ok=True)
+
+        try:
+            try:
+                with open(os.path.join(UT33, "ut.py"), 'x') as f:
+                    f.write(UT33_CODE)
+            except FileExistsError:
+                pass
+
+            try:
+                with open(os.path.join(UT33, ".package_reloader.json"), 'x') as f:
+                    f.write(json.dumps({
+                        "dependencies": ["UnitTesting"],
+                        "extra_modules": ["unittesting.helpers"]
+                    }))
+            except FileExistsError:
+                pass
+
+            try:
+                with open(os.path.join(UT33, "dependencies.json"), 'x') as f:
+                    f.write(json.dumps({"*": {">3000": ["coverage"]}}))
+            except FileExistsError:
+                pass
+
+        except OSError as e:
+            print("UnitTesting: Error while creating python 3.3 module, since", str(e))
 
 
 def plugin_unloaded():
@@ -77,7 +119,7 @@ def plugin_unloaded():
         except ImportError:
             reloading = False
 
-        if os.path.exists(UT33) and not reloading:
+        if not reloading:
             try:
                 shutil.rmtree(UT33)
             except Exception:
