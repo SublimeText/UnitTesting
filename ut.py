@@ -49,31 +49,27 @@ __all__ = [
 ]
 
 UT33_CODE = """
-from UnitTesting import ut as ut38  # noqa
+from UnitTesting.unittesting import UnitTestingRunSchedulerCommand
+from UnitTesting.unittesting import UnitTestingCommand
+from UnitTesting.unittesting import UnitTestingCoverageCommand
+from UnitTesting.unittesting import UnitTestingCurrentFileCommand
+from UnitTesting.unittesting import UnitTestingCurrentPackageCommand
+from UnitTesting.unittesting import UnitTestingCurrentPackageCoverageCommand
+from UnitTesting.unittesting import UnitTestingSyntaxCommand
+from UnitTesting.unittesting import UnitTestingSyntaxCompatibilityCommand
+from UnitTesting.unittesting import UnitTestingColorSchemeCommand
 
-
-class UnitTesting33Command(ut38.UnitTestingCommand):
-    pass
-
-
-class UnitTesting33CoverageCommand(ut38.UnitTestingCoverageCommand):
-    pass
-
-
-class UnitTesting33CurrentPackageCommand(ut38.UnitTestingCurrentPackageCommand):
-    pass
-
-
-class UnitTesting33CurrentPackageCoverageCommand(ut38.UnitTestingCurrentPackageCoverageCommand):
-    pass
-
-
-class UnitTesting33CurrentFileCommand(ut38.UnitTestingCurrentFileCommand):
-    pass
-
-
-class UnitTesting33ColorSchemeCommand(ut38.UnitTestingColorSchemeCommand):
-    pass
+__all__ = [
+    "UnitTestingRunSchedulerCommand",
+    "UnitTestingCommand",
+    "UnitTestingCoverageCommand",
+    "UnitTestingCurrentFileCommand",
+    "UnitTestingCurrentPackageCommand",
+    "UnitTestingCurrentPackageCoverageCommand",
+    "UnitTestingSyntaxCommand",
+    "UnitTestingSyntaxCompatibilityCommand",
+    "UnitTestingColorSchemeCommand"
+]
 """
 
 
