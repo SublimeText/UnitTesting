@@ -66,7 +66,7 @@ jobs:
       - uses: SublimeText/UnitTesting/actions/run-tests@v1
         with:
           coverage: true
-          codecov-upload: true
+      - uses: codecov/codecov-action@v3
 ```
 
 Remarks: actions are released in the branch [`v1`](https://github.com/SublimeText/UnitTesting/tree/v1). Minor changes will be pushed to the same branch unless there
