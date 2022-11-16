@@ -29,7 +29,7 @@ runs:
       run: |
         if [ -f ./.coverage ]; then
           pip3 install coverage==4.5.4
-          coverage xml -o coverage.xml
+          python3 -m coverage xml -o coverage.xml
         fi
       shell: bash
     - if: inputs.codecov-upload == 'true'
