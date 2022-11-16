@@ -1,3 +1,7 @@
+# 1.5.9
+
+ - Deprecate the option `codecov-upload` in github actions.
+
 # 1.5.8
 
   - Update Sublime Text 4 download link
