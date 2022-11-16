@@ -35,7 +35,9 @@ jobs:
       - uses: "./actions/run-tests"
         with:
           coverage: true
-          codecov-upload: true
+      - uses: codecov/codecov-action@v3
+        with:
+          token: ${{secrets.CODECOV_TOKEN}}
 
   test-actions:  # with latest released unittesting
     strategy:
