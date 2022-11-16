@@ -33,4 +33,6 @@ runs:
         fi
       shell: bash
     - if: inputs.codecov-upload == 'true'
-      uses: codecov/codecov-action@v2
+      uses: codecov/codecov-action@v3
+      with:
+        token: ${{secrets.CODECOV_TOKEN}}
