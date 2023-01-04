@@ -91,7 +91,7 @@ class DeferringTextTestRunner(TextTestRunner):
             timeout=None,
             start_time=None
         ):
-            timeout = self.condition_timeout or timeout
+            timeout = timeout or self.condition_timeout
             if start_time is None:
                 start_time = time.time()
 
