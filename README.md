@@ -141,6 +141,7 @@ UnitTesting could be configured by providing the following settings in `unittest
 | generate_html_report        | generate coverage report for coverage                               | false         |
 | capture_console             | capture stdout and stderr in the test output                        | false         |
 | failfast                    | stop early if a test fails                                          | false         |
+| condition_timeout           | default timeout in ms for callables invoked via `yield`             | 4000          |
 
 ## Others
 

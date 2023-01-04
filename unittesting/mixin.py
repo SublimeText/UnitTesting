@@ -26,7 +26,8 @@ DEFAULT_SETTINGS = {
     "coverage_on_worker_thread": False,  # experimental
     "generate_html_report": False,
     "capture_console": False,
-    "failfast": False
+    "failfast": False,
+    "condition_timeout": 4000,
 }
 
 
