@@ -1,0 +1,77 @@
+{
+  "contributions": {
+    "settings": [
+      {
+        "file_patterns": [
+          "unittesting.json"
+        ],
+        "schema": {
+          "allowComments": true,
+          "allowTrailingCommas": true,
+          "additionalProperties": false,
+          "properties": {
+            "tests_dir": {
+              "type": "string",
+              "default": "tests",
+              "markdownDescription": "The name of the directory containing the tests."
+            },
+            "pattern": {
+              "type": "string",
+              "default": "test*.py",
+              "markdownDescription": "The pattern to discover tests."
+            },
+            "deferred": {
+              "type": "boolean",
+              "default": true,
+              "markdownDescription": "Whether to use deferred test runner.",
+            },
+            "verbosity": {
+              "enum": [0, 1, 2],
+              "enumDescriptions": ["quiet", "normal", "verbose"],
+              "default": 2,
+              "markdownDescription": "Verbosity level.",
+            },
+            "output": {
+              "type": ["string", "null"],
+              "markdownDescription": "Name of the test output instead of showing in the panel.",
+            },
+            "show_reload_progress": {
+              "type": "boolean",
+              "default": true,
+            },
+            "reload_package_on_testing": {
+              "type": "boolean",
+              "default": true,
+              "markdownDescription": "Reloading package will increase coverage rate.",
+            },
+            "start_coverage_after_reload": {
+              "type": "boolean",
+              "default": false,
+              "markdownDescription": "Irrelevent if  `reload_package_on_testing` is false.",
+            },
+            "coverage_on_worker_thread": {
+              "type": "boolean",
+              "default": false,
+              "markdownDescription": "(experimental)",
+            },
+            "generate_html_report": {
+              "type": "boolean",
+              "default": false,
+              "markdownDescription": "Generate coverage report for coverage.",
+            },
+            "capture_console": {
+              "type": "boolean",
+              "default": false,
+              "markdownDescription": "Capture stdout and stderr in the test output.",
+            },
+            "failfast": {
+              "type": "boolean",
+              "default": false,
+              "markdownDescription": "Stop early if a test fails.",
+            },
+          }
+        }
+      },
+    ]
+  }
+}
