@@ -29,6 +29,7 @@ from unittesting import UnitTestingRunSchedulerCommand  # noqa: F401
 from unittesting import UnitTestingCommand  # noqa: F401
 from unittesting import UnitTestingCoverageCommand  # noqa: F401
 from unittesting import UnitTestingCurrentFileCommand  # noqa: F401
+from unittesting import UnitTestingCurrentFileCoverageCommand  # noqa: F401
 from unittesting import UnitTestingCurrentPackageCommand  # noqa: F401
 from unittesting import UnitTestingCurrentPackageCoverageCommand  # noqa: F401
 from unittesting import UnitTestingSyntaxCommand  # noqa: F401
@@ -41,6 +42,7 @@ __all__ = [
     "UnitTestingCommand",
     "UnitTestingCoverageCommand",
     "UnitTestingCurrentFileCommand",
+    "UnitTestingCurrentFileCoverageCommand",
     "UnitTestingCurrentPackageCommand",
     "UnitTestingCurrentPackageCoverageCommand",
     "UnitTestingSyntaxCommand",
@@ -69,6 +71,10 @@ class UnitTesting33CurrentPackageCoverageCommand(ut38.UnitTestingCurrentPackageC
 
 
 class UnitTesting33CurrentFileCommand(ut38.UnitTestingCurrentFileCommand):
+    pass
+
+
+class UnitTesting33CurrentFileCoverageCommand(ut38.UnitTestingCurrentFileCoverageCommand):
     pass
 
 
