@@ -16,7 +16,7 @@ try{
 
     if (-not (test-path $PC_SETTINGS)) {
         write-verbose "creating Package Control.sublime-settings"
-        "{`"ignore_vcs_packages`": true }" | out-file -filepath $PC_SETTINGS -encoding ascii
+        "{`"ignore_vcs_packages`": true, `"submit_usage`": false }" | out-file -filepath $PC_SETTINGS -encoding ascii
     }
 
     $PCH_PATH = "$STP\0_install_package_control_helper"
