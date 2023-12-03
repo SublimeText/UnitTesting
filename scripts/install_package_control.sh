@@ -59,12 +59,14 @@ PCH_PATH="$STP/0_install_package_control_helper"
 if [ ! -d "$PCH_PATH" ]; then
     mkdir -p "$PCH_PATH"
     BASE=`dirname "$0"`
-    cp "$BASE"/install_package_control_helper.py "$PCH_PATH"/install_package_control_helper.py
+    cp "$BASE/install_package_control_helper.py" "$PCH_PATH/install_package_control_helper.py"
+    cp "$BASE/.python-version" "$PCH_PATH/.python-version"
 fi
 
 
 # launch sublime text in background
 for i in {1..3}; do
+    echo Starting Sublime Text
     subl &
 
     ENDTIME=$(( $(date +%s) + 60 ))

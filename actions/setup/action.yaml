@@ -189,9 +189,6 @@ runs:
         if [ "${{ inputs.install-unittesting }}" = "true" ]; then
             InstallPackage "UnitTesting" "https://github.com/SublimeText/UnitTesting" "${{ inputs.unittesting-version }}"
         fi
-        if [ "${{ inputs.install-coverage }}" = "true" ]; then
-            InstallPackage "coverage" "https://github.com/codexns/sublime-coverage" "${{ inputs.coverage-version }}"
-        fi
 
         while read -r x; do
             if [[ "$x" =~ ^(.*):(.*)/([^@]*)@?(.*)$ ]]; then

@@ -24,6 +24,7 @@ try{
 
     $BASE = Split-Path -parent $PSCommandPath
     Copy-Item "$BASE\pc_helper.py" "$PCH_PATH\pc_helper.py"
+    Copy-Item "$BASE\.python-version" "$PCH_PATH\.python-version"
 
     for ($i=1; $i -le 3; $i++) {
 

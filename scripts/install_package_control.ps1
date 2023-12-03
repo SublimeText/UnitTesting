@@ -30,6 +30,7 @@ New-Item -itemtype directory $PCH_PATH -force >$null
 
 $BASE = Split-Path -parent $PSCommandPath
 Copy-Item "$BASE\install_package_control_helper.py" "$PCH_PATH\install_package_control_helper.py"
+Copy-Item "$BASE\.python-version" "$PCH_PATH\.python-version"
 
 for ($i=1; $i -le 3; $i++) {
 
