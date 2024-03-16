@@ -36,7 +36,8 @@ class Unit:
         elif self.coverage:
             sublime.run_command("unit_testing_coverage", {
                 "package": self.package,
-                "output": self.output
+                "output": self.output,
+                "generate_xml_report": True
             })
         else:
             sublime.run_command("unit_testing", {

@@ -77,9 +77,15 @@ class UnitTestingCoverageCommand(UnitTestingCommand):
             ignore_errors = cov.get_option("report:ignore_errors")
             show_missing = cov.get_option("report:show_missing")
             cov.report(file=stream, ignore_errors=ignore_errors, show_missing=show_missing)
+
+            if settings['generate_xml_report']:
+                xml_report_file = os.path.join(package_path, 'coverage.xml')
+                cov.xml_report(outfile=xml_report_file, ignore_errors=ignore_errors)
+
             if settings['generate_html_report']:
                 html_output_dir = os.path.join(package_path, 'htmlcov')
                 cov.html_report(directory=html_output_dir, ignore_errors=ignore_errors)
+
             cov.save()
 
         super().unit_testing(stream, package, settings, [cleanup])

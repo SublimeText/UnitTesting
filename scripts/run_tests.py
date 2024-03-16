@@ -174,13 +174,15 @@ def read_output(path, timeout=5 * 60):
     return success
 
 
-def restore_coverage_file(path, package):
-    # restore .coverage if it exists, needed for coveralls
-    if os.path.exists(path):
-        with open(path, 'r') as f:
+def restore_coverage_report(report_file):
+    # restore coverage.xml if it exists, needed for coveralls
+    if os.path.isfile(report_file):
+        source_path, name = os.path.splitext(report_file)
+        dest_path = os.getcwd()
+        with open(report_file, 'r') as f:
             txt = f.read()
-        txt = txt.replace(os.path.realpath(os.path.join(PACKAGES_DIR_PATH, package)), os.getcwd())
-        with open(os.path.join(os.getcwd(), ".coverage"), "w") as f:
+        txt = txt.replace(source_path, dest_path)
+        with open(os.path.join(dest_path, name), "w") as f:
             f.write(txt)
 
 
@@ -189,6 +191,7 @@ def main(default_schedule_info):
     output_dir = os.path.join(UT_OUTPUT_DIR_PATH, package_under_test)
     output_file = os.path.join(output_dir, "result")
     coverage_file = os.path.join(output_dir, "coverage")
+    report_file = os.path.join(PACKAGES_DIR_PATH, package_under_test, "coverage.xml")
 
     default_schedule_info['output'] = output_file
 
@@ -196,6 +199,7 @@ def main(default_schedule_info):
         create_dir_if_not_exists(output_dir)
         delete_file_if_exists(output_file)
         delete_file_if_exists(coverage_file)
+        delete_file_if_exists(report_file)
         create_schedule(package_under_test, output_file, default_schedule_info)
         delete_file_if_exists(SCHEDULE_RUNNER_TARGET)
         copy_file_if_not_exists(SCHEDULE_RUNNER_SOURCE, SCHEDULE_RUNNER_TARGET)
@@ -222,7 +226,7 @@ def main(default_schedule_info):
         print("Timeout: output is frozen.")
         delete_file_if_exists(SCHEDULE_RUNNER_TARGET)
         sys.exit(1)
-    restore_coverage_file(coverage_file, package_under_test)
+    restore_coverage_report(report_file)
     delete_file_if_exists(SCHEDULE_RUNNER_TARGET)
 
 

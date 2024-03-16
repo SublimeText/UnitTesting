@@ -25,6 +25,7 @@ DEFAULT_SETTINGS = {
     "start_coverage_after_reload": False,
     "coverage_on_worker_thread": False,  # experimental
     "generate_html_report": False,
+    "generate_xml_report": False,
     "capture_console": False,
     "failfast": False,
     "condition_timeout": 4000,
