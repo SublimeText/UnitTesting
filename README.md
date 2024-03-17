@@ -1,22 +1,30 @@
 UnitTesting
-===================
+===========
 
 [![test](https://github.com/SublimeText/UnitTesting/actions/workflows/test.yaml/badge.svg)](https://github.com/SublimeText/UnitTesting/actions/workflows/test.yaml)
 [![codecov](https://codecov.io/gh/SublimeText/UnitTesting/branch/master/graph/badge.svg)](https://codecov.io/gh/SublimeText/UnitTesting)
-<a href="https://packagecontrol.io/packages/UnitTesting"><img src="https://packagecontrol.herokuapp.com/downloads/UnitTesting.svg"></a>
 
-This is a unittest framework for Sublime Text. It runs unittest testcases on local machines and via Github Actions. It also supports testing syntax_test files for the new [sublime-syntax](https://www.sublimetext.com/docs/3/syntax.html) format and sublime-color-scheme files.
+This is a unittest framework for Sublime Text.
+It runs unittest testcases on local machines and via Github Actions.
+It also supports testing syntax_test files for the new [sublime-syntax](https://www.sublimetext.com/docs/3/syntax.html) 
+format and sublime-color-scheme files.
 
 
 ## Sublime Text 4
 
-Sublime Text 4 is now supported and testing works for Python 3.8 packages. Though test coverage wouldn't work until Package Control adds support of Python 3.8 package dependencies.
+Sublime Text 4 is now supported and testing works for Python 3.8 packages.
+
+> [!NOTE]
+>
+> coverage 7.x is currently skipped for python 3.8 plugins on MacOS,
+> because ST4 is missing a required core module.
 
 ## Preparation
 
-1. Before testing anything, you have to install [UnitTesting](https://github.com/SublimeText/UnitTesting) via Package Control.
+1. Install [UnitTesting](https://github.com/SublimeText/UnitTesting) via Package Control.
 2. Your package!
-3. TestCases should be placed in `test*.py` under the directory `tests` (configurable, see below). The testcases are then loaded by [TestLoader.discover](https://docs.python.org/3.3/library/unittest.html#unittest.TestLoader.discover).
+3. TestCases should be placed in `test*.py` under the directory `tests` 
+   (configurable, see below). The testcases are then loaded by [TestLoader.discover](https://docs.python.org/3.3/library/unittest.html#unittest.TestLoader.discover).
 
 [Here](https://github.com/randy3k/UnitTesting-example) are some small examples
 
@@ -59,14 +67,14 @@ jobs:
         os: ["ubuntu-latest", "macOS-latest", "windows-latest"]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - uses: SublimeText/UnitTesting/actions/setup@v1
         with:
           sublime-text-version: ${{ matrix.st-version }}
       - uses: SublimeText/UnitTesting/actions/run-tests@v1
         with:
           coverage: true
-      - uses: codecov/codecov-action@v3
+      - uses: codecov/codecov-action@v4
 ```
 
 Remarks: actions are released in the branch [`v1`](https://github.com/SublimeText/UnitTesting/tree/v1). Minor changes will be pushed to the same branch unless there
@@ -83,7 +91,7 @@ jobs:
   run-syntax-tests:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - uses: SublimeText/UnitTesting/actions/setup@v1
       - uses: SublimeText/UnitTesting/actions/run-syntax-tests@v1
 ```
@@ -149,7 +157,7 @@ UnitTesting could be configured by providing the following settings in `unittest
 
 It is recommended to add the following in your `.sublime-project` file so that <kbd>c</kbd>+<kbd>b</kbd> would invoke the testing action.
 
-```
+```json
 "build_systems":
 [
   {
