@@ -50,7 +50,7 @@ fi
 if [ ! -f "$STP/User/Package Control.sublime-settings" ]; then
     echo creating Package Control.sublime-settings
     # make sure Pakcage Control does not complain
-    echo '{"ignore_vcs_packages": true }' > "$STP/User/Package Control.sublime-settings"
+    echo '{"ignore_vcs_packages": true, "submit_usage": false }' > "$STP/User/Package Control.sublime-settings"
 fi
 
 PCH_PATH="$STP/0_install_package_control_helper"

@@ -22,7 +22,7 @@ $PC_SETTINGS = "C:\st\Data\Packages\User\Package Control.sublime-settings"
 
 if (-not (test-path $PC_SETTINGS)) {
     write-verbose "creating Package Control.sublime-settings"
-    "{`"auto_upgrade`": false }" | out-file -filepath $PC_SETTINGS -encoding ascii
+    "{`"auto_upgrade`": false, `"submit_usage`": false }" | out-file -filepath $PC_SETTINGS -encoding ascii
 }
 
 $PCH_PATH = "$STP\0_install_package_control_helper"
