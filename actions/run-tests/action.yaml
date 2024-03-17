@@ -38,4 +38,4 @@ runs:
         echo "Please call the action `codecov/codecov-action` directly".
       shell: bash
     - if: inputs.codecov-upload == 'true'
-      uses: codecov/codecov-action@v3
+      uses: codecov/codecov-action@v4
