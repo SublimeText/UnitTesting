@@ -15,7 +15,8 @@ for module_name in [
     del sys.modules[module_name]
 prefix = None
 
-from . import unittesting
+import UnitTesting
+from UnitTesting import unittesting
 
 sys.modules["unittesting"] = unittesting
 
