@@ -40,7 +40,7 @@ def cleanup_package(package):
 
 
 def prepare_package(package, output=None, syntax_test=False, syntax_compatibility=False,
-                    color_scheme_test=False, delay=500, wait_timeout=10000):
+                    color_scheme_test=False, delay=1000, wait_timeout=5000):
     def wrapper(func):
         @wraps(func)
         def real_wrapper(self):
