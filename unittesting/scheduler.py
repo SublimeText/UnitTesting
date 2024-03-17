@@ -19,28 +19,33 @@ class Unit:
         if self.syntax_test:
             sublime.run_command("unit_testing_syntax", {
                 "package": self.package,
-                "output": self.output
+                "output": self.output,
+                "reload_package_on_testing": False,
             })
         elif self.syntax_compatibility:
             sublime.run_command("unit_testing_syntax_compatibility", {
                 "package": self.package,
-                "output": self.output
+                "output": self.output,
+                "reload_package_on_testing": False,
             })
         elif self.color_scheme_test:
             sublime.run_command("unit_testing_color_scheme", {
                 "package": self.package,
-                "output": self.output
+                "output": self.output,
+                "reload_package_on_testing": False,
             })
         elif self.coverage:
             sublime.run_command("unit_testing_coverage", {
                 "package": self.package,
                 "output": self.output,
-                "generate_xml_report": True
+                "reload_package_on_testing": False,
+                "generate_xml_report": True,
             })
         else:
             sublime.run_command("unit_testing", {
                 "package": self.package,
-                "output": self.output
+                "output": self.output,
+                "reload_package_on_testing": False,
             })
 
 
