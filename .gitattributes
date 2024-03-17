@@ -4,15 +4,25 @@
 
 # Files and directories with the attribute export-ignore won’t be added to
 # archive files. See http://git-scm.com/docs/gitattributes for details.
-/.codecov.yml               export-ignore
-/.coveragerc                export-ignore
-/.flake8                    export-ignore
+
+# Git
 /.gitattributes             export-ignore
 /.github/                   export-ignore
 /.gitignore                 export-ignore
+
+# CI
 /actions/                   export-ignore
 /docker/                    export-ignore
 /sbin/                      export-ignore
 /scripts/                   export-ignore
+
+# Coverage
+/.coveragerc                export-ignore
+/codecov.yml                export-ignore
+
+# Linting
+/.flake8                    export-ignore
+
+# Tests
 /tests/                     export-ignore
 /unittesting.json           export-ignore
