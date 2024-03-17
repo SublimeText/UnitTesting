@@ -60,7 +60,7 @@ __all__ = [
 ]
 
 UT33_CODE = """
-from UnitTesting import ut as ut38  # noqa
+from UnitTesting import plugin as ut38  # noqa
 
 
 class UnitTesting33Command(ut38.UnitTestingCommand):
@@ -97,7 +97,7 @@ def plugin_loaded():
 
         try:
             try:
-                with open(os.path.join(UT33, "ut.py"), 'x') as f:
+                with open(os.path.join(UT33, "plugin.py"), 'x') as f:
                     f.write(UT33_CODE)
             except FileExistsError:
                 pass
