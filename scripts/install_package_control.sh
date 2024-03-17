@@ -43,7 +43,7 @@ fi
 
 PC_PATH="$STIP/Package Control.sublime-package"
 if [ ! -f "$PC_PATH" ]; then
-    PC_URL="https://packagecontrol.io/Package%20Control.sublime-package"
+    PC_URL="https://github.com/wbond/package_control/releases/latest/download/Package.Control.sublime-package"
     curl -s -L "$PC_URL" -o "$PC_PATH"
 fi
 
@@ -51,7 +51,7 @@ if [ ! -f "$STP/User/Package Control.sublime-settings" ]; then
     echo creating Package Control.sublime-settings
     [ ! -d "$STP/User" ] && mkdir -p "$STP/User"
     # make sure Pakcage Control does not complain
-    echo '{"auto_upgrade": false }' > "$STP/User/Package Control.sublime-settings"
+    echo '{"auto_upgrade": false, "ignore_vcs_packages": true, "remove_orphaned": false, "submit_usage": false }' > "$STP/User/Package Control.sublime-settings"
 fi
 
 PCH_PATH="$STP/0_install_package_control_helper"
@@ -59,12 +59,16 @@ PCH_PATH="$STP/0_install_package_control_helper"
 if [ ! -d "$PCH_PATH" ]; then
     mkdir -p "$PCH_PATH"
     BASE=`dirname "$0"`
-    cp "$BASE"/install_package_control_helper.py "$PCH_PATH"/install_package_control_helper.py
+    cp "$BASE/install_package_control_helper.py" "$PCH_PATH/install_package_control_helper.py"
+    cp "$BASE/.python-version" "$PCH_PATH/.python-version"
 fi
 
 
 # launch sublime text in background
+echo Starting Sublime Text
 for i in {1..3}; do
+    rm -f "$PCH_PATH/success"
+
     subl &
 
     ENDTIME=$(( $(date +%s) + 60 ))
@@ -78,6 +82,13 @@ for i in {1..3}; do
     sleep 4
     [ -f "$PCH_PATH/success" ] && break
 done
+
+echo "" # add newline after progress dots
+echo Terminated Sublime Text
+
+if [ -f "$PCH_PATH/log" ]; then
+    cat "$PCH_PATH/log"
+fi
 
 if [ ! -f "$PCH_PATH/success" ]; then
     if [ -f "$PCH_PATH/log" ]; then
