@@ -1,30 +1,12 @@
-import sublime
-import sublime_plugin
+import functools
 import os
 import posixpath
-import threading
-import builtins
-import functools
-import importlib
 import sys
-import traceback
-from inspect import ismodule
-from contextlib import contextmanager
+import threading
+import importlib
 
-
-class StackMeter:
-
-    def __init__(self, depth=0):
-        super().__init__()
-        self.depth = depth
-
-    def __enter__(self):  # noqa: D105 Missing docstring in magic method
-        depth = self.depth
-        self.depth += 1
-        return depth
-
-    def __exit__(self, *exc_info):  # noqa: D105 Missing docstring in magic method
-        self.depth -= 1
+import sublime
+import sublime_plugin
 
 
 def dprint(*args, fill=None, fill_width=60, **kwargs):
@@ -33,7 +15,7 @@ def dprint(*args, fill=None, fill_width=60, **kwargs):
         caption = sep.join(args)
         args = "{0:{fill}<{width}}".format(caption and caption + sep,
                                            fill=fill, width=fill_width),
-    print("[Package Reloader]", *args, **kwargs)
+    print("UnitTesting:", *args, **kwargs)
 
 
 def path_contains(a, b):
@@ -85,9 +67,6 @@ def reload_package(pkg_name, dummy=True, verbose=True):
         dprint("error:", pkg_name, "is not loaded.")
         return
 
-    if verbose:
-        dprint("begin", fill='=')
-
     all_modules = {
         module_name: module
         for module_name, module in get_package_modules(pkg_name).items()
@@ -104,34 +83,18 @@ def reload_package(pkg_name, dummy=True, verbose=True):
     for module_name in all_modules:
         sys.modules.pop(module_name)
 
-    # Reload packages
-    try:
-        with intercepting_imports(all_modules, verbose), importing_fromlist_aggressively(all_modules):
-            for plugin in plugins:
-                sublime_plugin.reload_plugin(plugin)
-    except Exception:
-        dprint("reload failed.", fill='-')
-        # Rollback modules
-        for name, module in all_modules.items():
-            sys.modules[name] = module
+    sys.modules[pkg_name] = importlib.import_module(pkg_name)
 
-        # Try reloading again to get the commands back. Here esp. the
-        # reload command itself.
-        for plugin in plugins:
-            sublime_plugin.reload_plugin(plugin)
+    # After all (sub-)modules have been removed from modules cache,
+    # reloading top-level plugins will automatically re-import them
+    # in correct order without any further action needed.
+    for plugin in plugins:
+        sublime_plugin.reload_plugin(plugin)
 
-        traceback.print_exc()
-        print('--- Reloading failed. ---')
-        sublime.active_window().status_message('Reloading 💣ed. 😒.')
-        return
-
+    # Install and uninstall a dummy package so ST updates
+    # command and event listener bindings
     if dummy:
         load_dummy(verbose)
-
-    if verbose:
-        dprint("end", fill='-')
-
-    sublime.active_window().status_message('Package has been 🙌 reloaded.')
 
 
 def load_dummy(verbose):
@@ -186,64 +149,3 @@ def load_dummy(verbose):
     condition.acquire()
     condition.wait(30)  # 30 seconds should be enough for all regular usages
     condition.release()
-
-
-@contextmanager
-def intercepting_imports(modules, verbose):
-    finder = FilterFinder(modules, verbose)
-    sys.meta_path.insert(0, finder)
-    try:
-        yield
-    finally:
-        if finder in sys.meta_path:
-            sys.meta_path.remove(finder)
-
-
-@contextmanager
-def importing_fromlist_aggressively(modules):
-    orig___import__ = builtins.__import__
-
-    @functools.wraps(orig___import__)
-    def __import__(name, globals=None, locals=None, fromlist=(), level=0):
-        module = orig___import__(name, globals, locals, fromlist, level)
-        if fromlist and module.__name__ in modules:
-            if '*' in fromlist:
-                fromlist = list(fromlist)
-                fromlist.remove('*')
-                fromlist.extend(getattr(module, '__all__', []))
-            for x in fromlist:
-                if ismodule(getattr(module, x, None)):
-                    from_name = '{}.{}'.format(module.__name__, x)
-                    if from_name in modules:
-                        importlib.import_module(from_name)
-        return module
-
-    builtins.__import__ = __import__
-    try:
-        yield
-    finally:
-        builtins.__import__ = orig___import__
-
-
-class FilterFinder:
-    def __init__(self, modules, verbose):
-        self._modules = modules
-        self._stack_meter = StackMeter()
-        self._verbose = verbose
-
-    def find_module(self, name, path=None):
-        if name in self._modules:
-            return self
-
-    def load_module(self, name):
-        module = self._modules[name]
-        sys.modules[name] = module  # restore the module back
-        with self._stack_meter as depth:
-            if self._verbose:
-                dprint("reloading", ('| ' * depth) + '|--', name)
-            try:
-                return module.__loader__.load_module(name)
-            except Exception:
-                if name in sys.modules:
-                    del sys.modules[name]  # to indicate an error
-                raise
