@@ -12,5 +12,7 @@
 /.gitignore                 export-ignore
 /actions/                   export-ignore
 /docker/                    export-ignore
+/sbin/                      export-ignore
+/scripts/                   export-ignore
 /tests/                     export-ignore
 /unittesting.json           export-ignore
