@@ -1,3 +1,11 @@
+"""
+Schedule runner plugin.
+
+This module ...
+1. is copied to $st_data/Packages/UnitTesting/run_scheduler.py
+2. loaded as Sublime Text plugin
+3. invokes scheduled package tests
+"""
 import os
 import sublime
 import sys
