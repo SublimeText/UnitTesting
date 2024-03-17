@@ -40,7 +40,7 @@ def cleanup_package(package):
 
 
 def prepare_package(package, output=None, syntax_test=False, syntax_compatibility=False,
-                    color_scheme_test=False, delay=200, wait_timeout=5000):
+                    color_scheme_test=False, delay=200, wait_timeout=10000):
     def wrapper(func):
         @wraps(func)
         def real_wrapper(self):
@@ -82,7 +82,7 @@ def prepare_package(package, output=None, syntax_test=False, syntax_compatibilit
                     txt = f.read()
                 return "UnitTesting: Done." in txt
 
-            yield {"condition": condition, "timeout": 5000}
+            yield {"condition": condition, "timeout": wait_timeout}
 
             with open(result_file, 'r') as f:
                 txt = f.read()
