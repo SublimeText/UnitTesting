@@ -21,13 +21,16 @@ class UnitTestingCoverageCommand(UnitTestingCommand):
             stream.write("Warning: coverage cannot be loaded.\n\n")
             super().unit_testing(stream, package, settings, [])
             return
+        elif sys.version_info >= (3, 8) and sys.platform == "darwin":
+            # https://github.com/SublimeText/UnitTesting/issues/234
+            stream.write("Warning: coverage not compatible with ST4 on MacOS.\n\n")
+            super().unit_testing(stream, package, settings, [])
+            return
 
         package_path = os.path.join(sublime.packages_path(), package)
-        data_file = os.path.join(
-            sublime.packages_path(), "User", "UnitTesting", package, "coverage")
-        data_file_dir = os.path.dirname(data_file)
-        if not os.path.isdir(data_file_dir):
-            os.makedirs(data_file_dir)
+        data_file_dir = os.path.join(sublime.packages_path(), "User", "UnitTesting", package)
+        os.makedirs(data_file_dir, exist_ok=True)
+        data_file = os.path.join(data_file_dir, "coverage")
         if os.path.exists(data_file):
             os.unlink(data_file)
         config_file = os.path.join(package_path, ".coveragerc")

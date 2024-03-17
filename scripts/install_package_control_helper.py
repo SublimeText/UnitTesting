@@ -78,4 +78,4 @@ def plugin_loaded():
 
     sublime.error_message = error_message
     sublime.message_dialog = error_message
-    sublime.set_timeout(satisfy_libraries, 10000)
+    sublime.set_timeout(satisfy_libraries, 5000)
