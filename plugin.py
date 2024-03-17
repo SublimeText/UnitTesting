@@ -15,23 +15,6 @@ for module_name in [
     del sys.modules[module_name]
 prefix = None
 
-if sys.version_info >= (3, 8):
-    coverage_prefix = "st4"
-else:
-    coverage_prefix = "st3"
-
-coverage_path = os.path.abspath(os.path.join(
-    os.path.dirname(__file__),
-    "..",
-    "..",
-    "Packages",
-    "coverage",
-    "%s_%s_%s" % (coverage_prefix, sublime.platform(), sublime.arch())
-))
-
-if os.path.exists(coverage_path) and coverage_path not in sys.path:
-    sys.path.append(coverage_path)
-
 from . import unittesting  # noqa: F402
 sys.modules["unittesting"] = unittesting
 
