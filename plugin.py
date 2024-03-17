@@ -15,36 +15,20 @@ for module_name in [
     del sys.modules[module_name]
 prefix = None
 
-if sys.version_info >= (3, 8):
-    coverage_prefix = "st4"
-else:
-    coverage_prefix = "st3"
+from . import unittesting
 
-coverage_path = os.path.abspath(os.path.join(
-    os.path.dirname(__file__),
-    "..",
-    "..",
-    "Packages",
-    "coverage",
-    "%s_%s_%s" % (coverage_prefix, sublime.platform(), sublime.arch())
-))
-
-if os.path.exists(coverage_path) and coverage_path not in sys.path:
-    sys.path.append(coverage_path)
-
-from . import unittesting  # noqa: F402
 sys.modules["unittesting"] = unittesting
 
 
-from unittesting import UnitTestingRunSchedulerCommand  # noqa: F401
-from unittesting import UnitTestingCommand  # noqa: F401
-from unittesting import UnitTestingCoverageCommand  # noqa: F401
-from unittesting import UnitTestingCurrentFileCommand  # noqa: F401
-from unittesting import UnitTestingCurrentPackageCommand  # noqa: F401
-from unittesting import UnitTestingCurrentPackageCoverageCommand  # noqa: F401
-from unittesting import UnitTestingSyntaxCommand  # noqa: F401
-from unittesting import UnitTestingSyntaxCompatibilityCommand  # noqa: F401
-from unittesting import UnitTestingColorSchemeCommand  # noqa: F401
+from unittesting import UnitTestingRunSchedulerCommand
+from unittesting import UnitTestingCommand
+from unittesting import UnitTestingCoverageCommand
+from unittesting import UnitTestingCurrentFileCommand
+from unittesting import UnitTestingCurrentPackageCommand
+from unittesting import UnitTestingCurrentPackageCoverageCommand
+from unittesting import UnitTestingSyntaxCommand
+from unittesting import UnitTestingSyntaxCompatibilityCommand
+from unittesting import UnitTestingColorSchemeCommand
 
 
 __all__ = [
@@ -56,11 +40,11 @@ __all__ = [
     "UnitTestingCurrentPackageCoverageCommand",
     "UnitTestingSyntaxCommand",
     "UnitTestingSyntaxCompatibilityCommand",
-    "UnitTestingColorSchemeCommand"
+    "UnitTestingColorSchemeCommand",
 ]
 
 UT33_CODE = """
-from UnitTesting import ut as ut38  # noqa
+from UnitTesting import plugin as ut38  # noqa
 
 
 class UnitTesting33Command(ut38.UnitTestingCommand):
@@ -97,20 +81,20 @@ def plugin_loaded():
 
         try:
             try:
-                with open(os.path.join(UT33, "ut.py"), 'x') as f:
+                with open(os.path.join(UT33, "plugin.py"), "x") as f:
                     f.write(UT33_CODE)
             except FileExistsError:
                 pass
 
             try:
-                with open(os.path.join(UT33, "dependencies.json"), 'x') as f:
+                with open(os.path.join(UT33, "dependencies.json"), "x") as f:
                     f.write(json.dumps({"*": {">3000": ["coverage"]}}))
             except FileExistsError:
                 pass
 
             try:
                 # hide from Package Control quick panels
-                open(os.path.join(UT33, ".hidden-sublime-package"), 'x').close()
+                open(os.path.join(UT33, ".hidden-sublime-package"), "x").close()
             except FileExistsError:
                 pass
 
