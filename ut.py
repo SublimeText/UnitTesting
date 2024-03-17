@@ -3,6 +3,17 @@ import sublime
 import sys
 import shutil
 
+# Clear module cache to force reloading all modules of this package.
+
+# kiss-reloader:
+prefix = __package__ + "."  # don't clear the base package
+for module_name in [
+    module_name
+    for module_name in sys.modules
+    if module_name.startswith(prefix) and module_name != __name__
+]:
+    del sys.modules[module_name]
+prefix = None
 
 if sys.version_info >= (3, 8):
     coverage_prefix = "st4"
@@ -92,15 +103,6 @@ def plugin_loaded():
                 pass
 
             try:
-                with open(os.path.join(UT33, ".package_reloader.json"), 'x') as f:
-                    f.write(json.dumps({
-                        "dependencies": ["UnitTesting"],
-                        "extra_modules": ["unittesting.helpers"]
-                    }))
-            except FileExistsError:
-                pass
-
-            try:
                 with open(os.path.join(UT33, "dependencies.json"), 'x') as f:
                     f.write(json.dumps({"*": {">3000": ["coverage"]}}))
             except FileExistsError:
@@ -120,13 +122,6 @@ def plugin_unloaded():
     if sys.version_info >= (3, 8):
         UT33 = os.path.join(sublime.packages_path(), "UnitTesting33")
         try:
-            from AutomaticPackageReloader.package_reloader import reload_lock
-            reloading = not reload_lock.acquire(blocking=False)
-        except ImportError:
-            reloading = False
-
-        if not reloading:
-            try:
-                shutil.rmtree(UT33)
-            except Exception:
-                pass
+            shutil.rmtree(UT33)
+        except Exception:
+            pass
