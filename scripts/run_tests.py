@@ -207,7 +207,6 @@ def main(default_schedule_info):
     output_file = os.path.join(output_dir, "result")
     coverage_file = os.path.join(output_dir, "coverage")
     report_file = os.path.join(PACKAGES_DIR_PATH, package_under_test, "coverage.xml")
-    log_file = os.path.join(PACKAGES_DIR_PATH, package_under_test, "unittesting.log")
 
     default_schedule_info["output"] = output_file
 
@@ -232,12 +231,6 @@ def main(default_schedule_info):
                     "is being written to the wrong file."
                 )
                 delete_file_if_exists(SCHEDULE_RUNNER_TARGET)
-
-                # print errors recorded by ST
-                if os.path.isfile(log_file):
-                    with open(log_file) as f:
-                        print(f.read())
-
                 kill_sublime_text()
                 sys.exit(1)
             else:

@@ -1,4 +1,5 @@
 // do not copy
 {
+    "capture_console": true,
     "coverage_on_worker_thread": true,
 }
