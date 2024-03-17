@@ -44,7 +44,7 @@ class UnitTestingCoverageCommand(UnitTestingCommand):
                 if re.search("^omit", txt, re.M):
                     omit = None
         else:
-            config_file = None
+            config_file = False
 
         cov = coverage.Coverage(
             data_file=data_file, config_file=config_file, include=include, omit=omit)
