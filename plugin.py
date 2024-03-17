@@ -20,7 +20,6 @@ from . import unittesting
 sys.modules["unittesting"] = unittesting
 
 
-from unittesting import UnitTestingRunSchedulerCommand
 from unittesting import UnitTestingCommand
 from unittesting import UnitTestingCoverageCommand
 from unittesting import UnitTestingCurrentFileCommand
@@ -32,7 +31,6 @@ from unittesting import UnitTestingColorSchemeCommand
 
 
 __all__ = [
-    "UnitTestingRunSchedulerCommand",
     "UnitTestingCommand",
     "UnitTestingCoverageCommand",
     "UnitTestingCurrentFileCommand",
