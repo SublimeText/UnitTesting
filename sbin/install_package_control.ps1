@@ -27,6 +27,9 @@ try{
     Copy-Item "$BASE\.python-version" "$PCH_PATH\.python-version"
 
     for ($i=1; $i -le 3; $i++) {
+        if (test-path "$PCH_PATH\success") {
+            remove-item "$PCH_PATH\success" -Force
+        }
 
         & "C:\st\sublime_text.exe"
         $startTime = get-date

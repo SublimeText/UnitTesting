@@ -15,6 +15,8 @@ def plugin_loaded():
     sys.stderr = log
 
     def kill_subl(restart=False):
+        log.close()
+
         if sublime.platform() == "osx":
             cmd = "sleep 1; pkill [Ss]ubl; pkill plugin_host; sleep 1; "
             if restart:
@@ -51,7 +53,10 @@ def plugin_loaded():
 
         # query and install missing libraries
         required_libraries = manager.find_required_libraries()
-        if required_libraries:
+        missing_libraries = manager.find_missing_libraries(
+            required_libraries=required_libraries
+        )
+        if missing_libraries:
             manager.install_libraries(required_libraries, fail_early=False)
 
         # re-query missing libraries
@@ -68,8 +73,9 @@ def plugin_loaded():
 
     # restart sublime when `sublime.error_message` is run
     def error_message(message):
-        # log.write(message + "\n")
+        log.write(message + "\n")
         kill_subl(True)
 
     sublime.error_message = error_message
-    sublime.set_timeout(satisfy_libraries, 5000)
+    sublime.message_dialog = error_message
+    sublime.set_timeout(satisfy_libraries, 10000)

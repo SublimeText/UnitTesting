@@ -66,6 +66,8 @@ fi
 # launch sublime text in background
 echo Starting Sublime Text
 for i in {1..3}; do
+    rm -f "$PCH_PATH/success"
+
     subl &
 
     ENDTIME=$(( $(date +%s) + 60 ))
