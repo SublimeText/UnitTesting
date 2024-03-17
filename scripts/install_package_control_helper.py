@@ -9,6 +9,11 @@ def plugin_loaded():
         sublime.packages_path(), "0_install_package_control_helper", "log"
     )
 
+    log = open(logfile, "a", encoding="utf-8")
+
+    sys.stdout = log
+    sys.stderr = log
+
     def kill_subl(restart=False):
         if sublime.platform() == "osx":
             cmd = "sleep 1; pkill [Ss]ubl; pkill plugin_host; sleep 1; "
@@ -54,9 +59,8 @@ def plugin_loaded():
             required_libraries=required_libraries
         )
         if missing_libraries:
-            with open(logfile, "a") as f:
-                f.write("missing dependencies:" + "\n")
-                f.write(" ".join(sorted(missing_libraries)) + "\n")
+            log.write("missing dependencies:" + "\n")
+            log.write(" ".join(sorted(missing_libraries)) + "\n")
         else:
             touch("success")
 
@@ -64,9 +68,7 @@ def plugin_loaded():
 
     # restart sublime when `sublime.error_message` is run
     def error_message(message):
-        with open(logfile, "a") as f:
-            f.write(message + "\n")
-
+        # log.write(message + "\n")
         kill_subl(True)
 
     sublime.error_message = error_message
