@@ -1,4 +1,5 @@
 // do not copy
 {
     "coverage_on_worker_thread": true,
+    "reload_package_on_testing": false
 }

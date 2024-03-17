@@ -53,28 +53,25 @@ def prepare_package(package, output=None, syntax_test=False, syntax_compatibilit
                 outfiledir = os.path.join(UUTDIR, package)
                 outfile = os.path.join(outfiledir, "result")
                 result_file = outfile
-                if not os.path.isdir(outfiledir):
-                    os.makedirs(outfiledir)
+                os.makedirs(outfiledir, exist_ok=True)
 
             yield delay
             yield AWAIT_WORKER
 
+            args = {"package": package}
+            if outfile:
+                # Command args have the highest precedence. Passing down
+                # 'None' is not what we want, the intention is to omit it
+                # so that the value from 'unittesting.json' wins.
+                args["output"] = outfile
+
             if syntax_test:
-                sublime.run_command(
-                    "unit_testing_syntax", {"package": package, "output": outfile})
+                sublime.run_command("unit_testing_syntax", args)
             elif syntax_compatibility:
-                sublime.run_command(
-                    "unit_testing_syntax_compatibility", {"package": package, "output": outfile})
+                sublime.run_command("unit_testing_syntax_compatibility", args)
             elif color_scheme_test:
-                sublime.run_command(
-                    "unit_testing_color_scheme", {"package": package, "output": outfile})
+                sublime.run_command("unit_testing_color_scheme", args)
             else:
-                args = {"package": package, "reload_package_on_testing": False}
-                if outfile:
-                    # Command args have the highest precedence. Passing down
-                    # 'None' is not what we want, the intention is to omit it
-                    # so that the value from 'unittesting.json' wins.
-                    args["output"] = outfile
                 sublime.run_command("unit_testing", args)
 
             def condition():
