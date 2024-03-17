@@ -3,8 +3,9 @@ import sublime
 import sys
 import shutil
 
-
 # Clear module cache to force reloading all modules of this package.
+
+# kiss-reloader:
 prefix = __package__ + "."  # don't clear the base package
 for module_name in [
     module_name
