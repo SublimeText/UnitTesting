@@ -1,7 +1,7 @@
 import os
 import re
 import shutil
-from functools import wraps
+from functools import partial, wraps
 from unittest import skipIf
 from unittesting.utils import isiterable
 from unittesting import DeferrableTestCase
@@ -40,7 +40,7 @@ def cleanup_package(package):
 
 
 def prepare_package(package, output=None, syntax_test=False, syntax_compatibility=False,
-                    color_scheme_test=False, delay=200, wait_timeout=10000):
+                    color_scheme_test=False, delay=500, wait_timeout=10000):
     def wrapper(func):
         @wraps(func)
         def real_wrapper(self):
@@ -74,15 +74,16 @@ def prepare_package(package, output=None, syntax_test=False, syntax_compatibilit
             else:
                 sublime.run_command("unit_testing", args)
 
-            def condition():
+            def condition(result_file):
                 with open(result_file, 'r') as f:
                     txt = f.read()
                 return "UnitTesting: Done." in txt
 
-            yield {"condition": condition, "timeout": wait_timeout}
+            yield {"condition": partial(condition, result_file), "timeout": wait_timeout}
 
             with open(result_file, 'r') as f:
                 txt = f.read()
+
             deferred = func(self, txt)
             if isiterable(deferred):
                 yield from deferred
