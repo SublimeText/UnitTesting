@@ -69,7 +69,7 @@ def prepare_package(package, output=None, syntax_test=False, syntax_compatibilit
                 sublime.run_command(
                     "unit_testing_color_scheme", {"package": package, "output": outfile})
             else:
-                args = {"package": package}
+                args = {"package": package, "reload_package_on_testing": False}
                 if outfile:
                     # Command args have the highest precedence. Passing down
                     # 'None' is not what we want, the intention is to omit it
