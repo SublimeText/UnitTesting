@@ -10,12 +10,6 @@
 /.github/                   export-ignore
 /.gitignore                 export-ignore
 
-# CI
-/actions/                   export-ignore
-/docker/                    export-ignore
-/sbin/                      export-ignore
-/scripts/                   export-ignore
-
 # Coverage
 /.coveragerc                export-ignore
 /codecov.yml                export-ignore
