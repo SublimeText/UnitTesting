@@ -106,6 +106,12 @@ def plugin_loaded():
             except FileExistsError:
                 pass
 
+            try:
+                # hide from Package Control quick panels
+                open(os.path.join(UT33, ".hidden-sublime-package"), 'x').close()
+            except FileExistsError:
+                pass
+
         except OSError as e:
             print("UnitTesting: Error while creating python 3.3 module, since", str(e))
 
