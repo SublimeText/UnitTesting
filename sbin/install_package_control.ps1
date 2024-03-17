@@ -53,6 +53,7 @@ try{
         throw "Timeout: Fail to install Package Control."
     }
 
+    start-sleep -seconds 5
     remove-item "$PCH_PATH" -Recurse -Force
     write-host
 
