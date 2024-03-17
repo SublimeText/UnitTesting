@@ -19,16 +19,24 @@ import threading
 
 # todo: allow different sublime versions
 
-PACKAGES_DIR_PATH = os.environ.get("SUBLIME_TEXT_PACKAGES", os.path.realpath(os.path.join(os.path.dirname(__file__), '..', '..')))
-UT_OUTPUT_DIR_PATH = os.path.realpath(os.path.join(PACKAGES_DIR_PATH, 'User', 'UnitTesting'))
-SCHEDULE_FILE_PATH = os.path.realpath(os.path.join(UT_OUTPUT_DIR_PATH, 'schedule.json'))
-UT_DIR_PATH = os.path.realpath(os.path.join(PACKAGES_DIR_PATH, 'UnitTesting'))
-SCHEDULE_RUNNER_SOURCE = os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__))), "run_scheduler.py")
+PACKAGES_DIR_PATH = os.path.realpath(
+    os.environ.get(
+        "SUBLIME_TEXT_PACKAGES", os.path.join(os.path.dirname(__file__), "..", "..")
+    )
+)
+UT_OUTPUT_DIR_PATH = os.path.realpath(
+    os.path.join(PACKAGES_DIR_PATH, "User", "UnitTesting")
+)
+SCHEDULE_FILE_PATH = os.path.realpath(os.path.join(UT_OUTPUT_DIR_PATH, "schedule.json"))
+UT_DIR_PATH = os.path.realpath(os.path.join(PACKAGES_DIR_PATH, "UnitTesting"))
+SCHEDULE_RUNNER_SOURCE = os.path.join(
+    os.path.realpath(os.path.join(os.path.dirname(__file__))), "run_scheduler.py"
+)
 SCHEDULE_RUNNER_TARGET = os.path.join(UT_DIR_PATH, "zzz_run_scheduler.py")
-RX_RESULT = re.compile(r'^(?P<result>OK|FAILED|ERROR)', re.MULTILINE)
-RX_DONE = re.compile(r'^UnitTesting: Done\.$', re.MULTILINE)
+RX_RESULT = re.compile(r"^(?P<result>OK|FAILED|ERROR)", re.MULTILINE)
+RX_DONE = re.compile(r"^UnitTesting: Done\.$", re.MULTILINE)
 
-_is_windows = sys.platform == 'win32'
+_is_windows = sys.platform == "win32"
 
 
 def create_dir_if_not_exists(path):
@@ -50,15 +58,15 @@ def create_schedule(package, output_file, default_schedule):
     schedule = []
 
     try:
-        with open(SCHEDULE_FILE_PATH, 'r') as f:
+        with open(SCHEDULE_FILE_PATH, "r") as f:
             schedule = json.load(f)
     except Exception:
         pass
 
-    if not any(s['package'] == package for s in schedule):
+    if not any(s["package"] == package for s in schedule):
         schedule.append(default_schedule)
 
-    with open(SCHEDULE_FILE_PATH, 'w') as f:
+    with open(SCHEDULE_FILE_PATH, "w") as f:
         f.write(json.dumps(schedule, ensure_ascii=False, indent=True))
 
 
@@ -83,7 +91,7 @@ def wait_for_output(path, schedule, timeout=30):
         if check_has_timed_out():
             print()
             delete_file_if_exists(schedule)
-            raise ValueError('timeout')
+            raise ValueError("timeout")
 
         time.sleep(1)
     else:
@@ -100,13 +108,15 @@ def start_sublime_text():
 
 def kill_sublime_text():
     if _is_windows:
-        subprocess.Popen([
-            "pwsh",
-            "-command",
-            "stop-process -force -processname sublime_text -ea silentlycontinue"])
+        subprocess.Popen(
+            [
+                "pwsh",
+                "-command",
+                "stop-process -force -processname sublime_text -ea silentlycontinue",
+            ]
+        )
     else:
-        subprocess.Popen("pkill [Ss]ubl || true", shell=True)
-        subprocess.Popen("pkill plugin_host || true", shell=True)
+        subprocess.Popen("pkill [Ss]ubl || true; pkill plugin_host || true", shell=True)
 
 
 def read_output(path, timeout=5 * 60):
@@ -118,14 +128,14 @@ def read_output(path, timeout=5 * 60):
 
     def check_is_success(result):
         try:
-            return RX_RESULT.search(result).group('result') == 'OK'
+            return RX_RESULT.search(result).group("result") == "OK"
         except AttributeError:
             return success
 
     lock = threading.Lock()
 
     def reader():
-        with open(path, 'r') as f:
+        with open(path, "r") as f:
             while not done:
                 offset = f.tell()
                 line = f.readline()
@@ -168,34 +178,44 @@ def read_output(path, timeout=5 * 60):
 
         if RX_DONE.search(line) is not None:
             done = True
-            assert success is not None, 'Cannot determine test results.'
+            assert success is not None, "Cannot determine test results."
             break
 
     return success
 
 
-def restore_coverage_file(path, package):
-    # restore .coverage if it exists, needed for coveralls
-    if os.path.exists(path):
-        with open(path, 'r') as f:
-            txt = f.read()
-        txt = txt.replace(os.path.realpath(os.path.join(PACKAGES_DIR_PATH, package)), os.getcwd())
-        with open(os.path.join(os.getcwd(), ".coverage"), "w") as f:
-            f.write(txt)
+def restore_coverage_report(report_file):
+    # restore coverage.xml if it exists, needed for coveralls
+    if not os.path.isfile(report_file):
+        print("UnitTesting: Skipped coverage report.")
+        return
+
+    source_path, name = os.path.split(report_file)
+    dest_path = os.getcwd()
+    dest_file = os.path.join(dest_path, name)
+    with open(report_file, "r") as f:
+        txt = f.read()
+    txt = txt.replace(source_path, dest_path)
+    with open(dest_file, "w") as f:
+        f.write(txt)
+    print(f"UnitTesting: Restored {dest_file}")
 
 
 def main(default_schedule_info):
-    package_under_test = default_schedule_info['package']
+    package_under_test = default_schedule_info["package"]
     output_dir = os.path.join(UT_OUTPUT_DIR_PATH, package_under_test)
     output_file = os.path.join(output_dir, "result")
     coverage_file = os.path.join(output_dir, "coverage")
+    report_file = os.path.join(PACKAGES_DIR_PATH, package_under_test, "coverage.xml")
+    log_file = os.path.join(PACKAGES_DIR_PATH, package_under_test, "unittesting.log")
 
-    default_schedule_info['output'] = output_file
+    default_schedule_info["output"] = output_file
 
     for i in range(3):
         create_dir_if_not_exists(output_dir)
         delete_file_if_exists(output_file)
         delete_file_if_exists(coverage_file)
+        delete_file_if_exists(report_file)
         create_schedule(package_under_test, output_file, default_schedule_info)
         delete_file_if_exists(SCHEDULE_RUNNER_TARGET)
         copy_file_if_not_exists(SCHEDULE_RUNNER_SOURCE, SCHEDULE_RUNNER_TARGET)
@@ -207,12 +227,22 @@ def main(default_schedule_info):
         except ValueError:
             if i == 2:
                 print("Timeout: Could not obtain tests output.")
-                print("Maybe Sublime Text is not responding or the tests output "
-                      "is being written to the wrong file.")
+                print(
+                    "Maybe Sublime Text is not responding or the tests output "
+                    "is being written to the wrong file."
+                )
                 delete_file_if_exists(SCHEDULE_RUNNER_TARGET)
+
+                # print errors recorded by ST
+                if os.path.isfile(log_file):
+                    with open(log_file) as f:
+                        print(f.read())
+
+                kill_sublime_text()
                 sys.exit(1)
-            kill_sublime_text()
-            time.sleep(2)
+            else:
+                kill_sublime_text()
+                time.sleep(2)
 
     print("Start to read output...")
     try:
@@ -221,17 +251,20 @@ def main(default_schedule_info):
     except TimeoutError:
         print("Timeout: output is frozen.")
         delete_file_if_exists(SCHEDULE_RUNNER_TARGET)
+        kill_sublime_text()
         sys.exit(1)
-    restore_coverage_file(coverage_file, package_under_test)
-    delete_file_if_exists(SCHEDULE_RUNNER_TARGET)
+    else:
+        restore_coverage_report(report_file)
+        delete_file_if_exists(SCHEDULE_RUNNER_TARGET)
+        kill_sublime_text()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     parser = optparse.OptionParser()
-    parser.add_option('--syntax-test', action='store_true')
-    parser.add_option('--syntax-compatibility', action='store_true')
-    parser.add_option('--color-scheme-test', action='store_true')
-    parser.add_option('--coverage', action='store_true')
+    parser.add_option("--syntax-test", action="store_true")
+    parser.add_option("--syntax-compatibility", action="store_true")
+    parser.add_option("--color-scheme-test", action="store_true")
+    parser.add_option("--coverage", action="store_true")
 
     options, remainder = parser.parse_args()
 
@@ -242,11 +275,11 @@ if __name__ == '__main__':
     package_under_test = remainder[0] if len(remainder) > 0 else "UnitTesting"
 
     default_schedule_info = {
-        'package': package_under_test,
-        'syntax_test': syntax_test,
-        'syntax_compatibility': syntax_compatibility,
-        'color_scheme_test': color_scheme_test,
-        'coverage': coverage,
+        "package": package_under_test,
+        "syntax_test": syntax_test,
+        "syntax_compatibility": syntax_compatibility,
+        "color_scheme_test": color_scheme_test,
+        "coverage": coverage,
     }
 
     main(default_schedule_info)

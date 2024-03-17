@@ -67,6 +67,8 @@ fi
 # launch sublime text in background
 echo Starting Sublime Text
 for i in {1..3}; do
+    rm -f "$PCH_PATH/success"
+
     subl &
 
     ENDTIME=$(( $(date +%s) + 60 ))
@@ -80,6 +82,13 @@ for i in {1..3}; do
     sleep 4
     [ -f "$PCH_PATH/success" ] && break
 done
+
+echo "" # add newline after progress dots
+echo Terminated Sublime Text
+
+if [ -f "$PCH_PATH/log" ]; then
+    cat "$PCH_PATH/log"
+fi
 
 if [ ! -f "$PCH_PATH/success" ]; then
     if [ -f "$PCH_PATH/log" ]; then
