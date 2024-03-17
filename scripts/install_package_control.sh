@@ -51,7 +51,7 @@ if [ ! -f "$STP/User/Package Control.sublime-settings" ]; then
     echo creating Package Control.sublime-settings
     [ ! -d "$STP/User" ] && mkdir -p "$STP/User"
     # make sure Pakcage Control does not complain
-    echo '{"auto_upgrade": false, "submit_usage": false }' > "$STP/User/Package Control.sublime-settings"
+    echo '{"auto_upgrade": false, "ignore_vcs_packages": true, "remove_orphaned": false, "submit_usage": false }' > "$STP/User/Package Control.sublime-settings"
 fi
 
 PCH_PATH="$STP/0_install_package_control_helper"
