@@ -21,11 +21,11 @@ class UnitTestingCoverageCommand(UnitTestingCommand):
             stream.write("Warning: coverage cannot be loaded.\n\n")
             super().unit_testing(stream, package, settings, [])
             return
-        elif sys.version_info >= (3, 8) and sys.platform == "darwin":
-            # https://github.com/SublimeText/UnitTesting/issues/234
-            stream.write("Warning: coverage not compatible with ST4 on MacOS.\n\n")
-            super().unit_testing(stream, package, settings, [])
-            return
+        # elif sys.version_info >= (3, 8) and sys.platform == "darwin":
+        #     # https://github.com/SublimeText/UnitTesting/issues/234
+        #     stream.write("Warning: coverage not compatible with ST4 on MacOS.\n\n")
+        #     super().unit_testing(stream, package, settings, [])
+        #     return
 
         package_path = os.path.join(sublime.packages_path(), package)
         data_file_dir = os.path.join(sublime.packages_path(), "User", "UnitTesting", package)
