@@ -24,6 +24,7 @@ sys.modules["unittesting"] = unittesting
 from unittesting import UnitTestingCommand
 from unittesting import UnitTestingCoverageCommand
 from unittesting import UnitTestingCurrentFileCommand
+from unittesting import UnitTestingCurrentFileCoverageCommand
 from unittesting import UnitTestingCurrentPackageCommand
 from unittesting import UnitTestingCurrentPackageCoverageCommand
 from unittesting import UnitTestingSyntaxCommand
@@ -35,6 +36,7 @@ __all__ = [
     "UnitTestingCommand",
     "UnitTestingCoverageCommand",
     "UnitTestingCurrentFileCommand",
+    "UnitTestingCurrentFileCoverageCommand",
     "UnitTestingCurrentPackageCommand",
     "UnitTestingCurrentPackageCoverageCommand",
     "UnitTestingSyntaxCommand",
@@ -63,6 +65,10 @@ class UnitTesting33CurrentPackageCoverageCommand(ut38.UnitTestingCurrentPackageC
 
 
 class UnitTesting33CurrentFileCommand(ut38.UnitTestingCurrentFileCommand):
+    pass
+
+
+class UnitTesting33CurrentFileCoverageCommand(ut38.UnitTestingCurrentFileCoverageCommand):
     pass
 
 

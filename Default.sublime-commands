@@ -16,6 +16,10 @@
     "command": "unit_testing_current_file"
   },
   {
+    "caption": "UnitTesting: Test Current File with Coverage",
+    "command": "unit_testing_current_file_coverage"
+  },
+  {
     "caption": "UnitTesting: Show Output Panel",
     "command": "show_panel", "args": { "panel": "output.UnitTesting" }
   }
