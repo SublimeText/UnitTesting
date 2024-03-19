@@ -20,16 +20,9 @@ runs:
         PACKAGE="${PACKAGE_FROM_INPUTS:-$PACKAGE}"
 
         if [ "${{ inputs.coverage }}" == "true" ]; then
-          python3 "$GITHUB_ACTION_PATH/../../scripts/run_tests.py" "$PACKAGE" --coverage
+          python "$GITHUB_ACTION_PATH/../../scripts/run_tests.py" "$PACKAGE" --coverage
         else
-          python3 "$GITHUB_ACTION_PATH/../../scripts/run_tests.py" "$PACKAGE"
-        fi
-      shell: bash
-    - if: inputs.coverage == 'true'
-      run: |
-        if [ -f ./.coverage ]; then
-          pip3 install coverage==4.5.4
-          python3 -m coverage xml -o coverage.xml
+          python "$GITHUB_ACTION_PATH/../../scripts/run_tests.py" "$PACKAGE"
         fi
       shell: bash
     - if: inputs.codecov-upload == 'true'
@@ -38,4 +31,4 @@ runs:
         echo "Please call the action `codecov/codecov-action` directly".
       shell: bash
     - if: inputs.codecov-upload == 'true'
-      uses: codecov/codecov-action@v3
+      uses: codecov/codecov-action@v4

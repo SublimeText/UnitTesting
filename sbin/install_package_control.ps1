@@ -9,14 +9,14 @@ try{
     New-Item -itemtype directory $STIP -force >$null
 
     $PC_PATH = "$STIP\Package Control.sublime-package"
-    $PC_URL = "https://packagecontrol.io/Package Control.sublime-package"
+    $PC_URL = "https://github.com/wbond/package_control/releases/latest/download/Package.Control.sublime-package"
     (New-Object System.Net.WebClient).DownloadFile($PC_URL, $PC_PATH)
 
     $PC_SETTINGS = "C:\st\Data\Packages\User\Package Control.sublime-settings"
 
     if (-not (test-path $PC_SETTINGS)) {
         write-verbose "creating Package Control.sublime-settings"
-        "{`"ignore_vcs_packages`": true }" | out-file -filepath $PC_SETTINGS -encoding ascii
+        "{`"auto_upgrade`": false, `"ignore_vcs_packages`": true, `"remove_orphaned`": false, `"submit_usage`": false }" | out-file -filepath $PC_SETTINGS -encoding utf8
     }
 
     $PCH_PATH = "$STP\0_install_package_control_helper"
@@ -24,8 +24,12 @@ try{
 
     $BASE = Split-Path -parent $PSCommandPath
     Copy-Item "$BASE\pc_helper.py" "$PCH_PATH\pc_helper.py"
+    Copy-Item "$BASE\.python-version" "$PCH_PATH\.python-version"
 
     for ($i=1; $i -le 3; $i++) {
+        if (test-path "$PCH_PATH\success") {
+            remove-item "$PCH_PATH\success" -Force
+        }
 
         & "C:\st\sublime_text.exe"
         $startTime = get-date
@@ -49,6 +53,7 @@ try{
         throw "Timeout: Fail to install Package Control."
     }
 
+    start-sleep -seconds 5
     remove-item "$PCH_PATH" -Recurse -Force
     write-host
 

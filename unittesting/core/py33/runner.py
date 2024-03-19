@@ -20,6 +20,7 @@ run_on_worker = sublime.set_timeout_async
 
 class DeferringTextTestRunner(TextTestRunner):
     """This test runner runs tests in deferred slices."""
+    condition_timeout = DEFAULT_CONDITION_TIMEOUT
 
     def run(self, test):
         """Run the given test case or test suite."""
@@ -87,9 +88,10 @@ class DeferringTextTestRunner(TextTestRunner):
         def _wait_condition(
             deferred, condition,
             period=DEFAULT_CONDITION_POLL_TIME,
-            timeout=DEFAULT_CONDITION_TIMEOUT,
+            timeout=None,
             start_time=None
         ):
+            timeout = timeout or self.condition_timeout
             if start_time is None:
                 start_time = time.time()
 

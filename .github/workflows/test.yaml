@@ -15,7 +15,7 @@ jobs:
   cancel-previous-runs:
     runs-on: ubuntu-latest
     steps:
-      - uses: styfle/cancel-workflow-action@0.9.1
+      - uses: styfle/cancel-workflow-action@0.12.1
         with:
           access_token: ${{ github.token }}
 
@@ -27,7 +27,7 @@ jobs:
         os: ["ubuntu-latest", "macOS-latest", "windows-latest"]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - uses: "./actions/setup"
         with:
           sublime-text-version: ${{ matrix.st-version }}
@@ -35,7 +35,7 @@ jobs:
       - uses: "./actions/run-tests"
         with:
           coverage: true
-      - uses: codecov/codecov-action@v3
+      - uses: codecov/codecov-action@v4
         with:
           token: ${{secrets.CODECOV_TOKEN}}
 
@@ -46,7 +46,7 @@ jobs:
         os: ["ubuntu-latest", "macOS-latest", "windows-latest"]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - uses: "./actions/setup"
         with:
           install-package: false
@@ -59,7 +59,7 @@ jobs:
         os: ["ubuntu-latest", "macOS-latest", "windows-latest"]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - uses: SublimeText/UnitTesting/actions/setup@v1
         with:
           install-unittesting: false
@@ -72,11 +72,11 @@ jobs:
         os: ["ubuntu-latest", "windows-latest"]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           repository: randy3k/UnitTesting-example
           path: UnitTesting-example
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           path: UnitTesting
       - uses: "./UnitTesting/actions/setup"

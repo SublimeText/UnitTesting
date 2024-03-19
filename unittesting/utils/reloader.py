@@ -1,38 +1,12 @@
+import functools
+import os
+import posixpath
+import sys
+import threading
+import importlib
+
 import sublime
 import sublime_plugin
-import os
-import threading
-import builtins
-import functools
-import importlib
-import sys
-import types
-from contextlib import contextmanager
-
-try:
-    from package_control.package_manager import PackageManager
-
-    def is_dependency(pkg_name):
-        return PackageManager()._is_dependency(pkg_name)
-
-except ImportError:
-    def is_dependency(pkg_name):
-        return False
-
-
-class StackMeter:
-
-    def __init__(self, depth=0):
-        super().__init__()
-        self.depth = depth
-
-    def __enter__(self):  # noqa: D105 Missing docstring in magic method
-        depth = self.depth
-        self.depth += 1
-        return depth
-
-    def __exit__(self, *exc_info):  # noqa: D105 Missing docstring in magic method
-        self.depth -= 1
 
 
 def dprint(*args, fill=None, fill_width=60, **kwargs):
@@ -41,7 +15,7 @@ def dprint(*args, fill=None, fill_width=60, **kwargs):
         caption = sep.join(args)
         args = "{0:{fill}<{width}}".format(caption and caption + sep,
                                            fill=fill, width=fill_width),
-    print("[Package Reloader]", *args, **kwargs)
+    print("UnitTesting:", *args, **kwargs)
 
 
 def path_contains(a, b):
@@ -49,6 +23,7 @@ def path_contains(a, b):
 
 
 def get_package_modules(pkg_name):
+    # (str) -> Dict[str, ModuleType]
     in_installed_path = functools.partial(
         path_contains,
         os.path.join(
@@ -63,8 +38,10 @@ def get_package_modules(pkg_name):
     )
 
     def module_in_package(module):
-        file = getattr(module, '__file__', '') or ''
-        paths = getattr(module, '__path__', ()) or ''
+        # Other (extracted) ST plugins using python 3.8 have this set to
+        # `None` surprisingly.
+        file = getattr(module, '__file__', None) or ''
+        paths = getattr(module, '__path__', ())
         return (
             in_installed_path(file) or any(map(in_installed_path, paths)) or
             in_package_path(file) or any(map(in_package_path, paths))
@@ -77,63 +54,45 @@ def get_package_modules(pkg_name):
     }
 
 
-# check the link for comments
-# https://github.com/divmain/GitSavvy/blob/599ba3cdb539875568a96a53fafb033b01708a67/common/util/reload.py
-def reload_package(pkg_name, dummy=True, verbose=True):
-    if is_dependency(pkg_name):
-        reload_dependency(pkg_name, dummy, verbose)
-        return
+def package_plugins(pkg_name):
+    return [
+        pkg_name + '.' + posixpath.basename(posixpath.splitext(path)[0])
+        for path in sublime.find_resources("*.py")
+        if posixpath.dirname(path) == 'Packages/' + pkg_name
+    ]
 
+
+def reload_package(pkg_name, dummy=True, verbose=True):
     if pkg_name not in sys.modules:
         dprint("error:", pkg_name, "is not loaded.")
         return
 
-    if verbose:
-        dprint("begin", fill='=')
+    all_modules = {
+        module_name: module
+        for module_name, module in get_package_modules(pkg_name).items()
+    }
+    plugins = [plugin for plugin in package_plugins(pkg_name)]
 
-    modules = get_package_modules(pkg_name)
+    # Tell Sublime to unload plugins
+    for plugin in plugins:
+        module = sys.modules.get(plugin)
+        if module:
+            sublime_plugin.unload_module(module)
 
-    for m in modules:
-        if m in sys.modules:
-            sublime_plugin.unload_module(modules[m])
-            del sys.modules[m]
+    # Unload modules
+    for module_name in all_modules:
+        sys.modules.pop(module_name)
 
-    try:
-        with intercepting_imports(modules, verbose), \
-                importing_fromlist_aggresively(modules):
+    sys.modules[pkg_name] = importlib.import_module(pkg_name)
 
-            reload_plugin(pkg_name)
-    except Exception:
-        dprint("reload failed.", fill='-')
-        reload_missing(modules, verbose)
-        raise
+    # After all (sub-)modules have been removed from modules cache,
+    # reloading top-level plugins will automatically re-import them
+    # in correct order without any further action needed.
+    for plugin in plugins:
+        sublime_plugin.reload_plugin(plugin)
 
-    if dummy:
-        load_dummy(verbose)
-
-    if verbose:
-        dprint("end", fill='-')
-
-
-def reload_dependency(dependency_name, dummy=True, verbose=True):
-    """
-    Reload.
-
-    Package Control dependencies aren't regular packages, so we don't want to
-    call `sublime_plugin.unload_module` or `sublime_plugin.reload_plugin`.
-    Instead, we manually unload all of the modules in the dependency and then
-    `reload_package` any packages that use that dependency. (We have to manually
-    unload the dependency's modules because calling `reload_package` on a
-    dependent module will not unload the dependency.)
-    """
-    for name in get_package_modules(dependency_name):
-        del sys.modules[name]
-
-    manager = PackageManager()
-    for package in manager.list_packages():
-        if dependency_name in manager.get_dependencies(package):
-            reload_package(package, dummy=False, verbose=verbose)
-
+    # Install and uninstall a dummy package so ST updates
+    # command and event listener bindings
     if dummy:
         load_dummy(verbose)
 
@@ -190,84 +149,3 @@ def load_dummy(verbose):
     condition.acquire()
     condition.wait(30)  # 30 seconds should be enough for all regular usages
     condition.release()
-
-
-def reload_missing(modules, verbose):
-    missing_modules = {name: module for name, module in modules.items()
-                       if name not in sys.modules}
-    if missing_modules:
-        if verbose:
-            dprint("reload missing modules")
-        for name in missing_modules:
-            if verbose:
-                dprint("reloading missing module", name)
-            sys.modules[name] = modules[name]
-
-
-def reload_plugin(pkg_name):
-    pkg_path = os.path.join(os.path.realpath(sublime.packages_path()), pkg_name)
-    plugins = [pkg_name + "." + os.path.splitext(file_path)[0]
-               for file_path in os.listdir(pkg_path) if file_path.endswith(".py")]
-    for plugin in plugins:
-        sublime_plugin.reload_plugin(plugin)
-
-
-@contextmanager
-def intercepting_imports(modules, verbose):
-    finder = FilterFinder(modules, verbose)
-    sys.meta_path.insert(0, finder)
-    try:
-        yield
-    finally:
-        if finder in sys.meta_path:
-            sys.meta_path.remove(finder)
-
-
-@contextmanager
-def importing_fromlist_aggresively(modules):
-    orig___import__ = builtins.__import__
-
-    @functools.wraps(orig___import__)
-    def __import__(name, globals=None, locals=None, fromlist=(), level=0):
-        module = orig___import__(name, globals, locals, fromlist, level)
-        if fromlist and module.__name__ in modules:
-            if '*' in fromlist:
-                fromlist = list(fromlist)
-                fromlist.remove('*')
-                fromlist.extend(getattr(module, '__all__', []))
-            for x in fromlist:
-                if isinstance(getattr(module, x, None), types.ModuleType):
-                    from_name = '{}.{}'.format(module.__name__, x)
-                    if from_name in modules:
-                        importlib.import_module(from_name)
-        return module
-
-    builtins.__import__ = __import__
-    try:
-        yield
-    finally:
-        builtins.__import__ = orig___import__
-
-
-class FilterFinder:
-    def __init__(self, modules, verbose):
-        self._modules = modules
-        self._stack_meter = StackMeter()
-        self._verbose = verbose
-
-    def find_module(self, name, path=None):
-        if name in self._modules:
-            return self
-
-    def load_module(self, name):
-        module = self._modules[name]
-        sys.modules[name] = module  # restore the module back
-        with self._stack_meter as depth:
-            if self._verbose:
-                dprint("reloading", ('| ' * depth) + '|--', name)
-            try:
-                return module.__loader__.load_module(name)
-            except Exception:
-                if name in sys.modules:
-                    del sys.modules[name]  # to indicate an error
-                raise

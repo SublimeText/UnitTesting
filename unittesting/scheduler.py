@@ -1,8 +1,6 @@
 import os
-import threading
-import time
 import sublime
-import sublime_plugin
+
 from .utils import JsonFile
 
 
@@ -36,7 +34,8 @@ class Unit:
         elif self.coverage:
             sublime.run_command("unit_testing_coverage", {
                 "package": self.package,
-                "output": self.output
+                "output": self.output,
+                "generate_xml_report": True
             })
         else:
             sublime.run_command("unit_testing", {
@@ -70,24 +69,6 @@ class Scheduler:
         self.j.save([])
 
 
-class UnitTestingRunSchedulerCommand(sublime_plugin.ApplicationCommand):
-    ready = False
-
-    def run(self):
-        UnitTestingRunSchedulerCommand.ready = True
-        scheduler = Scheduler()
-        sublime.set_timeout(scheduler.run, 2000)
-
-
-def try_running_scheduler():
-    while not UnitTestingRunSchedulerCommand.ready:
-        sublime.set_timeout(
-            lambda: sublime.run_command("unit_testing_run_scheduler"), 1)
-
-        time.sleep(1)
-
-
 def run_scheduler():
-    UnitTestingRunSchedulerCommand.ready = False
-    th = threading.Thread(target=try_running_scheduler)
-    th.start()
+    # delay schedule initialization and execution
+    sublime.set_timeout(lambda: Scheduler().run(), 2000)
