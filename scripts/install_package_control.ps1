@@ -13,16 +13,17 @@ $STPU = "C:\st\Data\Packages\User"
 New-Item -itemtype directory $STPU -force >$null
 
 $PC_PATH = "$STIP\Package Control.sublime-package"
-if (-not (test-path $PC_PATH)) {
+if (-not (Test-Path $PC_PATH)) {
+    Write-Verbose "Downloading Package Control.sublime-package"
     $PC_URL = "https://github.com/wbond/package_control/releases/latest/download/Package.Control.sublime-package"
     (New-Object System.Net.WebClient).DownloadFile($PC_URL, $PC_PATH)
 }
 
 $PC_SETTINGS = "C:\st\Data\Packages\User\Package Control.sublime-settings"
 
-if (-not (test-path $PC_SETTINGS)) {
-    write-verbose "creating Package Control.sublime-settings"
-    "{`"auto_upgrade`": false, `"ignore_vcs_packages`": true, `"remove_orphaned`": false, `"submit_usage`": false }" | out-file -filepath $PC_SETTINGS -encoding utf8
+if (-not (Test-Path $PC_SETTINGS)) {
+    Write-Verbose "Creating Package Control.sublime-settings"
+    "{`"auto_upgrade`": false, `"ignore_vcs_packages`": true, `"remove_orphaned`": false, `"submit_usage`": false }" | Out-File -filepath $PC_SETTINGS -encoding utf8
 }
 
 $PCH_PATH = "$STP\0_install_package_control_helper"
@@ -32,35 +33,33 @@ $BASE = Split-Path -parent $PSCommandPath
 Copy-Item "$BASE\install_package_control_helper.py" "$PCH_PATH\install_package_control_helper.py"
 Copy-Item "$BASE\.python-version" "$PCH_PATH\.python-version"
 
-for ($i=1; $i -le 3; $i++) {
-    if (test-path "$PCH_PATH\success") {
-        remove-item "$PCH_PATH\success" -Force
-    }
+Write-Verbose "Starting Sublime Text."
+
+for ($i=1; ($i -le 3) -and -not (Test-Path "$PCH_PATH\failed") -and -not (Test-Path "$PCH_PATH\success"); $i++) {
 
     & "C:\st\sublime_text.exe"
-    $startTime = get-date
-    while ((-not (test-path "$PCH_PATH\success")) -and (((get-date) - $startTime).totalseconds -le 60)){
-        write-host -nonewline "."
-        start-sleep -seconds 5
+    $startTime = Get-Date
+    while ((-not (Test-Path "$PCH_PATH\failed")) -and  (-not (Test-Path "$PCH_PATH\success")) -and (((Get-Date) - $startTime).totalseconds -le 60)) {
+        Write-Host -nonewline "."
+        Start-Sleep -seconds 5
     }
-    stop-process -force -processname sublime_text -ea silentlycontinue
-    start-sleep -seconds 2
 
-    if (test-path "$PCH_PATH\success") {
-        break
-    }
+    Stop-Process -force -processname sublime_text -ea silentlycontinue
+    Start-Sleep -seconds 4
+}
+Write-Host
+
+Write-Verbose "Terminated Sublime Text."
+
+if (Test-Path "$PCH_PATH\log") {
+    Get-Content -Path "$PCH_PATH\log"
 }
 
-if (-not (test-path "$PCH_PATH\success")) {
-    if (test-path "$PCH_PATH\log") {
-        get-content -Path "$PCH_PATH\log"
-    }
-    remove-item "$PCH_PATH" -Recurse -Force
+if (-not (Test-Path "$PCH_PATH\success")) {
+    Remove-Item "$PCH_PATH" -Recurse -Force
     throw "Timeout: Fail to install Package Control."
 }
 
-start-sleep -seconds 5
-remove-item "$PCH_PATH" -Recurse -Force
-write-host
+Remove-Item "$PCH_PATH" -Recurse -Force
 
-write-verbose "Package Control installed."
+Write-Verbose "Package Control installed."
