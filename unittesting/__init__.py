@@ -1,5 +1,10 @@
 # API
-from .core import DeferrableTestCase, AWAIT_WORKER, expectedFailure
+from .core import AWAIT_WORKER
+from .core import DeferrableTestCase
+from .core import expectedFailure
+from .helpers import OverridePreferencesTestCase
+from .helpers import TempDirectoryTestCase
+from .helpers import ViewTestCase
 from .scheduler import run_scheduler
 
 # commands
@@ -19,7 +24,11 @@ __all__ = [
     "DeferrableTestCase",
     "expectedFailure",
     "run_scheduler",
+    "OverridePreferencesTestCase",
+    "TempDirectoryTestCase",
+    "ViewTestCase",
     "UnitTestingCommand",
+    "UnitTestingColorSchemeCommand",
     "UnitTestingCoverageCommand",
     "UnitTestingCurrentFileCommand",
     "UnitTestingCurrentFileCoverageCommand",
@@ -27,5 +36,4 @@ __all__ = [
     "UnitTestingCurrentPackageCoverageCommand",
     "UnitTestingSyntaxCommand",
     "UnitTestingSyntaxCompatibilityCommand",
-    "UnitTestingColorSchemeCommand",
 ]
