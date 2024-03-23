@@ -1,7 +1,7 @@
-from fnmatch import fnmatch
 import os
-
 import sublime
+
+from fnmatch import fnmatch
 
 from .package import UnitTestingCommand
 from .coverage import UnitTestingCoverageCommand

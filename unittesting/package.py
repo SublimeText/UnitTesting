@@ -1,9 +1,12 @@
+import logging
+import os
 import sublime
 import sublime_plugin
 import sys
-import os
-import logging
+import threading
+
 from unittest import TextTestRunner, TestSuite
+
 from .core import (
     TestLoader,
     DeferringTextTestRunner,
@@ -12,7 +15,6 @@ from .core import (
 from .mixin import UnitTestingMixin
 from .const import DONE_MESSAGE
 from .utils import ProgressBar, StdioSplitter
-import threading
 
 
 class UnitTestingCommand(sublime_plugin.ApplicationCommand, UnitTestingMixin):

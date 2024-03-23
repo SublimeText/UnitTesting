@@ -1,9 +1,9 @@
 import sublime
+import sublime_api
 import sublime_plugin
+
 from .mixin import UnitTestingMixin
 from .const import DONE_MESSAGE
-
-import sublime_api
 
 
 class UnitTestingSyntaxBase(sublime_plugin.ApplicationCommand, UnitTestingMixin):

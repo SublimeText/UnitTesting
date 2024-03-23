@@ -1,7 +1,8 @@
-import sublime
 import os
 import shutil
+import sublime
 import tempfile
+
 from .. import DeferrableTestCase
 
 

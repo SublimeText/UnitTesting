@@ -1,7 +1,9 @@
-from collections import ChainMap
 import os
-import sys
 import re
+import sublime
+import sys
+
+from collections import ChainMap
 from glob import glob
 
 from .utils import reload_package
@@ -9,7 +11,6 @@ from .utils import OutputPanel
 from .utils import JsonFile
 from .utils import ProgressBar
 
-import sublime
 
 
 DEFAULT_SETTINGS = {

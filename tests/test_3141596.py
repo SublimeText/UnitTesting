@@ -1,14 +1,15 @@
 import os
 import re
 import shutil
+import sublime
+
 from functools import wraps
 from unittest import skipIf
-from unittesting.utils import isiterable
+from unittesting import AWAIT_WORKER
 from unittesting import DeferrableTestCase
 from unittesting.helpers import TempDirectoryTestCase
 from unittesting.helpers import ViewTestCase
-from unittesting import AWAIT_WORKER
-import sublime
+from unittesting.utils import isiterable
 
 BASEDIR = os.path.dirname(os.path.abspath(__file__))
 
