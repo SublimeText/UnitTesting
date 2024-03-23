@@ -1,6 +1,7 @@
 import sys
 import unittest
 from unittest.case import _Outcome
+from .runner import defer
 from ...utils import isiterable
 
 
@@ -25,6 +26,10 @@ class DeferrableTestCase(unittest.TestCase):
         deferred = function(*args, **kwargs)
         if isiterable(deferred):
             yield from deferred
+
+    @staticmethod
+    def defer(delay, callback, *args, **kwargs):
+        defer(delay, callback, *args, **kwargs)
 
     def run(self, result=None):
         orig_result = result

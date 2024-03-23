@@ -3,7 +3,9 @@ import unittest
 import warnings
 from functools import wraps
 from unittest.case import _ExpectedFailure, _UnexpectedSuccess, SkipTest, _Outcome
+
 from ...utils import isiterable
+from .runner import defer
 
 
 def expectedFailure(func):
@@ -51,6 +53,10 @@ class DeferrableTestCase(unittest.TestCase):
         except Exception:
             outcome.success = False
             outcome.errors.append(sys.exc_info())
+
+    @staticmethod
+    def defer(delay, callback, *args, **kwargs):
+        defer(delay, callback, *args, **kwargs)
 
     def run(self, result=None):
         orig_result = result
