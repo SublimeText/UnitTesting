@@ -100,10 +100,8 @@ class UnitTestingMixin(object):
     def default_output(self, package):
         outputdir = os.path.join(
             sublime.packages_path(), 'User', 'UnitTesting', "tests_output")
-        if not os.path.isdir(outputdir):
-            os.makedirs(outputdir)
-        outfile = os.path.join(outputdir, package)
-        return outfile
+        os.makedirs(outputdir, exist_ok=True)
+        return os.path.join(outputdir, package)
 
     def load_stream(self, package, settings):
         output = settings["output"]
@@ -117,9 +115,8 @@ class UnitTestingMixin(object):
                 if sublime.platform() == "windows":
                     output = output.replace("/", "\\")
                 output = os.path.join(sublime.packages_path(), package, output)
-            if os.path.exists(output):
-                os.remove(output)
-            stream = open(output, "w")
+            os.makedirs(os.path.dirname(output), exist_ok=True)
+            stream = open(output, "w", encoding="utf-8")
 
         return stream
 
