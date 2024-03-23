@@ -15,21 +15,15 @@ for module_name in [
     del sys.modules[module_name]
 prefix = None
 
-import UnitTesting
-from UnitTesting import unittesting
-
-sys.modules["unittesting"] = unittesting
-
-
-from unittesting import UnitTestingCommand
-from unittesting import UnitTestingCoverageCommand
-from unittesting import UnitTestingCurrentFileCommand
-from unittesting import UnitTestingCurrentFileCoverageCommand
-from unittesting import UnitTestingCurrentPackageCommand
-from unittesting import UnitTestingCurrentPackageCoverageCommand
-from unittesting import UnitTestingSyntaxCommand
-from unittesting import UnitTestingSyntaxCompatibilityCommand
-from unittesting import UnitTestingColorSchemeCommand
+from .unittesting.color_scheme import UnitTestingColorSchemeCommand
+from .unittesting.coverage import UnitTestingCoverageCommand
+from .unittesting.current import UnitTestingCurrentFileCommand
+from .unittesting.current import UnitTestingCurrentFileCoverageCommand
+from .unittesting.current import UnitTestingCurrentPackageCommand
+from .unittesting.current import UnitTestingCurrentPackageCoverageCommand
+from .unittesting.package import UnitTestingCommand
+from .unittesting.syntax import UnitTestingSyntaxCommand
+from .unittesting.syntax import UnitTestingSyntaxCompatibilityCommand
 
 
 __all__ = [
@@ -42,7 +36,12 @@ __all__ = [
     "UnitTestingSyntaxCommand",
     "UnitTestingSyntaxCompatibilityCommand",
     "UnitTestingColorSchemeCommand",
+    "plugin_loaded",
+    "plugin_unloaded",
 ]
+
+# publish unittesting module
+sys.modules["unittesting"] = sys.modules["UnitTesting"].unittesting
 
 UT33_CODE = """
 from UnitTesting import plugin as ut38  # noqa
