@@ -1,7 +1,7 @@
 import os
 import re
 import shutil
-from functools import partial, wraps
+from functools import wraps
 from unittest import skipIf
 from unittesting.utils import isiterable
 from unittesting import DeferrableTestCase
@@ -11,75 +11,74 @@ from unittesting import AWAIT_WORKER
 import sublime
 
 BASEDIR = os.path.dirname(os.path.abspath(__file__))
-UUTDIR = os.path.join(
-    sublime.packages_path(), 'User', 'UnitTesting')
 
 
-def set_package(package):
+def setup_package(package):
+    packages_path = sublime.packages_path()
+    package_path = os.path.join(packages_path, package)
     try:
-        shutil.rmtree(os.path.join(sublime.packages_path(), package))
-    except Exception:
+        shutil.rmtree(package_path)
+    except FileNotFoundError:
         pass
     try:
-        shutil.copytree(
-            os.path.join(BASEDIR, package),
-            os.path.join(sublime.packages_path(), package))
-    except Exception:
+        shutil.copytree(os.path.join(BASEDIR, package), package_path)
+    except FileNotFoundError:
         pass
     try:
-        shutil.rmtree(os.path.join(UUTDIR, package))
-    except Exception:
+        shutil.rmtree(os.path.join(packages_path, "User", "UnitTesting", package))
+    except FileNotFoundError:
         pass
 
 
 def cleanup_package(package):
     try:
         shutil.rmtree(os.path.join(sublime.packages_path(), package))
-    except Exception:
+    except FileNotFoundError:
         pass
 
 
-def prepare_package(package, output=None, syntax_test=False, syntax_compatibility=False,
-                    color_scheme_test=False, delay=1000, wait_timeout=5000):
+def with_package(package, output=None, syntax_test=False, syntax_compatibility=False,
+                 color_scheme_test=False, wait_timeout=5000):
     def wrapper(func):
         @wraps(func)
         def real_wrapper(self):
-            set_package(package)
-            if output:
-                # set by _Ooutput/unittesting.json
-                outfile = None
-                result_file = os.path.join(sublime.packages_path(), package, output)
-            else:
-                outfiledir = os.path.join(UUTDIR, package)
-                outfile = os.path.join(outfiledir, "result")
-                result_file = outfile
-                os.makedirs(outfiledir, exist_ok=True)
+            packages_path = sublime.packages_path()
 
-            yield delay
+            if output:
+                # set by _Output/unittesting.json
+                outfile = None
+                result_file = os.path.join(packages_path, package, output)
+            else:
+                outfile = os.path.join(packages_path, "User", "UnitTesting", package, "result")
+                result_file = outfile
+
             yield AWAIT_WORKER
 
-            args = {"package": package}
+            kwargs = {"package": package}
             if outfile:
-                # Command args have the highest precedence. Passing down
+                # Command kwargs have the highest precedence. Passing down
                 # 'None' is not what we want, the intention is to omit it
                 # so that the value from 'unittesting.json' wins.
-                args["output"] = outfile
+                kwargs["output"] = outfile
 
             if syntax_test:
-                sublime.run_command("unit_testing_syntax", args)
+                sublime.run_command("unit_testing_syntax", kwargs)
             elif syntax_compatibility:
-                sublime.run_command("unit_testing_syntax_compatibility", args)
+                sublime.run_command("unit_testing_syntax_compatibility", kwargs)
             elif color_scheme_test:
-                sublime.run_command("unit_testing_color_scheme", args)
+                sublime.run_command("unit_testing_color_scheme", kwargs)
             else:
-                sublime.run_command("unit_testing", args)
+                sublime.run_command("unit_testing", kwargs)
 
-            def condition(result_file):
-                with open(result_file, 'r') as f:
-                    txt = f.read()
-                return "UnitTesting: Done." in txt
+            def condition():
+                try:
+                    with open(result_file, 'r') as f:
+                        txt = f.read()
+                    return "UnitTesting: Done." in txt
+                except FileNotFoundError:
+                    return False
 
-            yield {"condition": partial(condition, result_file), "timeout": wait_timeout}
+            yield {"condition": condition, "period": 200, "timeout": wait_timeout}
 
             with open(result_file, 'r') as f:
                 txt = f.read()
@@ -88,14 +87,24 @@ def prepare_package(package, output=None, syntax_test=False, syntax_compatibilit
             if isiterable(deferred):
                 yield from deferred
 
-            cleanup_package(package)
-
             yield
+
         return real_wrapper
+
     return wrapper
 
 
 class UnitTestingTestCase(DeferrableTestCase):
+    fixtures = ()
+
+    def setUp(self):
+        for fixture in self.fixtures:
+            setup_package(fixture)
+        yield 500
+
+    def tearDown(self):
+        for fixture in self.fixtures:
+            cleanup_package(fixture)
 
     def assertRegexContains(self, txt, expr, msg=None):
         if re.search(expr, txt, re.MULTILINE) is None:
@@ -108,75 +117,85 @@ class UnitTestingTestCase(DeferrableTestCase):
 
 
 class TestUnitTesting(UnitTestingTestCase):
+    fixtures = (
+        "_Success", "_Failure", "_Empty", "_Output", "_Deferred", "_Async"
+    )
 
-    @prepare_package("_Success")
+    @with_package("_Success")
     def test_success(self, txt):
         self.assertOk(txt)
 
-    @prepare_package("_Failure")
+    @with_package("_Failure")
     def test_failure(self, txt):
         self.assertRegexContains(txt, r'^FAILED \(failures=1\)')
 
-    @prepare_package("_Error")
+    @with_package("_Error")
     def test_error(self, txt):
         self.assertRegexContains(txt, r'^ERROR')
 
-    @prepare_package("_Empty")
+    @with_package("_Empty")
     def test_empty(self, txt):
         self.assertRegexContains(txt, r'^No tests are found.')
 
-    @prepare_package("_Output", "tests/result")
+    @with_package("_Output", "tests/result")
     def test_output(self, txt):
         self.assertOk(txt)
 
-    @prepare_package("_Deferred")
+    @with_package("_Deferred")
     def test_deferred(self, txt):
         self.assertOk(txt)
 
-    @prepare_package("_Async")
+    @with_package("_Async")
     def test_async(self, txt):
         self.assertOk(txt)
 
 
 class TestSyntax(UnitTestingTestCase):
+    fixtures = (
+        "_Syntax_Failure",
+        "_Syntax_Success",
+        "_Syntax_Compat_Failure",
+        "_Syntax_Compat_Success",
+    )
 
-    @prepare_package("_Syntax_Failure", syntax_test=True)
+    @with_package("_Syntax_Failure", syntax_test=True)
     def test_fail_syntax(self, txt):
         self.assertRegexContains(txt, r'^FAILED: 1 of 21 assertions in 1 file failed$')
 
-    @prepare_package("_Syntax_Success", syntax_test=True)
+    @with_package("_Syntax_Success", syntax_test=True)
     def test_success_syntax(self, txt):
         self.assertOk(txt)
 
-    @prepare_package("_Syntax_Error", syntax_test=True)
+    @with_package("_Syntax_Error", syntax_test=True)
     def test_error_syntax(self, txt):
         self.assertRegexContains(txt, r'^ERROR: No syntax_test')
 
-    @prepare_package("_Syntax_Compat_Failure", syntax_compatibility=True)
+    @with_package("_Syntax_Compat_Failure", syntax_compatibility=True)
     def test_fail_syntax_compatibility(self, txt):
         self.assertRegexContains(txt, r'^FAILED: 3 errors in 1 of 1 syntax$')
 
-    @prepare_package("_Syntax_Compat_Success", syntax_compatibility=True)
+    @with_package("_Syntax_Compat_Success", syntax_compatibility=True)
     def test_success_syntax_compatibility(self, txt):
         self.assertOk(txt)
 
 
 def has_colorschemeunit():
-    if "ColorSchemeUnit.sublime-package" in os.listdir(sublime.installed_packages_path()):
-        return True
-    elif "ColorSchemeUnit" in os.listdir(sublime.packages_path()):
-        return True
-    return False
+    return (
+        os.path.isfile(os.path.join(sublime.installed_packages_path(), "ColorSchemeUnit.sublime-package")) or
+        os.path.isdir(os.path.join(sublime.packages_path(), "ColorSchemeUnit"))
+    )
 
 
 class TestColorScheme(UnitTestingTestCase):
+    fixtures = ("_ColorScheme_Failure", "_ColorScheme_Success")
+
     @skipIf(not has_colorschemeunit(), "ColorSchemeUnit is not installed")
-    @prepare_package("_ColorScheme_Failure", color_scheme_test=True)
+    @with_package("_ColorScheme_Failure", color_scheme_test=True)
     def test_fail_color_scheme(self, txt):
         self.assertRegexContains(txt, r'^There were 14 failures:$')
 
     @skipIf(not has_colorschemeunit(), "ColorSchemeUnit is not installed")
-    @prepare_package("_ColorScheme_Success", color_scheme_test=True)
+    @with_package("_ColorScheme_Success", color_scheme_test=True)
     def test_success_color_scheme(self, txt):
         self.assertOk(txt)
 
@@ -188,9 +207,10 @@ def tidy_path(path):
 class TestTempDirectoryTestCase(TempDirectoryTestCase):
 
     def test_temp_dir(self):
-        self.assertTrue(tidy_path(
-            self._temp_dir),
-            tidy_path(self.window.folders()[0]))
+        self.assertTrue(
+            tidy_path(self._temp_dir),
+            tidy_path(self.window.folders()[0])
+        )
 
 
 class TestViewTestCase(ViewTestCase):
