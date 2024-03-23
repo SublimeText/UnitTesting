@@ -1,14 +1,9 @@
-from functools import partial
-import time
-from unittest.runner import TextTestRunner, registerResult
-import warnings
 import sublime
+import time
+import warnings
 
-
-def defer(delay, callback, *args, **kwargs):
-    # Rely on late binding in case a user patches it
-    sublime.set_timeout(partial(callback, *args, **kwargs), delay)
-
+from functools import partial
+from unittest.runner import TextTestRunner, registerResult
 
 DEFAULT_CONDITION_POLL_TIME = 17
 DEFAULT_CONDITION_TIMEOUT = 4000
@@ -16,6 +11,11 @@ AWAIT_WORKER = 'AWAIT_WORKER'
 # Extract `set_timeout_async`, t.i. *avoid* late binding, in case a user
 # patches it
 run_on_worker = sublime.set_timeout_async
+
+
+def defer(delay, callback, *args, **kwargs):
+    # Rely on late binding in case a user patches it
+    sublime.set_timeout(partial(callback, *args, **kwargs), delay)
 
 
 class DeferringTextTestRunner(TextTestRunner):
@@ -59,7 +59,8 @@ class DeferringTextTestRunner(TextTestRunner):
                         warnings.filterwarnings(
                             'module',
                             category=DeprecationWarning,
-                            message='Please use assert\\w+ instead.')
+                            message='Please use assert\\w+ instead.'
+                        )
                 startTestRun = getattr(result, 'startTestRun', None)
                 if startTestRun is not None:
                     startTestRun()
@@ -86,21 +87,19 @@ class DeferringTextTestRunner(TextTestRunner):
                 elif isinstance(condition, int):
                     defer(condition, _continue_testing, deferred)
                 elif condition == AWAIT_WORKER:
-                    run_on_worker(
-                        partial(defer, 0, _continue_testing, deferred)
-                    )
+                    run_on_worker(partial(defer, 0, _continue_testing, deferred))
                 else:
                     defer(0, _continue_testing, deferred)
 
             except StopIteration:
                 _stop_testing()
-                self.finished = True
 
             except Exception as e:
                 _handle_error(e)
 
         def _wait_condition(
-            deferred, condition,
+            deferred,
+            condition,
             period=DEFAULT_CONDITION_POLL_TIME,
             timeout=self.condition_timeout,
             start_time=None
@@ -178,5 +177,7 @@ class DeferringTextTestRunner(TextTestRunner):
                 self.stream.writeln(" (%s)" % (", ".join(infos),))
             else:
                 self.stream.write("\n")
+
+            self.finished = True
 
         _start_testing()

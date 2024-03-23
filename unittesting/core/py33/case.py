@@ -1,7 +1,7 @@
-from functools import wraps
 import sys
 import unittest
 import warnings
+from functools import wraps
 from unittest.case import _ExpectedFailure, _UnexpectedSuccess, SkipTest, _Outcome
 from ...utils import isiterable
 
