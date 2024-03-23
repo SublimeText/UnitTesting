@@ -1,6 +1,7 @@
 from .core import AWAIT_WORKER
 from .core import DeferrableTestCase
 from .core import expectedFailure
+from .helpers import DeferrableViewTestCase
 from .helpers import OverridePreferencesTestCase
 from .helpers import TempDirectoryTestCase
 from .helpers import ViewTestCase
@@ -12,6 +13,7 @@ __all__ = [
     "DeferrableTestCase",
     "expectedFailure",
     "run_scheduler",
+    "DeferrableViewTestCase",
     "OverridePreferencesTestCase",
     "TempDirectoryTestCase",
     "ViewTestCase",
