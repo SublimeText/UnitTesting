@@ -54,10 +54,6 @@ class DeferringTextTestRunner(TextTestRunner):
                     _continue_testing(deferred)
                 except Exception as e:
                     _handle_error(e)
-                finally:
-                    stopTestRun = getattr(result, 'stopTestRun', None)
-                    if stopTestRun is not None:
-                        stopTestRun()
 
         def _continue_testing(deferred, send_value=None, throw_value=None):
             try:
