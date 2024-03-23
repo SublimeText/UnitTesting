@@ -91,8 +91,11 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand, UnitTestingMixin):
                     if settings["legacy_runner"]:
                         raise Exception("`legacy_runner=True` is deprecated.")
                     testRunner = DeferringTextTestRunner(
-                        stream, verbosity=settings["verbosity"], failfast=settings['failfast'])
-                    testRunner.condition_timeout = settings["condition_timeout"]
+                        stream=stream,
+                        verbosity=settings["verbosity"],
+                        failfast=settings['failfast'],
+                        condition_timeout=settings["condition_timeout"]
+                    )
                 else:
                     self.verify_testsuite(tests)
                     testRunner = TextTestRunner(stream, verbosity=settings["verbosity"], failfast=settings['failfast'])
