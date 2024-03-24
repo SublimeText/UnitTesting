@@ -9,7 +9,7 @@ class TestDeferrable(DeferrableViewTestCase):
         self.setCaretTo(0, 0)
         self.defer(100, self.insertText, "foo")
         yield 200
-        self.assertEqual(self.getRowText(0), "foofoo")
+        self.assertRowContentsEqual(0, "foofoo")
 
     def test_condition(self):
         x = []
