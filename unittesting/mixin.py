@@ -6,12 +6,10 @@ import sys
 from collections import ChainMap
 from glob import glob
 
-from .utils import reload_package
-from .utils import OutputPanel
 from .utils import JsonFile
+from .utils import OutputPanel
 from .utils import ProgressBar
-
-
+from .utils import reload_package
 
 DEFAULT_SETTINGS = {
     "tests_dir": "tests",

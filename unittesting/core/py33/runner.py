@@ -3,7 +3,8 @@ import time
 import warnings
 
 from functools import partial
-from unittest.runner import TextTestRunner, registerResult
+from unittest.runner import TextTestRunner
+from unittest.runner import registerResult
 
 DEFAULT_CONDITION_POLL_TIME = 17
 DEFAULT_CONDITION_TIMEOUT = 4000
