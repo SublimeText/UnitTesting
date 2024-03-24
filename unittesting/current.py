@@ -3,8 +3,8 @@ import sublime
 
 from fnmatch import fnmatch
 
-from .package import UnitTestingCommand
 from .coverage import UnitTestingCoverageCommand
+from .package import UnitTestingCommand
 
 
 class UnitTestingCurrentPackageCommand(UnitTestingCommand):

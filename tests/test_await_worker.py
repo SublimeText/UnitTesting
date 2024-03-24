@@ -1,9 +1,9 @@
-from functools import partial
+import sublime
 import time
 
-import sublime
-
-from unittesting import DeferrableTestCase, AWAIT_WORKER
+from functools import partial
+from unittesting import AWAIT_WORKER
+from unittesting import DeferrableTestCase
 
 
 def run_in_worker(fn, *args, **kwargs):

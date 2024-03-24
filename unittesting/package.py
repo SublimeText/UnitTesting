@@ -5,15 +5,14 @@ import sublime_plugin
 import sys
 import threading
 
-from unittest import TextTestRunner, TestSuite
+from unittest import TextTestRunner
+from unittest import TestSuite
 
-from .core import (
-    TestLoader,
-    DeferringTextTestRunner,
-    DeferrableTestCase
-)
-from .mixin import UnitTestingMixin
 from .const import DONE_MESSAGE
+from .core import DeferrableTestCase
+from .core import DeferringTextTestRunner
+from .core import TestLoader
+from .mixin import UnitTestingMixin
 from .utils import ProgressBar, StdioSplitter
 
 

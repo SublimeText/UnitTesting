@@ -1,11 +1,20 @@
 import sys
-import unittest
 import warnings
+
 from functools import wraps
-from unittest.case import _ExpectedFailure, _UnexpectedSuccess, SkipTest, _Outcome
+from unittest import TestCase
+from unittest.case import _ExpectedFailure
+from unittest.case import _Outcome
+from unittest.case import _UnexpectedSuccess
+from unittest.case import SkipTest
 
 from ...utils import isiterable
 from .runner import defer
+
+__all__ = [
+    "DeferrableTestCase",
+    "expectedFailure"
+]
 
 
 def expectedFailure(func):
@@ -21,7 +30,7 @@ def expectedFailure(func):
     return wrapper
 
 
-class DeferrableTestCase(unittest.TestCase):
+class DeferrableTestCase(TestCase):
 
     def _executeTestPart(self, function, outcome, isTest=False):
         try:

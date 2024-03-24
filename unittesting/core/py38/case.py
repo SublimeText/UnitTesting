@@ -1,11 +1,19 @@
 import sys
-import unittest
+
+from unittest import TestCase
 from unittest.case import _Outcome
-from .runner import defer
+from unittest.case import expectedFailure
+
 from ...utils import isiterable
+from .runner import defer
+
+__all__ = [
+    "DeferrableTestCase",
+    "expectedFailure"
+]
 
 
-class DeferrableTestCase(unittest.TestCase):
+class DeferrableTestCase(TestCase):
 
     def _callSetUp(self):
         deferred = self.setUp()

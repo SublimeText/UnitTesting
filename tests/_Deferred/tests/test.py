@@ -1,4 +1,5 @@
-from unittesting import DeferrableViewTestCase, expectedFailure
+from unittesting import DeferrableViewTestCase
+from unittesting import expectedFailure
 
 
 class TestDeferrable(DeferrableViewTestCase):

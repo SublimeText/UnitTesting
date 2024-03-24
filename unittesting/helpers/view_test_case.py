@@ -1,7 +1,7 @@
 import sublime
 
 from unittest import TestCase
-from .. import DeferrableTestCase
+from ..core import DeferrableTestCase
 
 __all__ = [
     "DeferrableViewTestCase",

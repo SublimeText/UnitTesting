@@ -1,9 +1,8 @@
-from functools import partial
-import time
-from unittest.mock import patch
-
 import sublime
+import time
 
+from functools import partial
+from unittest.mock import patch
 from unittesting import DeferrableTestCase
 
 

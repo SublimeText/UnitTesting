@@ -2,8 +2,8 @@ import sublime
 import sublime_api
 import sublime_plugin
 
-from .mixin import UnitTestingMixin
 from .const import DONE_MESSAGE
+from .mixin import UnitTestingMixin
 
 
 class UnitTestingSyntaxBase(sublime_plugin.ApplicationCommand, UnitTestingMixin):
