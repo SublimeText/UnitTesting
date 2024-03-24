@@ -1,4 +1,5 @@
 import sublime
+
 from unittesting import DeferrableViewTestCase
 
 
@@ -9,6 +10,7 @@ class TestViewTestCase(DeferrableViewTestCase):
 
     def test_view_object(self):
         self.assertIsInstance(self.view, sublime.View)
+        self.assertTrue(self.view.is_valid())
 
     def test_view_settings(self):
         for key, value in self.view_settings.items():

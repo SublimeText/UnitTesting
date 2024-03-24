@@ -7,8 +7,6 @@ from functools import wraps
 from unittest import skipIf
 from unittesting import AWAIT_WORKER
 from unittesting import DeferrableTestCase
-from unittesting.helpers import TempDirectoryTestCase
-from unittesting.helpers import ViewTestCase
 from unittesting.utils import isiterable
 
 BASEDIR = os.path.dirname(os.path.abspath(__file__))
@@ -199,23 +197,3 @@ class TestColorScheme(UnitTestingTestCase):
     @with_package("_ColorScheme_Success", color_scheme_test=True)
     def test_success_color_scheme(self, txt):
         self.assertOk(txt)
-
-
-def tidy_path(path):
-    return os.path.realpath(os.path.normcase(path))
-
-
-class TestTempDirectoryTestCase(TempDirectoryTestCase):
-
-    def test_temp_dir(self):
-        self.assertTrue(
-            tidy_path(self._temp_dir),
-            tidy_path(self.window.folders()[0])
-        )
-
-
-class TestViewTestCase(ViewTestCase):
-
-    def test_view(self):
-        self.assertIsInstance(self.view, sublime.View)
-        self.assertTrue(self.view.is_valid())
