@@ -120,6 +120,17 @@ class ViewTestCaseMixin:
         """
         self.assertEqual(self.view.sel()[0].begin(), self.textPoint(row, col))
 
+    def assertCaretsAt(self, carets):
+        """
+        Assert carets to be located at a certain positions.
+
+        :param carets:
+            The tuple of (row, col) tuples of 0-based row, col numbers.
+        """
+        expected = tuple(self.textPoint(row, col) for row, col in carets)
+        found = tuple(sel.begin() for sel in self.view.sel())
+        self.assertEqual(found, expected)
+
     def assertRowContentsEqual(self, row, text):
         """
         Expect given row's content to match ``text``.
