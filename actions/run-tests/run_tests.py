@@ -21,7 +21,7 @@ import threading
 
 PACKAGES_DIR_PATH = os.path.realpath(
     os.environ.get(
-        "SUBLIME_TEXT_PACKAGES", os.path.join(os.path.dirname(__file__), "..", "..")
+        "SUBLIME_TEXT_PACKAGES", os.path.join(os.path.dirname(__file__), "..", "..", "..")
     )
 )
 UT_OUTPUT_DIR_PATH = os.path.realpath(

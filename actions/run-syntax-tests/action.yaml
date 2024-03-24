@@ -14,9 +14,9 @@ runs:
         PACKAGE_FROM_INPUTS="${{ inputs.package-name }}"
         PACKAGE="${PACKAGE_FROM_INPUTS:-$PACKAGE}"
 
-        python3 "$GITHUB_ACTION_PATH/../../scripts/run_tests.py" "$PACKAGE" --syntax-test
+        python3 "$GITHUB_ACTION_PATH/../run-tests/run_tests.py" "$PACKAGE" --syntax-test
 
         if [ "${{ inputs.compatibility }}" == "true" ]; then
-          python3 "$GITHUB_ACTION_PATH/../../scripts/run_tests.py" "$PACKAGE" --syntax-compatibility
+          python3 "$GITHUB_ACTION_PATH/../run-tests/run_tests.py" "$PACKAGE" --syntax-compatibility
         fi
       shell: bash

@@ -93,7 +93,7 @@ runs:
       shell: bash
     - if: runner.os == 'Linux'
       run: |
-        sudo bash $GITHUB_ACTION_PATH/../../scripts/install_ubuntu_sys_req.sh
+        sudo bash $GITHUB_ACTION_PATH/install_ubuntu_sys_req.sh
         echo "DISPLAY=:1" >> $GITHUB_ENV
 
         if [ "${{ inputs.display }}" = "xvfb" ]; then
@@ -140,11 +140,11 @@ runs:
       shell: bash
     - if: runner.os == 'Linux' || runner.os == 'macOS'
       run: |
-        bash $GITHUB_ACTION_PATH/../../scripts/install_sublime_text.sh
+        bash $GITHUB_ACTION_PATH/install_sublime_text.sh
       shell: bash
     - if: runner.os == 'Windows'
       run: |
-        pwsh $Env:GITHUB_ACTION_PATH/../../scripts/install_sublime_text.ps1 --verbose
+        pwsh $Env:GITHUB_ACTION_PATH/install_sublime_text.ps1 --verbose
       shell: pwsh
     - run: |
         # Disable warnings about detached HEAD
@@ -152,7 +152,7 @@ runs:
         git config --global advice.detachedHead false
 
         # block sublime text website ip
-        bash $GITHUB_ACTION_PATH/../../scripts/block_ip.sh
+        bash $GITHUB_ACTION_PATH/block_ip.sh
       shell: bash
     - run: |
         REPO="$GITHUB_REPOSITORY"
@@ -171,7 +171,7 @@ runs:
         echo "PACKAGE=$PACKAGE" >> $GITHUB_ENV
       shell: bash
     - run: |
-        . $GITHUB_ACTION_PATH/../../scripts/utils.sh
+        . $GITHUB_ACTION_PATH/utils.sh
 
         # Copy plugin files to Packages/<Package> folder if files are checked out.
         if [ "${{ inputs.install-package }}" = "true" ]; then
@@ -209,11 +209,11 @@ runs:
       shell: bash
     - if: (runner.os == 'Linux' || runner.os == 'macOS') && inputs.install-package-control == 'true'
       run: |
-        bash $GITHUB_ACTION_PATH/../../scripts/install_package_control.sh
+        bash $GITHUB_ACTION_PATH/install_package_control.sh
       shell: bash
     - if: runner.os == 'Windows' && inputs.install-package-control == 'true'
       run: |
-        pwsh $Env:GITHUB_ACTION_PATH/../../scripts/install_package_control.ps1 --verbose
+        pwsh $Env:GITHUB_ACTION_PATH/install_package_control.ps1 --verbose
       shell: pwsh
     - run: |
         if [ "${{ inputs.install-package }}" = "true" ]; then
