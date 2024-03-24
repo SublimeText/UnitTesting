@@ -1,16 +1,15 @@
-from collections import ChainMap
 import os
-import sys
 import re
+import sublime
+import sys
+
+from collections import ChainMap
 from glob import glob
 
-from .utils import reload_package
-from .utils import OutputPanel
 from .utils import JsonFile
+from .utils import OutputPanel
 from .utils import ProgressBar
-
-import sublime
-
+from .utils import reload_package
 
 DEFAULT_SETTINGS = {
     "tests_dir": "tests",
@@ -100,10 +99,8 @@ class UnitTestingMixin(object):
     def default_output(self, package):
         outputdir = os.path.join(
             sublime.packages_path(), 'User', 'UnitTesting', "tests_output")
-        if not os.path.isdir(outputdir):
-            os.makedirs(outputdir)
-        outfile = os.path.join(outputdir, package)
-        return outfile
+        os.makedirs(outputdir, exist_ok=True)
+        return os.path.join(outputdir, package)
 
     def load_stream(self, package, settings):
         output = settings["output"]
@@ -117,9 +114,8 @@ class UnitTestingMixin(object):
                 if sublime.platform() == "windows":
                     output = output.replace("/", "\\")
                 output = os.path.join(sublime.packages_path(), package, output)
-            if os.path.exists(output):
-                os.remove(output)
-            stream = open(output, "w")
+            os.makedirs(os.path.dirname(output), exist_ok=True)
+            stream = open(output, "w", encoding="utf-8")
 
         return stream
 

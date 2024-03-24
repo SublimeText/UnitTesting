@@ -1,10 +1,9 @@
 import sublime
 import sublime_plugin
-
 import sys
 
-from .mixin import UnitTestingMixin
 from .const import DONE_MESSAGE
+from .mixin import UnitTestingMixin
 
 
 class UnitTestingColorSchemeCommand(sublime_plugin.ApplicationCommand, UnitTestingMixin):

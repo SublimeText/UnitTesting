@@ -1,12 +1,11 @@
 import functools
+import importlib
 import os
 import posixpath
-import sys
-import threading
-import importlib
-
 import sublime
 import sublime_plugin
+import sys
+import threading
 
 
 def dprint(*args, fill=None, fill_width=60, **kwargs):

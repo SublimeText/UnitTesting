@@ -1,10 +1,19 @@
 import sys
-import unittest
+
+from unittest import TestCase
 from unittest.case import _Outcome
+from unittest.case import expectedFailure
+
 from ...utils import isiterable
+from .runner import defer
+
+__all__ = [
+    "DeferrableTestCase",
+    "expectedFailure"
+]
 
 
-class DeferrableTestCase(unittest.TestCase):
+class DeferrableTestCase(TestCase):
 
     def _callSetUp(self):
         deferred = self.setUp()
@@ -25,6 +34,10 @@ class DeferrableTestCase(unittest.TestCase):
         deferred = function(*args, **kwargs)
         if isiterable(deferred):
             yield from deferred
+
+    @staticmethod
+    def defer(delay, callback, *args, **kwargs):
+        defer(delay, callback, *args, **kwargs)
 
     def run(self, result=None):
         orig_result = result

@@ -1,6 +1,7 @@
 import sublime
-from unittest import TestCase
 import time
+
+from unittest import TestCase
 
 
 class TestAsync(TestCase):

@@ -43,12 +43,13 @@ fi
 
 PC_PATH="$STIP/Package Control.sublime-package"
 if [ ! -f "$PC_PATH" ]; then
+    echo Downloading Package Control.sublime-package
     PC_URL="https://github.com/wbond/package_control/releases/latest/download/Package.Control.sublime-package"
     curl -s -L "$PC_URL" -o "$PC_PATH"
 fi
 
 if [ ! -f "$STP/User/Package Control.sublime-settings" ]; then
-    echo creating Package Control.sublime-settings
+    echo Creating Package Control.sublime-settings
     [ ! -d "$STP/User" ] && mkdir -p "$STP/User"
     # make sure Pakcage Control does not complain
     echo '{"auto_upgrade": false, "ignore_vcs_packages": true, "remove_orphaned": false, "submit_usage": false }' > "$STP/User/Package Control.sublime-settings"
@@ -63,23 +64,23 @@ if [ ! -d "$PCH_PATH" ]; then
     cp "$BASE/.python-version" "$PCH_PATH/.python-version"
 fi
 
-
 # launch sublime text in background
 echo Starting Sublime Text
-for i in {1..3}; do
-    rm -f "$PCH_PATH/success"
 
+for i in {1..3}; do
     subl &
 
     ENDTIME=$(( $(date +%s) + 60 ))
-    while [ ! -f "$PCH_PATH/success" ] && [ $(date +%s) -lt $ENDTIME ]  ; do
+    while [ ! -f "$PCH_PATH/failed" ] && [ ! -f "$PCH_PATH/success" ] && [ $(date +%s) -lt $ENDTIME ] ; do
         printf "."
         sleep 5
     done
 
-    pkill "[Ss]ubl" || true
-    pkill 'plugin_host' || true
-    sleep 4
+    sleep 2
+    pkill subl || true
+    sleep 2
+
+    [ -f "$PCH_PATH/failed" ] && break
     [ -f "$PCH_PATH/success" ] && break
 done
 
@@ -91,15 +92,11 @@ if [ -f "$PCH_PATH/log" ]; then
 fi
 
 if [ ! -f "$PCH_PATH/success" ]; then
-    if [ -f "$PCH_PATH/log" ]; then
-        cat "$PCH_PATH/log"
-    fi
     echo "Timeout: Fail to install Package Control."
     rm -rf "$PCH_PATH"
     exit 1
 fi
 
 rm -rf "$PCH_PATH"
-echo ""
 
 echo "Package Control installed."

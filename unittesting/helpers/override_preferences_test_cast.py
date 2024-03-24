@@ -1,10 +1,9 @@
-import sublime
-
 import os
 import json
 import shutil
+import sublime
 
-from .. import DeferrableTestCase
+from ..core import DeferrableTestCase
 
 
 class OverridePreferencesTestCase(DeferrableTestCase):

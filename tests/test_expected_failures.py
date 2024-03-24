@@ -1,15 +1,16 @@
-import sublime
+import sys
 
-try:
-    from unittest.case import _ExpectedFailure, _UnexpectedSuccess
-except ImportError:
-    pass
 from unittest import skipIf
-from unittesting import DeferrableTestCase, expectedFailure
+from unittesting import DeferrableTestCase
+from unittesting import expectedFailure
+
+PY33 = sys.version_info == (3,3)
+if PY33:
+    from unittest.case import _ExpectedFailure, _UnexpectedSuccess
 
 
 class TestExpectedFailures(DeferrableTestCase):
-    @skipIf(sublime.version() >= '4000', "Sublime Text 4 has optimization on")
+    @skipIf(not PY33, "Sublime Text 4 has optimization on")
     @expectedFailure
     def test_direct_failure1(self):
         assert False
@@ -24,7 +25,7 @@ class TestExpectedFailures(DeferrableTestCase):
             yield
             1 / 0
 
-        ex = ZeroDivisionError if sublime.version() >= "4000" else _ExpectedFailure
+        ex = _ExpectedFailure if PY33 else ZeroDivisionError
         try:
             yield from testitem()
         except ex:
@@ -37,7 +38,7 @@ class TestExpectedFailures(DeferrableTestCase):
         def testitem():
             1 / 0
 
-        ex = ZeroDivisionError if sublime.version() >= "4000" else _ExpectedFailure
+        ex = _ExpectedFailure if PY33 else ZeroDivisionError
         try:
             yield from testitem()
         except ex:
@@ -45,7 +46,7 @@ class TestExpectedFailures(DeferrableTestCase):
         else:
             self.fail('Expected _ExpectedFailure')
 
-    @skipIf(sublime.version() >= '4000', "not applicable in Python 3.8")
+    @skipIf(not PY33, "not applicable in Python 3.8")
     def test_unexpected_success_coroutine(self):
 
         @expectedFailure
@@ -59,7 +60,7 @@ class TestExpectedFailures(DeferrableTestCase):
         else:
             self.fail('Expected _UnexpectedSuccess')
 
-    @skipIf(sublime.version() >= '4000', "not applicable in Python 3.8")
+    @skipIf(not PY33, "not applicable in Python 3.8")
     def test_unexpected_success(self):
 
         @expectedFailure

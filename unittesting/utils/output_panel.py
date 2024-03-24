@@ -1,8 +1,7 @@
 import collections
 import os
-import threading
-
 import sublime
+import threading
 
 
 class OutputPanel:

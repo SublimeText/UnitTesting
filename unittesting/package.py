@@ -1,18 +1,19 @@
+import logging
+import os
 import sublime
 import sublime_plugin
 import sys
-import os
-import logging
-from unittest import TextTestRunner, TestSuite
-from .core import (
-    TestLoader,
-    DeferringTextTestRunner,
-    DeferrableTestCase
-)
-from .mixin import UnitTestingMixin
-from .const import DONE_MESSAGE
-from .utils import ProgressBar, StdioSplitter
 import threading
+
+from unittest import TestSuite
+from unittest import TextTestRunner
+
+from .const import DONE_MESSAGE
+from .core import DeferrableTestCase
+from .core import DeferringTextTestRunner
+from .core import TestLoader
+from .mixin import UnitTestingMixin
+from .utils import ProgressBar, StdioSplitter
 
 
 class UnitTestingCommand(sublime_plugin.ApplicationCommand, UnitTestingMixin):
@@ -91,8 +92,11 @@ class UnitTestingCommand(sublime_plugin.ApplicationCommand, UnitTestingMixin):
                     if settings["legacy_runner"]:
                         raise Exception("`legacy_runner=True` is deprecated.")
                     testRunner = DeferringTextTestRunner(
-                        stream, verbosity=settings["verbosity"], failfast=settings['failfast'])
-                    testRunner.condition_timeout = settings["condition_timeout"]
+                        stream=stream,
+                        verbosity=settings["verbosity"],
+                        failfast=settings['failfast'],
+                        condition_timeout=settings["condition_timeout"]
+                    )
                 else:
                     self.verify_testsuite(tests)
                     testRunner = TextTestRunner(stream, verbosity=settings["verbosity"], failfast=settings['failfast'])

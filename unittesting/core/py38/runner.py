@@ -1,14 +1,10 @@
-from functools import partial
-import time
-from unittest.runner import TextTestRunner, registerResult
-import warnings
 import sublime
+import time
+import warnings
 
-
-def defer(delay, callback, *args, **kwargs):
-    # Rely on late binding in case a user patches it
-    sublime.set_timeout(partial(callback, *args, **kwargs), delay)
-
+from functools import partial
+from unittest.runner import TextTestRunner
+from unittest.runner import registerResult
 
 DEFAULT_CONDITION_POLL_TIME = 17
 DEFAULT_CONDITION_TIMEOUT = 4000
@@ -18,9 +14,30 @@ AWAIT_WORKER = 'AWAIT_WORKER'
 run_on_worker = sublime.set_timeout_async
 
 
+def defer(delay, callback, *args, **kwargs):
+    # Rely on late binding in case a user patches it
+    sublime.set_timeout(partial(callback, *args, **kwargs), delay)
+
+
 class DeferringTextTestRunner(TextTestRunner):
     """This test runner runs tests in deferred slices."""
-    condition_timeout = DEFAULT_CONDITION_TIMEOUT
+
+    def __init__(
+        self,
+        stream=None,
+        descriptions=True,
+        verbosity=1,
+        failfast=False,
+        buffer=False,
+        resultclass=None,
+        warnings=None,
+        *,
+        condition_timeout=DEFAULT_CONDITION_TIMEOUT,
+        **kwargs
+    ):
+        super(DeferringTextTestRunner, self).__init__(
+            stream, descriptions, verbosity, failfast, buffer, resultclass, warnings, **kwargs)
+        self.condition_timeout = condition_timeout
 
     def run(self, test):
         """Run the given test case or test suite."""
@@ -43,9 +60,11 @@ class DeferringTextTestRunner(TextTestRunner):
                     # noisy.  The -Wd and -Wa flags can be used to bypass this
                     # only when self.warnings is None.
                     if self.warnings in ['default', 'always']:
-                        warnings.filterwarnings('module',
-                                                category=DeprecationWarning,
-                                                message=r'Please use assert\w+ instead.')
+                        warnings.filterwarnings(
+                            'module',
+                            category=DeprecationWarning,
+                            message=r'Please use assert\w+ instead.'
+                        )
                 startTestRun = getattr(result, 'startTestRun', None)
                 if startTestRun is not None:
                     startTestRun()
@@ -54,10 +73,6 @@ class DeferringTextTestRunner(TextTestRunner):
                     _continue_testing(deferred)
                 except Exception as e:
                     _handle_error(e)
-                finally:
-                    stopTestRun = getattr(result, 'stopTestRun', None)
-                    if stopTestRun is not None:
-                        stopTestRun()
 
         def _continue_testing(deferred, send_value=None, throw_value=None):
             try:
@@ -75,26 +90,23 @@ class DeferringTextTestRunner(TextTestRunner):
                 elif isinstance(condition, int):
                     defer(condition, _continue_testing, deferred)
                 elif condition == AWAIT_WORKER:
-                    run_on_worker(
-                        partial(defer, 0, _continue_testing, deferred)
-                    )
+                    run_on_worker(partial(defer, 0, _continue_testing, deferred))
                 else:
                     defer(0, _continue_testing, deferred)
 
             except StopIteration:
                 _stop_testing()
-                self.finished = True
 
             except Exception as e:
                 _handle_error(e)
 
         def _wait_condition(
-            deferred, condition,
+            deferred,
+            condition,
             period=DEFAULT_CONDITION_POLL_TIME,
-            timeout=None,
+            timeout=self.condition_timeout,
             start_time=None
         ):
-            timeout = timeout or self.condition_timeout
             if start_time is None:
                 start_time = time.time()
 
@@ -168,5 +180,7 @@ class DeferringTextTestRunner(TextTestRunner):
                 self.stream.writeln(" (%s)" % (", ".join(infos),))
             else:
                 self.stream.write("\n")
+
+            self.finished = True
 
         _start_testing()

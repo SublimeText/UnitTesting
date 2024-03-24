@@ -1,5 +1,9 @@
-from unittest.suite import TestSuite, _isnotsuite, _call_if_exists, _DebugResult
 from unittest import util
+from unittest.suite import _call_if_exists
+from unittest.suite import _DebugResult
+from unittest.suite import _isnotsuite
+from unittest.suite import TestSuite
+
 from ...utils import isiterable
 
 

@@ -1,5 +1,5 @@
-import os
 import codecs
+import os
 import sublime
 
 

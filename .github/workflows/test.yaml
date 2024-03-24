@@ -35,7 +35,8 @@ jobs:
       - uses: "./actions/run-tests"
         with:
           coverage: true
-      - uses: codecov/codecov-action@v4
+      - if: runner.os == 'Windows' || runner.os == 'Linux'
+        uses: codecov/codecov-action@v4
         with:
           token: ${{secrets.CODECOV_TOKEN}}
 

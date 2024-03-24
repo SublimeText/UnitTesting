@@ -1,9 +1,9 @@
-import sublime
 import os
-import sys
 import re
-from .package import UnitTestingCommand
+import sublime
+import sys
 
+from .package import UnitTestingCommand
 
 try:
     import coverage  # noqa
