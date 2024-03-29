@@ -8,7 +8,7 @@ from unittest.runner import registerResult
 
 DEFAULT_CONDITION_POLL_TIME = 17
 DEFAULT_CONDITION_TIMEOUT = 4000
-AWAIT_WORKER = 'AWAIT_WORKER'
+AWAIT_WORKER = "AWAIT_WORKER"
 # Extract `set_timeout_async`, t.i. *avoid* late binding, in case a user
 # patches it
 run_on_worker = sublime.set_timeout_async
@@ -36,7 +36,15 @@ class DeferringTextTestRunner(TextTestRunner):
         **kwargs
     ):
         super(DeferringTextTestRunner, self).__init__(
-            stream, descriptions, verbosity, failfast, buffer, resultclass, warnings, **kwargs)
+            stream,
+            descriptions,
+            verbosity,
+            failfast,
+            buffer,
+            resultclass,
+            warnings,
+            **kwargs
+        )
         self.condition_timeout = condition_timeout
 
     def run(self, test):
@@ -59,13 +67,13 @@ class DeferringTextTestRunner(TextTestRunner):
                     # no more than once per module, because they can be fairly
                     # noisy.  The -Wd and -Wa flags can be used to bypass this
                     # only when self.warnings is None.
-                    if self.warnings in ['default', 'always']:
+                    if self.warnings in ["default", "always"]:
                         warnings.filterwarnings(
-                            'module',
+                            "module",
                             category=DeprecationWarning,
-                            message=r'Please use assert\w+ instead.'
+                            message=r"Please use assert\w+ instead.",
                         )
-                startTestRun = getattr(result, 'startTestRun', None)
+                startTestRun = getattr(result, "startTestRun", None)
                 if startTestRun is not None:
                     startTestRun()
                 try:
@@ -83,8 +91,11 @@ class DeferringTextTestRunner(TextTestRunner):
 
                 if callable(condition):
                     defer(0, _wait_condition, deferred, condition)
-                elif isinstance(condition, dict) and "condition" in condition and \
-                        callable(condition["condition"]):
+                elif (
+                    isinstance(condition, dict)
+                    and "condition" in condition
+                    and callable(condition["condition"])
+                ):
                     period = condition.get("period", DEFAULT_CONDITION_POLL_TIME)
                     defer(period, _wait_condition, deferred, **condition)
                 elif isinstance(condition, int):
@@ -105,7 +116,7 @@ class DeferringTextTestRunner(TextTestRunner):
             condition,
             period=DEFAULT_CONDITION_POLL_TIME,
             timeout=self.condition_timeout,
-            start_time=None
+            start_time=None,
         ):
             if start_time is None:
                 start_time = time.time()
@@ -120,15 +131,24 @@ class DeferringTextTestRunner(TextTestRunner):
                 _continue_testing(deferred, send_value=send_value)
             elif (time.time() - start_time) * 1000 >= timeout:
                 error = TimeoutError(
-                    'Condition not fulfilled within {:.2f} seconds'
-                    .format(timeout / 1000)
+                    "Condition not fulfilled within {:.2f} seconds".format(
+                        timeout / 1000
+                    )
                 )
                 _continue_testing(deferred, throw_value=error)
             else:
-                defer(period, _wait_condition, deferred, condition, period, timeout, start_time)
+                defer(
+                    period,
+                    _wait_condition,
+                    deferred,
+                    condition,
+                    period,
+                    timeout,
+                    start_time,
+                )
 
         def _handle_error(e):
-            stopTestRun = getattr(result, 'stopTestRun', None)
+            stopTestRun = getattr(result, "stopTestRun", None)
             if stopTestRun is not None:
                 stopTestRun()
             self.finished = True
@@ -136,25 +156,31 @@ class DeferringTextTestRunner(TextTestRunner):
 
         def _stop_testing():
             with warnings.catch_warnings():
-                stopTestRun = getattr(result, 'stopTestRun', None)
+                stopTestRun = getattr(result, "stopTestRun", None)
                 if stopTestRun is not None:
                     stopTestRun()
 
             stopTime = time.perf_counter()
             timeTaken = stopTime - startTime
             result.printErrors()
-            if hasattr(result, 'separator2'):
+            if hasattr(result, "separator2"):
                 self.stream.writeln(result.separator2)
             run = result.testsRun
-            self.stream.writeln("Ran %d test%s in %.3fs" %
-                                (run, run != 1 and "s" or "", timeTaken))
+            self.stream.writeln(
+                "Ran %d test%s in %.3fs" % (run, run != 1 and "s" or "", timeTaken)
+            )
             self.stream.writeln()
 
             expectedFails = unexpectedSuccesses = skipped = 0
             try:
-                results = map(len, (result.expectedFailures,
-                                    result.unexpectedSuccesses,
-                                    result.skipped))
+                results = map(
+                    len,
+                    (
+                        result.expectedFailures,
+                        result.unexpectedSuccesses,
+                        result.skipped,
+                    ),
+                )
             except AttributeError:
                 pass
             else:

@@ -31,7 +31,7 @@ try:
             libs_path = os.path.join(
                 os.path.dirname(sublime.packages_path()),
                 "Lib",
-                "python{}{}".format(sys.version_info.major, sys.version_info.minor)
+                "python{}{}".format(sys.version_info.major, sys.version_info.minor),
             )
             paths.add(libs_path)
 
@@ -43,7 +43,6 @@ except Exception:
 
 
 class UnitTestingCommand(BaseUnittestingCommand):
-
     def run(self, package=None, **kwargs):
         # no package provided, prompt for input
         if not package:

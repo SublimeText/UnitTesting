@@ -15,25 +15,23 @@ def get_package_modules(pkg_name):
     # (str) -> Dict[str, ModuleType]
     in_installed_path = functools.partial(
         path_contains,
-        os.path.join(
-            sublime.installed_packages_path(),
-            pkg_name + '.sublime-package'
-        )
+        os.path.join(sublime.installed_packages_path(), pkg_name + ".sublime-package"),
     )
 
     in_package_path = functools.partial(
-        path_contains,
-        os.path.join(sublime.packages_path(), pkg_name)
+        path_contains, os.path.join(sublime.packages_path(), pkg_name)
     )
 
     def module_in_package(module):
         # Other (extracted) ST plugins using python 3.8 have this set to
         # `None` surprisingly.
-        file = getattr(module, '__file__', None) or ''
-        paths = getattr(module, '__path__', ())
+        file = getattr(module, "__file__", None) or ""
+        paths = getattr(module, "__path__", ())
         return (
-            in_installed_path(file) or any(map(in_installed_path, paths)) or
-            in_package_path(file) or any(map(in_package_path, paths))
+            in_installed_path(file)
+            or any(map(in_installed_path, paths))
+            or in_package_path(file)
+            or any(map(in_package_path, paths))
         )
 
     return {
@@ -45,9 +43,9 @@ def get_package_modules(pkg_name):
 
 def package_plugins(pkg_name):
     return [
-        pkg_name + '.' + posixpath.basename(posixpath.splitext(path)[0])
+        pkg_name + "." + posixpath.basename(posixpath.splitext(path)[0])
         for path in sublime.find_resources("*.py")
-        if posixpath.dirname(path) == 'Packages/' + pkg_name
+        if posixpath.dirname(path) == "Packages/" + pkg_name
     ]
 
 

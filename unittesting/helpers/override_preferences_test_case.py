@@ -11,7 +11,9 @@ class OverridePreferencesTestCase(DeferrableTestCase):
     @classmethod
     def setUpClass(cls):
         for settings_file_name, settings in cls.override_preferences.items():
-            settings_path = os.path.join(sublime.packages_path(), "User", settings_file_name)
+            settings_path = os.path.join(
+                sublime.packages_path(), "User", settings_file_name
+            )
             new_settings_path = settings_path + ".bak"
 
             s = sublime.load_settings(settings_file_name)
@@ -42,7 +44,9 @@ class OverridePreferencesTestCase(DeferrableTestCase):
     @classmethod
     def tearDownClass(cls):
         for settings_file_name in cls.override_preferences:
-            settings_path = os.path.join(sublime.packages_path(), "User", settings_file_name)
+            settings_path = os.path.join(
+                sublime.packages_path(), "User", settings_file_name
+            )
             new_settings_path = settings_path + ".bak"
             try:
                 os.remove(settings_path)

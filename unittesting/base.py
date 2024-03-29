@@ -14,7 +14,7 @@ DEFAULT_SETTINGS = {
     "tests_dir": "tests",
     "pattern": "test*.py",
     # runner
-    "async": False,                       # deprecated
+    "async": False,  # deprecated
     "deferred": True,
     "condition_timeout": 4000,
     "failfast": False,
@@ -26,7 +26,7 @@ DEFAULT_SETTINGS = {
     "reload_package_on_testing": True,
     # coverage
     "coverage": False,
-    "coverage_on_worker_thread": False,   # experimental
+    "coverage_on_worker_thread": False,  # experimental
     "generate_html_report": False,
     "generate_xml_report": False,
 }

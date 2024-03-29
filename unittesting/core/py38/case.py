@@ -7,10 +7,7 @@ from unittest.case import expectedFailure
 
 from .runner import defer
 
-__all__ = [
-    "DeferrableTestCase",
-    "expectedFailure"
-]
+__all__ = ["DeferrableTestCase", "expectedFailure"]
 
 
 class DeferrableTestCase(TestCase):
@@ -43,27 +40,29 @@ class DeferrableTestCase(TestCase):
         orig_result = result
         if result is None:
             result = self.defaultTestResult()
-            startTestRun = getattr(result, 'startTestRun', None)
+            startTestRun = getattr(result, "startTestRun", None)
             if startTestRun is not None:
                 startTestRun()
 
         result.startTest(self)
 
         testMethod = getattr(self, self._testMethodName)
-        if (getattr(self.__class__, "__unittest_skip__", False) or
-                getattr(testMethod, "__unittest_skip__", False)):
+        if getattr(self.__class__, "__unittest_skip__", False) or getattr(
+            testMethod, "__unittest_skip__", False
+        ):
             # If the class or method was skipped.
             try:
-                skip_why = (getattr(self.__class__, '__unittest_skip_why__', '')
-                            or getattr(testMethod, '__unittest_skip_why__', ''))
+                skip_why = getattr(
+                    self.__class__, "__unittest_skip_why__", ""
+                ) or getattr(testMethod, "__unittest_skip_why__", "")
                 self._addSkip(result, self, skip_why)
             finally:
                 result.stopTest(self)
             return
-        expecting_failure_method = getattr(testMethod,
-                                           "__unittest_expecting_failure__", False)
-        expecting_failure_class = getattr(self,
-                                          "__unittest_expecting_failure__", False)
+        expecting_failure_method = getattr(
+            testMethod, "__unittest_expecting_failure__", False
+        )
+        expecting_failure_class = getattr(self, "__unittest_expecting_failure__", False)
         expecting_failure = expecting_failure_class or expecting_failure_method
         outcome = _Outcome(result)
         try:
@@ -103,7 +102,7 @@ class DeferrableTestCase(TestCase):
         finally:
             result.stopTest(self)
             if orig_result is None:
-                stopTestRun = getattr(result, 'stopTestRun', None)
+                stopTestRun = getattr(result, "stopTestRun", None)
                 if stopTestRun is not None:
                     stopTestRun()
 
