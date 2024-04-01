@@ -5,16 +5,6 @@ import posixpath
 import sublime
 import sublime_plugin
 import sys
-import threading
-
-
-def dprint(*args, fill=None, fill_width=60, **kwargs):
-    if fill is not None:
-        sep = str(kwargs.get('sep', ' '))
-        caption = sep.join(args)
-        args = "{0:{fill}<{width}}".format(caption and caption + sep,
-                                           fill=fill, width=fill_width),
-    print("UnitTesting:", *args, **kwargs)
 
 
 def path_contains(a, b):
@@ -61,8 +51,10 @@ def package_plugins(pkg_name):
     ]
 
 
-def reload_package(pkg_name, dummy=True, verbose=True):
+def reload_package(pkg_name, on_done=None):
     if pkg_name not in sys.modules:
+        if on_done:
+            sublime.set_timeout(on_done)
         return
 
     all_modules = {
@@ -89,21 +81,8 @@ def reload_package(pkg_name, dummy=True, verbose=True):
     for plugin in plugins:
         sublime_plugin.reload_plugin(plugin)
 
-    # Install and uninstall a dummy package so ST updates
-    # command and event listener bindings
-    if dummy:
-        load_dummy(verbose)
-
-
-def load_dummy(verbose):
-    """
-    Hack to trigger automatic "reloading plugins".
-
-    This is needed to ensure TextCommand's and WindowCommand's are ready.
-    """
-    if verbose:
-        dprint("installing dummy package")
-
+    # Hack to trigger automatic "reloading plugins".
+    # This is needed to ensure TextCommand's and WindowCommand's are ready.
     if sys.version_info >= (3, 8):
         # in ST 4, User package is always loaded in python 3.8
         dummy_name = "User._dummy"
@@ -113,37 +92,15 @@ def load_dummy(verbose):
         dummy_name = "_dummy"
         dummy_py = os.path.join(sublime.packages_path(), "_dummy.py")
 
-    with open(dummy_py, "w"):
-        pass
+    open(dummy_py, "a").close()
 
-    def remove_dummy(trial=0):
-        if dummy_name in sys.modules:
-            if verbose:
-                dprint("removing dummy package")
-            try:
-                os.unlink(dummy_py)
-            except FileNotFoundError:
-                pass
-            after_remove_dummy()
-        elif trial < 300:
-            threading.Timer(0.1, lambda: remove_dummy(trial + 1)).start()
-        else:
-            try:
-                os.unlink(dummy_py)
-            except FileNotFoundError:
-                pass
-
-    condition = threading.Condition()
-
-    def after_remove_dummy(trial=0):
+    def check_loaded():
         if dummy_name not in sys.modules:
-            condition.acquire()
-            condition.notify()
-            condition.release()
-        elif trial < 300:
-            threading.Timer(0.1, lambda: after_remove_dummy(trial + 1)).start()
+            sublime.set_timeout(check_loaded, 100)
+            return
 
-    threading.Timer(0.1, remove_dummy).start()
-    condition.acquire()
-    condition.wait(30)  # 30 seconds should be enough for all regular usages
-    condition.release()
+        os.remove(dummy_py)
+        if on_done:
+            sublime.set_timeout(on_done, 200)
+
+    sublime.set_timeout(check_loaded, 100)
