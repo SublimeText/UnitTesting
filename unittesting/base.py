@@ -27,7 +27,6 @@ DEFAULT_SETTINGS = {
     "show_reload_progress": False,
     # coverage
     "coverage": False,
-    "start_coverage_after_reload": False,
     "coverage_on_worker_thread": False,   # experimental
     "generate_html_report": False,
     "generate_xml_report": False,

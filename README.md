@@ -143,7 +143,6 @@ UnitTesting could be configured by providing the following settings in `unittest
 | show_reload_progress        | print a detailed list of reloaded modules to console                              | false         |
 | coverage                    | track test case coverage                                                          | false         |
 | coverage_on_worker_thread   | (experimental)                                                                    | false         |
-| start_coverage_after_reload | self explained, irrelevent if `coverage` or `reload_package_on_testing` are false | false         |
 | generate_html_report        | generate HTML report for coverage                                                 | false         |
 | generate_xml_report         | generate XML report for coverage                                                  | false         |
 
