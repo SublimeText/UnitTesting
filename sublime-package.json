@@ -44,6 +44,11 @@
               "default": true,
               "markdownDescription": "Reloading package will increase coverage rate.",
             },
+            "coverage": {
+              "type": "boolean",
+              "default": false,
+              "markdownDescription": "Create coverage report.",
+            },
             "start_coverage_after_reload": {
               "type": "boolean",
               "default": false,
@@ -57,7 +62,12 @@
             "generate_html_report": {
               "type": "boolean",
               "default": false,
-              "markdownDescription": "Generate coverage report for coverage.",
+              "markdownDescription": "Generate html report for coverage.",
+            },
+            "generate_xml_report": {
+              "type": "boolean",
+              "default": false,
+              "markdownDescription": "Generate xml report for coverage.",
             },
             "capture_console": {
               "type": "boolean",

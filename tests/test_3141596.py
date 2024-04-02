@@ -61,13 +61,13 @@ def with_package(package, output=None, syntax_test=False, syntax_compatibility=F
                 kwargs["output"] = outfile
 
             if syntax_test:
-                sublime.run_command("unit_testing_syntax", kwargs)
+                sublime.active_window().run_command("unit_testing_syntax", kwargs)
             elif syntax_compatibility:
-                sublime.run_command("unit_testing_syntax_compatibility", kwargs)
+                sublime.active_window().run_command("unit_testing_syntax_compatibility", kwargs)
             elif color_scheme_test:
-                sublime.run_command("unit_testing_color_scheme", kwargs)
+                sublime.active_window().run_command("unit_testing_color_scheme", kwargs)
             else:
-                sublime.run_command("unit_testing", kwargs)
+                sublime.active_window().run_command("unit_testing", kwargs)
 
             def condition():
                 try:
@@ -77,7 +77,7 @@ def with_package(package, output=None, syntax_test=False, syntax_compatibility=F
                 except FileNotFoundError:
                     return False
 
-            yield {"condition": condition, "period": 200, "timeout": wait_timeout}
+            yield {"condition": condition, "timeout": wait_timeout}
 
             with open(result_file, 'r') as f:
                 txt = f.read()
@@ -96,14 +96,17 @@ def with_package(package, output=None, syntax_test=False, syntax_compatibility=F
 class UnitTestingTestCase(DeferrableTestCase):
     fixtures = ()
 
-    def setUp(self):
-        for fixture in self.fixtures:
+    @classmethod
+    def setUpClass(cls):
+        for fixture in cls.fixtures:
             setup_package(fixture)
         yield 500
 
-    def tearDown(self):
-        for fixture in self.fixtures:
+    @classmethod
+    def tearDownClass(cls):
+        for fixture in cls.fixtures:
             cleanup_package(fixture)
+        yield
 
     def assertRegexContains(self, txt, expr, msg=None):
         if re.search(expr, txt, re.MULTILINE) is None:
