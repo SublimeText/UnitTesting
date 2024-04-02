@@ -11,7 +11,7 @@ class DeferrableTestSuite(TestSuite):
 
     def run(self, result, debug=False):
         topLevel = False
-        if getattr(result, '_testRunEntered', False) is False:
+        if getattr(result, "_testRunEntered", False) is False:
             result._testRunEntered = topLevel = True
 
         for test in self:
@@ -31,8 +31,9 @@ class DeferrableTestSuite(TestSuite):
                 yield
                 result._previousTestClass = test.__class__
 
-                if getattr(test.__class__, '_classSetupFailed', False) or \
-                        getattr(result, '_moduleSetUpFailed', False):
+                if getattr(test.__class__, "_classSetupFailed", False) or getattr(
+                    result, "_moduleSetUpFailed", False
+                ):
                     continue
 
             if not debug:
@@ -56,7 +57,7 @@ class DeferrableTestSuite(TestSuite):
             result._testRunEntered = False
 
     def _handleClassSetUp(self, test, result):
-        previousClass = getattr(result, '_previousTestClass', None)
+        previousClass = getattr(result, "_previousTestClass", None)
         currentClass = test.__class__
         if currentClass == previousClass:
             return
@@ -72,9 +73,9 @@ class DeferrableTestSuite(TestSuite):
             # so its class will be a builtin-type
             pass
 
-        setUpClass = getattr(currentClass, 'setUpClass', None)
+        setUpClass = getattr(currentClass, "setUpClass", None)
         if setUpClass is not None:
-            _call_if_exists(result, '_setupStdout')
+            _call_if_exists(result, "_setupStdout")
             try:
                 deferred = setUpClass()
                 if isinstance(deferred, DeferrableMethod):
@@ -84,26 +85,26 @@ class DeferrableTestSuite(TestSuite):
                     raise
                 currentClass._classSetupFailed = True
                 className = util.strclass(currentClass)
-                errorName = 'setUpClass (%s)' % className
+                errorName = "setUpClass (%s)" % className
                 self._addClassOrModuleLevelException(result, e, errorName)
             finally:
-                _call_if_exists(result, '_restoreStdout')
+                _call_if_exists(result, "_restoreStdout")
 
     def _tearDownPreviousClass(self, test, result):
-        previousClass = getattr(result, '_previousTestClass', None)
+        previousClass = getattr(result, "_previousTestClass", None)
         currentClass = test.__class__
         if currentClass == previousClass:
             return
-        if getattr(previousClass, '_classSetupFailed', False):
+        if getattr(previousClass, "_classSetupFailed", False):
             return
-        if getattr(result, '_moduleSetUpFailed', False):
+        if getattr(result, "_moduleSetUpFailed", False):
             return
         if getattr(previousClass, "__unittest_skip__", False):
             return
 
-        tearDownClass = getattr(previousClass, 'tearDownClass', None)
+        tearDownClass = getattr(previousClass, "tearDownClass", None)
         if tearDownClass is not None:
-            _call_if_exists(result, '_setupStdout')
+            _call_if_exists(result, "_setupStdout")
             try:
                 deferred = tearDownClass()
                 if isinstance(deferred, DeferrableMethod):
@@ -112,7 +113,7 @@ class DeferrableTestSuite(TestSuite):
                 if isinstance(result, _DebugResult):
                     raise
                 className = util.strclass(previousClass)
-                errorName = 'tearDownClass (%s)' % className
+                errorName = "tearDownClass (%s)" % className
                 self._addClassOrModuleLevelException(result, e, errorName)
             finally:
-                _call_if_exists(result, '_restoreStdout')
+                _call_if_exists(result, "_restoreStdout")
