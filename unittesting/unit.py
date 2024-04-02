@@ -13,7 +13,6 @@ from .base import DONE_MESSAGE
 from .core import DeferrableTestCase
 from .core import DeferringTextTestRunner
 from .core import TestLoader
-from .utils import ProgressBar
 from .utils import reload_package
 from .utils import StdioSplitter
 
@@ -201,8 +200,6 @@ class UnitTestingCommand(BaseUnittestingCommand):
             settings["deferred"] = False
 
         testRunner = None
-        progress_bar = ProgressBar("Testing %s" % package)
-        progress_bar.start()
         is_empty_test = False
 
         try:
@@ -254,7 +251,6 @@ class UnitTestingCommand(BaseUnittestingCommand):
             def cleanup():
                 if not settings["deferred"] or not testRunner or testRunner.finished:
                     self.remove_test_modules(package, settings["tests_dir"])
-                    progress_bar.stop()
 
                     for hook in cleanup_hooks:
                         try:
