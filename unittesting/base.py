@@ -24,7 +24,6 @@ DEFAULT_SETTINGS = {
     "capture_console": False,
     # reloader
     "reload_package_on_testing": True,
-    "show_reload_progress": False,
     # coverage
     "coverage": False,
     "coverage_on_worker_thread": False,   # experimental
