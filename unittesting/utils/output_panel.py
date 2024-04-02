@@ -1,24 +1,32 @@
 import collections
 import os
-import sublime
 import threading
 
 
 class OutputPanel:
-
     def __init__(
-        self, name, file_regex='', line_regex='', base_dir=None,
-        word_wrap=False, line_numbers=False, gutter=False,
-        scroll_past_end=False
+        self,
+        window,
+        name,
+        file_regex="",
+        line_regex="",
+        base_dir=None,
+        word_wrap=False,
+        line_numbers=False,
+        gutter=False,
+        scroll_past_end=False,
     ):
         self.name = name
-        self.window = sublime.active_window()
-        self.output_view = self.window.get_output_panel(name)
+        self.window = window
+        self.output_view = window.create_output_panel(name)
 
         # default to the current file directory
-        if not base_dir and self.window.active_view() and \
-                self.window.active_view().file_name():
-            base_dir = os.path.dirname(self.window.active_view().file_name())
+        if not base_dir:
+            view = window.active_view()
+            if view:
+                file_name = view.file_name()
+                if file_name:
+                    base_dir = os.path.dirname(file_name)
 
         settings = self.output_view.settings()
         settings.set("result_file_regex", file_regex)
@@ -29,7 +37,9 @@ class OutputPanel:
         settings.set("gutter", gutter)
         settings.set("scroll_past_end", scroll_past_end)
 
-        self.output_view.assign_syntax("Packages/UnitTesting/res/unit-testing-test-result.sublime-syntax")
+        # make sure to apply settings
+        self.output_view = window.create_output_panel(name)
+        self.output_view.assign_syntax("unit-testing-test-result.sublime-syntax")
         self.output_view.set_read_only(True)
         self.closed = False
 
@@ -44,15 +54,12 @@ class OutputPanel:
         self.write(s + "\n")
 
     def _write(self):
+        text = ""
         with self.text_queue_lock:
-            text = ''
             while self.text_queue:
                 text += self.text_queue.popleft()
 
-        self.output_view.run_command(
-            'append',
-            {'characters': text, 'force': True}
-        )
+        self.output_view.run_command("append", {"characters": text, "force": True})
         self.output_view.show(self.output_view.size())
 
     def flush(self):

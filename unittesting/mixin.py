@@ -106,7 +106,10 @@ class UnitTestingMixin(object):
         output = settings["output"]
         if not output or output == "<panel>":
             output_panel = OutputPanel(
-                'UnitTesting', file_regex=r'File "([^"]*)", line (\d+)')
+                sublime.active_window(),
+                'exec',
+                file_regex=r'File "([^"]*)", line (\d+)'
+            )
             output_panel.show()
             stream = output_panel
         else:
