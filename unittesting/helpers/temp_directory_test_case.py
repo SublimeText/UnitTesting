@@ -3,6 +3,7 @@ import shutil
 import sublime
 import tempfile
 
+from ..core import DeferrableMethod
 from ..core import DeferrableTestCase
 
 
@@ -33,15 +34,15 @@ class TempDirectoryTestCase(DeferrableTestCase):
 
     @classmethod
     def setUpClass(cls):
-        """
-            Create a temp directory for testing.
-            Note that it is a generator, if you need to extend this method, you will
-            need to call
+        """Create a temp directory for testing.
 
-                yield from super().setUpClass()
+        Note that it is a DeferrableMethod, if you need to extend this method,
+        you will need to call
 
-            from the subclass. Note that if the subclass has multiple parents,
-            `super().setUpClass` may not be a generator at all depends on the order.
+            yield from super().setUpClass()
+
+        from the subclass. Note that if the subclass has multiple parents,
+        `super().setUpClass` may not be a DeferrableMethod at all depends on the order.
         """
         cls._temp_dir = tempfile.mkdtemp()
         nwindows = len(sublime.windows())
@@ -56,9 +57,9 @@ class TempDirectoryTestCase(DeferrableTestCase):
 
         yield from cls.setWindowFolder()
 
-        x = super().setUpClass()
-        if hasattr(x, '__iter__'):
-            yield from x
+        deferred = super().setUpClass()
+        if isinstance(deferred, DeferrableMethod):
+            yield from deferred
 
     @classmethod
     def tearDownClass(cls):
@@ -74,6 +75,6 @@ class TempDirectoryTestCase(DeferrableTestCase):
 
             sublime.set_timeout(remove_temp_dir, 1000)
 
-        x = super().tearDownClass()
-        if hasattr(x, '__iter__'):
-            yield from x
+        deferred = super().tearDownClass()
+        if isinstance(deferred, DeferrableMethod):
+            yield from deferred

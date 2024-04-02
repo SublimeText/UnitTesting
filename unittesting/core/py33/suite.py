@@ -4,7 +4,7 @@ from unittest.suite import _DebugResult
 from unittest.suite import _isnotsuite
 from unittest.suite import TestSuite
 
-from ...utils import isiterable
+from .case import DeferrableMethod
 
 
 class DeferrableTestSuite(TestSuite):
@@ -20,13 +20,13 @@ class DeferrableTestSuite(TestSuite):
 
             if _isnotsuite(test):
                 deferred = self._tearDownPreviousClass(test, result)
-                if isiterable(deferred):
+                if isinstance(deferred, DeferrableMethod):
                     yield from deferred
                 yield
                 self._handleModuleFixture(test, result)
                 yield
                 deferred = self._handleClassSetUp(test, result)
-                if isiterable(deferred):
+                if isinstance(deferred, DeferrableMethod):
                     yield from deferred
                 yield
                 result._previousTestClass = test.__class__
@@ -40,14 +40,14 @@ class DeferrableTestSuite(TestSuite):
             else:
                 deferred = test.debug()
 
-            if isiterable(deferred):
+            if isinstance(deferred, DeferrableMethod):
                 yield from deferred
 
             yield
 
         if topLevel:
             deferred = self._tearDownPreviousClass(None, result)
-            if isiterable(deferred):
+            if isinstance(deferred, DeferrableMethod):
                 yield from deferred
             yield
             yield
@@ -77,7 +77,7 @@ class DeferrableTestSuite(TestSuite):
             _call_if_exists(result, '_setupStdout')
             try:
                 deferred = setUpClass()
-                if isiterable(deferred):
+                if isinstance(deferred, DeferrableMethod):
                     yield from deferred
             except Exception as e:
                 if isinstance(result, _DebugResult):
@@ -106,7 +106,7 @@ class DeferrableTestSuite(TestSuite):
             _call_if_exists(result, '_setupStdout')
             try:
                 deferred = tearDownClass()
-                if isiterable(deferred):
+                if isinstance(deferred, DeferrableMethod):
                     yield from deferred
             except Exception as e:
                 if isinstance(result, _DebugResult):
