@@ -1,26 +1,36 @@
 [
-  {
-    "caption": "UnitTesting",
-    "command": "unit_testing"
-  },
-  {
-    "caption": "UnitTesting: Test Current Package",
-    "command": "unit_testing_current_package"
-  },
-  {
-    "caption": "UnitTesting: Test Current Package with Coverage",
-    "command": "unit_testing_current_package_coverage"
-  },
-  {
-    "caption": "UnitTesting: Test Current File",
-    "command": "unit_testing_current_file"
-  },
-  {
-    "caption": "UnitTesting: Test Current File with Coverage",
-    "command": "unit_testing_current_file_coverage"
-  },
-  {
-    "caption": "UnitTesting: Show Output Panel",
-    "command": "show_panel", "args": { "panel": "output.UnitTesting" }
-  }
+	{
+		"caption": "UnitTesting: Test Package",
+		"command": "unit_testing",
+		"args": {"coverage": false}
+	},
+	{
+		"caption": "UnitTesting: Test Package with Coverage",
+		"command": "unit_testing",
+		"args": {"coverage": true}
+	},
+	{
+		"caption": "UnitTesting: Test Current Package",
+		"command": "unit_testing",
+		"args": {"package": "$package_name", "coverage": false}
+	},
+	{
+		"caption": "UnitTesting: Test Current Package with Coverage",
+		"command": "unit_testing",
+		"args": {"package": "$package_name", "coverage": true}
+	},
+	{
+		"caption": "UnitTesting: Test Current File",
+		"command": "unit_testing",
+		"args": {"package": "$package_name", "pattern": "$file_name", "coverage": false}
+	},
+	{
+		"caption": "UnitTesting: Test Current File with Coverage",
+		"command": "unit_testing",
+		"args": {"package": "$package_name", "pattern": "$file_name", "coverage": true}
+	},
+	{
+		"caption": "UnitTesting: Show Output Panel",
+		"command": "show_panel", "args": {"panel": "output.UnitTesting"}
+	}
 ]

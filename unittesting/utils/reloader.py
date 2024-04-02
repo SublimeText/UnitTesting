@@ -63,7 +63,6 @@ def package_plugins(pkg_name):
 
 def reload_package(pkg_name, dummy=True, verbose=True):
     if pkg_name not in sys.modules:
-        dprint("error:", pkg_name, "is not loaded.")
         return
 
     all_modules = {

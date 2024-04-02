@@ -1,27 +1,22 @@
 import sublime
 import sublime_api
-import sublime_plugin
 
-from .const import DONE_MESSAGE
-from .mixin import UnitTestingMixin
+from .base import BaseUnittestingCommand
+from .base import DONE_MESSAGE
 
 
-class UnitTestingSyntaxBase(sublime_plugin.ApplicationCommand, UnitTestingMixin):
+class UnitTestingSyntaxCommand(BaseUnittestingCommand):
 
     def run(self, package=None, **kwargs):
-        if not package:
-            package = self.current_package_name
+        if not package or package == "$package_name":
+            package = self.current_package_name()
             if not package:
+                sublime.error_message("Cannot determine package name.")
                 return
 
         settings = self.load_unittesting_settings(package, kwargs)
         stream = self.load_stream(package, settings)
-        self.syntax_testing(stream, package)
 
-
-class UnitTestingSyntaxCommand(UnitTestingSyntaxBase):
-
-    def syntax_testing(self, stream, package):
         total_assertions = 0
         failed_assertions = 0
 
@@ -56,9 +51,18 @@ class UnitTestingSyntaxCommand(UnitTestingSyntaxBase):
         stream.close()
 
 
-class UnitTestingSyntaxCompatibilityCommand(UnitTestingSyntaxBase):
+class UnitTestingSyntaxCompatibilityCommand(BaseUnittestingCommand):
 
-    def syntax_testing(self, stream, package):
+    def run(self, package=None, **kwargs):
+        if not package or package == "$package_name":
+            package = self.current_package_name()
+            if not package:
+                sublime.error_message("Cannot determine package name.")
+                return
+
+        settings = self.load_unittesting_settings(package, kwargs)
+        stream = self.load_stream(package, settings)
+
         try:
             syntaxes = sublime.find_resources("*.sublime-syntax")
             syntaxes = [s for s in syntaxes if s.startswith("Packages/%s/" % package)]

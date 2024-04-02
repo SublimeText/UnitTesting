@@ -175,6 +175,7 @@ class ViewTestCase(ViewTestCaseMixin, TestCase):
         def test_editing(self):
             self.setText("foo")
             self.setCaretTo(0, 0)
+            self.setText("foo")
             self.assertRowContentsEqual(0, "foofoo")
     ```
     """

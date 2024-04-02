@@ -135,23 +135,28 @@ An example would be found in [here](https://github.com/randy3k/UnitTesting-examp
 
 UnitTesting could be configured by providing the following settings in `unittesting.json`
 
-| name                        | description                                                         | default value |
-| ----                        | ---                                                                 | ----          |
-| tests_dir                   | the name of the directory containing the tests                      | "tests"       |
-| pattern                     | the pattern to discover tests                                       | "test*.py"    |
-| deferred                    | whether to use deferred test runner                                 | true          |
-| verbosity                   | verbosity level                                                     | 2             |
-| output                      | name of the test output instead of showing <br> in the panel        | nil           |
-| show_reload_progress        | self explained                                                      | true          |
-| reload_package_on_testing   | reloading package will increase coverage rate                       | true          |
-| start_coverage_after_reload | self explained, irrelevent if  `reload_package_on_testing` is false | false         |
-| coverage_on_worker_thread   | (experimental)                                                      | false         |
-| generate_html_report        | generate coverage report for coverage                               | false         |
-| capture_console             | capture stdout and stderr in the test output                        | false         |
-| failfast                    | stop early if a test fails                                          | false         |
-| condition_timeout           | default timeout in ms for callables invoked via `yield`             | 4000          |
+| name                        | description                                                                       | default value |
+| --------------------------- | --------------------------------------------------------------------------------- | ------------- |
+| tests_dir                   | the name of the directory containing the tests                                    | "tests"       |
+| pattern                     | the pattern to discover tests                                                     | "test*.py"    |
+| deferred                    | whether to use deferred test runner                                               | true          |
+| condition_timeout           | default timeout in ms for callables invoked via `yield`                           | 4000          |
+| failfast                    | stop early if a test fails                                                        | false         |
+| output                      | name of the test output instead of showing <br> in the panel                      | null          |
+| verbosity                   | verbosity level                                                                   | 2             |
+| capture_console             | capture stdout and stderr in the test output                                      | false         |
+| reload_package_on_testing   | reloading package will increase coverage rate                                     | true          |
+| show_reload_progress        | print a detailed list of reloaded modules to console                              | false         |
+| coverage                    | track test case coverage                                                          | false         |
+| coverage_on_worker_thread   | (experimental)                                                                    | false         |
+| start_coverage_after_reload | self explained, irrelevent if `coverage` or `reload_package_on_testing` are false | false         |
+| generate_html_report        | generate HTML report for coverage                                                 | false         |
+| generate_xml_report         | generate XML report for coverage                                                  | false         |
 
-## Others
+## Build System
+
+The `unit_testing` command can be used as build system `"target"`. 
+All available options can be put into a build system and will be used to override entries from unittesting.json.
 
 ### Add `Test Current Package` build
 
@@ -162,12 +167,30 @@ It is recommended to add the following in your `.sublime-project` file so that <
 [
   {
     "name": "Test Current Package",
-    "target": "unit_testing_current_package",
+    "target": "unit_testing",
+    "package": "$package_name",
   }
 ]
 ```
 
-### Credits
+### Add `Test Current File` build
+
+It is recommended to add the following in your `.sublime-project` file so that <kbd>c</kbd>+<kbd>b</kbd> would invoke the testing action.
+
+```json
+"build_systems":
+[
+  {
+    "name": "Test Current File",
+    "target": "unit_testing",
+    "package": "$package_name",
+    "pattern": "$file_name",
+  }
+]
+```
+
+## Credits
+
 Thanks [guillermooo](https://github.com/guillermooo) and [philippotto](https://github.com/philippotto) for their early efforts in AppVeyor and Travis CI macOS support (though these services are not supported now).
 
 
