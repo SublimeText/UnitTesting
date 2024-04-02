@@ -8,12 +8,12 @@ runs:
   using: 'composite'
   steps:
     - run: |
-        . $GITHUB_ACTION_PATH/../../scripts/utils.sh
+        . $GITHUB_ACTION_PATH/../setup/utils.sh
 
         InstallPackage "ColorSchemeUnit" "https://github.com/gerardroche/sublime-color-scheme-unit"
 
         PACKAGE_FROM_INPUTS="${{ inputs.package-name }}"
         PACKAGE="${PACKAGE_FROM_INPUTS:-$PACKAGE}"
 
-        python3 "$GITHUB_ACTION_PATH/../../scripts/run_tests.py" "$PACKAGE" --color-scheme-test
+        python3 "$GITHUB_ACTION_PATH/../run-tests/run_tests.py" "$PACKAGE" --color-scheme-test
       shell: bash
