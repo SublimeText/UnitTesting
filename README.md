@@ -9,15 +9,9 @@ It runs unittest testcases on local machines and via Github Actions.
 It also supports testing syntax_test files for the new [sublime-syntax](https://www.sublimetext.com/docs/3/syntax.html) 
 format and sublime-color-scheme files.
 
-
 ## Sublime Text 4
 
 Sublime Text 4 is now supported and testing works for Python 3.8 packages.
-
-> [!NOTE]
->
-> coverage 7.x is currently skipped for python 3.8 plugins on MacOS,
-> because ST4 is missing a required core module.
 
 ## Preparation
 
