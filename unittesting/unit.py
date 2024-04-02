@@ -94,17 +94,20 @@ class UnitTestingCommand(BaseUnittestingCommand):
 
         stream = self.load_stream(package, settings)
 
-        if settings["async"]:
-            threading.Thread(
-                target=self.run_coverage, args=(package, stream, settings)
-            ).start()
+        def run_tests():
+            if settings["async"]:
+                threading.Thread(
+                    target=self.run_coverage, args=(package, stream, settings)
+                ).start()
+            else:
+                self.run_coverage(package, stream, settings)
+
+        if settings["reload_package_on_testing"]:
+            reload_package(package, on_done=run_tests)
         else:
-            self.run_coverage(package, stream, settings)
+            run_tests()
 
     def run_coverage(self, package, stream, settings):
-        if settings["reload_package_on_testing"]:
-            reload_package(package)
-
         if not coverage or not settings["coverage"]:
             if settings["coverage"]:
                 stream.write("Warning: coverage cannot be loaded.\n\n")
@@ -139,8 +142,6 @@ class UnitTestingCommand(BaseUnittestingCommand):
         cov.start()
 
         if settings["coverage_on_worker_thread"]:
-            import threading
-
             original_set_timeout_async = sublime.set_timeout_async
 
             def set_timeout_async(callback, *args, **kwargs):

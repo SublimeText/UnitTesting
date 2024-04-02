@@ -140,7 +140,6 @@ UnitTesting could be configured by providing the following settings in `unittest
 | verbosity                   | verbosity level                                                                   | 2             |
 | capture_console             | capture stdout and stderr in the test output                                      | false         |
 | reload_package_on_testing   | reloading package will increase coverage rate                                     | true          |
-| show_reload_progress        | print a detailed list of reloaded modules to console                              | false         |
 | coverage                    | track test case coverage                                                          | false         |
 | coverage_on_worker_thread   | (experimental)                                                                    | false         |
 | generate_html_report        | generate HTML report for coverage                                                 | false         |
