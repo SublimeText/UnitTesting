@@ -1,10 +1,10 @@
 import sys
 
+from collections.abc import Generator as DeferrableMethod
 from unittest import TestCase
 from unittest.case import _Outcome
 from unittest.case import expectedFailure
 
-from ...utils import isiterable
 from .runner import defer
 
 __all__ = [
@@ -17,22 +17,22 @@ class DeferrableTestCase(TestCase):
 
     def _callSetUp(self):
         deferred = self.setUp()
-        if isiterable(deferred):
+        if isinstance(deferred, DeferrableMethod):
             yield from deferred
 
     def _callTestMethod(self, method):
         deferred = method()
-        if isiterable(deferred):
+        if isinstance(deferred, DeferrableMethod):
             yield from deferred
 
     def _callTearDown(self):
         deferred = self.tearDown()
-        if isiterable(deferred):
+        if isinstance(deferred, DeferrableMethod):
             yield from deferred
 
     def _callCleanup(self, function, *args, **kwargs):
         deferred = function(*args, **kwargs)
-        if isiterable(deferred):
+        if isinstance(deferred, DeferrableMethod):
             yield from deferred
 
     @staticmethod
@@ -71,22 +71,22 @@ class DeferrableTestCase(TestCase):
 
             with outcome.testPartExecutor(self):
                 deferred = self._callSetUp()
-                if isiterable(deferred):
+                if isinstance(deferred, DeferrableMethod):
                     yield from deferred
             if outcome.success:
                 outcome.expecting_failure = expecting_failure
                 with outcome.testPartExecutor(self, isTest=True):
                     deferred = self._callTestMethod(testMethod)
-                    if isiterable(deferred):
+                    if isinstance(deferred, DeferrableMethod):
                         yield from deferred
                 outcome.expecting_failure = False
                 with outcome.testPartExecutor(self):
                     deferred = self._callTearDown()
-                    if isiterable(deferred):
+                    if isinstance(deferred, DeferrableMethod):
                         yield from deferred
 
             deferred = self.doCleanups()
-            if isiterable(deferred):
+            if isinstance(deferred, DeferrableMethod):
                 yield from deferred
             for test, reason in outcome.skipped:
                 self._addSkip(result, test, reason)
@@ -123,7 +123,7 @@ class DeferrableTestCase(TestCase):
             function, args, kwargs = self._cleanups.pop()
             with outcome.testPartExecutor(self):
                 deferred = self._callCleanup(function, *args, **kwargs)
-                if isiterable(deferred):
+                if isinstance(deferred, DeferrableMethod):
                     yield from deferred
 
         # return this for backwards compatibility
@@ -138,14 +138,14 @@ class DeferrableTestCase(TestCase):
             function, args, kwargs = cls._class_cleanups.pop()
             try:
                 deferred = function(*args, **kwargs)
-                if isiterable(deferred):
+                if isinstance(deferred, DeferrableMethod):
                     yield from deferred
             except Exception:
                 cls.tearDown_exceptions.append(sys.exc_info())
 
     def __call__(self, *args, **kwds):
         deferred = self.run(*args, **kwds)
-        if isiterable(deferred):
+        if isinstance(deferred, DeferrableMethod):
             yield from deferred
         else:
             return deferred

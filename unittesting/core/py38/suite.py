@@ -4,7 +4,7 @@ from unittest.suite import _DebugResult
 from unittest.suite import _isnotsuite
 from unittest.suite import TestSuite
 
-from ...utils import isiterable
+from .case import DeferrableMethod
 
 
 class DeferrableTestSuite(TestSuite):
@@ -20,13 +20,13 @@ class DeferrableTestSuite(TestSuite):
 
             if _isnotsuite(test):
                 deferred = self._tearDownPreviousClass(test, result)
-                if isiterable(deferred):
+                if isinstance(deferred, DeferrableMethod):
                     yield from deferred
                 yield
                 self._handleModuleFixture(test, result)
                 yield
                 deferred = self._handleClassSetUp(test, result)
-                if isiterable(deferred):
+                if isinstance(deferred, DeferrableMethod):
                     yield from deferred
                 yield
                 result._previousTestClass = test.__class__
@@ -43,14 +43,14 @@ class DeferrableTestSuite(TestSuite):
             if self._cleanup:
                 self._removeTestAtIndex(index)
 
-            if isiterable(deferred):
+            if isinstance(deferred, DeferrableMethod):
                 yield from deferred
 
             yield
 
         if topLevel:
             deferred = self._tearDownPreviousClass(None, result)
-            if isiterable(deferred):
+            if isinstance(deferred, DeferrableMethod):
                 yield from deferred
             yield
             yield
@@ -80,7 +80,7 @@ class DeferrableTestSuite(TestSuite):
             _call_if_exists(result, '_setupStdout')
             try:
                 deferred = setUpClass()
-                if isiterable(deferred):
+                if isinstance(deferred, DeferrableMethod):
                     yield from deferred
             except Exception as e:
                 if isinstance(result, _DebugResult):
@@ -94,7 +94,7 @@ class DeferrableTestSuite(TestSuite):
                 _call_if_exists(result, '_restoreStdout')
                 if currentClass._classSetupFailed is True:
                     deferred = currentClass.doClassCleanups()
-                    if isiterable(deferred):
+                    if isinstance(deferred, DeferrableMethod):
                         yield from deferred
                     if len(currentClass.tearDown_exceptions) > 0:
                         for exc in currentClass.tearDown_exceptions:
@@ -119,7 +119,7 @@ class DeferrableTestSuite(TestSuite):
             _call_if_exists(result, '_setupStdout')
             try:
                 deferred = tearDownClass()
-                if isiterable(deferred):
+                if isinstance(deferred, DeferrableMethod):
                     yield from deferred
             except Exception as e:
                 if isinstance(result, _DebugResult):
@@ -131,7 +131,7 @@ class DeferrableTestSuite(TestSuite):
             finally:
                 _call_if_exists(result, '_restoreStdout')
                 deferred = previousClass.doClassCleanups()
-                if isiterable(deferred):
+                if isinstance(deferred, DeferrableMethod):
                     yield from deferred
                 if len(previousClass.tearDown_exceptions) > 0:
                     for exc in previousClass.tearDown_exceptions:

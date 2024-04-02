@@ -1,6 +1,7 @@
 import sys
 import warnings
 
+from collections.abc import Iterable as DeferrableMethod
 from functools import wraps
 from unittest import TestCase
 from unittest.case import _ExpectedFailure
@@ -8,7 +9,7 @@ from unittest.case import _Outcome
 from unittest.case import _UnexpectedSuccess
 from unittest.case import SkipTest
 
-from ...utils import isiterable
+
 from .runner import defer
 
 __all__ = [
@@ -22,7 +23,7 @@ def expectedFailure(func):
     def wrapper(*args, **kwargs):
         try:
             deferred = func(*args, **kwargs)
-            if isiterable(deferred):
+            if isinstance(deferred, DeferrableMethod):
                 yield from deferred
         except Exception:
             raise _ExpectedFailure(sys.exc_info())
@@ -35,7 +36,7 @@ class DeferrableTestCase(TestCase):
     def _executeTestPart(self, function, outcome, isTest=False):
         try:
             deferred = function()
-            if isiterable(deferred):
+            if isinstance(deferred, DeferrableMethod):
                 yield from deferred
         except KeyboardInterrupt:
             raise

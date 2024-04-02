@@ -3,6 +3,7 @@ import json
 import shutil
 import sublime
 
+from ..core import DeferrableMethod
 from ..core import DeferrableTestCase
 
 
@@ -32,9 +33,9 @@ class OverridePreferencesTestCase(DeferrableTestCase):
             yield 500
             s.clear_on_change(on_change_key)
 
-        x = super().setUpClass()
-        if hasattr(x, '__iter__'):
-            yield from x
+        deferred = super().setUpClass()
+        if isinstance(deferred, DeferrableMethod):
+            yield from deferred
 
     @classmethod
     def tearDownClass(cls):
@@ -49,6 +50,6 @@ class OverridePreferencesTestCase(DeferrableTestCase):
                 except Exception:
                     pass
 
-        x = super().tearDownClass()
-        if hasattr(x, '__iter__'):
-            yield from x
+        deferred = super().tearDownClass()
+        if isinstance(deferred, DeferrableMethod):
+            yield from deferred

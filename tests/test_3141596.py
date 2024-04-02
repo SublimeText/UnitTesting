@@ -6,8 +6,8 @@ import sublime
 from functools import wraps
 from unittest import skipIf
 from unittesting import AWAIT_WORKER
+from unittesting import DeferrableMethod
 from unittesting import DeferrableTestCase
-from unittesting.utils import isiterable
 
 BASEDIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -83,7 +83,7 @@ def with_package(package, output=None, syntax_test=False, syntax_compatibility=F
                 txt = f.read()
 
             deferred = func(self, txt)
-            if isiterable(deferred):
+            if isinstance(deferred, DeferrableMethod):
                 yield from deferred
 
             yield
