@@ -8,13 +8,6 @@ import threading
 from unittest import TestSuite
 from unittest import TextTestRunner
 
-try:
-    if sys.platform == "darwin":
-        raise ImportError("unsupported")
-    import coverage
-except Exception:
-    coverage = False
-
 from .base import BaseUnittestingCommand
 from .base import DONE_MESSAGE
 from .core import DeferrableTestCase
@@ -23,6 +16,31 @@ from .core import TestLoader
 from .utils import ProgressBar
 from .utils import reload_package
 from .utils import StdioSplitter
+
+try:
+    import coverage
+
+    # ST4 does not ship `_sysconfigdata__darwin_darwin` module, required by
+    # coverage 7.x on MacOS, which causes `sysconfig.add_paths()` to fail.
+    # On other OSs it returns potentially unwanted paths outside of ST ecosystem.
+    # Thus monkey patch it.
+    try:
+        import coverage.inorout
+
+        def __add_third_party_paths(paths):
+            """Return $data/Lib/pythonXY as 3rd-party path."""
+            libs_path = os.path.join(
+                os.path.dirname(sublime.packages_path()),
+                "Lib",
+                "python{}{}".format(sys.version_info.major, sys.version_info.minor)
+            )
+            paths.add(libs_path)
+
+        coverage.inorout.add_third_party_paths = __add_third_party_paths
+    except:
+        pass
+except Exception:
+    coverage = False
 
 
 class UnitTestingCommand(BaseUnittestingCommand):
