@@ -102,12 +102,12 @@ class UnitTestingCommand(BaseUnittestingCommand):
             self.run_coverage(package, stream, settings)
 
     def run_coverage(self, package, stream, settings):
+        if settings["reload_package_on_testing"]:
+            reload_package(package)
+
         if not coverage or not settings["coverage"]:
             if settings["coverage"]:
                 stream.write("Warning: coverage cannot be loaded.\n\n")
-
-            if settings["reload_package_on_testing"]:
-                reload_package(package, verbose=settings["show_reload_progress"])
 
             self.run_tests(stream, package, settings, [])
             return
@@ -136,12 +136,7 @@ class UnitTestingCommand(BaseUnittestingCommand):
             data_file=data_file, config_file=config_file, include=include, omit=omit
         )
 
-        if not settings["start_coverage_after_reload"]:
-            cov.start()
-        if settings["reload_package_on_testing"]:
-            reload_package(package, verbose=settings["show_reload_progress"])
-        if settings["start_coverage_after_reload"]:
-            cov.start()
+        cov.start()
 
         if settings["coverage_on_worker_thread"]:
             import threading
