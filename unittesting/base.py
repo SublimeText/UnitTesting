@@ -55,7 +55,7 @@ class BaseUnittestingCommand(sublime_plugin.WindowCommand):
         view = self.window.active_view()
         if view and view.file_name():
             file_path = relative_to_spp(view.file_name())
-            if file_path and file_path.endswith(".py"):
+            if file_path:
                 return file_path.split(os.sep)[1]
 
         folders = self.window.folders()
