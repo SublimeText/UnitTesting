@@ -29,11 +29,11 @@ inputs:
     required: false
     default: ''
   install-coverage:
-    description: Whether to install coverage.
+    description: Whether to install coverage (DEPRECATED, no longer used).
     required: true
     default: true
   coverage-version:
-    description: Version of coverage. Use latest release if empty.
+    description: Version of coverage (DEPRECATED, no longer used).
     required: false
     default: ''
   install-package-control:
