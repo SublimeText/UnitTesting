@@ -215,16 +215,3 @@ runs:
       run: |
         pwsh $Env:GITHUB_ACTION_PATH/install_package_control.ps1 --verbose
       shell: pwsh
-    - run: |
-        if [ "${{ inputs.install-package }}" = "true" ]; then
-          # package control may have updated the checked out repo, we need to restore it
-          if [ -f "$SUBLIME_TEXT_PACKAGES/$PACKAGE/dependency-metadata.json" ]; then
-            cd "${{ inputs.package-path }}"
-            rm -rf "$SUBLIME_TEXT_PACKAGES/$PACKAGE"
-            cp -r ./ "$SUBLIME_TEXT_PACKAGES/$PACKAGE"
-            rm -rf "$SUBLIME_TEXT_PACKAGES/$PACKAGE/.git"
-            touch "$SUBLIME_TEXT_PACKAGES/$PACKAGE/.sublime-dependency"
-            cd -
-          fi
-        fi
-      shell: bash
