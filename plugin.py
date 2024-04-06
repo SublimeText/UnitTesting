@@ -20,7 +20,7 @@ from .unittesting.syntax import UnitTestingSyntaxCommand
 from .unittesting.syntax import UnitTestingSyntaxCompatibilityCommand
 from .unittesting.unit import UnitTestingCommand
 
-
+# publish plugin interface
 __all__ = [
     "UnitTestingCommand",
     "UnitTestingSyntaxCommand",
@@ -33,19 +33,22 @@ __all__ = [
 # publish unittesting module
 sys.modules["unittesting"] = sys.modules["UnitTesting"].unittesting
 
-UT33_CODE = """
-from UnitTesting import plugin as ut38
-
-
-class UnitTesting33Command(ut38.UnitTestingCommand):
-    \"\"\"Execute unit tests for python 3.3 plugins.\"\"\"
-    pass
-"""
-
 
 def plugin_loaded():
     if sys.version_info >= (3, 8):
         import json
+        from textwrap import dedent
+
+        UT33_CODE = dedent(
+            """
+            from UnitTesting import plugin as ut38
+
+
+            class UnitTesting33Command(ut38.UnitTestingCommand):
+                \"\"\"Execute unit tests for python 3.3 plugins.\"\"\"
+                pass
+            """
+        ).lstrip()
 
         UT33 = os.path.join(sublime.packages_path(), "UnitTesting33")
         os.makedirs(UT33, exist_ok=True)
