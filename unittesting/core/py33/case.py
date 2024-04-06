@@ -12,7 +12,7 @@ from unittest.case import SkipTest
 
 from .runner import defer
 
-__all__ = ["DeferrableTestCase", "expectedFailure"]
+__all__ = ["DeferrableMethod", "DeferrableTestCase", "expectedFailure"]
 
 
 def expectedFailure(func):

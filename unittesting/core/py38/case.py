@@ -7,7 +7,7 @@ from unittest.case import expectedFailure
 
 from .runner import defer
 
-__all__ = ["DeferrableTestCase", "expectedFailure"]
+__all__ = ["DeferrableMethod", "DeferrableTestCase", "expectedFailure"]
 
 
 class DeferrableTestCase(TestCase):
