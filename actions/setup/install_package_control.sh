@@ -42,7 +42,7 @@ if [ ! -d "$STIP" ]; then
 fi
 
 PC_PATH="$STIP/Package Control.sublime-package"
-if [ ! -f "$PC_PATH" ]; then
+if [ ! -f "$PC_PATH" ] && [ ! -d "$STP/Package Control" ]; then
     echo Downloading Package Control.sublime-package
     PC_URL="https://github.com/wbond/package_control/releases/latest/download/Package.Control.sublime-package"
     curl -s -L "$PC_URL" -o "$PC_PATH"
