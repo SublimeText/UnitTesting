@@ -11,8 +11,8 @@ from unittest import TextTestRunner
 from .base import BaseUnittestingCommand
 from .base import DONE_MESSAGE
 from .core import DeferrableTestCase
+from .core import DeferrableTestLoader
 from .core import DeferringTextTestRunner
-from .core import TestLoader
 from .utils import reload_package
 from .utils import StdioSplitter
 
@@ -207,7 +207,7 @@ class UnitTestingCommand(BaseUnittestingCommand):
             if not is_empty_test:
                 # use custom loader which supports reloading modules
                 self.remove_test_modules(package, settings["tests_dir"])
-                loader = TestLoader(settings["deferred"])
+                loader = DeferrableTestLoader(settings["deferred"])
                 if os.path.exists(os.path.join(start_dir, "__init__.py")):
                     tests = loader.discover(
                         start_dir, settings["pattern"], top_level_dir=package_dir
