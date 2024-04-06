@@ -58,7 +58,7 @@ inputs:
 runs:
   using: 'composite'
   steps:
-    - name: Set environmental variables
+    - name: Setup Environment Variables
       run: |
         echo "SUBLIME_TEXT_VERSION=${{ inputs.sublime-text-version }}" >> $GITHUB_ENV
         echo "SUBLIME_TEXT_ARCH=${{ inputs.sublime-text-arch }}" >> $GITHUB_ENV
@@ -84,14 +84,16 @@ runs:
         fi
         echo "SUBLIME_TEXT_PACKAGES=$STP" >> $GITHUB_ENV
       shell: bash
-    - run: |
+    - name: Setup Sublime Text Path
+      run: |
         if [ "${{ runner.os }}" = "Windows" ]; then
           echo "c:\st" >> $GITHUB_PATH
         else
           echo "$HOME/.local/bin" >> $GITHUB_PATH
         fi
       shell: bash
-    - if: runner.os == 'Linux'
+    - name: Setup Graphical User Interface
+      if: runner.os == 'Linux'
       run: |
         sudo bash $GITHUB_ACTION_PATH/install_ubuntu_sys_req.sh
         echo "DISPLAY=:1" >> $GITHUB_ENV
@@ -113,7 +115,8 @@ runs:
           fi
         fi
       shell: bash
-    - if: runner.os == 'Linux'
+    - name: Start Graphical User Interface
+      if: runner.os == 'Linux'
       run: |
         if [ "${{ inputs.display }}" = "xvfb" ]; then
           Xvfb $DISPLAY -screen 0 1024x768x24 -ac +extension GLX +render -noreset &
@@ -138,15 +141,18 @@ runs:
           fi
         fi
       shell: bash
-    - if: runner.os == 'Linux' || runner.os == 'macOS'
+    - name: Install Sublime Text
+      if: runner.os == 'Linux' || runner.os == 'macOS'
       run: |
         bash $GITHUB_ACTION_PATH/install_sublime_text.sh
       shell: bash
-    - if: runner.os == 'Windows'
+    - name: Install Sublime Text
+      if: runner.os == 'Windows'
       run: |
         pwsh $Env:GITHUB_ACTION_PATH/install_sublime_text.ps1 --verbose
       shell: pwsh
-    - run: |
+    - name: Confugure Git
+      run: |
         # Disable warnings about detached HEAD
         # https://stackoverflow.com/questions/36794501
         git config --global advice.detachedHead false
@@ -154,7 +160,8 @@ runs:
         # block sublime text website ip
         bash $GITHUB_ACTION_PATH/block_ip.sh
       shell: bash
-    - run: |
+    - name: Determine Test Package
+      run: |
         REPO="$GITHUB_REPOSITORY"
         if [ "${{ inputs.install-package }}" = "true" ]; then
           cd "${{ inputs.package-path }}"
@@ -170,7 +177,8 @@ runs:
 
         echo "PACKAGE=$PACKAGE" >> $GITHUB_ENV
       shell: bash
-    - run: |
+    - name: Install Packages
+      run: |
         . $GITHUB_ACTION_PATH/utils.sh
 
         # Copy plugin files to Packages/<Package> folder if files are checked out.
@@ -207,11 +215,13 @@ runs:
             InstallPackage "$PKG" "https://github.com/$USER/$REPO" "$SHA"
         done <<< "${{ inputs.extra-packages }}"
       shell: bash
-    - if: (runner.os == 'Linux' || runner.os == 'macOS') && inputs.install-package-control == 'true'
+    - name: Install Package Control
+      if: (runner.os == 'Linux' || runner.os == 'macOS') && inputs.install-package-control == 'true'
       run: |
         bash $GITHUB_ACTION_PATH/install_package_control.sh
       shell: bash
-    - if: runner.os == 'Windows' && inputs.install-package-control == 'true'
+    - name: Install Package Control
+      if: runner.os == 'Windows' && inputs.install-package-control == 'true'
       run: |
         pwsh $Env:GITHUB_ACTION_PATH/install_package_control.ps1 --verbose
       shell: pwsh
