@@ -56,7 +56,11 @@ class UnitTestingCommand(BaseUnittestingCommand):
         # parse input of form `<package>:<pattern>`
         parts = package.split(":", 1)
         if len(parts) == 2:
-            package, kwargs["pattern"] = parts
+            package, pattern = parts
+            tests_dir, pattern = os.path.split(pattern)
+            if tests_dir:
+                kwargs["tests_dir"] = tests_dir
+            kwargs["pattern"] = pattern
 
         # resolve real package name
         if package == "$package_name":
