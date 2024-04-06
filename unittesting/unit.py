@@ -10,11 +10,11 @@ from unittest import TextTestRunner
 
 from .base import BaseUnittestingCommand
 from .base import DONE_MESSAGE
+from .base import StdioSplitter
 from .core import DeferrableTestCase
 from .core import DeferrableTestLoader
 from .core import DeferringTextTestRunner
-from .utils import reload_package
-from .utils import StdioSplitter
+from .reloader import reload_package
 
 try:
     import coverage
