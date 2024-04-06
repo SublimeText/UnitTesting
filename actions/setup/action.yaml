@@ -60,103 +60,98 @@ runs:
   steps:
     - name: Setup Environment Variables
       run: |
-        echo "SUBLIME_TEXT_VERSION=${{ inputs.sublime-text-version }}" >> $GITHUB_ENV
-        echo "SUBLIME_TEXT_ARCH=${{ inputs.sublime-text-arch }}" >> $GITHUB_ENV
-      shell: bash
-    - name: Setup SUBLIME_TEXT_PACKAGES
-      run: |
-        if [ $SUBLIME_TEXT_VERSION -ge 4 ]; then
-            if [ $(uname) = 'Darwin' ]; then
-                STP="$HOME/Library/Application Support/Sublime Text/Packages"
-            elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
-                STP="$HOME/.config/sublime-text/Packages"
-            else
-                STP="/c/st/Data/Packages/"
-            fi
-        else
-            if [ $(uname) = 'Darwin' ]; then
-                STP="$HOME/Library/Application Support/Sublime Text $SUBLIME_TEXT_VERSION/Packages"
-            elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
-                STP="$HOME/.config/sublime-text-$SUBLIME_TEXT_VERSION/Packages"
-            else
-                STP="/c/st/Data/Packages/"
-            fi
-        fi
-        echo "SUBLIME_TEXT_PACKAGES=$STP" >> $GITHUB_ENV
-      shell: bash
-    - name: Setup Sublime Text Path
-      run: |
         if [ "${{ runner.os }}" = "Windows" ]; then
           echo "c:\st" >> $GITHUB_PATH
         else
           echo "$HOME/.local/bin" >> $GITHUB_PATH
         fi
+        case ${{ inputs.sublime-text-version }} in
+          3)
+            case ${{ runner.os }} in
+              Linux)
+                STP="$HOME/.config/sublime-text-${{ inputs.sublime-text-version }}/Packages";;
+              macOS)
+                STP="$HOME/Library/Application Support/Sublime Text ${{ inputs.sublime-text-version }}/Packages";;
+              Windows)
+                STP="/c/st/Data/Packages/";;
+              *)
+                exit 1
+            esac;;
+          4)
+            case ${{ runner.os }} in
+              Linux)
+                STP="$HOME/.config/sublime-text/Packages";;
+              macOS)
+                STP="$HOME/Library/Application Support/Sublime Text/Packages";;
+              Windows)
+                STP="/c/st/Data/Packages/";;
+              *)
+                exit 1
+            esac;;
+          *)
+            exit 1
+        esac
+        echo "SUBLIME_TEXT_PACKAGES=$STP" >> $GITHUB_ENV
+        echo "SUBLIME_TEXT_ARCH=${{ inputs.sublime-text-arch }}" >> $GITHUB_ENV
+        echo "SUBLIME_TEXT_VERSION=${{ inputs.sublime-text-version }}" >> $GITHUB_ENV
       shell: bash
     - name: Setup Graphical User Interface
       if: runner.os == 'Linux'
       run: |
         sudo bash $GITHUB_ACTION_PATH/install_ubuntu_sys_req.sh
         echo "DISPLAY=:1" >> $GITHUB_ENV
-
-        if [ "${{ inputs.display }}" = "xvfb" ]; then
-          sudo apt-get install xvfb
-        elif [ "${{ inputs.display }}" = "turbovnc" ]; then
-          wget https://phoenixnap.dl.sourceforge.net/project/turbovnc/2.2.5/turbovnc_2.2.5_amd64.deb
-          sudo dpkg -i turbovnc_2.2.5_amd64.deb
-          echo "/opt/TurboVNC/bin" >> $GITHUB_PATH
-        fi
-        if [ "${{ inputs.display }}" != "false" ]; then
-          if [ "${{ inputs.window-manager }}" = "xfce" ]; then
-            sudo apt-get install --no-install-recommends xfce4 xfce4-goodies dbus-x11
-          elif [ "${{ inputs.window-manager }}" = "icewm" ]; then
-            sudo apt-get install icewm
-          elif [ "${{ inputs.window-manager }}" = "fluxbox" ]; then
-            sudo apt-get install fluxbox
-          fi
-        fi
+        # install display driver
+        case ${{ inputs.display }} in
+          xvfb)
+            sudo apt-get install xvfb ;;
+          turbovnc)
+            wget https://phoenixnap.dl.sourceforge.net/project/turbovnc/2.2.5/turbovnc_2.2.5_amd64.deb
+            sudo dpkg -i turbovnc_2.2.5_amd64.deb
+            echo "/opt/TurboVNC/bin" >> $GITHUB_PATH
+        esac
+        # install window manager
+        case ${{ inputs.window-manager }} in
+          fluxbox|icewm)
+            sudo apt-get install ${{ inputs.window-manager }} ;;
+          xfce)
+            sudo apt-get install --no-install-recommends xfce4 xfce4-goodies dbus-x11 ;;
+        esac
       shell: bash
     - name: Start Graphical User Interface
       if: runner.os == 'Linux'
       run: |
-        if [ "${{ inputs.display }}" = "xvfb" ]; then
-          Xvfb $DISPLAY -screen 0 1024x768x24 -ac +extension GLX +render -noreset &
-          sleep 1
-          if [ "${{ inputs.window-manager }}" = "xfce" ]; then
-            nohup startxfce4 &
-          elif [ "${{ inputs.window-manager }}" = "icewm" ]; then
-            nohup icewm &
-          elif [ "${{ inputs.window-manager }}" = "fluxbox" ]; then
-            nohup fluxbox &
-          fi
-        elif [ "${{ inputs.display }}" = "turbovnc" ]; then
-          mkdir $HOME/.vnc
-          echo $RANDOM$RANDOM | vncpasswd -f > $HOME/.vnc/passwd
-          chmod 0600 $HOME/.vnc/passwd
-          if [ "${{ inputs.window-manager }}" = "xfce" ]; then
-            vncserver $DISPLAY -geometry 1024x768 -depth 24 -wm "startxfce4"
-          elif [ "${{ inputs.window-manager }}" = "false" ]; then
-            vncserver $DISPLAY -geometry 1024x768 -depth 24
-          else
-            vncserver $DISPLAY -geometry 1024x768 -depth 24 -wm "${{ inputs.window-manager }}"
-          fi
+        case ${{ inputs.display }} in
+          xvfb)
+            Xvfb $DISPLAY -screen 0 1024x768x24 -ac +extension GLX +render -noreset &
+            sleep 1
+            case ${{ inputs.window-manager }} in
+              fluxbox|icewm)
+                nohup ${{ inputs.window-manager }} & ;;
+              xfce)
+                nohup startxfce4 & ;;
+            esac ;;
+          turbovnc)
+            mkdir $HOME/.vnc
+            echo $RANDOM$RANDOM | vncpasswd -f > $HOME/.vnc/passwd
+            chmod 0600 $HOME/.vnc/passwd
+            case ${{ inputs.window-manager }} in
+              false)
+                vncserver $DISPLAY -geometry 1024x768 -depth 24 ;;
+              fluxbox|icewm)
+                vncserver $DISPLAY -geometry 1024x768 -depth 24 -wm "${{ inputs.window-manager }}" ;;
+              xfce)
+                vncserver $DISPLAY -geometry 1024x768 -depth 24 -wm "startxfce4" ;;
+            esac
+        esac
+      shell: bash
+    - name: Install Sublime Text
+      run: |
+        # download and install Sublime Text
+        if [ "${{ runner.os }}" = "Windows" ]; then
+          pwsh $GITHUB_ACTION_PATH/install_sublime_text.ps1 --verbose;
+        else
+          bash $GITHUB_ACTION_PATH/install_sublime_text.sh;
         fi
-      shell: bash
-    - name: Install Sublime Text
-      if: runner.os == 'Linux' || runner.os == 'macOS'
-      run: |
-        bash $GITHUB_ACTION_PATH/install_sublime_text.sh
-      shell: bash
-    - name: Install Sublime Text
-      if: runner.os == 'Windows'
-      run: |
-        pwsh $Env:GITHUB_ACTION_PATH/install_sublime_text.ps1 --verbose
-      shell: pwsh
-    - name: Confugure Git
-      run: |
-        # Disable warnings about detached HEAD
-        # https://stackoverflow.com/questions/36794501
-        git config --global advice.detachedHead false
-
         # block sublime text website ip
         bash $GITHUB_ACTION_PATH/block_ip.sh
       shell: bash
@@ -179,6 +174,10 @@ runs:
       shell: bash
     - name: Install Packages
       run: |
+        # Disable warnings about detached HEAD
+        # https://stackoverflow.com/questions/36794501
+        git config --global advice.detachedHead false
+
         . $GITHUB_ACTION_PATH/utils.sh
 
         # Copy plugin files to Packages/<Package> folder if files are checked out.
@@ -221,12 +220,11 @@ runs:
         fi
       shell: bash
     - name: Install Package Control
-      if: (runner.os == 'Linux' || runner.os == 'macOS') && inputs.install-package-control == 'true'
+      if: inputs.install-package-control == 'true'
       run: |
-        bash $GITHUB_ACTION_PATH/install_package_control.sh
+        if [ "${{ runner.os }}" = "Windows" ]; then
+          pwsh $GITHUB_ACTION_PATH/install_package_control.ps1 --verbose;
+        else
+          bash $GITHUB_ACTION_PATH/install_package_control.sh;
+        fi
       shell: bash
-    - name: Install Package Control
-      if: runner.os == 'Windows' && inputs.install-package-control == 'true'
-      run: |
-        pwsh $Env:GITHUB_ACTION_PATH/install_package_control.ps1 --verbose
-      shell: pwsh
