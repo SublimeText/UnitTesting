@@ -1,6 +1,7 @@
 import sys
 import warnings
 
+from collections.abc import Iterable as DeferrableMethod
 from functools import wraps
 from unittest import TestCase
 from unittest.case import _ExpectedFailure
@@ -8,13 +9,10 @@ from unittest.case import _Outcome
 from unittest.case import _UnexpectedSuccess
 from unittest.case import SkipTest
 
-from ...utils import isiterable
+
 from .runner import defer
 
-__all__ = [
-    "DeferrableTestCase",
-    "expectedFailure"
-]
+__all__ = ["DeferrableMethod", "DeferrableTestCase", "expectedFailure"]
 
 
 def expectedFailure(func):
@@ -22,11 +20,12 @@ def expectedFailure(func):
     def wrapper(*args, **kwargs):
         try:
             deferred = func(*args, **kwargs)
-            if isiterable(deferred):
+            if isinstance(deferred, DeferrableMethod):
                 yield from deferred
         except Exception:
             raise _ExpectedFailure(sys.exc_info())
         raise _UnexpectedSuccess
+
     return wrapper
 
 
@@ -35,7 +34,7 @@ class DeferrableTestCase(TestCase):
     def _executeTestPart(self, function, outcome, isTest=False):
         try:
             deferred = function()
-            if isiterable(deferred):
+            if isinstance(deferred, DeferrableMethod):
                 yield from deferred
         except KeyboardInterrupt:
             raise
@@ -71,19 +70,21 @@ class DeferrableTestCase(TestCase):
         orig_result = result
         if result is None:
             result = self.defaultTestResult()
-            startTestRun = getattr(result, 'startTestRun', None)
+            startTestRun = getattr(result, "startTestRun", None)
             if startTestRun is not None:
                 startTestRun()
 
         result.startTest(self)
 
         testMethod = getattr(self, self._testMethodName)
-        if getattr(self.__class__, "__unittest_skip__", False) or \
-                getattr(testMethod, "__unittest_skip__", False):
+        if getattr(self.__class__, "__unittest_skip__", False) or getattr(
+            testMethod, "__unittest_skip__", False
+        ):
             # If the class or method was skipped.
             try:
-                skip_why = getattr(self.__class__, '__unittest_skip_why__', '') or \
-                    getattr(testMethod, '__unittest_skip_why__', '')
+                skip_why = getattr(
+                    self.__class__, "__unittest_skip_why__", ""
+                ) or getattr(testMethod, "__unittest_skip_why__", "")
                 self._addSkip(result, skip_why)
             finally:
                 result.stopTest(self)
@@ -108,29 +109,31 @@ class DeferrableTestCase(TestCase):
                 for exc_info in outcome.failures:
                     result.addFailure(self, exc_info)
                 if outcome.unexpectedSuccess is not None:
-                    addUnexpectedSuccess = getattr(result, 'addUnexpectedSuccess', None)
+                    addUnexpectedSuccess = getattr(result, "addUnexpectedSuccess", None)
                     if addUnexpectedSuccess is not None:
                         addUnexpectedSuccess(self)
                     else:
                         warnings.warn(
                             "TestResult has no addUnexpectedSuccess method, reporting as failures",
-                            RuntimeWarning)
+                            RuntimeWarning,
+                        )
                         result.addFailure(self, outcome.unexpectedSuccess)
 
                 if outcome.expectedFailure is not None:
-                    addExpectedFailure = getattr(result, 'addExpectedFailure', None)
+                    addExpectedFailure = getattr(result, "addExpectedFailure", None)
                     if addExpectedFailure is not None:
                         addExpectedFailure(self, outcome.expectedFailure)
                     else:
                         warnings.warn(
                             "TestResult has no addExpectedFailure method, reporting as passes",
-                            RuntimeWarning)
+                            RuntimeWarning,
+                        )
                         result.addSuccess(self)
             return result
         finally:
             result.stopTest(self)
             if orig_result is None:
-                stopTestRun = getattr(result, 'stopTestRun', None)
+                stopTestRun = getattr(result, "stopTestRun", None)
                 if stopTestRun is not None:
                     stopTestRun()
 

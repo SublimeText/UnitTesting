@@ -1,0 +1,19 @@
+name: Run color scheme tests
+description: Run color scheme tests
+inputs:
+  package-name:
+    description: Package name. Derived from setup step if empty.
+    default: ''
+runs:
+  using: 'composite'
+  steps:
+    - run: |
+        . $GITHUB_ACTION_PATH/../setup/utils.sh
+
+        InstallPackage "ColorSchemeUnit" "https://github.com/gerardroche/sublime-color-scheme-unit"
+
+        PACKAGE_FROM_INPUTS="${{ inputs.package-name }}"
+        PACKAGE="${PACKAGE_FROM_INPUTS:-$PACKAGE}"
+
+        python3 "$GITHUB_ACTION_PATH/../run-tests/run_tests.py" "$PACKAGE" --color-scheme-test
+      shell: bash

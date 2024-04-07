@@ -9,15 +9,10 @@ It runs unittest testcases on local machines and via Github Actions.
 It also supports testing syntax_test files for the new [sublime-syntax](https://www.sublimetext.com/docs/3/syntax.html) 
 format and sublime-color-scheme files.
 
-
 ## Sublime Text 4
 
 Sublime Text 4 is now supported and testing works for Python 3.8 packages.
 
-> [!NOTE]
->
-> coverage 7.x is currently skipped for python 3.8 plugins on MacOS,
-> because ST4 is missing a required core module.
 
 ## Preparation
 
@@ -28,33 +23,184 @@ Sublime Text 4 is now supported and testing works for Python 3.8 packages.
 
 [Here](https://github.com/randy3k/UnitTesting-example) are some small examples
 
+
 ## Running Tests Locally
 
-UnitTesting can be triggered via the command palette command `UnitTesting`.
-Enter the package name in the input panel and hit enter, a console should pop
-up and the tests should be running. To run only tests in particular files,
-enter `<Package name>:<filename>`. `<filename>` should be a unix shell
-wildcard to match the file names, `<Package name>:test*.py` is used in
-default.
+### Command Palette
+
+1. Open `Command Palette` using <kbd>ctrl+shift+P</kbd> or menu item `Tools → Command Palette...`
+2. Choose a `Unittesting: ...` command to run and hit <kbd>Enter</kbd>
+
+To test any package...
+
+1. run `UnitTesting: Test Package` 
+2. enter the package name in the input panel and hit enter.
+
+An output panel pops up displaying progress and results of running tests. 
+
+To run only tests in particular files, enter `<Package name>:<filename>`.
+`<filename>` should be a unix shell wildcard to match the file names.
+`<Package name>:test*.py` is used by default.
+
+The command `UnitTesting: Test Current Package` runs all tests 
+of the current package the active view's file is part of.
+The package is reloaded to pickup any code changes and then tests are executed.
+
+The command `UnitTesting: Test Current Package with Coverage`
+runs tests for current package and generates a coverage report via [coverage](https://pypi.python.org/pypi/coverage).
+The [.coveragerc](.coveragerc) file is used to control coverage configurations. 
+If it is missing, UnitTesting will ignore the `tests` directory.
+
+> [!NOTE]
+>
+> As of Unittesting 1.8.0 the following commands have been replaced
+> to enable more flexible usage and integration in build systems.
+>
+> unit_testing_current_package
+>
+>   ```json
+>   { "command": "unit_testing", "package": "$package_name" }
+>   ```
+>
+> unit_testing_current_file
+>
+>   ```json
+>   { "command": "unit_testing", "package": "$package_name", "pattern": "$file_name" }
+>   ```
 
 
-You could run the command `UnitTesting: Test Current Package` to run the
-current package. The current package will be first reloaded by UnitTesting
-and then the tests will be executed.
+### Build System
+
+To run tests via build system specify `unit_testing` build system `"target"`.
+
+```json
+{
+  "target": "unit_testing"
+}
+```
 
 
-It is also possible to generate test
-coverage report via [coverage](https://pypi.python.org/pypi/coverage) by using the command
-`UnitTesting: Test Current Package with Coverage`.
-The file [.coveragerc](.coveragerc) is used to control the coverage configurations. If
-it is missing, UnitTesting will ignore the `tests` directory.
+### Project specific `Test Current Package` build command
+
+It is recommended to add the following to _.sublime-project_ file 
+so that <kbd>ctrl</kbd>+<kbd>b</kbd> would invoke the testing action.
+
+```json
+"build_systems":
+[
+  {
+    "name": "Test Current Package",
+    "target": "unit_testing",
+    "package": "$package_name",
+    "failfast": true
+  }
+]
+```
+
+
+### Project specific `Test Current File` build command
+
+It is recommended to add the following to _.sublime-project_ file 
+so that <kbd>ctrl</kbd>+<kbd>b</kbd> would invoke the testing action.
+
+```json
+"build_systems":
+[
+  {
+    "name": "Test Current File",
+    "target": "unit_testing",
+    "package": "$package_name",
+    "pattern": "$file_name",
+    "failfast": true
+  }
+]
+```
 
 
 ## GitHub Actions
 
-Basic: put the following in your workflow.
+Unittesting provides the following GitHub Actions, which can be combined
+in a workflow to design package tests.
+
+1. SublimeText/UnitTesting/actions/setup
+   
+   _Setup Sublime Text to run tests within._
+
+   > This must always be the first step after checking out the package to test.
+
+2. SublimeText/UnitTesting/actions/run-color-scheme-tests
+  
+   _Test color schemes using [ColorSchemeUnit](https://packagecontrol.io/packages/ColorSchemeUnit)._
+
+3. SublimeText/UnitTesting/actions/run-syntax-tests
+
+   _Test sublime-syntax definitions using built-in syntax test functions of already running Sublime Text environment._
+
+   > It is an alternative to [SublimeText/syntax-test-action](https://github.com/SublimeText/syntax-test-action) 
+   > or sublimehq's online syntax_test_runner
+
+4. SublimeText/UnitTesting/actions/run-tests
+
+   _Runs the `unit_testing` command to perform python unit tests._
+
+> [!NOTE]
+> 
+> actions are released in the branch [`v1`](https://github.com/SublimeText/UnitTesting/tree/v1). 
+> Minor changes will be pushed to the same branch unless there are breaking changes.
+
+
+### Color Scheme Tests
+
+To integrate color scheme tests via [ColorSchemeUnit](https://packagecontrol.io/packages/ColorSchemeUnit) 
+add the following snippet to a workflow file
+(e.g. `.github/workflows/color-scheme-tests.yml`).
+
 ```yaml
-name: test
+name: ci-color-scheme-tests
+
+on: [push, pull_request]
+
+jobs:
+  run-syntax-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: SublimeText/UnitTesting/actions/setup@v1
+      - uses: SublimeText/UnitTesting/actions/run-color-scheme-tests@v1
+```
+
+
+### Syntax Tests
+
+To run only syntax tests add the following snippet to a workflow file
+(e.g. `.github/workflows/syntax-tests.yml`).
+
+```yaml
+name: ci-syntax-tests
+
+on: [push, pull_request]
+
+jobs:
+  run-syntax-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: SublimeText/UnitTesting/actions/setup@v1
+      - uses: SublimeText/UnitTesting/actions/run-syntax-tests@v1
+```
+
+> [!NOTE]
+>
+> If you are looking for syntax tests only, you may also checkout [SublimeText/syntax-test-action](https://github.com/SublimeText/syntax-test-action).
+> Using this test makes most sense to just re-use an already set-up ST test environment.
+
+### Unit Tests
+
+To run only python unit tests on all platforms and versions of Sublime Text
+add the following snippet to a workflow file (e.g. `.github/workflows/unit-tests.yml`).
+
+```yaml
+name: ci-unit-tests
 
 on: [push, pull_request]
 
@@ -77,34 +223,135 @@ jobs:
       - uses: codecov/codecov-action@v4
 ```
 
-Remarks: actions are released in the branch [`v1`](https://github.com/SublimeText/UnitTesting/tree/v1). Minor changes will be pushed to the same branch unless there
-are breaking changes.
 
-## Testing syntax_test files
+### Run All Tests
 
 ```yaml
-name: test-syntax
+name: ci-tests
 
 on: [push, pull_request]
 
 jobs:
-  run-syntax-tests:
-    runs-on: ubuntu-latest
+  run-tests:
+    strategy:
+      fail-fast: false
+      matrix:
+        st-version: [3, 4]
+        os: ["ubuntu-latest", "macOS-latest", "windows-latest"]
+    runs-on: ${{ matrix.os }}
     steps:
+      # checkout package to test
       - uses: actions/checkout@v4
+
+      # setup test environment
       - uses: SublimeText/UnitTesting/actions/setup@v1
-      - uses: SublimeText/UnitTesting/actions/run-syntax-tests@v1
+        with:
+          sublime-text-version: ${{ matrix.st-version }}
+
+      # run color scheme tests (only on Linux)
+      - if: ${{ matrix.os == 'ubuntu-latest' }}
+        uses: SublimeText/UnitTesting/actions/run-color-scheme-tests@v1
+      
+      # run syntax tests and check compatibility with new syntax engine (only on Linux)
+      - if: ${{ matrix.os == 'ubuntu-latest' }}
+        uses: SublimeText/UnitTesting/actions/run-syntax-tests@v1
+        with:
+          compatibility: true
+      
+      # run unit tests with coverage upload
+      - uses: SublimeText/UnitTesting/actions/run-tests@v1
+        with:
+          coverage: true
+          extra-packages: |
+            A File Icon:SublimeText/AFileIcon
+      - uses: codecov/codecov-action@v4
 ```
-Check [this](https://github.com/randy3k/UnitTesting-example) for an example.
+
+Check [this](https://github.com/randy3k/UnitTesting-example) for further examples.
 
 
-## Deferred testing
+## Options
 
-Tests can be written using the Deferrable testcase, such that you are
-able to run sublime commands from your test cases and yield control to sublime
-text runtime and continue the execution later. Would be useful to test
-asynchronous codes. The idea was inspired by [Plugin UnitTest Harness](https://bitbucket.org/klorenz/sublimepluginunittestharness).
+### Package Configuration
 
+UnitTesting is primarily configured by `unittesting.json` file in package root directory.
+
+```json
+{
+  "verbosity": 1,
+  "coverage": true
+}
+```
+
+### Build System Configuration
+
+Options provided via build system configuration override `unittesting.json`.
+
+```json
+{
+  "target": "unit_testing",
+  "package": "$package_name",
+  "verbosity": 2,
+  "coverage": true
+}
+```
+
+### Command Arguments
+
+Options passed as arguments to `unit_testing` command override `unittesting.json`.
+
+```py
+window.run_command("unit_testing", {"package": "$package_name", "coverage": False})
+```
+
+### Available Options
+
+| name                        | description                                                  | default value |
+| --------------------------- | ------------------------------------------------------------ | ------------- |
+| tests_dir                   | the name of the directory containing the tests               | "tests"       |
+| pattern                     | the pattern to discover tests                                | "test*.py"    |
+| deferred                    | whether to use deferred test runner                          | true          |
+| condition_timeout           | default timeout in ms for callables invoked via `yield`      | 4000          |
+| failfast                    | stop early if a test fails                                   | false         |
+| output                      | name of the test output instead of showing <br> in the panel | null          |
+| verbosity                   | verbosity level                                              | 2             |
+| capture_console             | capture stdout and stderr in the test output                 | false         |
+| reload_package_on_testing   | reloading package will increase coverage rate                | true          |
+| coverage                    | track test case coverage                                     | false         |
+| coverage_on_worker_thread   | (experimental)                                               | false         |
+| generate_html_report        | generate HTML report for coverage                            | false         |
+| generate_xml_report         | generate XML report for coverage                             | false         |
+
+
+## Writing Unittests
+
+UnitTesting is based on python's `unittest` library. 
+Any valid unittest test case is allowed.
+
+Example:
+
+_tests/test_myunit.py_
+
+```py
+from unittest import TestCase
+
+class MyTestCase(TestCase):
+
+  def test_something(self):
+    self.assertTrue(True)
+```
+
+
+### Deferred testing
+
+Tests can be written using deferrable test cases to test results 
+of asynchronous or long lasting sublime commands, which require yielding
+control to sublime text runtime and resume test execution at a later point.
+
+It is a kind of cooperative multithreading such as provided by `asyncio`,
+but with a home grown [DeferringTextTestRunner][2] acting as event loop.
+
+The idea was inspired by [Plugin UnitTest Harness](https://bitbucket.org/klorenz/sublimepluginunittestharness).
 
 [DeferrableTestCase][1] is used to write the test cases. They are executed by
 the [DeferringTextTestRunner][2] and the runner expects not only regular test
@@ -126,48 +373,48 @@ the following
 
 - otherwise, a single `yield` would yield to a task in the main thread.
 
+Example:
+
+```py
+import sublime
+from unittesting import DeferrableTestCase
 
 
-An example would be found in [here](https://github.com/randy3k/UnitTesting-example/blob/master/tests/test_defer.py).
+class TestCondition(DeferrableTestCase):
 
+    def test_condition(self):
+        x = []
 
-## Options
+        def append():
+            x.append(1)
 
-UnitTesting could be configured by providing the following settings in `unittesting.json`
+        def condition():
+            return len(x) == 1
 
-| name                        | description                                                         | default value |
-| ----                        | ---                                                                 | ----          |
-| tests_dir                   | the name of the directory containing the tests                      | "tests"       |
-| pattern                     | the pattern to discover tests                                       | "test*.py"    |
-| deferred                    | whether to use deferred test runner                                 | true          |
-| verbosity                   | verbosity level                                                     | 2             |
-| output                      | name of the test output instead of showing <br> in the panel        | nil           |
-| show_reload_progress        | self explained                                                      | true          |
-| reload_package_on_testing   | reloading package will increase coverage rate                       | true          |
-| start_coverage_after_reload | self explained, irrelevent if  `reload_package_on_testing` is false | false         |
-| coverage_on_worker_thread   | (experimental)                                                      | false         |
-| generate_html_report        | generate coverage report for coverage                               | false         |
-| capture_console             | capture stdout and stderr in the test output                        | false         |
-| failfast                    | stop early if a test fails                                          | false         |
-| condition_timeout           | default timeout in ms for callables invoked via `yield`             | 4000          |
+        sublime.set_timeout(append, 100)
 
-## Others
+        # wait until `condition()` is true
+        yield condition
 
-### Add `Test Current Package` build
-
-It is recommended to add the following in your `.sublime-project` file so that <kbd>c</kbd>+<kbd>b</kbd> would invoke the testing action.
-
-```json
-"build_systems":
-[
-  {
-    "name": "Test Current Package",
-    "target": "unit_testing_current_package",
-  }
-]
+        self.assertEqual(x[0], 1)
 ```
 
-### Credits
+see also [tests/test_defer.py](https://github.com/randy3k/UnitTesting-example/blob/master/tests/test_defer.py).
+
+## Helper TestCases
+
+UnitTesting provides some helper test case classes, 
+which perform common tasks such as overriding preferences, setting up views, etc.
+
+- DeferrableViewTestCase
+- OverridePreferencesTestCase
+- TempDirectoryTestCase
+- ViewTestCase
+
+Usage and some examples are available via docstrings, which are displayed as hover popup by [LSP](https://packagecontrol.io/packages/LSP) and e.g. [LSP-pyright](https://packagecontrol.io/packages/LSP-pyright).
+
+## Credits
+
 Thanks [guillermooo](https://github.com/guillermooo) and [philippotto](https://github.com/philippotto) for their early efforts in AppVeyor and Travis CI macOS support (though these services are not supported now).
 
 

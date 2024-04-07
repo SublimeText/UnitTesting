@@ -4,58 +4,78 @@
 name: UnitTesting Test Result
 scope: text.test-result
 hidden: true
+
 contexts:
   main:
-
-    # verbosity <= 1
-    - match: '(?=^[\\.sEF]+$)'
+    # test progress (verbosity <= 1)
+    - match: ^(?=[\\.sxEF]+$)
       push:
         - match: $
           pop: true
-        - match: s
-          scope: markup.changed
+        - match: s|x
+          scope: markup.changed.test-result
         - match: E|F
-          scope: markup.deleted
+          scope: markup.deleted.test-result
 
-    # verbosity >= 2
-    - match: .+(\.\.\.)
+    # test progress (verbosity >= 2)
+    - match: ^(.+) (\()(.+)(\.)(.+)(\)) (\.\.\.)
       captures:
-        1: markup.ignored
+        1: variable.function.test.test-result
+        2: punctuation.section.parens.begin.test-result
+        3: variable.namespace.test-result
+        4: punctuation.accessor.dot.test-result
+        5: support.class.testcase.test-result
+        6: punctuation.section.parens.end.test-result
+        7: punctuation.separator.test-result
       push:
         - match: $
           pop: true
-        - match: ok
-          scope: markup.inserted
-        - match: ERROR|FAIL
-          scope: markup.deleted
-        - match: "skipped.*"
-          scope: markup.changed
+        - match: \b(?:ok|expected failure)\b
+          scope: markup.inserted.test-result
+        - match: \b(?:ERROR|FAIL)\b
+          scope: markup.deleted.test-result
+        - match: \bskipped\b(.*)
+          scope: markup.changed.test-result
+          captures:
+            1: comment.skip-reason.test-result
 
-    - match: ^OK.*
-      scope: markup.inserted
+    - match: ^(?=={70,}|-{70,})
+      set: test-results
 
-    - match: ^FAILED.*
-      scope: markup.deleted
-
-    - match: '======================================================================'
-      scope: markup.ignored
+  test-results:
+    # traceback headers
+    - match: ^={70,}
+      scope: punctuation.separator.test-result
       push:
-        - match: '----------------------------------------------------------------------'
-          scope: markup.ignored
+        - match: -{70,}
+          scope: punctuation.separator.test-result
           pop: true
-        - match: ^ERROR|FAIL
+        - match: ^(?:ERROR|FAIL)\b
           scope: markup.deleted
 
-    - match: ^----------------------------------------------------------------------$
-      scope: markup.ignored
+    # traceback route
+    - match: File "(.*)"(?:, line ([0-9]+)(?:, in (.*))?)?
+      captures:
+        1: markup.underline.link.test-result
+        2: constant.numeric.test-result
+        3: variable.function.test-result
+
+    # separators
+    - match: ^-{10,}$
+      scope: punctuation.separator.test-result
+
+    # testrun results
+    - match: ^OK\b.*
+      scope: markup.inserted.test-result
+    - match: ^FAILED\b.*
+      scope: markup.deleted.test-result
+    - match: ^UnitTesting\b.*
+      scope: markup.ignored.test-result
+
+    # coverage report
+    - match: ^Name {3,}Stmts +Miss +Cover$
+      scope: keyword.other.header.coverage.test-result
+    - match: ^TOTAL {3,}\d+ +\d+ +\d+%$
+      scope: keyword.other.footer.coverage.test-result
 
     - include: scope:source.diff
-
-    - match: 'File "(.*)"(?:, line ([0-9]+)(?:, in (.*))?)?'
-      captures:
-        1: markup.underline.link
-        2: constant.numeric
-        3: entity.name
-
-    - match: ^UnitTesting.*
-      scope: markup.ignored

@@ -1,27 +1,21 @@
 import sublime
 import sublime_api
-import sublime_plugin
 
-from .const import DONE_MESSAGE
-from .mixin import UnitTestingMixin
+from .base import BaseUnittestingCommand
+from .base import DONE_MESSAGE
 
 
-class UnitTestingSyntaxBase(sublime_plugin.ApplicationCommand, UnitTestingMixin):
-
+class UnitTestingSyntaxCommand(BaseUnittestingCommand):
     def run(self, package=None, **kwargs):
-        if not package:
-            package = self.current_package_name
+        if not package or package == "$package_name":
+            package = self.current_package_name()
             if not package:
+                sublime.error_message("Cannot determine package name.")
                 return
 
         settings = self.load_unittesting_settings(package, kwargs)
         stream = self.load_stream(package, settings)
-        self.syntax_testing(stream, package)
 
-
-class UnitTestingSyntaxCommand(UnitTestingSyntaxBase):
-
-    def syntax_testing(self, stream, package):
         total_assertions = 0
         failed_assertions = 0
 
@@ -41,11 +35,15 @@ class UnitTestingSyntaxCommand(UnitTestingSyntaxBase):
 
             file_noun = "files" if len(tests) > 1 else "file"
             if failed_assertions > 0:
-                stream.write("FAILED: %d of %d assertions in %d %s failed\n" %
-                             (failed_assertions, total_assertions, len(tests), file_noun))
+                stream.write(
+                    "FAILED: %d of %d assertions in %d %s failed\n"
+                    % (failed_assertions, total_assertions, len(tests), file_noun)
+                )
             else:
-                stream.write("Success: %d assertions in %s %s passed\n" %
-                             (total_assertions, len(tests), file_noun))
+                stream.write(
+                    "Success: %d assertions in %s %s passed\n"
+                    % (total_assertions, len(tests), file_noun)
+                )
                 stream.write("OK\n")
         except Exception as e:
             if not stream.closed:
@@ -56,9 +54,17 @@ class UnitTestingSyntaxCommand(UnitTestingSyntaxBase):
         stream.close()
 
 
-class UnitTestingSyntaxCompatibilityCommand(UnitTestingSyntaxBase):
+class UnitTestingSyntaxCompatibilityCommand(BaseUnittestingCommand):
+    def run(self, package=None, **kwargs):
+        if not package or package == "$package_name":
+            package = self.current_package_name()
+            if not package:
+                sublime.error_message("Cannot determine package name.")
+                return
 
-    def syntax_testing(self, stream, package):
+        settings = self.load_unittesting_settings(package, kwargs)
+        stream = self.load_stream(package, settings)
+
         try:
             syntaxes = sublime.find_resources("*.sublime-syntax")
             syntaxes = [s for s in syntaxes if s.startswith("Packages/%s/" % package)]
@@ -72,9 +78,10 @@ class UnitTestingSyntaxCompatibilityCommand(UnitTestingSyntaxBase):
             for syntax in syntaxes:
                 results = sublime_api.incompatible_syntax_patterns(syntax)
                 for location, _, message in results:
-                    stream.write("%s:%d:%d: %s\n" % (syntax, location[0] + 1,
-                                                     location[0] + location[1],
-                                                     message))
+                    stream.write(
+                        "%s:%d:%d: %s\n"
+                        % (syntax, location[0] + 1, location[0] + location[1], message)
+                    )
                 if results:
                     total_errors += len(results)
                     total_failed_syntaxes += 1
@@ -82,8 +89,16 @@ class UnitTestingSyntaxCompatibilityCommand(UnitTestingSyntaxBase):
             error_noun = "errors" if total_errors > 1 else "error"
             syntax_noun = "syntaxes" if len(syntaxes) > 1 else "syntax"
             if total_errors:
-                stream.write("FAILED: %d %s in %d of %d %s\n" % (
-                    total_errors, error_noun, total_failed_syntaxes, len(syntaxes), syntax_noun))
+                stream.write(
+                    "FAILED: %d %s in %d of %d %s\n"
+                    % (
+                        total_errors,
+                        error_noun,
+                        total_failed_syntaxes,
+                        len(syntaxes),
+                        syntax_noun,
+                    )
+                )
             else:
                 stream.write("Success: %d %s passed\n" % (len(syntaxes), syntax_noun))
                 stream.write("OK\n")

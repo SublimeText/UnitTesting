@@ -1,38 +1,35 @@
 import sys
 
+from collections.abc import Generator as DeferrableMethod
 from unittest import TestCase
 from unittest.case import _Outcome
 from unittest.case import expectedFailure
 
-from ...utils import isiterable
 from .runner import defer
 
-__all__ = [
-    "DeferrableTestCase",
-    "expectedFailure"
-]
+__all__ = ["DeferrableMethod", "DeferrableTestCase", "expectedFailure"]
 
 
 class DeferrableTestCase(TestCase):
 
     def _callSetUp(self):
         deferred = self.setUp()
-        if isiterable(deferred):
+        if isinstance(deferred, DeferrableMethod):
             yield from deferred
 
     def _callTestMethod(self, method):
         deferred = method()
-        if isiterable(deferred):
+        if isinstance(deferred, DeferrableMethod):
             yield from deferred
 
     def _callTearDown(self):
         deferred = self.tearDown()
-        if isiterable(deferred):
+        if isinstance(deferred, DeferrableMethod):
             yield from deferred
 
     def _callCleanup(self, function, *args, **kwargs):
         deferred = function(*args, **kwargs)
-        if isiterable(deferred):
+        if isinstance(deferred, DeferrableMethod):
             yield from deferred
 
     @staticmethod
@@ -43,27 +40,29 @@ class DeferrableTestCase(TestCase):
         orig_result = result
         if result is None:
             result = self.defaultTestResult()
-            startTestRun = getattr(result, 'startTestRun', None)
+            startTestRun = getattr(result, "startTestRun", None)
             if startTestRun is not None:
                 startTestRun()
 
         result.startTest(self)
 
         testMethod = getattr(self, self._testMethodName)
-        if (getattr(self.__class__, "__unittest_skip__", False) or
-                getattr(testMethod, "__unittest_skip__", False)):
+        if getattr(self.__class__, "__unittest_skip__", False) or getattr(
+            testMethod, "__unittest_skip__", False
+        ):
             # If the class or method was skipped.
             try:
-                skip_why = (getattr(self.__class__, '__unittest_skip_why__', '')
-                            or getattr(testMethod, '__unittest_skip_why__', ''))
+                skip_why = getattr(
+                    self.__class__, "__unittest_skip_why__", ""
+                ) or getattr(testMethod, "__unittest_skip_why__", "")
                 self._addSkip(result, self, skip_why)
             finally:
                 result.stopTest(self)
             return
-        expecting_failure_method = getattr(testMethod,
-                                           "__unittest_expecting_failure__", False)
-        expecting_failure_class = getattr(self,
-                                          "__unittest_expecting_failure__", False)
+        expecting_failure_method = getattr(
+            testMethod, "__unittest_expecting_failure__", False
+        )
+        expecting_failure_class = getattr(self, "__unittest_expecting_failure__", False)
         expecting_failure = expecting_failure_class or expecting_failure_method
         outcome = _Outcome(result)
         try:
@@ -71,22 +70,22 @@ class DeferrableTestCase(TestCase):
 
             with outcome.testPartExecutor(self):
                 deferred = self._callSetUp()
-                if isiterable(deferred):
+                if isinstance(deferred, DeferrableMethod):
                     yield from deferred
             if outcome.success:
                 outcome.expecting_failure = expecting_failure
                 with outcome.testPartExecutor(self, isTest=True):
                     deferred = self._callTestMethod(testMethod)
-                    if isiterable(deferred):
+                    if isinstance(deferred, DeferrableMethod):
                         yield from deferred
                 outcome.expecting_failure = False
                 with outcome.testPartExecutor(self):
                     deferred = self._callTearDown()
-                    if isiterable(deferred):
+                    if isinstance(deferred, DeferrableMethod):
                         yield from deferred
 
             deferred = self.doCleanups()
-            if isiterable(deferred):
+            if isinstance(deferred, DeferrableMethod):
                 yield from deferred
             for test, reason in outcome.skipped:
                 self._addSkip(result, test, reason)
@@ -103,7 +102,7 @@ class DeferrableTestCase(TestCase):
         finally:
             result.stopTest(self)
             if orig_result is None:
-                stopTestRun = getattr(result, 'stopTestRun', None)
+                stopTestRun = getattr(result, "stopTestRun", None)
                 if stopTestRun is not None:
                     stopTestRun()
 
@@ -123,7 +122,7 @@ class DeferrableTestCase(TestCase):
             function, args, kwargs = self._cleanups.pop()
             with outcome.testPartExecutor(self):
                 deferred = self._callCleanup(function, *args, **kwargs)
-                if isiterable(deferred):
+                if isinstance(deferred, DeferrableMethod):
                     yield from deferred
 
         # return this for backwards compatibility
@@ -138,14 +137,14 @@ class DeferrableTestCase(TestCase):
             function, args, kwargs = cls._class_cleanups.pop()
             try:
                 deferred = function(*args, **kwargs)
-                if isiterable(deferred):
+                if isinstance(deferred, DeferrableMethod):
                     yield from deferred
             except Exception:
                 cls.tearDown_exceptions.append(sys.exc_info())
 
     def __call__(self, *args, **kwds):
         deferred = self.run(*args, **kwds)
-        if isiterable(deferred):
+        if isinstance(deferred, DeferrableMethod):
             yield from deferred
         else:
             return deferred

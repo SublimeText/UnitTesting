@@ -21,19 +21,19 @@ inputs:
     required: true
     default: './'
   install-unittesting:
-    description: Whether to install UnitTesting.
+    description: Whether to install UnitTesting (DEPRECATED, replaced by SublimeText/UnitTesting/actions/setup@ref).
     required: true
     default: true
   unittesting-version:
-    description: Version of UnitTesting. Use latest release if empty.
+    description: Version of UnitTesting (DEPRECATED, replaced by SublimeText/UnitTesting/actions/setup@ref).
     required: false
     default: ''
   install-coverage:
-    description: Whether to install coverage.
+    description: Whether to install coverage (DEPRECATED, no longer used).
     required: true
     default: true
   coverage-version:
-    description: Version of coverage. Use latest release if empty.
+    description: Version of coverage (DEPRECATED, no longer used).
     required: false
     default: ''
   install-package-control:
@@ -58,103 +58,105 @@ inputs:
 runs:
   using: 'composite'
   steps:
-    - name: Set environmental variables
+    - name: Setup Environment Variables
       run: |
-        echo "SUBLIME_TEXT_VERSION=${{ inputs.sublime-text-version }}" >> $GITHUB_ENV
-        echo "SUBLIME_TEXT_ARCH=${{ inputs.sublime-text-arch }}" >> $GITHUB_ENV
-      shell: bash
-    - name: Setup SUBLIME_TEXT_PACKAGES
-      run: |
-        if [ $SUBLIME_TEXT_VERSION -ge 4 ]; then
-            if [ $(uname) = 'Darwin' ]; then
-                STP="$HOME/Library/Application Support/Sublime Text/Packages"
-            elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
-                STP="$HOME/.config/sublime-text/Packages"
-            else
-                STP="/c/st/Data/Packages/"
-            fi
-        else
-            if [ $(uname) = 'Darwin' ]; then
-                STP="$HOME/Library/Application Support/Sublime Text $SUBLIME_TEXT_VERSION/Packages"
-            elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
-                STP="$HOME/.config/sublime-text-$SUBLIME_TEXT_VERSION/Packages"
-            else
-                STP="/c/st/Data/Packages/"
-            fi
-        fi
-        echo "SUBLIME_TEXT_PACKAGES=$STP" >> $GITHUB_ENV
-      shell: bash
-    - run: |
         if [ "${{ runner.os }}" = "Windows" ]; then
           echo "c:\st" >> $GITHUB_PATH
         else
           echo "$HOME/.local/bin" >> $GITHUB_PATH
         fi
+        case ${{ inputs.sublime-text-version }} in
+          3)
+            case ${{ runner.os }} in
+              Linux)
+                STP="$HOME/.config/sublime-text-${{ inputs.sublime-text-version }}/Packages";;
+              macOS)
+                STP="$HOME/Library/Application Support/Sublime Text ${{ inputs.sublime-text-version }}/Packages";;
+              Windows)
+                STP="/c/st/Data/Packages/";;
+              *)
+                exit 1
+            esac;;
+          4)
+            case ${{ runner.os }} in
+              Linux)
+                STP="$HOME/.config/sublime-text/Packages";;
+              macOS)
+                STP="$HOME/Library/Application Support/Sublime Text/Packages";;
+              Windows)
+                STP="/c/st/Data/Packages/";;
+              *)
+                exit 1
+            esac;;
+          *)
+            exit 1
+        esac
+        echo "SUBLIME_TEXT_PACKAGES=$STP" >> $GITHUB_ENV
+        echo "SUBLIME_TEXT_ARCH=${{ inputs.sublime-text-arch }}" >> $GITHUB_ENV
+        echo "SUBLIME_TEXT_VERSION=${{ inputs.sublime-text-version }}" >> $GITHUB_ENV
       shell: bash
-    - if: runner.os == 'Linux'
+    - name: Setup Graphical User Interface
+      if: runner.os == 'Linux'
       run: |
         sudo bash $GITHUB_ACTION_PATH/install_ubuntu_sys_req.sh
         echo "DISPLAY=:1" >> $GITHUB_ENV
-
-        if [ "${{ inputs.display }}" = "xvfb" ]; then
-          sudo apt-get install xvfb
-        elif [ "${{ inputs.display }}" = "turbovnc" ]; then
-          wget https://phoenixnap.dl.sourceforge.net/project/turbovnc/2.2.5/turbovnc_2.2.5_amd64.deb
-          sudo dpkg -i turbovnc_2.2.5_amd64.deb
-          echo "/opt/TurboVNC/bin" >> $GITHUB_PATH
-        fi
-        if [ "${{ inputs.display }}" != "false" ]; then
-          if [ "${{ inputs.window-manager }}" = "xfce" ]; then
-            sudo apt-get install --no-install-recommends xfce4 xfce4-goodies dbus-x11
-          elif [ "${{ inputs.window-manager }}" = "icewm" ]; then
-            sudo apt-get install icewm
-          elif [ "${{ inputs.window-manager }}" = "fluxbox" ]; then
-            sudo apt-get install fluxbox
-          fi
-        fi
+        # install display driver
+        case ${{ inputs.display }} in
+          xvfb)
+            sudo apt-get install xvfb ;;
+          turbovnc)
+            wget https://phoenixnap.dl.sourceforge.net/project/turbovnc/2.2.5/turbovnc_2.2.5_amd64.deb
+            sudo dpkg -i turbovnc_2.2.5_amd64.deb
+            echo "/opt/TurboVNC/bin" >> $GITHUB_PATH
+        esac
+        # install window manager
+        case ${{ inputs.window-manager }} in
+          fluxbox|icewm)
+            sudo apt-get install ${{ inputs.window-manager }} ;;
+          xfce)
+            sudo apt-get install --no-install-recommends xfce4 xfce4-goodies dbus-x11 ;;
+        esac
       shell: bash
-    - if: runner.os == 'Linux'
+    - name: Start Graphical User Interface
+      if: runner.os == 'Linux'
       run: |
-        if [ "${{ inputs.display }}" = "xvfb" ]; then
-          Xvfb $DISPLAY -screen 0 1024x768x24 -ac +extension GLX +render -noreset &
-          sleep 1
-          if [ "${{ inputs.window-manager }}" = "xfce" ]; then
-            nohup startxfce4 &
-          elif [ "${{ inputs.window-manager }}" = "icewm" ]; then
-            nohup icewm &
-          elif [ "${{ inputs.window-manager }}" = "fluxbox" ]; then
-            nohup fluxbox &
-          fi
-        elif [ "${{ inputs.display }}" = "turbovnc" ]; then
-          mkdir $HOME/.vnc
-          echo $RANDOM$RANDOM | vncpasswd -f > $HOME/.vnc/passwd
-          chmod 0600 $HOME/.vnc/passwd
-          if [ "${{ inputs.window-manager }}" = "xfce" ]; then
-            vncserver $DISPLAY -geometry 1024x768 -depth 24 -wm "startxfce4"
-          elif [ "${{ inputs.window-manager }}" = "false" ]; then
-            vncserver $DISPLAY -geometry 1024x768 -depth 24
-          else
-            vncserver $DISPLAY -geometry 1024x768 -depth 24 -wm "${{ inputs.window-manager }}"
-          fi
+        case ${{ inputs.display }} in
+          xvfb)
+            Xvfb $DISPLAY -screen 0 1024x768x24 -ac +extension GLX +render -noreset &
+            sleep 1
+            case ${{ inputs.window-manager }} in
+              fluxbox|icewm)
+                nohup ${{ inputs.window-manager }} & ;;
+              xfce)
+                nohup startxfce4 & ;;
+            esac ;;
+          turbovnc)
+            mkdir $HOME/.vnc
+            echo $RANDOM$RANDOM | vncpasswd -f > $HOME/.vnc/passwd
+            chmod 0600 $HOME/.vnc/passwd
+            case ${{ inputs.window-manager }} in
+              false)
+                vncserver $DISPLAY -geometry 1024x768 -depth 24 ;;
+              fluxbox|icewm)
+                vncserver $DISPLAY -geometry 1024x768 -depth 24 -wm "${{ inputs.window-manager }}" ;;
+              xfce)
+                vncserver $DISPLAY -geometry 1024x768 -depth 24 -wm "startxfce4" ;;
+            esac
+        esac
+      shell: bash
+    - name: Install Sublime Text
+      run: |
+        # download and install Sublime Text
+        if [ "${{ runner.os }}" = "Windows" ]; then
+          pwsh $GITHUB_ACTION_PATH/install_sublime_text.ps1 --verbose;
+        else
+          bash $GITHUB_ACTION_PATH/install_sublime_text.sh;
         fi
-      shell: bash
-    - if: runner.os == 'Linux' || runner.os == 'macOS'
-      run: |
-        bash $GITHUB_ACTION_PATH/install_sublime_text.sh
-      shell: bash
-    - if: runner.os == 'Windows'
-      run: |
-        pwsh $Env:GITHUB_ACTION_PATH/install_sublime_text.ps1 --verbose
-      shell: pwsh
-    - run: |
-        # Disable warnings about detached HEAD
-        # https://stackoverflow.com/questions/36794501
-        git config --global advice.detachedHead false
-
         # block sublime text website ip
         bash $GITHUB_ACTION_PATH/block_ip.sh
       shell: bash
-    - run: |
+    - name: Determine Test Package
+      run: |
         REPO="$GITHUB_REPOSITORY"
         if [ "${{ inputs.install-package }}" = "true" ]; then
           cd "${{ inputs.package-path }}"
@@ -170,7 +172,12 @@ runs:
 
         echo "PACKAGE=$PACKAGE" >> $GITHUB_ENV
       shell: bash
-    - run: |
+    - name: Install Packages
+      run: |
+        # Disable warnings about detached HEAD
+        # https://stackoverflow.com/questions/36794501
+        git config --global advice.detachedHead false
+
         . $GITHUB_ACTION_PATH/utils.sh
 
         # Copy plugin files to Packages/<Package> folder if files are checked out.
@@ -178,7 +185,7 @@ runs:
           cd "${{ inputs.package-path }}"
           if [ -d "./.git" ] && [ ! -d "$SUBLIME_TEXT_PACKAGES/$PACKAGE" ]; then
               # symlink does not play well with coverage
-              echo "copy the package to sublime package directory"
+              echo "Copy checked out package '$PACKAGE' to $SUBLIME_TEXT_PACKAGES/$PACKAGE"
               mkdir -p "$SUBLIME_TEXT_PACKAGES/$PACKAGE"
               cp -r ./ "$SUBLIME_TEXT_PACKAGES/$PACKAGE"
               # detached head will crash package control
@@ -186,10 +193,8 @@ runs:
           fi
           cd -
         fi
-        if [ "${{ inputs.install-unittesting }}" = "true" ]; then
-            InstallPackage "UnitTesting" "https://github.com/SublimeText/UnitTesting" "${{ inputs.unittesting-version }}"
-        fi
 
+        # Install extra packages to to Packages/<Package>
         while read -r x; do
             if [[ "$x" =~ ^(.*):(.*)/([^@]*)@?(.*)$ ]]; then
                 PKG="${BASH_REMATCH[1]}"
@@ -206,25 +211,20 @@ runs:
             fi
             InstallPackage "$PKG" "https://github.com/$USER/$REPO" "$SHA"
         done <<< "${{ inputs.extra-packages }}"
+
+        # Install UnitTesting to Packages/UnitTesting if not yet exists
+        if [ ! -d "$SUBLIME_TEXT_PACKAGES/UnitTesting" ]; then
+            echo "Copy action's 'UnitTesting' to $SUBLIME_TEXT_PACKAGES/UnitTesting"
+            mkdir -p "$SUBLIME_TEXT_PACKAGES/UnitTesting"
+            cp -r "$GITHUB_ACTION_PATH/../../" "$SUBLIME_TEXT_PACKAGES/UnitTesting"
+        fi
       shell: bash
-    - if: (runner.os == 'Linux' || runner.os == 'macOS') && inputs.install-package-control == 'true'
+    - name: Install Package Control
+      if: inputs.install-package-control == 'true'
       run: |
-        bash $GITHUB_ACTION_PATH/install_package_control.sh
-      shell: bash
-    - if: runner.os == 'Windows' && inputs.install-package-control == 'true'
-      run: |
-        pwsh $Env:GITHUB_ACTION_PATH/install_package_control.ps1 --verbose
-      shell: pwsh
-    - run: |
-        if [ "${{ inputs.install-package }}" = "true" ]; then
-          # package control may have updated the checked out repo, we need to restore it
-          if [ -f "$SUBLIME_TEXT_PACKAGES/$PACKAGE/dependency-metadata.json" ]; then
-            cd "${{ inputs.package-path }}"
-            rm -rf "$SUBLIME_TEXT_PACKAGES/$PACKAGE"
-            cp -r ./ "$SUBLIME_TEXT_PACKAGES/$PACKAGE"
-            rm -rf "$SUBLIME_TEXT_PACKAGES/$PACKAGE/.git"
-            touch "$SUBLIME_TEXT_PACKAGES/$PACKAGE/.sublime-dependency"
-            cd -
-          fi
+        if [ "${{ runner.os }}" = "Windows" ]; then
+          pwsh $GITHUB_ACTION_PATH/install_package_control.ps1 --verbose;
+        else
+          bash $GITHUB_ACTION_PATH/install_package_control.sh;
         fi
       shell: bash

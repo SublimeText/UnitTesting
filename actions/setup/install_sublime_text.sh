@@ -110,13 +110,6 @@ if [ $(uname) = 'Darwin'  ]; then
         # See https://github.com/SublimeText/UnitTesting/issues/200
         /System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister \
             -f "$HOME/Applications/$SUBLIME_TEXT.app"
-
-        # make `subl` available
-        open "$HOME/Applications/$SUBLIME_TEXT.app"
-        sleep 2
-        pkill '[Ss]ubl' || true
-        pkill 'plugin_host' || true
-        sleep 2
     else
         echo "Sublime Text was installed already!"
         exit 1
@@ -156,21 +149,12 @@ else
             fi
         done
         if [ $SUBLIME_TEXT_VERSION -ge 4 ]; then
-            # FIXME, move it to DOckerfile
-            sudo apt-get install -y xz-utils
             tar xf ~/sublimetext.tar.xz -C ~/
         else
             tar jxf ~/sublimetext.tar.bz2 -C ~/
         fi
         mkdir -p $HOME/.local/bin
         ln -sf "$HOME/$SUBLIME_TEXT/sublime_text" $HOME/.local/bin/subl
-
-        # make `subl` available
-        "$HOME/$SUBLIME_TEXT/sublime_text" &
-        sleep 2
-        pkill '[Ss]ubl' || true
-        pkill 'plugin_host' || true
-        sleep 2
     else
         echo "Sublime Text was installed already!"
         exit 1

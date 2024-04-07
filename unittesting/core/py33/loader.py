@@ -1,10 +1,10 @@
 from unittest import TestSuite
 from unittest import TestLoader
 
-from . import DeferrableTestSuite
+from .suite import DeferrableTestSuite
 
 
-class UnitTestingLoader(TestLoader):
+class DeferrableTestLoader(TestLoader):
     def __init__(self, deferred=False):
         if deferred:
             self.suiteClass = DeferrableTestSuite

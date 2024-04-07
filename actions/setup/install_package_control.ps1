@@ -13,7 +13,7 @@ $STPU = "C:\st\Data\Packages\User"
 New-Item -itemtype directory $STPU -force >$null
 
 $PC_PATH = "$STIP\Package Control.sublime-package"
-if (-not (Test-Path $PC_PATH)) {
+if (-not (Test-Path $PC_PATH) -and -not (Test-Path "$STP\Package Control")) {
     Write-Verbose "Downloading Package Control.sublime-package"
     $PC_URL = "https://github.com/wbond/package_control/releases/latest/download/Package.Control.sublime-package"
     (New-Object System.Net.WebClient).DownloadFile($PC_URL, $PC_PATH)
