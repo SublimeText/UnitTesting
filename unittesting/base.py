@@ -166,7 +166,7 @@ class BaseUnittestingCommand(sublime_plugin.WindowCommand):
         output = settings["output"]
         if not output or output == "<panel>":
             output_panel = OutputPanel(
-                self.window, "exec", file_regex=r'File "([^"]*)", line (\d+)'
+                self.window, "UnitTesting", file_regex=r'File "([^"]*)", line (\d+)'
             )
             output_panel.show()
             return output_panel
