@@ -5,7 +5,9 @@ import sys
 
 
 def plugin_loaded():
-    package_path = os.path.join(sublime.packages_path(), "0_install_package_control_helper")
+    package_path = os.path.join(
+        sublime.packages_path(), "0_install_package_control_helper"
+    )
 
     logfile = os.path.join(package_path, "log")
 
@@ -67,7 +69,13 @@ def plugin_loaded():
                 return
 
             log.write("missing libraries:" + "\n")
-            log.write(" ".join(sorted(missing_libraries)) + "\n")
+            log.write(
+                "\n".join(
+                    "- {lib.name} for Python {lib.python_version}".format(lib)
+                    for lib in sorted(missing_libraries)
+                )
+                + "\n"
+            )
             touch("failed")
         else:
             touch("success")
