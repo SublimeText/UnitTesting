@@ -8,6 +8,7 @@ runs:
   using: 'composite'
   steps:
     - run: |
+        # Run Color Scheme Tests
         . $GITHUB_ACTION_PATH/../setup/utils.sh
 
         InstallPackage "ColorSchemeUnit" "https://github.com/gerardroche/sublime-color-scheme-unit"

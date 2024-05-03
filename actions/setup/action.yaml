@@ -60,6 +60,7 @@ runs:
   steps:
     - name: Setup Environment Variables
       run: |
+        # Setup Environment Variables
         if [ "${{ runner.os }}" = "Windows" ]; then
           echo "c:\st" >> $GITHUB_PATH
         else
@@ -98,6 +99,7 @@ runs:
     - name: Setup Graphical User Interface
       if: runner.os == 'Linux'
       run: |
+        # Setup Graphical User Interface
         sudo bash $GITHUB_ACTION_PATH/install_ubuntu_sys_req.sh
         echo "DISPLAY=:1" >> $GITHUB_ENV
         # install display driver
@@ -120,6 +122,7 @@ runs:
     - name: Start Graphical User Interface
       if: runner.os == 'Linux'
       run: |
+        # Start Graphical User Interface
         case ${{ inputs.display }} in
           xvfb)
             Xvfb $DISPLAY -screen 0 1024x768x24 -ac +extension GLX +render -noreset &
@@ -146,6 +149,7 @@ runs:
       shell: bash
     - name: Install Sublime Text
       run: |
+        # Install Sublime Text
         # download and install Sublime Text
         if [ "${{ runner.os }}" = "Windows" ]; then
           pwsh $GITHUB_ACTION_PATH/install_sublime_text.ps1 --verbose;
@@ -157,6 +161,7 @@ runs:
       shell: bash
     - name: Determine Test Package
       run: |
+        # Determine Test Package
         REPO="$GITHUB_REPOSITORY"
         if [ "${{ inputs.install-package }}" = "true" ]; then
           cd "${{ inputs.package-path }}"
@@ -174,6 +179,8 @@ runs:
       shell: bash
     - name: Install Packages
       run: |
+        # Install Packages
+
         # Disable warnings about detached HEAD
         # https://stackoverflow.com/questions/36794501
         git config --global advice.detachedHead false
@@ -222,6 +229,7 @@ runs:
     - name: Install Package Control
       if: inputs.install-package-control == 'true'
       run: |
+        # Install Package Control
         if [ "${{ runner.os }}" = "Windows" ]; then
           pwsh $GITHUB_ACTION_PATH/install_package_control.ps1 --verbose;
         else
