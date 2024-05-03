@@ -61,7 +61,7 @@ def plugin_loaded():
         if missing_libraries:
             nonlocal num_retries
 
-            if num_retries < 3:
+            if num_retries < 10:
                 num_retries += 1
                 sublime.set_timeout(check_libraries, 2000)
                 return
