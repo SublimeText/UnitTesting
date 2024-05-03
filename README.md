@@ -216,10 +216,12 @@ jobs:
       - uses: actions/checkout@v4
       - uses: SublimeText/UnitTesting/actions/setup@v1
         with:
+          package-name: Package Name   # if differs from repo name
           sublime-text-version: ${{ matrix.st-version }}
       - uses: SublimeText/UnitTesting/actions/run-tests@v1
         with:
           coverage: true
+          package-name: Package Name   # if differs from repo name
       - uses: codecov/codecov-action@v4
 ```
 

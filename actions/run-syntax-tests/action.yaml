@@ -11,6 +11,7 @@ runs:
   using: 'composite'
   steps:
     - run: |
+        # Run Syntax Tests
         PACKAGE_FROM_INPUTS="${{ inputs.package-name }}"
         PACKAGE="${PACKAGE_FROM_INPUTS:-$PACKAGE}"
 

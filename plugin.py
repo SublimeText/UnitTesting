@@ -62,7 +62,18 @@ def plugin_loaded():
 
             try:
                 with open(os.path.join(UT33, "dependencies.json"), "x") as f:
-                    f.write(json.dumps({"*": {">3000": ["coverage"]}}))
+                    f.write(
+                        json.dumps(
+                            {
+                                "linux-x32": {">3000": ["coverage"]},
+                                "linux-x64": {">3000": ["coverage"]},
+                                "osx-x32": {">3000": ["coverage"]},
+                                "osx-x32": {">3000": ["coverage"]},
+                                "windows-x32": {">3000": ["coverage"]},
+                                "windows-x64": {">3000": ["coverage"]},
+                            }
+                        )
+                    )
             except FileExistsError:
                 pass
 

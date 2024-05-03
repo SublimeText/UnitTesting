@@ -16,6 +16,7 @@ runs:
   using: 'composite'
   steps:
     - run: |
+        # Run UnitTests
         PACKAGE_FROM_INPUTS="${{ inputs.package-name }}"
         PACKAGE="${PACKAGE_FROM_INPUTS:-$PACKAGE}"
 
@@ -26,7 +27,8 @@ runs:
         fi
       shell: bash
     - if: inputs.codecov-upload == 'true'
-      run:
+      run: |
+        # Run UnitTests
         echo "The setting `codecov-upload` is deprecated."
         echo "Please call the action `codecov/codecov-action` directly".
       shell: bash
