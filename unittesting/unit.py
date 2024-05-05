@@ -97,91 +97,89 @@ class UnitTestingCommand(BaseUnittestingCommand):
 
         stream = self.load_stream(package, settings)
 
-        def run_tests():
-            if settings["async"]:
-                threading.Thread(
-                    target=self.run_coverage, args=(package, stream, settings)
-                ).start()
+        # prepare coverage
+        cleanup_hooks = []
+        if settings["coverage"] and not coverage:
+            stream.write("Warning: coverage cannot be loaded.\n\n")
+
+        elif settings["coverage"]:
+            packages_path = sublime.packages_path()
+            package_path = os.path.join(packages_path, package)
+            data_file_dir = os.path.join(packages_path, "User", "UnitTesting", package)
+            os.makedirs(data_file_dir, exist_ok=True)
+            data_file = os.path.join(data_file_dir, "coverage")
+            if os.path.exists(data_file):
+                os.unlink(data_file)
+            config_file = os.path.join(package_path, ".coveragerc")
+            include = "{}/*".format(package_path)
+            omit = "{}/{}/*".format(package_path, settings["tests_dir"])
+            if os.path.exists(config_file):
+                with open(config_file, "r") as f:
+                    txt = f.read()
+                    if re.search("^include", txt, re.M):
+                        include = None
+                    if re.search("^omit", txt, re.M):
+                        omit = None
             else:
-                self.run_coverage(package, stream, settings)
+                config_file = False
 
-        if settings["reload_package_on_testing"]:
-            reload_package(package, on_done=run_tests)
-        else:
-            run_tests()
-
-    def run_coverage(self, package, stream, settings):
-        if not coverage or not settings["coverage"]:
-            if settings["coverage"]:
-                stream.write("Warning: coverage cannot be loaded.\n\n")
-
-            self.run_tests(stream, package, settings, [])
-            return
-
-        packages_path = sublime.packages_path()
-        package_path = os.path.join(packages_path, package)
-        data_file_dir = os.path.join(packages_path, "User", "UnitTesting", package)
-        os.makedirs(data_file_dir, exist_ok=True)
-        data_file = os.path.join(data_file_dir, "coverage")
-        if os.path.exists(data_file):
-            os.unlink(data_file)
-        config_file = os.path.join(package_path, ".coveragerc")
-        include = "{}/*".format(package_path)
-        omit = "{}/{}/*".format(package_path, settings["tests_dir"])
-        if os.path.exists(config_file):
-            with open(config_file, "r") as f:
-                txt = f.read()
-                if re.search("^include", txt, re.M):
-                    include = None
-                if re.search("^omit", txt, re.M):
-                    omit = None
-        else:
-            config_file = False
-
-        cov = coverage.Coverage(
-            data_file=data_file, config_file=config_file, include=include, omit=omit
-        )
-
-        cov.start()
-
-        if settings["coverage_on_worker_thread"]:
-            original_set_timeout_async = sublime.set_timeout_async
-
-            def set_timeout_async(callback, *args, **kwargs):
-                def _():
-                    sys.settrace(threading._trace_hook)
-                    callback()
-
-                original_set_timeout_async(_, *args, **kwargs)
-
-            sublime.set_timeout_async = set_timeout_async
-
-        def cleanup():
-            if settings["coverage_on_worker_thread"]:
-                sublime.set_timeout_async = original_set_timeout_async
-
-            stream.write("\n")
-            cov.stop()
-            coverage.files.RELATIVE_DIR = os.path.normcase(package_path + os.sep)
-            ignore_errors = cov.get_option("report:ignore_errors")
-            show_missing = cov.get_option("report:show_missing")
-            cov.report(
-                file=stream, ignore_errors=ignore_errors, show_missing=show_missing
+            cov = coverage.Coverage(
+                data_file=data_file, config_file=config_file, include=include, omit=omit
             )
 
-            if settings["generate_xml_report"]:
-                xml_report_file = os.path.join(package_path, "coverage.xml")
-                cov.xml_report(outfile=xml_report_file, ignore_errors=ignore_errors)
+            cov.start()
 
-            if settings["generate_html_report"]:
-                html_output_dir = os.path.join(package_path, "htmlcov")
-                cov.html_report(directory=html_output_dir, ignore_errors=ignore_errors)
+            if settings["coverage_on_worker_thread"]:
+                original_set_timeout_async = sublime.set_timeout_async
 
-            cov.save()
+                def set_timeout_async(callback, *args, **kwargs):
+                    def _():
+                        sys.settrace(threading._trace_hook)
+                        callback()
 
-        self.run_tests(stream, package, settings, [cleanup])
+                    original_set_timeout_async(_, *args, **kwargs)
 
-    def run_tests(self, stream, package, settings, cleanup_hooks=[]):
+                sublime.set_timeout_async = set_timeout_async
+
+            def cleanup():
+                if settings["coverage_on_worker_thread"]:
+                    sublime.set_timeout_async = original_set_timeout_async
+
+                stream.write("\n")
+                cov.stop()
+                coverage.files.RELATIVE_DIR = os.path.normcase(package_path + os.sep)
+                ignore_errors = cov.get_option("report:ignore_errors")
+                show_missing = cov.get_option("report:show_missing")
+                cov.report(
+                    file=stream, ignore_errors=ignore_errors, show_missing=show_missing
+                )
+
+                if settings["generate_xml_report"]:
+                    xml_report_file = os.path.join(package_path, "coverage.xml")
+                    cov.xml_report(outfile=xml_report_file, ignore_errors=ignore_errors)
+
+                if settings["generate_html_report"]:
+                    html_output_dir = os.path.join(package_path, "htmlcov")
+                    cov.html_report(directory=html_output_dir, ignore_errors=ignore_errors)
+
+                cov.save()
+
+            cleanup_hooks = [cleanup]
+
+        def start_tests():
+            if settings["async"]:
+                threading.Thread(
+                    target=self.run_tests, args=(package, stream, settings, cleanup_hooks)
+                ).start()
+            else:
+                self.run_tests(stream, package, settings, cleanup_hooks)
+
+        if settings["reload_package_on_testing"]:
+            reload_package(package, on_done=start_tests)
+        else:
+            start_tests()
+
+    def run_tests(self, stream, package, settings, cleanup_hooks):
         if settings["capture_console"]:
             stdout = sys.stdout
             stderr = sys.stderr
