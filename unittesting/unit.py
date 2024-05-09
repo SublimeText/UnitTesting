@@ -97,6 +97,14 @@ class UnitTestingCommand(BaseUnittestingCommand):
 
         stream = self.load_stream(package, settings)
 
+        if settings["async"]:
+            threading.Thread(
+                target=self.run_coverage, args=(package, stream, settings)
+            ).start()
+        else:
+            self.run_coverage(package, stream, settings)
+
+    def run_coverage(self, package, stream, settings):
         # prepare coverage
         cleanup_hooks = []
         if settings["coverage"] and not coverage:
@@ -160,24 +168,21 @@ class UnitTestingCommand(BaseUnittestingCommand):
 
                 if settings["generate_html_report"]:
                     html_output_dir = os.path.join(package_path, "htmlcov")
-                    cov.html_report(directory=html_output_dir, ignore_errors=ignore_errors)
+                    cov.html_report(
+                        directory=html_output_dir, ignore_errors=ignore_errors
+                    )
 
                 cov.save()
 
             cleanup_hooks = [cleanup]
 
-        def start_tests():
-            if settings["async"]:
-                threading.Thread(
-                    target=self.run_tests, args=(package, stream, settings, cleanup_hooks)
-                ).start()
-            else:
-                self.run_tests(stream, package, settings, cleanup_hooks)
+        def run_tests():
+            self.run_tests(stream, package, settings, cleanup_hooks)
 
         if settings["reload_package_on_testing"]:
-            reload_package(package, on_done=start_tests)
+            reload_package(package, on_done=run_tests)
         else:
-            start_tests()
+            run_tests()
 
     def run_tests(self, stream, package, settings, cleanup_hooks):
         if settings["capture_console"]:
