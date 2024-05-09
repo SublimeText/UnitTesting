@@ -68,7 +68,7 @@ def plugin_loaded():
                                 "linux-x32": {">3000": ["coverage"]},
                                 "linux-x64": {">3000": ["coverage"]},
                                 "osx-x32": {">3000": ["coverage"]},
-                                "osx-x32": {">3000": ["coverage"]},
+                                "osx-x64": {">3000": ["coverage"]},
                                 "windows-x32": {">3000": ["coverage"]},
                                 "windows-x64": {">3000": ["coverage"]},
                             }
