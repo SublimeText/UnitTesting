@@ -314,6 +314,7 @@ window.run_command("unit_testing", {"package": "$package_name", "coverage": Fals
 | pattern                     | the pattern to discover tests                                | "test*.py"    |
 | deferred                    | whether to use deferred test runner                          | true          |
 | condition_timeout           | default timeout in ms for callables invoked via `yield`      | 4000          |
+| warnings                    | the warnings level (defaults to print warnings in console)   | "default"     |
 | failfast                    | stop early if a test fails                                   | false         |
 | output                      | name of the test output instead of showing <br> in the panel | null          |
 | verbosity                   | verbosity level                                              | 2             |

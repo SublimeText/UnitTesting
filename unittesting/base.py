@@ -17,6 +17,7 @@ DEFAULT_SETTINGS = {
     "deferred": True,
     "condition_timeout": 4000,
     "failfast": False,
+    "warnings": "default",
     # output
     "output": None,
     "verbosity": 2,
