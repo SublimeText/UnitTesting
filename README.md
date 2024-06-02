@@ -378,8 +378,24 @@ the following
   the runner continues the generator, if not, the runner will wait until the
   condition is met with the default timeout of 4s. The result of the callable
   can be also retrieved from the `yield` statement. The yielded object could 
-  be also a dictionary of the form `{"condition": callable, timeout: timeout}` 
-  to specify timeout in ms.
+  also be a dictionary of the form 
+
+  ```py
+  {
+    # required condition callable
+    "condition": callable,
+    # system timestamp when to start condition checks (default: `time.time()`)
+    "start_time": timestamp,
+    # optional the interval to invoke `condition()` (default: 17)
+    "period": milliseconds,
+    # optional timeout to wait for condition to be met (default: value from unittesting.json or 4000)
+    "timeout": milliseconds,
+    # optional message to print, if condition is not met within timeout
+    "timeout_message": "Condition not fulfilled"
+  }
+  ```
+
+  to specify various overrides such as poll interval or timeout in ms.
 
 - if the yielded object is an integer, say `x`, then it will [continue][4] the
   generator after `x` ms.
@@ -397,7 +413,7 @@ from unittesting import DeferrableTestCase
 
 class TestCondition(DeferrableTestCase):
 
-    def test_condition(self):
+    def test_condition1(self):
         x = []
 
         def append():
@@ -410,6 +426,27 @@ class TestCondition(DeferrableTestCase):
 
         # wait until `condition()` is true
         yield condition
+
+        self.assertEqual(x[0], 1)
+
+    def test_condition2(self):
+        x = []
+
+        def append():
+            x.append(1)
+
+        def condition():
+            return len(x) == 1
+
+        sublime.set_timeout(append, 100)
+
+        # wait until `condition()` is true
+        yield {
+          "condition": condition,
+          "period": 200,
+          "timeout": 5000,
+          "timeout_message": "Not enough items added to x"
+        }
 
         self.assertEqual(x[0], 1)
 ```
