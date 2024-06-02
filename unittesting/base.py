@@ -17,10 +17,10 @@ DEFAULT_SETTINGS = {
     "deferred": True,
     "condition_timeout": 4000,
     "failfast": False,
-    "warnings": "default",
     # output
     "output": None,
     "verbosity": 2,
+    "warnings": "default",
     "capture_console": False,
     # reloader
     "reload_package_on_testing": True,
