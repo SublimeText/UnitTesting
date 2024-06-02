@@ -117,6 +117,7 @@ class DeferringTextTestRunner(TextTestRunner):
             period=DEFAULT_CONDITION_POLL_TIME,
             timeout=self.condition_timeout,
             start_time=None,
+            timeout_message=None
         ):
             if start_time is None:
                 start_time = time.time()
@@ -130,8 +131,11 @@ class DeferringTextTestRunner(TextTestRunner):
             if send_value:
                 _continue_testing(deferred, send_value=send_value)
             elif (time.time() - start_time) * 1000 >= timeout:
+                if timeout_message is None:
+                    timeout_message = "Condition not fulfilled"
                 error = TimeoutError(
-                    "Condition not fulfilled within {:.2f} seconds".format(
+                    "{} within {:.2f} seconds".format(
+                        timeout_message,
                         timeout / 1000
                     )
                 )
