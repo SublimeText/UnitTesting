@@ -317,6 +317,7 @@ window.run_command("unit_testing", {"package": "$package_name", "coverage": Fals
 | failfast                    | stop early if a test fails                                   | false         |
 | output                      | name of the test output instead of showing <br> in the panel | null          |
 | verbosity                   | verbosity level                                              | 2             |
+| warnings                    | The warnings filter controls python warnings treatment.      | "default"     |
 | capture_console             | capture stdout and stderr in the test output                 | false         |
 | reload_package_on_testing   | reloading package will increase coverage rate                | true          |
 | coverage                    | track test case coverage                                     | false         |
@@ -324,6 +325,18 @@ window.run_command("unit_testing", {"package": "$package_name", "coverage": Fals
 | generate_html_report        | generate HTML report for coverage                            | false         |
 | generate_xml_report         | generate XML report for coverage                             | false         |
 
+Valid `warnings` values are:
+
+| Value     | Disposition
+| --------- | -----------
+| "default" | print the first occurrence of matching warnings for each location (module + line number) where the warning is issued
+| "error"   | turn matching warnings into exceptions
+| "ignore"  | never print matching warnings
+| "always"  | always print matching warnings
+| "module"  | print the first occurrence of matching warnings for each module where the warning is issued (regardless of line number)
+| "once"    | print only the first occurrence of matching warnings, regardless of location
+
+see also: https://docs.python.org/3/library/warnings.html#warning-filter
 
 ## Writing Unittests
 

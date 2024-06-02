@@ -20,6 +20,7 @@ DEFAULT_SETTINGS = {
     # output
     "output": None,
     "verbosity": 2,
+    "warnings": "default",
     "capture_console": False,
     # reloader
     "reload_package_on_testing": True,

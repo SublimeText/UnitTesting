@@ -223,6 +223,7 @@ class UnitTestingCommand(BaseUnittestingCommand):
                     testRunner = DeferringTextTestRunner(
                         stream=stream,
                         verbosity=settings["verbosity"],
+                        warnings=settings["warnings"],
                         failfast=settings["failfast"],
                         condition_timeout=settings["condition_timeout"],
                     )
@@ -231,6 +232,7 @@ class UnitTestingCommand(BaseUnittestingCommand):
                     testRunner = TextTestRunner(
                         stream,
                         verbosity=settings["verbosity"],
+                        warnings=settings["warnings"],
                         failfast=settings["failfast"],
                     )
 
