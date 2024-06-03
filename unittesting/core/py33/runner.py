@@ -115,32 +115,60 @@ class DeferringTextTestRunner(TextTestRunner):
 
             try:
                 send_value = condition()
+
+            except AssertionError as e:
+                # condition() is an assertion (e.g. self.assertEqual())
+                # and raised an error because condition is not met.
+                # Continue trying until timeout is exceeded.
+                if (time.time() - start_time) * 1000 >= timeout:
+                    _continue_testing(deferred, throw_value=e)
+                    return
+
             except Exception as e:
                 _continue_testing(deferred, throw_value=e)
                 return
 
-            if send_value:
-                _continue_testing(deferred, send_value=send_value)
-            elif (time.time() - start_time) * 1000 >= timeout:
-                if timeout_message is None:
-                    timeout_message = "Condition not fulfilled"
-                error = TimeoutError(
-                    "{} within {:.2f} seconds".format(
-                        timeout_message,
-                        timeout / 1000
-                    )
-                )
-                _continue_testing(deferred, throw_value=error)
             else:
-                defer(
-                    period,
-                    _wait_condition,
-                    deferred,
-                    condition,
-                    period,
-                    timeout,
-                    start_time,
-                )
+                # True: callable is a condition function
+                # None: assume an assertion method (e.g. self.assertEqual())
+                if send_value is True or send_value is None:
+                    _continue_testing(deferred, send_value=True)
+                    return
+
+                # False: callable is a condition function
+                # Any: Invalid callable return type
+                if send_value is not False:
+                    _continue_testing(
+                        deferred,
+                        throw_value=TypeError(
+                            "yield callable() must return bool or None "
+                            "if it raises AssertionError until condition is met."
+                        )
+                    )
+                    return
+
+                # timeout exceeded, throw error
+                if (time.time() - start_time) * 1000 >= timeout:
+                    if timeout_message is None:
+                        timeout_message = "Condition not fulfilled"
+                    error = TimeoutError(
+                        "{} within {:.2f} seconds".format(
+                            timeout_message,
+                            timeout / 1000
+                        )
+                    )
+                    _continue_testing(deferred, throw_value=error)
+                    return
+
+            defer(
+                period,
+                _wait_condition,
+                deferred,
+                condition,
+                period,
+                timeout,
+                start_time,
+            )
 
         def _handle_error(e):
             stopTestRun = getattr(result, "stopTestRun", None)
