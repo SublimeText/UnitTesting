@@ -11,6 +11,19 @@ class TestDeferrable(DeferrableViewTestCase):
         yield 200
         self.assertRowContentsEqual(0, "foofoo")
 
+    def test_assertion(self):
+        x = []
+
+        def append():
+            x.append(1)
+
+        self.defer(100, append)
+
+        # check if assertion is met within timeout
+        yield lambda: self.assertEqual(len(x), 1)
+
+        self.assertEqual(x[0], 1)
+
     def test_condition(self):
         x = []
 
