@@ -5,6 +5,7 @@ import posixpath
 import sublime
 import sublime_plugin
 import sys
+from time import sleep
 
 
 def path_contains(a, b):
@@ -55,6 +56,33 @@ def reload_package(pkg_name, on_done=None):
             sublime.set_timeout(on_done)
         return
 
+    dummy_name, dummy_py = _reload_package(pkg_name)
+
+    def check_loaded():
+        if dummy_name not in sys.modules:
+            sublime.set_timeout(check_loaded, 100)
+            return
+
+        os.remove(dummy_py)
+        if on_done:
+            sublime.set_timeout(on_done, 200)
+
+    sublime.set_timeout(check_loaded, 100)
+
+
+def async_reload_package(pkg_name):
+    if pkg_name not in sys.modules:
+        return
+
+    dummy_name, dummy_py = _reload_package(pkg_name)
+
+    while dummy_name not in sys.modules:
+        sleep(0.1)
+
+    os.remove(dummy_py)
+
+
+def _reload_package(pkg_name):
     all_modules = {
         module_name: module
         for module_name, module in get_package_modules(pkg_name).items()
@@ -92,13 +120,4 @@ def reload_package(pkg_name, on_done=None):
 
     open(dummy_py, "a").close()
 
-    def check_loaded():
-        if dummy_name not in sys.modules:
-            sublime.set_timeout(check_loaded, 100)
-            return
-
-        os.remove(dummy_py)
-        if on_done:
-            sublime.set_timeout(on_done, 200)
-
-    sublime.set_timeout(check_loaded, 100)
+    return dummy_name, dummy_py

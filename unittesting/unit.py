@@ -14,7 +14,7 @@ from .base import StdioSplitter
 from .core import DeferrableTestCase
 from .core import DeferrableTestLoader
 from .core import DeferringTextTestRunner
-from .reloader import reload_package
+from .reloader import async_reload_package, reload_package
 
 try:
     import coverage
@@ -180,9 +180,13 @@ class UnitTestingCommand(BaseUnittestingCommand):
             self.run_tests(stream, package, settings, cleanup_hooks)
 
         if settings["reload_package_on_testing"]:
-            reload_package(package, on_done=run_tests)
-        else:
-            run_tests()
+            if not settings["async"]:
+                reload_package(package, on_done=run_tests)
+                return
+
+            async_reload_package(package)
+
+        run_tests()
 
     def run_tests(self, stream, package, settings, cleanup_hooks):
         if settings["capture_console"]:
