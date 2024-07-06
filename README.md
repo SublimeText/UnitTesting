@@ -317,6 +317,7 @@ window.run_command("unit_testing", {"package": "$package_name", "coverage": Fals
 | failfast                    | stop early if a test fails                                   | false         |
 | output                      | name of the test output instead of showing <br> in the panel | null          |
 | verbosity                   | verbosity level                                              | 2             |
+| warnings                    | The warnings filter controls python warnings treatment.      | "default"     |
 | capture_console             | capture stdout and stderr in the test output                 | false         |
 | reload_package_on_testing   | reloading package will increase coverage rate                | true          |
 | coverage                    | track test case coverage                                     | false         |
@@ -324,6 +325,18 @@ window.run_command("unit_testing", {"package": "$package_name", "coverage": Fals
 | generate_html_report        | generate HTML report for coverage                            | false         |
 | generate_xml_report         | generate XML report for coverage                             | false         |
 
+Valid `warnings` values are:
+
+| Value     | Disposition
+| --------- | -----------
+| "default" | print the first occurrence of matching warnings for each location (module + line number) where the warning is issued
+| "error"   | turn matching warnings into exceptions
+| "ignore"  | never print matching warnings
+| "always"  | always print matching warnings
+| "module"  | print the first occurrence of matching warnings for each module where the warning is issued (regardless of line number)
+| "once"    | print only the first occurrence of matching warnings, regardless of location
+
+see also: https://docs.python.org/3/library/warnings.html#warning-filter
 
 ## Writing Unittests
 
@@ -365,8 +378,24 @@ the following
   the runner continues the generator, if not, the runner will wait until the
   condition is met with the default timeout of 4s. The result of the callable
   can be also retrieved from the `yield` statement. The yielded object could 
-  be also a dictionary of the form `{"condition": callable, timeout: timeout}` 
-  to specify timeout in ms.
+  also be a dictionary of the form 
+
+  ```py
+  {
+    # required condition callable
+    "condition": callable,
+    # system timestamp when to start condition checks (default: `time.time()`)
+    "start_time": timestamp,
+    # optional the interval to invoke `condition()` (default: 17)
+    "period": milliseconds,
+    # optional timeout to wait for condition to be met (default: value from unittesting.json or 4000)
+    "timeout": milliseconds,
+    # optional message to print, if condition is not met within timeout
+    "timeout_message": "Condition not fulfilled"
+  }
+  ```
+
+  to specify various overrides such as poll interval or timeout in ms.
 
 - if the yielded object is an integer, say `x`, then it will [continue][4] the
   generator after `x` ms.
@@ -384,7 +413,7 @@ from unittesting import DeferrableTestCase
 
 class TestCondition(DeferrableTestCase):
 
-    def test_condition(self):
+    def test_condition1(self):
         x = []
 
         def append():
@@ -397,6 +426,27 @@ class TestCondition(DeferrableTestCase):
 
         # wait until `condition()` is true
         yield condition
+
+        self.assertEqual(x[0], 1)
+
+    def test_condition2(self):
+        x = []
+
+        def append():
+            x.append(1)
+
+        def condition():
+            return len(x) == 1
+
+        sublime.set_timeout(append, 100)
+
+        # wait until `condition()` is true
+        yield {
+          "condition": condition,
+          "period": 200,
+          "timeout": 5000,
+          "timeout_message": "Not enough items added to x"
+        }
 
         self.assertEqual(x[0], 1)
 ```
