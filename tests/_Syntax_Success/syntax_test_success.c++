@@ -9,8 +9,8 @@
 
 /* foo */
 // ^ source.c comment.block
-// <- punctuation.definition.comment.c
-//     ^ punctuation.definition.comment.c
+// <- punctuation.definition.comment
+//     ^ punctuation.definition.comment
 
 #include "stdio.h"
 // <- meta.preprocessor

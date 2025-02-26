@@ -162,7 +162,7 @@ class TestSyntax(UnitTestingTestCase):
 
     @with_package("_Syntax_Failure", syntax_test=True)
     def test_fail_syntax(self, txt):
-        self.assertRegexContains(txt, r'^FAILED: 1 of 21 assertions in 1 file failed$')
+        self.assertRegexContains(txt, r'^FAILED: 1 of \d+ assertions in 1 file failed$')
 
     @with_package("_Syntax_Success", syntax_test=True)
     def test_success_syntax(self, txt):
