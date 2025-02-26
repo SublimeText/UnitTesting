@@ -35,56 +35,63 @@ sys.modules["unittesting"] = sys.modules["UnitTesting"].unittesting
 
 
 def plugin_loaded():
-    if sys.version_info >= (3, 8):
-        import json
-        from textwrap import dedent
+    if sys.version_info < (3, 8):
+        return
 
-        UT33_CODE = dedent(
-            """
-            from UnitTesting import plugin as ut38
+    # python 3.3 plugin_host is optional in ST4193+
+    settings = sublime.load_settings("Preferences.sublime-settings")
+    if settings.get("disable_plugin_host_3.3", False):
+        return
+
+    import json
+    from textwrap import dedent
+
+    UT33_CODE = dedent(
+        """
+        from UnitTesting import plugin as ut38
 
 
-            class UnitTesting33Command(ut38.UnitTestingCommand):
-                \"\"\"Execute unit tests for python 3.3 plugins.\"\"\"
-                pass
-            """
-        ).lstrip()
+        class UnitTesting33Command(ut38.UnitTestingCommand):
+            \"\"\"Execute unit tests for python 3.3 plugins.\"\"\"
+            pass
+        """
+    ).lstrip()
 
-        UT33 = os.path.join(sublime.packages_path(), "UnitTesting33")
-        os.makedirs(UT33, exist_ok=True)
+    UT33 = os.path.join(sublime.packages_path(), "UnitTesting33")
+    os.makedirs(UT33, exist_ok=True)
+
+    try:
+        try:
+            with open(os.path.join(UT33, "plugin.py"), "x") as f:
+                f.write(UT33_CODE)
+        except FileExistsError:
+            pass
 
         try:
-            try:
-                with open(os.path.join(UT33, "plugin.py"), "x") as f:
-                    f.write(UT33_CODE)
-            except FileExistsError:
-                pass
-
-            try:
-                with open(os.path.join(UT33, "dependencies.json"), "x") as f:
-                    f.write(
-                        json.dumps(
-                            {
-                                "linux-x32": {">3000": ["coverage"]},
-                                "linux-x64": {">3000": ["coverage"]},
-                                "osx-x32": {">3000": ["coverage"]},
-                                "osx-x64": {">3000": ["coverage"]},
-                                "windows-x32": {">3000": ["coverage"]},
-                                "windows-x64": {">3000": ["coverage"]},
-                            }
-                        )
+            with open(os.path.join(UT33, "dependencies.json"), "x") as f:
+                f.write(
+                    json.dumps(
+                        {
+                            "linux-x32": {">3000": ["coverage"]},
+                            "linux-x64": {">3000": ["coverage"]},
+                            "osx-x32": {">3000": ["coverage"]},
+                            "osx-x64": {">3000": ["coverage"]},
+                            "windows-x32": {">3000": ["coverage"]},
+                            "windows-x64": {">3000": ["coverage"]},
+                        }
                     )
-            except FileExistsError:
-                pass
+                )
+        except FileExistsError:
+            pass
 
-            try:
-                # hide from Package Control quick panels
-                open(os.path.join(UT33, ".hidden-sublime-package"), "x").close()
-            except FileExistsError:
-                pass
+        try:
+            # hide from Package Control quick panels
+            open(os.path.join(UT33, ".hidden-sublime-package"), "x").close()
+        except FileExistsError:
+            pass
 
-        except OSError as e:
-            print("UnitTesting: Error while creating python 3.3 module, since", str(e))
+    except OSError as e:
+        print("UnitTesting: Error while creating python 3.3 module, since", str(e))
 
 
 def plugin_unloaded():
@@ -92,5 +99,5 @@ def plugin_unloaded():
         UT33 = os.path.join(sublime.packages_path(), "UnitTesting33")
         try:
             shutil.rmtree(UT33)
-        except Exception:
+        except OSError:
             pass
