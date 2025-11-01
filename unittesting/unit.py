@@ -221,7 +221,7 @@ class UnitTestingCommand(BaseUnittestingCommand):
                 loader = DeferrableTestLoader(settings["deferred"])
                 if os.path.exists(os.path.join(start_dir, "__init__.py")):
                     tests = loader.discover(
-                        start_dir, settings["pattern"], top_level_dir=package_dir
+                        start_dir, settings["pattern"], top_level_dir=sublime.packages_path()
                     )
                 else:
                     tests = loader.discover(start_dir, settings["pattern"])
