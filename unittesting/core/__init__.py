@@ -1,6 +1,14 @@
 import sys
 
-if sys.version_info >= (3, 8):
+if sys.version_info[:2] >= (3, 13):
+    from .py313.case import DeferrableMethod
+    from .py313.case import DeferrableTestCase
+    from .py313.case import expectedFailure
+    from .py313.loader import DeferrableTestLoader
+    from .py313.runner import AWAIT_WORKER
+    from .py313.runner import DeferringTextTestRunner
+    from .py313.suite import DeferrableTestSuite
+elif sys.version_info[:2] == (3, 8):
     from .py38.case import DeferrableMethod
     from .py38.case import DeferrableTestCase
     from .py38.case import expectedFailure
@@ -8,7 +16,7 @@ if sys.version_info >= (3, 8):
     from .py38.runner import AWAIT_WORKER
     from .py38.runner import DeferringTextTestRunner
     from .py38.suite import DeferrableTestSuite
-else:
+elif sys.version_info[:2] == (3, 3):
     from .py33.case import DeferrableMethod
     from .py33.case import DeferrableTestCase
     from .py33.case import expectedFailure
@@ -16,6 +24,8 @@ else:
     from .py33.runner import AWAIT_WORKER
     from .py33.runner import DeferringTextTestRunner
     from .py33.suite import DeferrableTestSuite
+else:
+    raise ImportError("Unsupported python runtime!")
 
 __all__ = [
     "AWAIT_WORKER",
