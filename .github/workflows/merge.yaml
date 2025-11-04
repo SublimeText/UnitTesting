@@ -7,9 +7,11 @@ on:
 
 jobs:
   merge-to-v1:
+    permissions:
+      contents: write
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: actions/github-script@v7
         with:
           script: |
