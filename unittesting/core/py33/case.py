@@ -12,7 +12,13 @@ from unittest.case import SkipTest
 
 from .runner import defer
 
-__all__ = ["DeferrableMethod", "DeferrableTestCase", "expectedFailure"]
+__all__ = [
+    "DeferrableMethod",
+    "DeferrableTestCase",
+    "IsolatedAsyncioTestCase",
+    "TestCase",
+    "expectedFailure",
+]
 
 
 def expectedFailure(func):
@@ -27,6 +33,11 @@ def expectedFailure(func):
         raise _UnexpectedSuccess
 
     return wrapper
+
+
+class IsolatedAsyncioTestCase:
+    def __init__(self, *args, **kwargs):
+        raise RuntimeError("Asyncio not supported by python 3.3!")
 
 
 class DeferrableTestCase(TestCase):

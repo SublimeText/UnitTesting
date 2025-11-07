@@ -343,7 +343,7 @@ Example:
 _tests/test_myunit.py_
 
 ```py
-from unittest import TestCase
+from unittesting import TestCase
 
 class MyTestCase(TestCase):
 
@@ -447,6 +447,28 @@ class TestCondition(DeferrableTestCase):
 ```
 
 see also [tests/test_defer.py](https://github.com/randy3k/UnitTesting-example/blob/master/tests/test_defer.py).
+
+
+### Asyncio testing
+
+Tests for `asyncio` are written using `IsolatedAsyncioTestCase` class.
+
+
+```py
+import asyncio
+
+from unittesting import IsolatedAsyncioTestCase
+
+async def a_coro():
+    return 1 + 1
+
+class MyAsyncTestCase(IsolatedAsyncioTestCase):
+    async def test_something(self):
+        result = await a_coro()
+        await asyncio.sleep(1)
+        self.assertEqual(result, 2)
+```
+
 
 ## Helper TestCases
 
