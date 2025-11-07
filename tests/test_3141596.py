@@ -2,6 +2,7 @@ import os
 import re
 import shutil
 import sublime
+import sys
 
 from functools import wraps
 from unittest import skipIf
@@ -10,6 +11,7 @@ from unittesting import DeferrableMethod
 from unittesting import DeferrableTestCase
 
 BASEDIR = os.path.dirname(os.path.abspath(__file__))
+PY33 = sys.version_info[:2] == (3, 3)
 
 
 def setup_package(package):
@@ -120,7 +122,7 @@ class UnitTestingTestCase(DeferrableTestCase):
 
 class TestUnitTesting(UnitTestingTestCase):
     fixtures = (
-        "_Success", "_Failure", "_Empty", "_Output", "_Deferred", "_Async"
+        "_Success", "_Failure", "_Empty", "_Output", "_Deferred", "_Async", "_Asyncio"
     )
 
     @with_package("_Success")
@@ -149,6 +151,11 @@ class TestUnitTesting(UnitTestingTestCase):
 
     @with_package("_Async")
     def test_async(self, txt):
+        self.assertOk(txt)
+
+    @skipIf(PY33, "not applicable in Python 3.3")
+    @with_package("_Asyncio")
+    def test_asyncio(self, txt):
         self.assertOk(txt)
 
 
