@@ -9,11 +9,6 @@ It runs unittest testcases on local machines and via Github Actions.
 It also supports testing syntax_test files for the new [sublime-syntax](https://www.sublimetext.com/docs/3/syntax.html) 
 format and sublime-color-scheme files.
 
-## Sublime Text 4
-
-Sublime Text 4 is now supported and testing works for Python 3.8 packages.
-
-
 ## Preparation
 
 1. Install [UnitTesting](https://github.com/SublimeText/UnitTesting) via Package Control.
@@ -343,17 +338,63 @@ see also: https://docs.python.org/3/library/warnings.html#warning-filter
 UnitTesting is based on python's `unittest` library. 
 Any valid unittest test case is allowed.
 
+Module lookup and imports respect Sublime Text's package ecosystem.
+Global imports lookup modules in:
+
+- `${data}/sublime-text/Lib/python38/`
+- `${data}/sublime-text/Packages/`
+- `${install}/Packages/`
+
+A common ST package's folder structure may look like this:
+
+```
+Packages
+├── ...
+└── Package To Test
+   ├── sub_package
+   |   ├── __init__.py
+   |   └── module.py
+   ├── tests
+   |   ├── __init__.py
+   |   └── test_module.py
+   └── plugin.py
+```
+
+The `Package To Test` is the root package being tested,
+which contains `tests/` as a sub-package,
+next to primary business logic in `sub_package`.
+
+This differs from how normal python package repositories organize tests next to package's source folder.
+
+It requires package name (`Package To Test`) to be included in all absolute module names.
+
+> [!NOTE]
+>
+> ST packages don't need and should not contain a top-level `__init__.py` module to be treated like a normal python package.
+
+Test cases can use relative imports to access all modules.
+
 Example:
 
-_tests/test_myunit.py_
+_Package To Test/tests/test_module.py_
 
 ```py
-from unittest import TestCase
+from unittest.mock import patch
+from unittesting import TestCase
+
+from ..sub_package.module import ClassToTest
+
 
 class MyTestCase(TestCase):
 
   def test_something(self):
-    self.assertTrue(True)
+    obj = ClassToTest()
+    self.assertTrue(obj.some_method() == True)
+
+  def test_with_mock(self):
+    # need absolute module name including ST package here
+    with patch("Package To Test.sub_package.module") as mock:
+      ...
 ```
 
 
@@ -452,6 +493,28 @@ class TestCondition(DeferrableTestCase):
 ```
 
 see also [tests/test_defer.py](https://github.com/randy3k/UnitTesting-example/blob/master/tests/test_defer.py).
+
+
+### Asyncio testing
+
+Tests for `asyncio` are written using `IsolatedAsyncioTestCase` class.
+
+
+```py
+import asyncio
+
+from unittesting import IsolatedAsyncioTestCase
+
+async def a_coro():
+    return 1 + 1
+
+class MyAsyncTestCase(IsolatedAsyncioTestCase):
+    async def test_something(self):
+        result = await a_coro()
+        await asyncio.sleep(1)
+        self.assertEqual(result, 2)
+```
+
 
 ## Helper TestCases
 

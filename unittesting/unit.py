@@ -11,6 +11,7 @@ from unittest import TextTestRunner
 from .base import BaseUnittestingCommand
 from .base import DONE_MESSAGE
 from .base import StdioSplitter
+from .base import have_plugin_host_33
 from .core import DeferrableTestCase
 from .core import DeferrableTestLoader
 from .core import DeferringTextTestRunner
@@ -70,7 +71,7 @@ class UnitTestingCommand(BaseUnittestingCommand):
                 return
 
         # redirect to python 3.3 if needed
-        if sys.version_info >= (3, 8):
+        if sys.version_info >= (3, 8) and have_plugin_host_33():
             try:
                 version = sublime.load_resource(
                     "Packages/" + package + "/.python-version"

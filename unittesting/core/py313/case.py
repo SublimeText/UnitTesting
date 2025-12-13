@@ -2,6 +2,7 @@ import time
 import sys
 
 from collections.abc import Generator as DeferrableMethod
+from unittest import IsolatedAsyncioTestCase
 from unittest import TestCase
 from unittest.case import _addSkip
 from unittest.case import _Outcome
@@ -9,7 +10,13 @@ from unittest.case import expectedFailure
 
 from .runner import defer
 
-__all__ = ["DeferrableMethod", "DeferrableTestCase", "expectedFailure"]
+__all__ = [
+    "DeferrableMethod",
+    "DeferrableTestCase",
+    "IsolatedAsyncioTestCase",
+    "TestCase",
+    "expectedFailure",
+]
 
 
 class DeferrableTestCase(TestCase):
