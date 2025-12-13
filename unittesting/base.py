@@ -34,6 +34,25 @@ DEFAULT_SETTINGS = {
 DONE_MESSAGE = "UnitTesting: Done.\n"
 
 
+def have_plugin_host_33():
+    try:
+        return have_plugin_host_33.result
+    except Exception:
+        plugin_host = os.path.join(
+            os.path.dirname(sublime.executable_path()),
+            (
+                "plugin_host-3.3.exe"
+                if sublime.platform() == "windows"
+                else "plugin_host-3.3"
+            ),
+        )
+        settings = sublime.load_settings("Preferences.sublime-settings")
+        have_plugin_host_33.result = os.path.isfile(plugin_host) and not settings.get(
+            "disable_plugin_host_3.3", False
+        )
+        return have_plugin_host_33.result
+
+
 def casedpath(path):
     # path on Windows may not be properly cased
     r = glob(re.sub(r"([^:/\\])(?=[/\\]|$)", r"[\1]", path))

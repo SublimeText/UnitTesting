@@ -38,9 +38,8 @@ def plugin_loaded():
     if sys.version_info < (3, 8):
         return
 
-    # python 3.3 plugin_host is optional in ST4193+
-    settings = sublime.load_settings("Preferences.sublime-settings")
-    if settings.get("disable_plugin_host_3.3", False):
+    from .unittesting.base import have_plugin_host_33
+    if not have_plugin_host_33():
         return
 
     import json
