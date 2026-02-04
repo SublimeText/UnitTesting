@@ -3,30 +3,44 @@ gitResolvePrefixToTag() {
     local prefix="$2"
     local refs=$(git ls-remote --tags --heads "$url")
 
-    local exact_match=$(echo "$refs" | sed -E -n "s%.*refs/(heads|tags)/($prefix)\$%\2%p" | head -n1)
-    if [ -n "$exact_match" ]; then
-        echo "$exact_match"
+    # try exact matching ref
+    local ref=$(echo "$refs" | sed -E -n "s%.*refs/(heads|tags)/($prefix)\$%\2%p" | head -n1)
+    if [ -n "$ref" ]; then
+        echo "$ref"
         return 0
     fi
 
-    if [ -z "$prefix" ]; then
-        prefix="v?"
+    # find latest ref matching prefix
+    local ref=$(
+        echo "$refs" \
+        | sed -E -n "s%.*refs/tags/${prefix-v?}([0-9]+\.[0-9]+\.[0-9]+)\$%\1%p" \
+        | grep -v '\^{}$' \
+        | sort -t. -k1,1nr -k2,2nr -k3,3nr \
+        | head -n1
+    )
+    if [ -n "$ref" ]; then
+        echo "$prefix$ref"
+        return 0
     fi
 
-    local matched_tags=$(echo "$refs" | sed -E -n "s%.*refs/tags/($prefix[0-9]+\.[0-9]+\.[0-9]+)\$%\1%p" | grep -v '\^{}$')
-
-    echo "$matched_tags" | sort -t. -k1,1nr -k2,2nr -k3,3nr | head -n1
+    return 2
 }
 
 InstallPackage() {
     local dest="$SUBLIME_TEXT_PACKAGES/$1"
     local url="$2"
     local prefix="$3"
-    local tag=$(gitResolvePrefixToTag "$url" "$prefix")
-    echo Installing "$1" from "$url"@"$tag" to "$dest"
+    local ref=$(gitResolvePrefixToTag "$url" "$prefix")
+
+    if [ -z "$ref" ]; then
+        echo No ref found for "$1"
+        exit 2;
+    fi
+
+    echo Installing "$1" from "$url"@"$ref" to "$dest"
     if [ ! -d "$dest" ]; then
         mkdir -p "$dest"
-        git clone --quiet --depth 1 --branch "$tag" "$url" "$dest"
+        git clone --quiet --depth 1 --branch "$ref" "$url" "$dest"
         rm -rf "$dest/.git"
     fi
 }

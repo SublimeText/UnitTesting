@@ -35,11 +35,11 @@ def get_package_modules(pkg_name):
             or any(map(in_package_path, paths))
         )
 
-    return {
-        name: module
-        for name, module in sys.modules.items()
+    return (
+        name
+        for name, module in tuple(sys.modules.items())
         if module_in_package(module)
-    }
+    )
 
 
 def package_plugins(pkg_name):
@@ -83,11 +83,7 @@ def async_reload_package(pkg_name):
 
 
 def _reload_package(pkg_name):
-    all_modules = {
-        module_name: module
-        for module_name, module in get_package_modules(pkg_name).items()
-    }
-    plugins = [plugin for plugin in package_plugins(pkg_name)]
+    plugins = package_plugins(pkg_name)
 
     # Tell Sublime to unload plugins
     for plugin in plugins:
@@ -96,7 +92,7 @@ def _reload_package(pkg_name):
             sublime_plugin.unload_module(module)
 
     # Unload modules
-    for module_name in all_modules:
+    for module_name in get_package_modules(pkg_name):
         sys.modules.pop(module_name)
 
     sys.modules[pkg_name] = importlib.import_module(pkg_name)
