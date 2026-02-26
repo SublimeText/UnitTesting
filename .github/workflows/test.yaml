@@ -21,6 +21,7 @@ jobs:
           access_token: ${{ github.token }}
 
   test-both-actions-and-package:
+    needs: cancel-previous-runs
     strategy:
       fail-fast: false
       matrix:
@@ -40,6 +41,7 @@ jobs:
           token: ${{secrets.CODECOV_TOKEN}}
 
   test-actions:  # with latest released unittesting
+    needs: cancel-previous-runs
     strategy:
       fail-fast: false
       matrix:
@@ -53,6 +55,7 @@ jobs:
       - uses: "./actions/run-tests"
 
   test-package:  # with v1 actions
+    needs: cancel-previous-runs
     strategy:
       fail-fast: false
       matrix:
@@ -64,6 +67,7 @@ jobs:
       - uses: SublimeText/UnitTesting/actions/run-tests@v1
 
   test-as-extra-package:
+    needs: cancel-previous-runs
     strategy:
       fail-fast: false
       matrix:
