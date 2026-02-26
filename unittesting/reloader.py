@@ -35,11 +35,11 @@ def get_package_modules(pkg_name):
             or any(map(in_package_path, paths))
         )
 
-    return (
+    return [
         name
-        for name, module in tuple(sys.modules.items())
+        for name, module in sys.modules.items()
         if module_in_package(module)
-    )
+    ]
 
 
 def package_plugins(pkg_name):
