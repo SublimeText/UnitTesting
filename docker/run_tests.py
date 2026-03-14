@@ -125,8 +125,8 @@ def parse_args(argv: list[str] | None) -> argparse.Namespace:
     parser.add_argument(
         "--scheduler-delay-ms",
         type=int,
-        default=300,
-        help="Delay before running scheduled tests inside Sublime (default: 300).",
+        default=0,
+        help="Delay before running scheduled tests inside Sublime (default: 0).",
     )
     parser.add_argument(
         "--pull",

@@ -144,7 +144,7 @@ Useful options:
 - `--failfast`
 - `--docker-image <name>`
 - `--no-cache-volume`
-- `--scheduler-delay-ms 300` (lower can be faster)
+- `--scheduler-delay-ms 0` (default)
 
 > [!TIP]
 >
