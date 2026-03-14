@@ -117,8 +117,8 @@ if [ $(uname) = 'Darwin'  ]; then
         pkill 'plugin_host' || true
         sleep 2
     else
-        echo "Sublime Text was installed already!"
-        exit 1
+        echo "Sublime Text is already installed."
+        exit 0
     fi
 else
     if [ -z $(which subl) ]; then
@@ -171,7 +171,7 @@ else
         pkill 'plugin_host' || true
         sleep 2
     else
-        echo "Sublime Text was installed already!"
-        exit 1
+        echo "Sublime Text is already installed."
+        exit 0
     fi
 fi
