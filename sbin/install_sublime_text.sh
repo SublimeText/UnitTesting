@@ -37,7 +37,7 @@ if [ $SUBLIME_TEXT_VERSION -ge 4 ] && [ "$SUBLIME_TEXT_ARCH" != "x64" ]; then
 fi
 
 if [ $SUBLIME_TEXT_VERSION -ge 4 ]; then
-    STWEB="https://www.sublimetext.com/download"
+    STWEB="https://www.sublimetext.com/download_thanks"
 else
     STWEB="https://www.sublimetext.com/$SUBLIME_TEXT_VERSION"
 fi
