@@ -4,9 +4,13 @@ set -e
 
 BASEDIR=`dirname $0`
 
-CISH="/tmp/ci.sh"
+UNITTESTING_SOURCE=${UNITTESTING_SOURCE:-/unittesting}
+CISH="$UNITTESTING_SOURCE/sbin/ci.sh"
 if [ ! -f "$CISH" ]; then
-    curl -s -L https://raw.githubusercontent.com/SublimeText/UnitTesting/master/sbin/ci.sh -o "$CISH"
+    CISH="/tmp/ci.sh"
+    if [ ! -f "$CISH" ]; then
+        curl -s -L https://raw.githubusercontent.com/SublimeText/UnitTesting/master/sbin/ci.sh -o "$CISH"
+    fi
 fi
 
 if [ -z "$PACKAGE" ]; then

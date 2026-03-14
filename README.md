@@ -112,6 +112,46 @@ so that <kbd>ctrl</kbd>+<kbd>b</kbd> would invoke the testing action.
 ```
 
 
+### Headless container runner
+
+To run tests without affecting your interactive Sublime Text session,
+use the bundled `docker/run_tests.py` script.
+
+```sh
+# run all tests from current package root
+uv run docker/run_tests.py .
+
+# run just one test file (faster)
+uv run docker/run_tests.py . --file tests/test_example.py
+```
+
+This script runs tests in a Docker container (headless), streams output to
+stdout/stderr and keeps a cache volume so repeated runs are fast.
+
+By default it:
+
+- builds `unittesting-local` image from `./docker` if missing
+- mounts your repo as `/project`
+- runs UnitTesting through the same CI shell entrypoints
+- stores Sublime install/cache in docker volume `unittesting-home`
+- synchronizes only changed files into `Packages/<Package>` using `rsync`
+
+Useful options:
+
+- `--file tests/test_foo.py`
+- `--pattern test_foo.py --tests-dir tests/subdir`
+- `--coverage`
+- `--failfast`
+- `--docker-image <name>`
+- `--no-cache-volume`
+- `--scheduler-delay-ms 300` (lower can be faster)
+
+> [!TIP]
+>
+> This is useful for editor build systems and for AI agents,
+> because test runs no longer commandeer your active editor window.
+
+
 ## GitHub Actions
 
 Unittesting provides the following GitHub Actions, which can be combined
