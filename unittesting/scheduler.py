@@ -98,5 +98,11 @@ class Unit:
 
 
 def run_scheduler():
-    # delay schedule initialization and execution
-    sublime.set_timeout(lambda: Scheduler().run(), 2000)
+    # Delay schedule execution. In practice, a single queue tick (`0`) seems
+    # sufficient once Sublime starts draining callbacks.
+    try:
+        delay = int(os.environ.get("UNITTESTING_SCHEDULER_DELAY_MS", "2000"))
+    except ValueError:
+        delay = 2000
+
+    sublime.set_timeout(lambda: Scheduler().run(), delay)
