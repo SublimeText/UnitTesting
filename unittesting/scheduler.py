@@ -42,14 +42,31 @@ class Schedule:
 
 
 class Unit:
+    UNIT_TESTING_OPTION_KEYS = (
+        "capture_console",
+        "condition_timeout",
+        "deferred",
+        "failfast",
+        "generate_html_report",
+        "generate_xml_report",
+        "pattern",
+        "reload_package_on_testing",
+        "tests_dir",
+        "verbosity",
+        "warnings",
+    )
+
     def __init__(self, s):
         self.package = s["package"]
 
-        self.output = s.get("output", None)
+        self.output = s.get("output")
         self.syntax_test = s.get("syntax_test", False)
         self.syntax_compatibility = s.get("syntax_compatibility", False)
         self.color_scheme_test = s.get("color_scheme_test", False)
         self.coverage = s.get("coverage", False)
+        self.unit_testing_options = {
+            key: s[key] for key in self.UNIT_TESTING_OPTION_KEYS if key in s
+        }
 
     def run(self):
         if self.color_scheme_test:
@@ -67,15 +84,17 @@ class Unit:
                 {"package": self.package, "output": self.output},
             )
         else:
-            sublime.active_window().run_command(
-                "unit_testing",
-                {
-                    "package": self.package,
-                    "output": self.output,
-                    "coverage": self.coverage,
-                    "generate_xml_report": True,
-                },
-            )
+            sublime.active_window().run_command("unit_testing", self.unit_testing_args())
+
+    def unit_testing_args(self):
+        args = {
+            "package": self.package,
+            "output": self.output,
+            "coverage": self.coverage,
+            "generate_xml_report": True,
+        }
+        args.update(self.unit_testing_options)
+        return args
 
 
 def run_scheduler():
