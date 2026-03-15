@@ -7,7 +7,20 @@ set -e
 PATH="$HOME/.local/bin:$PATH"
 BOOTSTRAP_MARKER="$HOME/.cache/unittesting/bootstrap.done"
 
+ensure_git_identity() {
+    # Align local container behavior with typical CI runners where git
+    # identity is configured for tests that create commits.
+    if ! git config --global user.name >/dev/null 2>&1; then
+        git config --global user.name "${UNITTESTING_GIT_USER_NAME:-UnitTesting CI}"
+    fi
+
+    if ! git config --global user.email >/dev/null 2>&1; then
+        git config --global user.email "${UNITTESTING_GIT_USER_EMAIL:-unittesting@example.invalid}"
+    fi
+}
+
 sudo sh -e /etc/init.d/xvfb start
+ensure_git_identity
 
 UNITTESTING_SOURCE=${UNITTESTING_SOURCE:-/unittesting}
 SUBLIME_TEXT_VERSION=${SUBLIME_TEXT_VERSION:-4}
