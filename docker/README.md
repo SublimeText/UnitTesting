@@ -50,6 +50,23 @@ The container entrypoint writes a marker in `/root/.cache/unittesting`.
 With `-v unittesting-home:/root`, bootstrap/install runs once and later runs
 only refresh your package files and execute tests.
 
+## Refresh/update controls (without direct docker commands)
+
+Use launcher flags instead of calling `docker` manually:
+
+- `--refresh-cache`: recreate `unittesting-home` cache volume (forces fresh
+  bootstrap, including Sublime Text/Package Control install path)
+- `--refresh-image`: rebuild local image (for Dockerfile/entrypoint changes)
+- `--refresh`: both `--refresh-cache` and `--refresh-image`
+
+Examples:
+
+```sh
+ut-run-tests . --refresh-image
+ut-run-tests . --refresh-cache
+ut-run-tests . --refresh
+```
+
 ## Run a single test file
 
 ```sh

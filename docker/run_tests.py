@@ -32,6 +32,23 @@ def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
     ensure_docker()
 
+    if args.refresh:
+        args.refresh_image = True
+        args.refresh_cache = True
+
+    image = args.docker_image
+
+    if args.refresh_image or args.refresh_cache:
+        if args.refresh_image:
+            maybe_build_image(image, refresh=True)
+
+        if args.cache_volume and args.refresh_cache:
+            reset_docker_volume(args.cache_volume)
+            ensure_docker_volume(args.cache_volume)
+
+        print("Refresh complete.")
+        return 0
+
     package_root = args.package_root.resolve()
     if not package_root.is_dir():
         print(f"Error: package root does not exist: {package_root}", file=sys.stderr)
@@ -50,11 +67,7 @@ def main(argv: list[str] | None = None) -> int:
         package_root, args.file, args.tests_dir, args.pattern
     )
 
-    image = args.docker_image
-    maybe_build_image(image, args)
-
-    if args.pull:
-        run_checked(["docker", "pull", image])
+    maybe_build_image(image, refresh=False)
 
     if args.cache_volume:
         ensure_docker_volume(args.cache_volume)
@@ -77,8 +90,12 @@ def main(argv: list[str] | None = None) -> int:
     print(f"Package name: {package_name}")
     print(f"Docker image: {image}")
     print(f"Scheduler delay: {args.scheduler_delay_ms}ms")
+    if args.refresh_image:
+        print("Image refresh: enabled")
     if args.cache_volume:
         print(f"Cache volume: {args.cache_volume}")
+        if args.refresh_cache:
+            print("Cache refresh: enabled")
     if tests_dir and pattern:
         print(f"Test target: {tests_dir}/{pattern}")
 
@@ -97,19 +114,38 @@ def parse_args(argv: list[str] | None) -> argparse.Namespace:
         type=Path,
         help="Path to the package root (default: current directory).",
     )
-    parser.add_argument("--file", help="Run only tests from this file.")
-    parser.add_argument("--pattern", help="Custom unittest discovery pattern.")
-    parser.add_argument("--tests-dir", help="Custom tests directory.")
-    parser.add_argument("--package-name", help="Override package name.")
-    parser.add_argument("--coverage", action="store_true", help="Enable coverage.")
-    parser.add_argument("--failfast", action="store_true", help="Stop on first failure.")
 
-    parser.add_argument(
+    test_group = parser.add_argument_group("test options")
+    test_group.add_argument("--file", help="Run only tests from this file.")
+    test_group.add_argument("--pattern", help="Custom unittest discovery pattern.")
+    test_group.add_argument("--tests-dir", help="Custom tests directory.")
+    test_group.add_argument("--package-name", help="Override package name.")
+    test_group.add_argument("--coverage", action="store_true", help="Enable coverage.")
+    test_group.add_argument("--failfast", action="store_true", help="Stop on first failure.")
+    test_group.add_argument(
+        "--scheduler-delay-ms",
+        type=int,
+        default=0,
+        help="Delay before running scheduled tests inside Sublime (default: 0).",
+    )
+
+    docker_group = parser.add_argument_group("docker options")
+    docker_group.add_argument(
+        "--refresh",
+        action="store_true",
+        help="Rebuild image and recreate cache volume.",
+    )
+    docker_group.add_argument(
         "--docker-image",
         default=DEFAULT_IMAGE,
         help=f"Docker image to run (default: {DEFAULT_IMAGE}).",
     )
-    parser.add_argument(
+    docker_group.add_argument(
+        "--refresh-image",
+        action="store_true",
+        help="Rebuild the local Docker image.",
+    )
+    docker_group.add_argument(
         "--cache-volume",
         default=DEFAULT_CACHE_VOLUME,
         help=(
@@ -117,54 +153,35 @@ def parse_args(argv: list[str] | None) -> argparse.Namespace:
             f"(default: {DEFAULT_CACHE_VOLUME})."
         ),
     )
-    parser.add_argument(
+    docker_group.add_argument(
         "--no-cache-volume",
         dest="cache_volume",
         action="store_const",
         const=None,
         help="Disable persistent cache volume.",
     )
-    parser.add_argument(
+    docker_group.add_argument(
         "--sublime-text-version",
         type=int,
         default=4,
         help="Sublime Text major version inside container.",
     )
-    parser.add_argument(
-        "--scheduler-delay-ms",
-        type=int,
-        default=0,
-        help="Delay before running scheduled tests inside Sublime (default: 0).",
-    )
-    parser.add_argument(
-        "--pull",
+    docker_group.add_argument(
+        "--refresh-cache",
         action="store_true",
-        help="Pull docker image before running.",
-    )
-
-    parser.add_argument(
-        "--build-image",
-        action="store_true",
-        help="Force rebuild of local docker image from script directory.",
-    )
-    parser.add_argument(
-        "--build-if-missing",
-        dest="build_if_missing",
-        action="store_true",
-        default=True,
-        help="Build image from script directory if missing (default: true).",
-    )
-    parser.add_argument(
-        "--no-build-if-missing",
-        dest="build_if_missing",
-        action="store_false",
-        help="Do not auto-build image if missing.",
+        help=(
+            "Recreate the cache volume so Sublime Text and Package Control "
+            "are re-installed."
+        ),
     )
 
     args = parser.parse_args(argv)
 
     if args.file and args.pattern:
         parser.error("--file and --pattern are mutually exclusive")
+
+    if args.refresh_cache and not args.cache_volume:
+        parser.error("--refresh-cache requires a cache volume (omit --no-cache-volume)")
 
     return args
 
@@ -174,7 +191,7 @@ def ensure_docker() -> None:
         raise SystemExit("Error: docker executable not found in PATH")
 
 
-def maybe_build_image(image: str, args: argparse.Namespace) -> None:
+def maybe_build_image(image: str, refresh: bool) -> None:
     context_dir = Path(__file__).resolve().parent
     if not context_dir.is_dir():
         raise SystemExit(f"Error: missing docker build context: {context_dir}")
@@ -184,14 +201,11 @@ def maybe_build_image(image: str, args: argparse.Namespace) -> None:
     image_hash = docker_image_context_hash(image) if image_exists else None
     context_changed = image_exists and image_hash != context_hash
 
-    should_build = args.build_image
-    should_build = should_build or (args.build_if_missing and not image_exists)
-    should_build = should_build or context_changed
-
+    should_build = refresh or not image_exists or context_changed
     if not should_build:
         return
 
-    if context_changed and not args.build_image:
+    if context_changed and not refresh:
         print("Docker context changed since last image build, rebuilding...")
 
     print(f"Building docker image '{image}' from {context_dir} ...")
@@ -264,6 +278,19 @@ def ensure_docker_volume(name: str) -> None:
         return
 
     run_checked(["docker", "volume", "create", name])
+
+
+def reset_docker_volume(name: str) -> None:
+    result = subprocess.run(
+        ["docker", "volume", "inspect", name],
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+    )
+    if result.returncode != 0:
+        return
+
+    print(f"Resetting cache volume: {name}")
+    run_checked(["docker", "volume", "rm", name])
 
 
 def resolve_test_target(
