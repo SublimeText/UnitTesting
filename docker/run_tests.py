@@ -78,7 +78,6 @@ def main(argv: list[str] | None = None) -> int:
         package_name=package_name,
         image=image,
         cache_volume=args.cache_volume,
-        sublime_text_version=args.sublime_text_version,
         scheduler_delay_ms=args.scheduler_delay_ms,
         coverage=args.coverage,
         failfast=args.failfast,
@@ -159,12 +158,6 @@ def parse_args(argv: list[str] | None) -> argparse.Namespace:
         action="store_const",
         const=None,
         help="Disable persistent cache volume.",
-    )
-    docker_group.add_argument(
-        "--sublime-text-version",
-        type=int,
-        default=4,
-        help="Sublime Text major version inside container.",
     )
     docker_group.add_argument(
         "--refresh-cache",
@@ -327,7 +320,6 @@ def build_docker_run_command(
     package_name: str,
     image: str,
     cache_volume: str | None,
-    sublime_text_version: int,
     scheduler_delay_ms: int,
     coverage: bool,
     failfast: bool,
@@ -339,7 +331,6 @@ def build_docker_run_command(
         command.append("-i")
 
     command.extend(["-e", f"PACKAGE={package_name}"])
-    command.extend(["-e", f"SUBLIME_TEXT_VERSION={sublime_text_version}"])
     command.extend(["-e", f"UNITTESTING_SCHEDULER_DELAY_MS={scheduler_delay_ms}"])
     command.extend(["-e", "UNITTESTING_SOURCE=/unittesting"])
     command.extend(["-e", "PYTHONUNBUFFERED=1"])
