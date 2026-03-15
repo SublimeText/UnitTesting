@@ -20,22 +20,33 @@ ensure_git_identity() {
 }
 
 ensure_ci_platform_compat() {
-    # Some test suites still key off Travis-style OS markers.
-    if [ -n "$TRAVIS_OS_NAME" ]; then
-        return
-    fi
+    # Some test suites key off Travis-style OS markers while others expect
+    # GitHub Actions' RUNNER_OS naming.
+    local travis_name=""
+    local runner_name=""
 
     case "$(uname -s)" in
         Linux*)
-            export TRAVIS_OS_NAME=linux
+            travis_name="linux"
+            runner_name="Linux"
             ;;
         Darwin*)
-            export TRAVIS_OS_NAME=osx
+            travis_name="osx"
+            runner_name="macOS"
             ;;
         CYGWIN*|MINGW*|MSYS*)
-            export TRAVIS_OS_NAME=windows
+            travis_name="windows"
+            runner_name="Windows"
             ;;
     esac
+
+    if [ -n "$travis_name" ] && [ -z "$TRAVIS_OS_NAME" ]; then
+        export TRAVIS_OS_NAME="$travis_name"
+    fi
+
+    if [ -n "$runner_name" ] && [ -z "$RUNNER_OS" ]; then
+        export RUNNER_OS="$runner_name"
+    fi
 }
 
 sudo sh -e /etc/init.d/xvfb start
