@@ -15,6 +15,7 @@ import shutil
 import subprocess
 import sys
 import time
+import zipfile
 
 # todo: allow different sublime versions
 
@@ -157,6 +158,55 @@ def restore_coverage_file(path, package):
             f.write(txt)
 
 
+def print_runtime_metadata():
+    sublime_text_version = detect_sublime_text_version()
+    package_control_version = detect_package_control_version()
+
+    print("Runtime:")
+    print("  Sublime Text: {}".format(sublime_text_version or "unknown"))
+    print("  Package Control: {}".format(package_control_version or "unknown"))
+
+
+def detect_sublime_text_version():
+    try:
+        output = subprocess.check_output(
+            ["subl", "--version"],
+            stderr=subprocess.STDOUT,
+            universal_newlines=True,
+        )
+    except Exception:
+        return None
+
+    for line in output.splitlines():
+        line = line.strip()
+        if line:
+            return line
+
+    return None
+
+
+def detect_package_control_version():
+    installed_packages_dir = os.path.join(
+        os.path.dirname(PACKAGES_DIR_PATH),
+        "Installed Packages",
+    )
+    package_path = os.path.join(
+        installed_packages_dir,
+        "Package Control.sublime-package",
+    )
+    if not os.path.isfile(package_path):
+        return None
+
+    try:
+        with zipfile.ZipFile(package_path, "r") as package_zip:
+            metadata = json.loads(package_zip.read("package-metadata.json").decode("utf-8"))
+    except Exception:
+        return None
+
+    version = metadata.get("version") if isinstance(metadata, dict) else None
+    return str(version) if version else None
+
+
 def main(default_schedule_info):
     package_under_test = default_schedule_info['package']
     output_dir = os.path.join(UT_OUTPUT_DIR_PATH, package_under_test)
@@ -164,6 +214,8 @@ def main(default_schedule_info):
     coverage_file = os.path.join(output_dir, "coverage")
 
     default_schedule_info['output'] = output_file
+
+    print_runtime_metadata()
 
     for i in range(3):
         create_dir_if_not_exists(output_dir)
