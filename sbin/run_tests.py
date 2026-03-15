@@ -203,6 +203,7 @@ if __name__ == '__main__':
     parser.add_option('--pattern')
     parser.add_option('--tests-dir')
     parser.add_option('--failfast', action='store_true')
+    parser.add_option('--reload-package-on-testing', action='store_true')
 
     options, remainder = parser.parse_args()
 
@@ -218,6 +219,7 @@ if __name__ == '__main__':
         'syntax_compatibility': syntax_compatibility,
         'color_scheme_test': color_scheme_test,
         'coverage': coverage,
+        'reload_package_on_testing': False,
     }
 
     if options.pattern:
@@ -228,5 +230,8 @@ if __name__ == '__main__':
 
     if options.failfast:
         default_schedule_info['failfast'] = True
+
+    if options.reload_package_on_testing:
+        default_schedule_info['reload_package_on_testing'] = True
 
     main(default_schedule_info)

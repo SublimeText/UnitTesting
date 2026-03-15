@@ -151,6 +151,7 @@ Useful options:
 - `--pattern test_foo.py --tests-dir tests/subdir`
 - `--coverage`
 - `--failfast`
+- `--reload-package-on-testing` (default: off)
 - `--scheduler-delay-ms 0` (default)
 - `--refresh-cache` (re-bootstrap cached `/root` state)
 - `--refresh-image` (rebuild local Docker image)

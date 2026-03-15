@@ -81,6 +81,7 @@ def main(argv: list[str] | None = None) -> int:
         scheduler_delay_ms=args.scheduler_delay_ms,
         coverage=args.coverage,
         failfast=args.failfast,
+        reload_package_on_testing=args.reload_package_on_testing,
         tests_dir=tests_dir,
         pattern=pattern,
     )
@@ -121,6 +122,11 @@ def parse_args(argv: list[str] | None) -> argparse.Namespace:
     test_group.add_argument("--package-name", help="Override package name.")
     test_group.add_argument("--coverage", action="store_true", help="Enable coverage.")
     test_group.add_argument("--failfast", action="store_true", help="Stop on first failure.")
+    test_group.add_argument(
+        "--reload-package-on-testing",
+        action="store_true",
+        help="Reload package under test before running tests.",
+    )
     test_group.add_argument(
         "--scheduler-delay-ms",
         type=int,
@@ -323,6 +329,7 @@ def build_docker_run_command(
     scheduler_delay_ms: int,
     coverage: bool,
     failfast: bool,
+    reload_package_on_testing: bool,
     tests_dir: str | None,
     pattern: str | None,
 ) -> list[str]:
@@ -348,6 +355,9 @@ def build_docker_run_command(
 
     if failfast:
         command.append("--failfast")
+
+    if reload_package_on_testing:
+        command.append("--reload-package-on-testing")
 
     if tests_dir:
         command.extend(["--tests-dir", tests_dir])
