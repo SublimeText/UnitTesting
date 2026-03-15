@@ -15,6 +15,7 @@ import shutil
 import subprocess
 import sys
 import time
+import zipfile
 
 # todo: allow different sublime versions
 
@@ -55,19 +56,24 @@ def create_schedule(package, output_file, default_schedule):
     except Exception:
         pass
 
-    if not any(s['package'] == package for s in schedule):
-        print('Schedule:')
-        for k, v in default_schedule.items():
-            print('  %s: %s' % (k, v))
+    print('Schedule:')
+    for k, v in default_schedule.items():
+        print('  %s: %s' % (k, v))
 
+    for idx, item in enumerate(schedule):
+        if item.get('package') == package:
+            schedule[idx] = default_schedule
+            break
+    else:
         schedule.append(default_schedule)
 
     with open(SCHEDULE_FILE_PATH, 'w') as f:
         f.write(json.dumps(schedule, ensure_ascii=False, indent=True))
 
 
-def wait_for_output(path, schedule, timeout=10):
+def wait_for_output(path, schedule, timeout=10, poll_interval=0.2):
     start_time = time.time()
+    last_dot = 0
     needs_newline = False
 
     def check_has_timed_out():
@@ -80,16 +86,19 @@ def wait_for_output(path, schedule, timeout=10):
             pass
 
     while not check_is_output_available():
-        print(".", end="")
-        sys.stdout.flush()
-        needs_newline = True
+        now = time.time()
+        if now - last_dot >= 1:
+            print(".", end="")
+            sys.stdout.flush()
+            needs_newline = True
+            last_dot = now
 
         if check_has_timed_out():
             print()
             delete_file_if_exists(schedule)
             raise ValueError('timeout')
 
-        time.sleep(1)
+        time.sleep(poll_interval)
     else:
         if needs_newline:
             print()
@@ -123,6 +132,7 @@ def read_output(path):
             result = f.read()
 
             print(result, end="")
+            sys.stdout.flush()
 
             # Keep checking while we don't have a definite result.
             success = check_is_success(result)
@@ -148,13 +158,71 @@ def restore_coverage_file(path, package):
             f.write(txt)
 
 
-def main(default_schedule_info):
+def print_runtime_metadata():
+    sublime_text_version = detect_sublime_text_version()
+    package_control_version = detect_package_control_version()
+
+    print("Runtime:")
+    print("  Sublime Text: {}".format(sublime_text_version or "unknown"))
+    print("  Package Control: {}".format(package_control_version or "unknown"))
+
+
+def detect_sublime_text_version():
+    try:
+        output = subprocess.check_output(
+            ["subl", "--version"],
+            stderr=subprocess.STDOUT,
+            universal_newlines=True,
+        )
+    except Exception:
+        return None
+
+    for line in output.splitlines():
+        line = line.strip()
+        if line:
+            return line
+
+    return None
+
+
+def detect_package_control_version():
+    installed_packages_dir = os.path.join(
+        os.path.dirname(PACKAGES_DIR_PATH),
+        "Installed Packages",
+    )
+    package_path = os.path.join(
+        installed_packages_dir,
+        "Package Control.sublime-package",
+    )
+    if not os.path.isfile(package_path):
+        return None
+
+    try:
+        with zipfile.ZipFile(package_path, "r") as package_zip:
+            metadata = json.loads(package_zip.read("package-metadata.json").decode("utf-8"))
+    except Exception:
+        return None
+
+    version = metadata.get("version") if isinstance(metadata, dict) else None
+    return str(version) if version else None
+
+
+def main(default_schedule_info, dry_run=False):
     package_under_test = default_schedule_info['package']
     output_dir = os.path.join(UT_OUTPUT_DIR_PATH, package_under_test)
     output_file = os.path.join(output_dir, "result")
     coverage_file = os.path.join(output_dir, "coverage")
 
     default_schedule_info['output'] = output_file
+
+    print_runtime_metadata()
+
+    if dry_run:
+        create_dir_if_not_exists(output_dir)
+        delete_file_if_exists(output_file)
+        delete_file_if_exists(coverage_file)
+        create_schedule(package_under_test, output_file, default_schedule_info)
+        return
 
     for i in range(3):
         create_dir_if_not_exists(output_dir)
@@ -191,6 +259,11 @@ if __name__ == '__main__':
     parser.add_option('--syntax-compatibility', action='store_true')
     parser.add_option('--color-scheme-test', action='store_true')
     parser.add_option('--coverage', action='store_true')
+    parser.add_option('--pattern')
+    parser.add_option('--tests-dir')
+    parser.add_option('--failfast', action='store_true')
+    parser.add_option('--reload-package-on-testing', action='store_true')
+    parser.add_option('--dry-run', action='store_true')
 
     options, remainder = parser.parse_args()
 
@@ -206,6 +279,19 @@ if __name__ == '__main__':
         'syntax_compatibility': syntax_compatibility,
         'color_scheme_test': color_scheme_test,
         'coverage': coverage,
+        'reload_package_on_testing': False,
     }
 
-    main(default_schedule_info)
+    if options.pattern:
+        default_schedule_info['pattern'] = options.pattern
+
+    if options.tests_dir:
+        default_schedule_info['tests_dir'] = options.tests_dir
+
+    if options.failfast:
+        default_schedule_info['failfast'] = True
+
+    if options.reload_package_on_testing:
+        default_schedule_info['reload_package_on_testing'] = True
+
+    main(default_schedule_info, dry_run=options.dry_run)
