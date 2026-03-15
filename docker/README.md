@@ -2,15 +2,33 @@
 
 ## Recommended usage
 
-Use the docker wrapper script:
+Use the launcher script:
 
 ```sh
-uv run docker/run_tests.py /path/to/package
-uv run docker/run_tests.py /path/to/package --file tests/test_example.py
+# from UnitTesting repo root
+./docker/ut-run-tests /path/to/package
+./docker/ut-run-tests /path/to/package --file tests/test_example.py
 ```
 
-It builds/uses a local image, mounts the package at `/project`, runs tests
-headlessly, and keeps a cache volume for fast reruns.
+Or call it via absolute path from any package directory:
+
+```sh
+/path/to/UnitTesting/docker/ut-run-tests .
+```
+
+If this directory is on your `PATH`, you can run `ut-run-tests` directly.
+
+The launcher calls `docker/run_tests.py`, builds/uses a local image,
+mounts the package at `/project`, runs tests headlessly, and keeps a cache
+volume for fast reruns.
+
+By default it:
+
+- builds `unittesting-local` image from `./docker` if missing
+- mounts your repo as `/project`
+- runs UnitTesting through the same CI shell entrypoints
+- stores Sublime install/cache in docker volume `unittesting-home`
+- synchronizes only changed files into `Packages/<Package>` using `rsync`
 
 ## Manual docker usage
 

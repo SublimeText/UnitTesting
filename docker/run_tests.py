@@ -1,15 +1,16 @@
 #!/usr/bin/env python3
 """Run Sublime Text UnitTesting in a Docker container.
 
+Usually invoked via the sibling launcher script `ut-run-tests`.
 Examples:
-    uv run docker/run_tests.py .
-    uv run docker/run_tests.py . --file tests/test_main.py
+    ./docker/ut-run-tests .
+    ./docker/ut-run-tests . --file tests/test_main.py
 """
 
 from __future__ import annotations
 
 import argparse
-from datetime import datetime, timezone
+import hashlib
 import shutil
 import subprocess
 import sys
@@ -18,6 +19,13 @@ from pathlib import Path
 
 DEFAULT_IMAGE = "unittesting-local"
 DEFAULT_CACHE_VOLUME = "unittesting-home"
+DOCKER_CONTEXT_HASH_LABEL = "org.sublimetext.unittesting.context-hash"
+DOCKER_CONTEXT_INPUTS = (
+    "Dockerfile",
+    "docker.sh",
+    "entrypoint.sh",
+    "xvfb",
+)
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -171,8 +179,10 @@ def maybe_build_image(image: str, args: argparse.Namespace) -> None:
     if not context_dir.is_dir():
         raise SystemExit(f"Error: missing docker build context: {context_dir}")
 
+    context_hash = docker_context_hash(context_dir)
     image_exists = docker_image_exists(image)
-    context_changed = image_exists and docker_context_changed(context_dir, image)
+    image_hash = docker_image_context_hash(image) if image_exists else None
+    context_changed = image_exists and image_hash != context_hash
 
     should_build = args.build_image
     should_build = should_build or (args.build_if_missing and not image_exists)
@@ -185,7 +195,15 @@ def maybe_build_image(image: str, args: argparse.Namespace) -> None:
         print("Docker context changed since last image build, rebuilding...")
 
     print(f"Building docker image '{image}' from {context_dir} ...")
-    run_checked(["docker", "build", "-t", image, str(context_dir)])
+    run_checked([
+        "docker",
+        "build",
+        "--label",
+        f"{DOCKER_CONTEXT_HASH_LABEL}={context_hash}",
+        "-t",
+        image,
+        str(context_dir),
+    ])
 
 
 def docker_image_exists(image: str) -> bool:
@@ -197,18 +215,31 @@ def docker_image_exists(image: str) -> bool:
     return result.returncode == 0
 
 
-def docker_context_changed(context_dir: Path, image: str) -> bool:
-    image_created = docker_image_created_at(image)
-    if image_created is None:
-        return True
+def docker_context_hash(context_dir: Path) -> str:
+    digest = hashlib.sha256()
+    for rel_path in DOCKER_CONTEXT_INPUTS:
+        file_path = context_dir / rel_path
+        if not file_path.is_file():
+            raise SystemExit(f"Error: missing docker context file: {file_path}")
 
-    context_mtime = newest_mtime(context_dir)
-    return context_mtime > image_created
+        digest.update(rel_path.encode("utf-8"))
+        digest.update(b"\0")
+        digest.update(file_path.read_bytes())
+        digest.update(b"\0")
+
+    return digest.hexdigest()
 
 
-def docker_image_created_at(image: str) -> float | None:
+def docker_image_context_hash(image: str) -> str | None:
     result = subprocess.run(
-        ["docker", "image", "inspect", image, "--format", "{{.Created}}"],
+        [
+            "docker",
+            "image",
+            "inspect",
+            image,
+            "--format",
+            "{{ index .Config.Labels \"%s\" }}" % DOCKER_CONTEXT_HASH_LABEL,
+        ],
         stdout=subprocess.PIPE,
         stderr=subprocess.DEVNULL,
         text=True,
@@ -216,34 +247,11 @@ def docker_image_created_at(image: str) -> float | None:
     if result.returncode != 0:
         return None
 
-    created = result.stdout.strip()
-    if not created:
+    value = result.stdout.strip()
+    if not value or value == "<no value>":
         return None
 
-    # Example: 2026-03-13T21:47:06.123456789Z
-    if created.endswith("Z"):
-        created = created[:-1]
-    if "." in created:
-        created = created.split(".", 1)[0]
-
-    try:
-        dt = datetime.strptime(created, "%Y-%m-%dT%H:%M:%S").replace(tzinfo=timezone.utc)
-    except ValueError:
-        return None
-
-    return dt.timestamp()
-
-
-def newest_mtime(path: Path) -> float:
-    latest = path.stat().st_mtime
-    for child in path.rglob("*"):
-        try:
-            mtime = child.stat().st_mtime
-        except OSError:
-            continue
-        if mtime > latest:
-            latest = mtime
-    return latest
+    return value
 
 
 def ensure_docker_volume(name: str) -> None:

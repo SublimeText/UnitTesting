@@ -4,6 +4,7 @@
 
 # Shell scripts used in Linux containers must stay LF in the working tree.
 /docker/*.sh               text eol=lf
+/docker/ut-run-tests       text eol=lf
 /docker/xvfb               text eol=lf
 /sbin/*.sh                 text eol=lf
 

@@ -115,18 +115,27 @@ so that <kbd>ctrl</kbd>+<kbd>b</kbd> would invoke the testing action.
 ### Headless container runner
 
 To run tests without affecting your interactive Sublime Text session,
-use the bundled `docker/run_tests.py` script.
+use the bundled `docker/ut-run-tests` launcher.
 
 ```sh
 # run all tests from current package root
-uv run docker/run_tests.py .
+/path/to/UnitTesting/docker/ut-run-tests .
 
 # run just one test file (faster)
-uv run docker/run_tests.py . --file tests/test_example.py
+/path/to/UnitTesting/docker/ut-run-tests . --file tests/test_example.py
 ```
 
-This script runs tests in a Docker container (headless), streams output to
-stdout/stderr and keeps a cache volume so repeated runs are fast.
+(Use `docker/ut-run-tests.cmd` in cmd.exe/PowerShell.)
+
+If `UnitTesting/docker` is on your `PATH`, you can simply run:
+
+```sh
+ut-run-tests .
+```
+
+This launcher calls `docker/run_tests.py`, which runs tests in a Docker
+container (headless), streams output to stdout/stderr and keeps a cache
+volume so repeated runs are fast.
 
 By default it:
 
@@ -142,9 +151,6 @@ Useful options:
 - `--pattern test_foo.py --tests-dir tests/subdir`
 - `--coverage`
 - `--failfast`
-- `--docker-image <name>`
-- `--no-cache-volume`
-- `--scheduler-delay-ms 0` (default)
 
 > [!TIP]
 >
