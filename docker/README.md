@@ -67,6 +67,15 @@ ut-run-tests . --refresh-cache
 ut-run-tests . --refresh
 ```
 
+## Dry run (metadata and schedule only)
+
+Use `--dry-run` to print runner metadata (including detected Sublime
+Text and Package Control versions) plus the generated schedule.
+
+```sh
+ut-run-tests . --dry-run
+```
+
 ## Run a single test file
 
 ```sh

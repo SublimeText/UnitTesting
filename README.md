@@ -152,6 +152,7 @@ Useful options:
 - `--coverage`
 - `--failfast`
 - `--reload-package-on-testing` (default: off)
+- `--dry-run` (only print runtime metadata and schedule)
 - `--scheduler-delay-ms 0` (default)
 - `--refresh-cache` (re-bootstrap cached `/root` state)
 - `--refresh-image` (rebuild local Docker image)

@@ -82,6 +82,7 @@ def main(argv: list[str] | None = None) -> int:
         coverage=args.coverage,
         failfast=args.failfast,
         reload_package_on_testing=args.reload_package_on_testing,
+        dry_run=args.dry_run,
         tests_dir=tests_dir,
         pattern=pattern,
     )
@@ -133,6 +134,11 @@ def parse_args(argv: list[str] | None) -> argparse.Namespace:
         default=0,
         help="Delay before running scheduled tests inside Sublime (default: 0).",
     )
+    test_group.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Only print runtime metadata and schedule.",
+    )
 
     docker_group = parser.add_argument_group("docker options")
     docker_group.add_argument(
@@ -181,6 +187,9 @@ def parse_args(argv: list[str] | None) -> argparse.Namespace:
 
     if args.refresh_cache and not args.cache_volume:
         parser.error("--refresh-cache requires a cache volume (omit --no-cache-volume)")
+
+    if args.dry_run and (args.refresh or args.refresh_image or args.refresh_cache):
+        parser.error("--dry-run cannot be combined with --refresh* options")
 
     return args
 
@@ -330,6 +339,7 @@ def build_docker_run_command(
     coverage: bool,
     failfast: bool,
     reload_package_on_testing: bool,
+    dry_run: bool,
     tests_dir: str | None,
     pattern: str | None,
 ) -> list[str]:
@@ -358,6 +368,9 @@ def build_docker_run_command(
 
     if reload_package_on_testing:
         command.append("--reload-package-on-testing")
+
+    if dry_run:
+        command.append("--dry-run")
 
     if tests_dir:
         command.extend(["--tests-dir", tests_dir])

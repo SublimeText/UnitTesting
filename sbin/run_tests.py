@@ -207,7 +207,7 @@ def detect_package_control_version():
     return str(version) if version else None
 
 
-def main(default_schedule_info):
+def main(default_schedule_info, dry_run=False):
     package_under_test = default_schedule_info['package']
     output_dir = os.path.join(UT_OUTPUT_DIR_PATH, package_under_test)
     output_file = os.path.join(output_dir, "result")
@@ -216,6 +216,13 @@ def main(default_schedule_info):
     default_schedule_info['output'] = output_file
 
     print_runtime_metadata()
+
+    if dry_run:
+        create_dir_if_not_exists(output_dir)
+        delete_file_if_exists(output_file)
+        delete_file_if_exists(coverage_file)
+        create_schedule(package_under_test, output_file, default_schedule_info)
+        return
 
     for i in range(3):
         create_dir_if_not_exists(output_dir)
@@ -256,6 +263,7 @@ if __name__ == '__main__':
     parser.add_option('--tests-dir')
     parser.add_option('--failfast', action='store_true')
     parser.add_option('--reload-package-on-testing', action='store_true')
+    parser.add_option('--dry-run', action='store_true')
 
     options, remainder = parser.parse_args()
 
@@ -286,4 +294,4 @@ if __name__ == '__main__':
     if options.reload_package_on_testing:
         default_schedule_info['reload_package_on_testing'] = True
 
-    main(default_schedule_info)
+    main(default_schedule_info, dry_run=options.dry_run)
