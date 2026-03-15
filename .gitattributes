@@ -2,11 +2,15 @@
 # files detected as binary untouched.
 * text=auto
 
+# Shell scripts used in Linux containers must stay LF in the working tree.
+/docker/*.sh               text eol=lf
+/docker/xvfb               text eol=lf
+/sbin/*.sh                 text eol=lf
+
 # Files and directories with the attribute export-ignore won’t be added to
 # archive files. See http://git-scm.com/docs/gitattributes for details.
 
 # Git
-/.gitattributes             export-ignore
 /.github/                   export-ignore
 /.gitignore                 export-ignore
 

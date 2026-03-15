@@ -5,12 +5,13 @@ set -e
 BASEDIR=`dirname $0`
 
 UNITTESTING_SOURCE=${UNITTESTING_SOURCE:-/unittesting}
-CISH="$UNITTESTING_SOURCE/sbin/ci.sh"
-if [ ! -f "$CISH" ]; then
-    CISH="/tmp/ci.sh"
-    if [ ! -f "$CISH" ]; then
-        curl -s -L https://raw.githubusercontent.com/SublimeText/UnitTesting/master/sbin/ci.sh -o "$CISH"
-    fi
+SOURCE_CISH="$UNITTESTING_SOURCE/sbin/ci.sh"
+CISH="/tmp/ci.sh"
+if [ -f "$SOURCE_CISH" ]; then
+    # Normalize CRLF from mounted Windows checkouts.
+    sed 's/\r$//' "$SOURCE_CISH" > "$CISH"
+elif [ ! -f "$CISH" ]; then
+    curl -s -L https://raw.githubusercontent.com/SublimeText/UnitTesting/master/sbin/ci.sh -o "$CISH"
 fi
 
 if [ -z "$PACKAGE" ]; then
