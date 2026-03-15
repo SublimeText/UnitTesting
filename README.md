@@ -125,8 +125,6 @@ use the bundled `docker/ut-run-tests` launcher.
 /path/to/UnitTesting/docker/ut-run-tests . --file tests/test_example.py
 ```
 
-(Use `docker/ut-run-tests.cmd` in cmd.exe/PowerShell.)
-
 If `UnitTesting/docker` is on your `PATH`, you can simply run:
 
 ```sh
@@ -137,14 +135,6 @@ This launcher calls `docker/run_tests.py`, which runs tests in a Docker
 container (headless), streams output to stdout/stderr and keeps a cache
 volume so repeated runs are fast.
 
-By default it:
-
-- builds `unittesting-local` image from `./docker` if missing
-- mounts your repo as `/project`
-- runs UnitTesting through the same CI shell entrypoints
-- stores Sublime install/cache in docker volume `unittesting-home`
-- synchronizes only changed files into `Packages/<Package>` using `rsync`
-
 Useful options:
 
 - `--file tests/test_foo.py`
@@ -152,8 +142,8 @@ Useful options:
 - `--coverage`
 - `--failfast`
 - `--reload-package-on-testing` (default: off)
-- `--dry-run` (only print runtime metadata and schedule)
 - `--scheduler-delay-ms 0` (default)
+- `--dry-run` (only print runtime metadata and schedule)
 - `--refresh-cache` (re-bootstrap cached `/root` state)
 - `--refresh-image` (rebuild local Docker image)
 - `--refresh` (both cache and image refresh)
