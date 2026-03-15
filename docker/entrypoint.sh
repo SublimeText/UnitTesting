@@ -19,8 +19,28 @@ ensure_git_identity() {
     fi
 }
 
+ensure_ci_platform_compat() {
+    # Some test suites still key off Travis-style OS markers.
+    if [ -n "$TRAVIS_OS_NAME" ]; then
+        return
+    fi
+
+    case "$(uname -s)" in
+        Linux*)
+            export TRAVIS_OS_NAME=linux
+            ;;
+        Darwin*)
+            export TRAVIS_OS_NAME=osx
+            ;;
+        CYGWIN*|MINGW*|MSYS*)
+            export TRAVIS_OS_NAME=windows
+            ;;
+    esac
+}
+
 sudo sh -e /etc/init.d/xvfb start
 ensure_git_identity
+ensure_ci_platform_compat
 
 UNITTESTING_SOURCE=${UNITTESTING_SOURCE:-/unittesting}
 SUBLIME_TEXT_VERSION=${SUBLIME_TEXT_VERSION:-4}
