@@ -343,9 +343,11 @@ def build_docker_run_command(
     tests_dir: str | None,
     pattern: str | None,
 ) -> list[str]:
-    command = ["docker", "run", "--rm", "-t"]
+    command = ["docker", "run", "--rm"]
     if sys.stdin.isatty():
         command.append("-i")
+    if sys.stdout.isatty():
+        command.append("-t")
 
     command.extend(["-e", f"PACKAGE={package_name}"])
     command.extend(["-e", f"UNITTESTING_SCHEDULER_DELAY_MS={scheduler_delay_ms}"])
