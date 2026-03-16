@@ -28,6 +28,15 @@ SCHEDULE_RUNNER_SOURCE = os.path.join(UT_SBIN_PATH, "run_scheduler.py")
 SCHEDULE_RUNNER_TARGET = os.path.join(UT_DIR_PATH, "zzz_run_scheduler.py")
 RX_RESULT = re.compile(r'^(?P<result>OK|FAILED|ERROR)', re.MULTILINE)
 RX_DONE = re.compile(r'^UnitTesting: Done\.$', re.MULTILINE)
+RX_TEST_STATUS = re.compile(r'\.\.\. (ok|FAIL|ERROR|skipped)(\b.*)$')
+RX_SUMMARY_OK = re.compile(r'^OK(?:\b.*)?$')
+RX_SUMMARY_FAIL = re.compile(r'^(FAILED|ERROR)(?:\b.*)?$')
+
+ANSI_RESET = "\033[0m"
+ANSI_GREEN = "\033[32m"
+ANSI_RED = "\033[31m"
+ANSI_YELLOW = "\033[33m"
+ANSI_CYAN = "\033[36m"
 
 _is_windows = sys.platform == 'win32'
 
@@ -113,9 +122,11 @@ def kill_sublime_text():
     subprocess.Popen("pkill plugin_host || true", shell=True)
 
 
-def read_output(path):
+def read_output(path, color='auto'):
     # todo: use notification instead of polling
     success = None
+    use_color = should_use_color(color)
+    pending = ""
 
     def check_is_success(result):
         try:
@@ -131,8 +142,13 @@ def read_output(path):
             offset = f.tell()
             result = f.read()
 
-            print(result, end="")
-            sys.stdout.flush()
+            if result:
+                if use_color:
+                    rendered, pending = colorize_output_chunk(result, pending)
+                    print(rendered, end="")
+                else:
+                    print(result, end="")
+                sys.stdout.flush()
 
             # Keep checking while we don't have a definite result.
             success = check_is_success(result)
@@ -145,7 +161,91 @@ def read_output(path):
 
             time.sleep(0.2)
 
+    if use_color and pending:
+        print(colorize_output_line(pending), end="")
+        sys.stdout.flush()
+
     return success
+
+
+def should_use_color(mode):
+    if mode == 'always':
+        return True
+
+    if mode == 'never':
+        return False
+
+    if os.environ.get('NO_COLOR') is not None:
+        return False
+
+    if os.environ.get('CLICOLOR_FORCE') not in (None, '', '0'):
+        return True
+
+    if os.environ.get('FORCE_COLOR') not in (None, '', '0'):
+        return True
+
+    try:
+        return sys.stdout.isatty()
+    except Exception:
+        return False
+
+
+def colorize_output_chunk(chunk, pending):
+    if not chunk:
+        return '', pending
+
+    text = pending + chunk
+    lines = text.splitlines(True)
+
+    if lines and not lines[-1].endswith(('\n', '\r')):
+        pending = lines.pop()
+    else:
+        pending = ''
+
+    rendered = ''.join(colorize_output_line(line) for line in lines)
+    return rendered, pending
+
+
+def colorize_output_line(line):
+    newline = ''
+    body = line
+
+    if body.endswith('\r\n'):
+        body = body[:-2]
+        newline = '\r\n'
+    elif body.endswith('\n') or body.endswith('\r'):
+        body = body[:-1]
+        newline = line[-1]
+
+    test_status_match = RX_TEST_STATUS.search(body)
+    if test_status_match:
+        status = test_status_match.group(1)
+        suffix = test_status_match.group(2)
+        body = (
+            body[:test_status_match.start()]
+            + '... '
+            + colorize_status(status)
+            + suffix
+        )
+
+    if RX_SUMMARY_OK.match(body):
+        body = ANSI_GREEN + body + ANSI_RESET
+    elif RX_SUMMARY_FAIL.match(body):
+        body = ANSI_RED + body + ANSI_RESET
+    elif body.startswith('Ran '):
+        body = ANSI_CYAN + body + ANSI_RESET
+
+    return body + newline
+
+
+def colorize_status(status):
+    if status == 'ok':
+        return ANSI_GREEN + status + ANSI_RESET
+
+    if status == 'skipped':
+        return ANSI_YELLOW + status + ANSI_RESET
+
+    return ANSI_RED + status + ANSI_RESET
 
 
 def restore_coverage_file(path, package):
@@ -207,7 +307,7 @@ def detect_package_control_version():
     return str(version) if version else None
 
 
-def main(default_schedule_info, dry_run=False):
+def main(default_schedule_info, dry_run=False, color='auto'):
     package_under_test = default_schedule_info['package']
     output_dir = os.path.join(UT_OUTPUT_DIR_PATH, package_under_test)
     output_file = os.path.join(output_dir, "result")
@@ -247,7 +347,7 @@ def main(default_schedule_info, dry_run=False):
             time.sleep(2)
 
     print("Start to read output...")
-    if not read_output(output_file):
+    if not read_output(output_file, color=color):
         sys.exit(1)
     restore_coverage_file(coverage_file, package_under_test)
     delete_file_if_exists(SCHEDULE_RUNNER_TARGET)
@@ -264,6 +364,13 @@ if __name__ == '__main__':
     parser.add_option('--failfast', action='store_true')
     parser.add_option('--reload-package-on-testing', action='store_true')
     parser.add_option('--dry-run', action='store_true')
+    parser.add_option(
+        '--color',
+        type='choice',
+        choices=['auto', 'always', 'never'],
+        default='auto',
+        help='Colorize test output (auto, always, never).',
+    )
 
     options, remainder = parser.parse_args()
 
@@ -294,4 +401,4 @@ if __name__ == '__main__':
     if options.reload_package_on_testing:
         default_schedule_info['reload_package_on_testing'] = True
 
-    main(default_schedule_info, dry_run=options.dry_run)
+    main(default_schedule_info, dry_run=options.dry_run, color=options.color)

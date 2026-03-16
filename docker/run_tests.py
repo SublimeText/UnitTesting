@@ -83,6 +83,7 @@ def main(argv: list[str] | None = None) -> int:
         failfast=args.failfast,
         reload_package_on_testing=args.reload_package_on_testing,
         dry_run=args.dry_run,
+        color=args.color,
         tests_dir=tests_dir,
         pattern=pattern,
     )
@@ -138,6 +139,12 @@ def parse_args(argv: list[str] | None) -> argparse.Namespace:
         "--dry-run",
         action="store_true",
         help="Only print runtime metadata and schedule.",
+    )
+    test_group.add_argument(
+        "--color",
+        choices=("auto", "always", "never"),
+        default="auto",
+        help="Colorize test output (default: auto).",
     )
 
     docker_group = parser.add_argument_group("docker options")
@@ -340,6 +347,7 @@ def build_docker_run_command(
     failfast: bool,
     reload_package_on_testing: bool,
     dry_run: bool,
+    color: str,
     tests_dir: str | None,
     pattern: str | None,
 ) -> list[str]:
@@ -373,6 +381,8 @@ def build_docker_run_command(
 
     if dry_run:
         command.append("--dry-run")
+
+    command.extend(["--color", color])
 
     if tests_dir:
         command.extend(["--tests-dir", tests_dir])

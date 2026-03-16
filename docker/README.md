@@ -76,6 +76,18 @@ Text and Package Control versions) plus the generated schedule.
 ut-run-tests . --dry-run
 ```
 
+## Colored output
+
+Use `--color` to control ANSI colors in test output:
+
+- `--color auto` (default): color only when stdout is a TTY
+- `--color always`: force color
+- `--color never`: disable color
+
+```sh
+ut-run-tests . --color always
+```
+
 ## Run a single test file
 
 ```sh
