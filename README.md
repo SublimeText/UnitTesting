@@ -244,6 +244,8 @@ jobs:
       - uses: SublimeText/UnitTesting/actions/setup@v1
         with:
           sublime-text-version: ${{ matrix.st-version }}
+          extra-packages: |
+            A File Icon:SublimeText/AFileIcon
 
       # run color scheme tests (only on Linux)
       - if: ${{ matrix.os == 'ubuntu-latest' }}
@@ -259,8 +261,6 @@ jobs:
       - uses: SublimeText/UnitTesting/actions/run-tests@v1
         with:
           coverage: true
-          extra-packages: |
-            A File Icon:SublimeText/AFileIcon
       - uses: codecov/codecov-action@v4
 ```
 
