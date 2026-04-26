@@ -112,6 +112,49 @@ so that <kbd>ctrl</kbd>+<kbd>b</kbd> would invoke the testing action.
 ```
 
 
+### Headless container runner
+
+To run tests without affecting your interactive Sublime Text session,
+use the bundled `docker/ut-run-tests` launcher.
+
+```sh
+# run all tests from current package root
+/path/to/UnitTesting/docker/ut-run-tests .
+
+# run just one test file (faster)
+/path/to/UnitTesting/docker/ut-run-tests . --file tests/test_example.py
+```
+
+If `UnitTesting/docker` is on your `PATH`, you can simply run:
+
+```sh
+ut-run-tests .
+```
+
+This launcher calls `docker/run_tests.py`, which runs tests in a Docker
+container (headless), streams output to stdout/stderr and keeps a cache
+volume so repeated runs are fast.
+
+Useful options:
+
+- `--file tests/test_foo.py`
+- `--pattern test_foo.py --tests-dir tests/subdir`
+- `--coverage`
+- `--failfast`
+- `--reload-package-on-testing` (default: off)
+- `--scheduler-delay-ms 0` (default)
+- `--dry-run` (only print runtime metadata and schedule)
+- `--refresh-cache` (re-bootstrap cached `/root` state)
+- `--refresh-image` (rebuild local Docker image)
+- `--refresh` (both cache and image refresh)
+- `--no-cache-volume` (run without persistent cache)
+
+> [!TIP]
+>
+> This is useful for editor build systems and for AI agents,
+> because test runs no longer commandeer your active editor window.
+
+
 ## GitHub Actions
 
 Unittesting provides the following GitHub Actions, which can be combined
@@ -244,6 +287,8 @@ jobs:
       - uses: SublimeText/UnitTesting/actions/setup@v1
         with:
           sublime-text-version: ${{ matrix.st-version }}
+          extra-packages: |
+            A File Icon:SublimeText/AFileIcon
 
       # run color scheme tests (only on Linux)
       - if: ${{ matrix.os == 'ubuntu-latest' }}
@@ -259,8 +304,6 @@ jobs:
       - uses: SublimeText/UnitTesting/actions/run-tests@v1
         with:
           coverage: true
-          extra-packages: |
-            A File Icon:SublimeText/AFileIcon
       - uses: codecov/codecov-action@v4
 ```
 

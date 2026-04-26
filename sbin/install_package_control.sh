@@ -49,17 +49,21 @@ fi
 
 if [ ! -f "$STP/User/Package Control.sublime-settings" ]; then
     echo creating Package Control.sublime-settings
+    [ ! -d "$STP/User" ] && mkdir -p "$STP/User"
     # make sure Pakcage Control does not complain
     echo '{"auto_upgrade": false, "ignore_vcs_packages": true, "remove_orphaned": false, "submit_usage": false }' > "$STP/User/Package Control.sublime-settings"
 fi
 
 PCH_PATH="$STP/0_install_package_control_helper"
+BASE=`dirname "$0"`
 
-if [ ! -d "$PCH_PATH" ]; then
-    mkdir -p "$PCH_PATH"
-    BASE=`dirname "$0"`
-    cp "$BASE/pc_helper.py" "$PCH_PATH/pc_helper.py"
+mkdir -p "$PCH_PATH"
+cp "$BASE/pc_helper.py" "$PCH_PATH/pc_helper.py"
+
+if [ -f "$BASE/.python-version" ]; then
     cp "$BASE/.python-version" "$PCH_PATH/.python-version"
+else
+    cp "$BASE/../.python-version" "$PCH_PATH/.python-version"
 fi
 
 
@@ -70,7 +74,7 @@ for i in {1..3}; do
 
     subl &
 
-    ENDTIME=$(( $(date +%s) + 60 ))
+    ENDTIME=$(( $(date +%s) + 120 ))
     while [ ! -f "$PCH_PATH/success" ] && [ $(date +%s) -lt $ENDTIME ]  ; do
         printf "."
         sleep 5

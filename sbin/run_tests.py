@@ -15,6 +15,7 @@ import shutil
 import subprocess
 import sys
 import time
+import zipfile
 
 # todo: allow different sublime versions
 
@@ -27,6 +28,15 @@ SCHEDULE_RUNNER_SOURCE = os.path.join(UT_SBIN_PATH, "run_scheduler.py")
 SCHEDULE_RUNNER_TARGET = os.path.join(UT_DIR_PATH, "zzz_run_scheduler.py")
 RX_RESULT = re.compile(r'^(?P<result>OK|FAILED|ERROR)', re.MULTILINE)
 RX_DONE = re.compile(r'^UnitTesting: Done\.$', re.MULTILINE)
+RX_TEST_STATUS = re.compile(r'\.\.\. (ok|FAIL|ERROR|skipped)(\b.*)$')
+RX_SUMMARY_OK = re.compile(r'^OK(?:\b.*)?$')
+RX_SUMMARY_FAIL = re.compile(r'^(FAILED|ERROR)(?:\b.*)?$')
+
+ANSI_RESET = "\033[0m"
+ANSI_GREEN = "\033[32m"
+ANSI_RED = "\033[31m"
+ANSI_YELLOW = "\033[33m"
+ANSI_CYAN = "\033[36m"
 
 _is_windows = sys.platform == 'win32'
 
@@ -55,19 +65,24 @@ def create_schedule(package, output_file, default_schedule):
     except Exception:
         pass
 
-    if not any(s['package'] == package for s in schedule):
-        print('Schedule:')
-        for k, v in default_schedule.items():
-            print('  %s: %s' % (k, v))
+    print('Schedule:')
+    for k, v in default_schedule.items():
+        print('  %s: %s' % (k, v))
 
+    for idx, item in enumerate(schedule):
+        if item.get('package') == package:
+            schedule[idx] = default_schedule
+            break
+    else:
         schedule.append(default_schedule)
 
     with open(SCHEDULE_FILE_PATH, 'w') as f:
         f.write(json.dumps(schedule, ensure_ascii=False, indent=True))
 
 
-def wait_for_output(path, schedule, timeout=10):
+def wait_for_output(path, schedule, timeout=10, poll_interval=0.2):
     start_time = time.time()
+    last_dot = 0
     needs_newline = False
 
     def check_has_timed_out():
@@ -80,16 +95,19 @@ def wait_for_output(path, schedule, timeout=10):
             pass
 
     while not check_is_output_available():
-        print(".", end="")
-        sys.stdout.flush()
-        needs_newline = True
+        now = time.time()
+        if now - last_dot >= 1:
+            print(".", end="")
+            sys.stdout.flush()
+            needs_newline = True
+            last_dot = now
 
         if check_has_timed_out():
             print()
             delete_file_if_exists(schedule)
             raise ValueError('timeout')
 
-        time.sleep(1)
+        time.sleep(poll_interval)
     else:
         if needs_newline:
             print()
@@ -104,9 +122,11 @@ def kill_sublime_text():
     subprocess.Popen("pkill plugin_host || true", shell=True)
 
 
-def read_output(path):
+def read_output(path, color='auto'):
     # todo: use notification instead of polling
     success = None
+    use_color = should_use_color(color)
+    pending = ""
 
     def check_is_success(result):
         try:
@@ -122,7 +142,13 @@ def read_output(path):
             offset = f.tell()
             result = f.read()
 
-            print(result, end="")
+            if result:
+                if use_color:
+                    rendered, pending = colorize_output_chunk(result, pending)
+                    print(rendered, end="")
+                else:
+                    print(result, end="")
+                sys.stdout.flush()
 
             # Keep checking while we don't have a definite result.
             success = check_is_success(result)
@@ -135,7 +161,91 @@ def read_output(path):
 
             time.sleep(0.2)
 
+    if use_color and pending:
+        print(colorize_output_line(pending), end="")
+        sys.stdout.flush()
+
     return success
+
+
+def should_use_color(mode):
+    if mode == 'always':
+        return True
+
+    if mode == 'never':
+        return False
+
+    if os.environ.get('NO_COLOR') is not None:
+        return False
+
+    if os.environ.get('CLICOLOR_FORCE') not in (None, '', '0'):
+        return True
+
+    if os.environ.get('FORCE_COLOR') not in (None, '', '0'):
+        return True
+
+    try:
+        return sys.stdout.isatty()
+    except Exception:
+        return False
+
+
+def colorize_output_chunk(chunk, pending):
+    if not chunk:
+        return '', pending
+
+    text = pending + chunk
+    lines = text.splitlines(True)
+
+    if lines and not lines[-1].endswith(('\n', '\r')):
+        pending = lines.pop()
+    else:
+        pending = ''
+
+    rendered = ''.join(colorize_output_line(line) for line in lines)
+    return rendered, pending
+
+
+def colorize_output_line(line):
+    newline = ''
+    body = line
+
+    if body.endswith('\r\n'):
+        body = body[:-2]
+        newline = '\r\n'
+    elif body.endswith('\n') or body.endswith('\r'):
+        body = body[:-1]
+        newline = line[-1]
+
+    test_status_match = RX_TEST_STATUS.search(body)
+    if test_status_match:
+        status = test_status_match.group(1)
+        suffix = test_status_match.group(2)
+        body = (
+            body[:test_status_match.start()]
+            + '... '
+            + colorize_status(status)
+            + suffix
+        )
+
+    if RX_SUMMARY_OK.match(body):
+        body = ANSI_GREEN + body + ANSI_RESET
+    elif RX_SUMMARY_FAIL.match(body):
+        body = ANSI_RED + body + ANSI_RESET
+    elif body.startswith('Ran '):
+        body = ANSI_CYAN + body + ANSI_RESET
+
+    return body + newline
+
+
+def colorize_status(status):
+    if status == 'ok':
+        return ANSI_GREEN + status + ANSI_RESET
+
+    if status == 'skipped':
+        return ANSI_YELLOW + status + ANSI_RESET
+
+    return ANSI_RED + status + ANSI_RESET
 
 
 def restore_coverage_file(path, package):
@@ -148,13 +258,71 @@ def restore_coverage_file(path, package):
             f.write(txt)
 
 
-def main(default_schedule_info):
+def print_runtime_metadata():
+    sublime_text_version = detect_sublime_text_version()
+    package_control_version = detect_package_control_version()
+
+    print("Runtime:")
+    print("  Sublime Text: {}".format(sublime_text_version or "unknown"))
+    print("  Package Control: {}".format(package_control_version or "unknown"))
+
+
+def detect_sublime_text_version():
+    try:
+        output = subprocess.check_output(
+            ["subl", "--version"],
+            stderr=subprocess.STDOUT,
+            universal_newlines=True,
+        )
+    except Exception:
+        return None
+
+    for line in output.splitlines():
+        line = line.strip()
+        if line:
+            return line
+
+    return None
+
+
+def detect_package_control_version():
+    installed_packages_dir = os.path.join(
+        os.path.dirname(PACKAGES_DIR_PATH),
+        "Installed Packages",
+    )
+    package_path = os.path.join(
+        installed_packages_dir,
+        "Package Control.sublime-package",
+    )
+    if not os.path.isfile(package_path):
+        return None
+
+    try:
+        with zipfile.ZipFile(package_path, "r") as package_zip:
+            metadata = json.loads(package_zip.read("package-metadata.json").decode("utf-8"))
+    except Exception:
+        return None
+
+    version = metadata.get("version") if isinstance(metadata, dict) else None
+    return str(version) if version else None
+
+
+def main(default_schedule_info, dry_run=False, color='auto'):
     package_under_test = default_schedule_info['package']
     output_dir = os.path.join(UT_OUTPUT_DIR_PATH, package_under_test)
     output_file = os.path.join(output_dir, "result")
     coverage_file = os.path.join(output_dir, "coverage")
 
     default_schedule_info['output'] = output_file
+
+    print_runtime_metadata()
+
+    if dry_run:
+        create_dir_if_not_exists(output_dir)
+        delete_file_if_exists(output_file)
+        delete_file_if_exists(coverage_file)
+        create_schedule(package_under_test, output_file, default_schedule_info)
+        return
 
     for i in range(3):
         create_dir_if_not_exists(output_dir)
@@ -179,7 +347,7 @@ def main(default_schedule_info):
             time.sleep(2)
 
     print("Start to read output...")
-    if not read_output(output_file):
+    if not read_output(output_file, color=color):
         sys.exit(1)
     restore_coverage_file(coverage_file, package_under_test)
     delete_file_if_exists(SCHEDULE_RUNNER_TARGET)
@@ -191,6 +359,18 @@ if __name__ == '__main__':
     parser.add_option('--syntax-compatibility', action='store_true')
     parser.add_option('--color-scheme-test', action='store_true')
     parser.add_option('--coverage', action='store_true')
+    parser.add_option('--pattern')
+    parser.add_option('--tests-dir')
+    parser.add_option('--failfast', action='store_true')
+    parser.add_option('--reload-package-on-testing', action='store_true')
+    parser.add_option('--dry-run', action='store_true')
+    parser.add_option(
+        '--color',
+        type='choice',
+        choices=['auto', 'always', 'never'],
+        default='auto',
+        help='Colorize test output (auto, always, never).',
+    )
 
     options, remainder = parser.parse_args()
 
@@ -206,6 +386,19 @@ if __name__ == '__main__':
         'syntax_compatibility': syntax_compatibility,
         'color_scheme_test': color_scheme_test,
         'coverage': coverage,
+        'reload_package_on_testing': False,
     }
 
-    main(default_schedule_info)
+    if options.pattern:
+        default_schedule_info['pattern'] = options.pattern
+
+    if options.tests_dir:
+        default_schedule_info['tests_dir'] = options.tests_dir
+
+    if options.failfast:
+        default_schedule_info['failfast'] = True
+
+    if options.reload_package_on_testing:
+        default_schedule_info['reload_package_on_testing'] = True
+
+    main(default_schedule_info, dry_run=options.dry_run, color=options.color)
