@@ -116,14 +116,27 @@ cloneRepositoryTag() {
 
 CopyTestedPackage() {
     local OverwriteExisting="$1"
+
+    if [ ! -d "$STP/$PACKAGE" ]; then
+        mkdir -p "$STP/$PACKAGE"
+    fi
+
+    if [ -n "$OverwriteExisting" ] && command -v rsync >/dev/null 2>&1; then
+        echo "sync package into sublime package directory"
+        rsync -a --delete --exclude .git ./ "$STP/$PACKAGE/"
+        return
+    fi
+
     if [ -d "$STP/$PACKAGE" ] && [ -n "$OverwriteExisting" ]; then
         rm -rf "${STP:?}/${PACKAGE:?}"
-    fi
-    if [ ! -d "$STP/$PACKAGE" ]; then
-        # symlink does not play well with coverage
-        echo "copy the package to sublime package directory"
         mkdir -p "$STP/$PACKAGE"
-        cp -r ./ "$STP/$PACKAGE"
+    fi
+
+    if [ ! -f "$STP/$PACKAGE/.package_copied" ] || [ -n "$OverwriteExisting" ]; then
+        # symlink does not play well with coverage
+        echo "copy package into sublime package directory"
+        cp -r ./. "$STP/$PACKAGE/"
+        touch "$STP/$PACKAGE/.package_copied"
     fi
 }
 
