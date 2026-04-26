@@ -1,6 +1,6 @@
 import sys
 
-if sys.version_info[:2] >= (3, 13):
+if sys.version_info >= (3, 13):
     from .py313.case import DeferrableMethod
     from .py313.case import DeferrableTestCase
     from .py313.case import IsolatedAsyncioTestCase
@@ -10,7 +10,7 @@ if sys.version_info[:2] >= (3, 13):
     from .py313.runner import AWAIT_WORKER
     from .py313.runner import DeferringTextTestRunner
     from .py313.suite import DeferrableTestSuite
-elif sys.version_info[:2] == (3, 8):
+elif sys.version_info == (3, 8):
     from .py38.case import DeferrableMethod
     from .py38.case import DeferrableTestCase
     from .py38.case import IsolatedAsyncioTestCase
@@ -20,7 +20,7 @@ elif sys.version_info[:2] == (3, 8):
     from .py38.runner import AWAIT_WORKER
     from .py38.runner import DeferringTextTestRunner
     from .py38.suite import DeferrableTestSuite
-elif sys.version_info[:2] == (3, 3):
+elif sys.version_info == (3, 3):
     from .py33.case import DeferrableMethod
     from .py33.case import DeferrableTestCase
     from .py33.case import IsolatedAsyncioTestCase
