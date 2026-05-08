@@ -148,6 +148,8 @@ Useful options:
 - `--refresh-image` (rebuild local Docker image)
 - `--refresh` (both cache and image refresh)
 - `--no-cache-volume` (run without persistent cache)
+- `--lock-timeout SECONDS` (wait for shared cache-volume lock)
+- `--no-lock` (disable cache-volume serialization; unsafe if shared)
 
 > [!TIP]
 >

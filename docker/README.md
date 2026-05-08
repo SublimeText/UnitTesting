@@ -50,6 +50,17 @@ The container entrypoint writes a marker in `/root/.cache/unittesting`.
 With `-v unittesting-home:/root`, bootstrap/install runs once and later runs
 only refresh your package files and execute tests.
 
+## Concurrent runs
+
+The shared cache volume contains the Sublime data directory, including
+`Packages`, `Lib`, UnitTesting schedules and test output files. Concurrent
+runs against the same volume are serialized by default to avoid races while
+copying packages, writing schedules and syncing Package Control libraries.
+
+Use `--lock-timeout SECONDS` to control how long a runner waits for the cache
+volume lock. Use `--no-lock` only if you know the selected cache volume is not
+shared by another runner.
+
 ## Refresh/update controls (without direct docker commands)
 
 Use launcher flags instead of calling `docker` manually:
