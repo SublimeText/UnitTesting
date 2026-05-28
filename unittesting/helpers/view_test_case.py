@@ -16,11 +16,14 @@ class ViewTestCaseMixin:
         "translate_tabs_to_spaces": False,
         "word_wrap": False,
     }
+    id = 0
 
     if sys.version_info[:2] >= (3, 8):
         def _callSetUp(self):
+            self.__class__.id += 1
+            self.panel_name = "unittesting-scratch-{}".format(self.__class__.id)
             self.window = sublime.active_window()
-            self.view = self.window.new_file()
+            self.view = self.window.create_output_panel(self.panel_name, unlisted=True)
 
             # make sure we have a window to work with
             settings = sublime.load_settings("Preferences.sublime-settings")
@@ -40,9 +43,7 @@ class ViewTestCaseMixin:
             try:
                 return super()._callTearDown()
             finally:
-                if self.view:
-                    self.view.set_scratch(True)
-                    self.view.close()
+                self.window.destroy_output_panel(self.panel_name)
 
                 # restore original settings
                 settings = sublime.load_settings("Preferences.sublime-settings")
@@ -52,8 +53,10 @@ class ViewTestCaseMixin:
 
     else:
         def setUp(self):
+            self.__class__.id += 1
+            self.panel_name = "unittesting-scratch-{}".format(self.__class__.id)
             self.window = sublime.active_window()
-            self.view = self.window.new_file()
+            self.view = self.window.create_output_panel(self.panel_name, unlisted=True)
 
             # make sure we have a window to work with
             settings = sublime.load_settings("Preferences.sublime-settings")
@@ -68,9 +71,7 @@ class ViewTestCaseMixin:
                 settings.set(key, value)
 
         def tearDown(self):
-            if self.view:
-                self.view.set_scratch(True)
-                self.view.close()
+            self.window.destroy_output_panel(self.panel_name)
 
             # restore original settings
             settings = sublime.load_settings("Preferences.sublime-settings")
