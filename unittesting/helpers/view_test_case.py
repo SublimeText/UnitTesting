@@ -1,4 +1,5 @@
 import sublime
+import sys
 
 from unittest import TestCase
 from ..core import DeferrableTestCase
@@ -16,28 +17,57 @@ class ViewTestCaseMixin:
         "word_wrap": False,
     }
 
-    def _callSetUp(self):
-        self.window = sublime.active_window()
-        self.view = self.window.new_file()
+    if sys.version_info[:2] >= (3, 8):
+        def _callSetUp(self):
+            self.window = sublime.active_window()
+            self.view = self.window.new_file()
 
-        # make sure we have a window to work with
-        settings = sublime.load_settings("Preferences.sublime-settings")
-        self._orig_close_empty_window = settings.get("close_windows_when_empty")
-        if self._orig_close_empty_window:
-            settings.set("close_windows_when_empty", False)
+            # make sure we have a window to work with
+            settings = sublime.load_settings("Preferences.sublime-settings")
+            self._orig_close_empty_window = settings.get("close_windows_when_empty")
+            if self._orig_close_empty_window:
+                settings.set("close_windows_when_empty", False)
 
-        # apply pre-defined settings
-        settings = self.view.settings()
-        default_settings = getattr(self.__class__, "view_settings", {})
-        for key, value in default_settings.items():
-            settings.set(key, value)
+            # apply pre-defined settings
+            settings = self.view.settings()
+            default_settings = getattr(self.__class__, "view_settings", {})
+            for key, value in default_settings.items():
+                settings.set(key, value)
 
-        return super()._callSetUp()
+            return super()._callSetUp()
 
-    def _callTearDown(self):
-        try:
-            return super()._callTearDown()
-        finally:
+        def _callTearDown(self):
+            try:
+                return super()._callTearDown()
+            finally:
+                if self.view:
+                    self.view.set_scratch(True)
+                    self.view.close()
+
+                # restore original settings
+                settings = sublime.load_settings("Preferences.sublime-settings")
+                if self._orig_close_empty_window:
+                    settings.set("close_windows_when_empty", self._orig_close_empty_window)
+                    self._orig_close_empty_window = False
+
+    else:
+        def setUp(self):
+            self.window = sublime.active_window()
+            self.view = self.window.new_file()
+
+            # make sure we have a window to work with
+            settings = sublime.load_settings("Preferences.sublime-settings")
+            self._orig_close_empty_window = settings.get("close_windows_when_empty")
+            if self._orig_close_empty_window:
+                settings.set("close_windows_when_empty", False)
+
+            # apply pre-defined settings
+            settings = self.view.settings()
+            default_settings = getattr(self.__class__, "view_settings", {})
+            for key, value in default_settings.items():
+                settings.set(key, value)
+
+        def tearDown(self):
             if self.view:
                 self.view.set_scratch(True)
                 self.view.close()
