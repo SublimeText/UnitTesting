@@ -16,7 +16,7 @@ class ViewTestCaseMixin:
         "word_wrap": False,
     }
 
-    def setUp(self):
+    def _callSetUp(self):
         self.window = sublime.active_window()
         self.view = self.window.new_file()
 
@@ -32,16 +32,21 @@ class ViewTestCaseMixin:
         for key, value in default_settings.items():
             settings.set(key, value)
 
-    def tearDown(self):
-        if self.view:
-            self.view.set_scratch(True)
-            self.view.close()
+        return super()._callSetUp()
 
-        # restore original settings
-        settings = sublime.load_settings("Preferences.sublime-settings")
-        if self._orig_close_empty_window:
-            settings.set("close_windows_when_empty", self._orig_close_empty_window)
-            self._orig_close_empty_window = False
+    def _callTearDown(self):
+        try:
+            return super()._callTearDown()
+        finally:
+            if self.view:
+                self.view.set_scratch(True)
+                self.view.close()
+
+            # restore original settings
+            settings = sublime.load_settings("Preferences.sublime-settings")
+            if self._orig_close_empty_window:
+                settings.set("close_windows_when_empty", self._orig_close_empty_window)
+                self._orig_close_empty_window = False
 
     def addCaretAt(self, row, col):
         """
