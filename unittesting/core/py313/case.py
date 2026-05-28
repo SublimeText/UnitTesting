@@ -1,8 +1,10 @@
+import inspect
 import time
 import sys
 
+import sublime_aio
+
 from collections.abc import Generator as DeferrableMethod
-from unittest import IsolatedAsyncioTestCase
 from unittest import TestCase
 from unittest.case import _addSkip
 from unittest.case import _Outcome
@@ -11,9 +13,9 @@ from unittest.case import expectedFailure
 from .runner import defer
 
 __all__ = [
+    "AsyncTestCase",
     "DeferrableMethod",
     "DeferrableTestCase",
-    "IsolatedAsyncioTestCase",
     "TestCase",
     "expectedFailure",
 ]
@@ -22,24 +24,26 @@ __all__ = [
 class DeferrableTestCase(TestCase):
 
     def _callSetUp(self):
-        deferred = self.setUp()
-        if isinstance(deferred, DeferrableMethod):
-            yield from deferred
+        return self._callMaybeCoro(self.setUp)
 
     def _callTestMethod(self, method):
-        deferred = method()
-        if isinstance(deferred, DeferrableMethod):
-            yield from deferred
+        return self._callMaybeCoro(method)
 
     def _callTearDown(self):
-        deferred = self.tearDown()
-        if isinstance(deferred, DeferrableMethod):
-            yield from deferred
+        return self._callMaybeCoro(self.tearDown)
 
     def _callCleanup(self, function, *args, **kwargs):
-        deferred = function(*args, **kwargs)
-        if isinstance(deferred, DeferrableMethod):
-            yield from deferred
+        return self._callMaybeCoro(function, *args, **kwargs)
+
+    def _callMaybeCoro(self, func, /, *args, **kwargs):
+        coro = func(*args, **kwargs)
+        if isinstance(coro, DeferrableMethod):
+            yield from coro
+        elif inspect.iscoroutine(coro):
+            raise TypeError(
+                f"Async coroutine function {self.__class__.__name__}.{func.__name__}() "
+                "is not supported by DeferrableTestCase! Use AsyncTestCase instead!"
+            )
 
     @staticmethod
     def defer(delay, callback, *args, **kwargs):
@@ -76,24 +80,15 @@ class DeferrableTestCase(TestCase):
                 self._outcome = outcome
 
                 with outcome.testPartExecutor(self):
-                    deferred = self._callSetUp()
-                    if isinstance(deferred, DeferrableMethod):
-                        yield from deferred
+                    yield from self._callSetUp()
                 if outcome.success:
                     outcome.expecting_failure = expecting_failure
                     with outcome.testPartExecutor(self):
-                        deferred = self._callTestMethod(testMethod)
-                        if isinstance(deferred, DeferrableMethod):
-                            yield from deferred
+                        yield from self._callTestMethod(testMethod)
                     outcome.expecting_failure = False
                     with outcome.testPartExecutor(self):
-                        deferred = self._callTearDown()
-                        if isinstance(deferred, DeferrableMethod):
-                            yield from deferred
-                deferred = self.doCleanups()
-                if isinstance(deferred, DeferrableMethod):
-                    yield from deferred
-
+                        yield from self._callTearDown()
+                yield from self.doCleanups()
                 self._addDuration(result, (time.perf_counter() - start_time))
 
                 if outcome.success:
@@ -125,9 +120,7 @@ class DeferrableTestCase(TestCase):
         while self._cleanups:
             function, args, kwargs = self._cleanups.pop()
             with outcome.testPartExecutor(self):
-                deferred = self._callCleanup(function, *args, **kwargs)
-                if isinstance(deferred, DeferrableMethod):
-                    yield from deferred
+                yield from self._callCleanup(function, *args, **kwargs)
 
         # return this for backwards compatibility
         # even though we no longer use it internally
@@ -140,15 +133,35 @@ class DeferrableTestCase(TestCase):
         while cls._class_cleanups:
             function, args, kwargs = cls._class_cleanups.pop()
             try:
-                deferred = function(*args, **kwargs)
-                if isinstance(deferred, DeferrableMethod):
-                    yield from deferred
+                yield from cls._callMaybeCoro(function, *args, **kwargs)
             except Exception:
                 cls.tearDown_exceptions.append(sys.exc_info())
 
     def __call__(self, *args, **kwds):
-        deferred = self.run(*args, **kwds)
-        if isinstance(deferred, DeferrableMethod):
-            yield from deferred
-        else:
-            return deferred
+        yield from self.run(*args, **kwds)
+
+
+class AsyncTestCase(DeferrableTestCase):
+
+    async def setUp(self):
+        pass
+
+    async def tearDown(self):
+        pass
+
+    def _callMaybeCoro(self, func, /, *args, **kwargs):
+        coro = func(*args, **kwargs)
+        if isinstance(coro, DeferrableMethod):
+            yield from coro
+        elif inspect.iscoroutine(coro):
+            fut = sublime_aio.run_coroutine(coro)
+
+            def wait_until_complete():
+                if not fut.done() and not fut.cancelled():
+                    return False
+                exception = fut.exception()
+                if exception is not None:
+                    raise exception from None
+                return True
+
+            yield wait_until_complete
