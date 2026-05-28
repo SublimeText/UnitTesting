@@ -11,8 +11,8 @@ jobs:
       contents: write
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/github-script@v7
+      - uses: actions/checkout@v6
+      - uses: actions/github-script@v9
         with:
           script: |
             await github.rest.repos.merge({
