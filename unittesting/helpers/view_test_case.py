@@ -188,20 +188,21 @@ class ViewTestCaseMixin:
         self.assertEqual(self.getText(), text)
 
 
-class ViewTestCase(ViewTestCaseMixin, TestCase):
+class AsyncViewTestCase(ViewTestCaseMixin, AsyncTestCase):
     """
-    This class describes a  view test case.
+    This class describes an asynchronous view test case.
 
-    This class provides infrastructure to run unit tests on dedicated ``sublime.View()`` objects.
+    This class provides infrastructure to run unit tests on dedicated ``sublime.View()`` objects,
+    which includes catching asynchronous events.
 
-    A new ``view`` object is created within the active ``window`` for each ``ViewTestCase``.
+    A new ``view`` object is created within the active ``window`` for each ``AsyncViewTestCase``.
 
     The view is accessible via ``self.view`` from within each test method.
 
     The owning window can be accessed via ``self.window``.
 
     ```py
-    class MyTestCase(ViewTestCase):
+    class MyTestCase(AsyncViewTestCase):
         # settings to apply to the created view
         view_settings = {
             "detect_indentation": False,
@@ -210,10 +211,11 @@ class ViewTestCase(ViewTestCaseMixin, TestCase):
             "word_wrap": False,
         }
 
-        def test_editing(self):
+        async def test_editing(self):
             self.setText("foo")
             self.setCaretTo(0, 0)
-            self.setText("foo")
+            self.defer(100, self.insertText, "foo")
+            await asyncio.sleep(0.2)
             self.assertRowContentsEqual(0, "foofoo")
     ```
     """
@@ -228,7 +230,7 @@ class DeferrableViewTestCase(ViewTestCaseMixin, DeferrableTestCase):
     This class provides infrastructure to run unit tests on dedicated ``sublime.View()`` objects,
     which includes catching asynchronous events.
 
-    A new ``view`` object is created within the active ``window`` for each ``ViewTestCase``.
+    A new ``view`` object is created within the active ``window`` for each ``DeferrableViewTestCase``.
 
     The view is accessible via ``self.view`` from within each test method.
 
@@ -256,12 +258,11 @@ class DeferrableViewTestCase(ViewTestCaseMixin, DeferrableTestCase):
     pass
 
 
-class AsyncViewTestCase(ViewTestCaseMixin, AsyncTestCase):
+class ViewTestCase(ViewTestCaseMixin, TestCase):
     """
-    This class describes an asynchronous view test case.
+    This class describes a  view test case.
 
-    This class provides infrastructure to run unit tests on dedicated ``sublime.View()`` objects,
-    which includes catching asynchronous events.
+    This class provides infrastructure to run unit tests on dedicated ``sublime.View()`` objects.
 
     A new ``view`` object is created within the active ``window`` for each ``ViewTestCase``.
 
@@ -270,7 +271,7 @@ class AsyncViewTestCase(ViewTestCaseMixin, AsyncTestCase):
     The owning window can be accessed via ``self.window``.
 
     ```py
-    class MyTestCase(DeferrableViewTestCase):
+    class MyTestCase(ViewTestCase):
         # settings to apply to the created view
         view_settings = {
             "detect_indentation": False,
@@ -279,11 +280,10 @@ class AsyncViewTestCase(ViewTestCaseMixin, AsyncTestCase):
             "word_wrap": False,
         }
 
-        async def test_editing(self):
+        def test_editing(self):
             self.setText("foo")
             self.setCaretTo(0, 0)
-            self.defer(100, self.insertText, "foo")
-            await asyncio.sleep(0.2)
+            self.setText("foo")
             self.assertRowContentsEqual(0, "foofoo")
     ```
     """
