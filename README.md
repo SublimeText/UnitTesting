@@ -148,11 +148,33 @@ Useful options:
 - `--refresh-image` (rebuild local Docker image)
 - `--refresh` (both cache and image refresh)
 - `--no-cache-volume` (run without persistent cache)
+- `--lock-timeout SECONDS` (wait for shared cache-volume lock)
+- `--no-lock` (disable cache-volume serialization; unsafe if shared)
 
 > [!TIP]
 >
 > This is useful for editor build systems and for AI agents,
 > because test runs no longer commandeer your active editor window.
+
+You can also add the headless runner as build system:
+
+```json
+"build_systems":
+[
+  {
+    "name": "Test Package (Docker)",
+    "shell_cmd": "\"${packages}\\UnitTesting\\docker\\ut-run-tests.cmd\" .",
+    "working_dir": "$project_path",
+    "file_regex": "^\\s*File \"/root/\\.config/sublime-text/Packages/[^/]+/(.+)\", line ([0-9]+)",
+  },
+  {
+    "name": "Test Current File (Docker)",
+    "shell_cmd": "\"${packages}\\UnitTesting\\docker\\ut-run-tests.cmd\" . --file \"${file}\"",
+    "working_dir": "$project_path",
+    "file_regex": "^\\s*File \"/root/\\.config/sublime-text/Packages/[^/]+/(.+)\", line ([0-9]+)",
+  }
+]
+```
 
 
 ## GitHub Actions
