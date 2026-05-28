@@ -3,7 +3,7 @@ import asyncio
 from unittesting import AsyncViewTestCase
 
 
-async def a_coro(test: MyAsyncTestCase):
+async def a_coro(test):
     await asyncio.sleep(1.0)
     test.setText("Modified Content")
 
