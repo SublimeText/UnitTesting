@@ -624,14 +624,18 @@ class MyAsyncTestCase(AsyncTestCase):
 To run coroutines in a custom event loop, override static `run_override()` method.
 
 ```py
+import collections.abc
+import concurrent.futures
+
 import sublime_aio
+
 from unittesting import AsyncTestCase
 
 
 class MyAsyncTestCase(AsyncTestCase):
 
-    def run_coroutine(coro: abc.meta.Coroutine) -> cuncurrent.futures.Future:
-      return sublime_aio.run_coroutine(coro)
+    def run_coroutine(coro: collections.abc.Coroutine) -> cuncurrent.futures.Future:
+        return sublime_aio.run_coroutine(coro)
 ```
 
 Note, asyncio event loops must not block Sublime Text's main thread.
