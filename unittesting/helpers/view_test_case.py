@@ -16,12 +16,10 @@ class ViewTestCaseMixin:
         "translate_tabs_to_spaces": False,
         "word_wrap": False,
     }
-    id = 0
 
     if sys.version_info[:2] >= (3, 8):
         def _callSetUp(self):
-            self.__class__.id += 1
-            self.panel_name = "unittesting-scratch-{}".format(self.__class__.id)
+            self.panel_name = "unittesting-scratch-{}".format(self.id())
             self.window = sublime.active_window()
             self.view = self.window.create_output_panel(self.panel_name, unlisted=True)
 
@@ -53,8 +51,7 @@ class ViewTestCaseMixin:
 
     else:
         def setUp(self):
-            self.__class__.id += 1
-            self.panel_name = "unittesting-scratch-{}".format(self.__class__.id)
+            self.panel_name = "unittesting-scratch-{}".format(self.id())
             self.window = sublime.active_window()
             self.view = self.window.create_output_panel(self.panel_name, unlisted=True)
 
