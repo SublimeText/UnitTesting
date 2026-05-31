@@ -591,6 +591,14 @@ async def async_coroutine(view):
 
 class MyAsyncTestCase(AsyncTestCase):
 
+    @classmethod
+    async def setUpClass(cls):
+        pass
+
+    @classmethod
+    async def tearDownClass(cls):
+        pass
+
     async def setUp(self):
         self.view = sublime.active_window().new_file()
         self.view.set_scratch(True)
@@ -612,6 +620,21 @@ class MyAsyncTestCase(AsyncTestCase):
           "Modified Content"
         )
 ```
+
+To run coroutines in a custom event loop, override static `run_override()` method.
+
+```py
+import sublime_aio
+from unittesting import AsyncTestCase
+
+
+class MyAsyncTestCase(AsyncTestCase):
+
+    def run_coroutine(coro: abc.meta.Coroutine) -> cuncurrent.futures.Future:
+      return sublime_aio.run_coroutine(coro)
+```
+
+Note, asyncio event loops must not block Sublime Text's main thread.
 
 > [!WARNING]
 >

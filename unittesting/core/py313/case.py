@@ -32,18 +32,39 @@ class DeferrableTestCase(TestCase):
     def _callTearDown(self):
         return self._callMaybeCoro(self.tearDown)
 
-    def _callCleanup(self, function, *args, **kwargs):
-        return self._callMaybeCoro(function, *args, **kwargs)
+    @classmethod
+    def _callSetUpClass(cls):
+        return cls._callMaybeCoro(cls.setUpClass)
 
-    def _callMaybeCoro(self, func, /, *args, **kwargs):
+    @classmethod
+    def _callTearDownClass(cls):
+        return cls._callMaybeCoro(cls.tearDownClass)
+
+    @classmethod
+    def _callMaybeCoro(cls, func, /, *args, **kwargs):
         coro = func(*args, **kwargs)
         if isinstance(coro, DeferrableMethod):
             yield from coro
         elif inspect.iscoroutine(coro):
-            raise TypeError(
-                f"Async coroutine function {self.__class__.__name__}.{func.__name__}() "
-                "is not supported by DeferrableTestCase! Use AsyncTestCase instead!"
-            )
+            fut = cls.run_coroutine(coro)
+
+            def wait_until_complete():
+                if not fut.done() and not fut.cancelled():
+                    return False
+                exception = fut.exception()
+                if exception is not None:
+                    raise exception from None
+                return True
+
+            yield wait_until_complete
+
+    @staticmethod
+    def run_coroutine(coro):
+        """Run an asyncio coroutine and return a `Future` to wait for."""
+        raise TypeError(
+            f"Async coroutine {coro!r} is not supported by DeferrableTestCase!"
+            " Use AsyncTestCase instead!"
+        )
 
     @staticmethod
     def defer(delay, callback, *args, **kwargs):
@@ -120,7 +141,7 @@ class DeferrableTestCase(TestCase):
         while self._cleanups:
             function, args, kwargs = self._cleanups.pop()
             with outcome.testPartExecutor(self):
-                yield from self._callCleanup(function, *args, **kwargs)
+                yield from self._callMaybeCoro(function, *args, **kwargs)
 
         # return this for backwards compatibility
         # even though we no longer use it internally
@@ -149,19 +170,14 @@ class AsyncTestCase(DeferrableTestCase):
     async def tearDown(self):
         pass
 
-    def _callMaybeCoro(self, func, /, *args, **kwargs):
-        coro = func(*args, **kwargs)
-        if isinstance(coro, DeferrableMethod):
-            yield from coro
-        elif inspect.iscoroutine(coro):
-            fut = sublime_aio.run_coroutine(coro)
+    @classmethod
+    async def setUpClass(cls):
+        pass
 
-            def wait_until_complete():
-                if not fut.done() and not fut.cancelled():
-                    return False
-                exception = fut.exception()
-                if exception is not None:
-                    raise exception from None
-                return True
+    @classmethod
+    async def tearDownClass(cls):
+        pass
 
-            yield wait_until_complete
+    @staticmethod
+    def run_coroutine(coro):
+        return sublime_aio.run_coroutine(coro)
