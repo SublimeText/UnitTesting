@@ -76,7 +76,9 @@ class DeferrableTestSuite(TestSuite):
             # so its class will be a builtin-type
             pass
 
-        setUpClass = getattr(currentClass, "setUpClass", None)
+        setUpClass = getattr(currentClass, "_callSetUpClass", None)
+        if setUpClass is None:
+            setUpClass = getattr(currentClass, "setUpClass", None)
         if setUpClass is not None:
             _call_if_exists(result, "_setupStdout")
             try:
@@ -115,7 +117,9 @@ class DeferrableTestSuite(TestSuite):
         if getattr(previousClass, "__unittest_skip__", False):
             return
 
-        tearDownClass = getattr(previousClass, "tearDownClass", None)
+        tearDownClass = getattr(previousClass, "_callTearDownClass", None)
+        if tearDownClass is None:
+            tearDownClass = getattr(previousClass, "tearDownClass", None)
         if tearDownClass is not None:
             _call_if_exists(result, "_setupStdout")
             try:

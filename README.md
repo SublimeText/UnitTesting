@@ -148,11 +148,33 @@ Useful options:
 - `--refresh-image` (rebuild local Docker image)
 - `--refresh` (both cache and image refresh)
 - `--no-cache-volume` (run without persistent cache)
+- `--lock-timeout SECONDS` (wait for shared cache-volume lock)
+- `--no-lock` (disable cache-volume serialization; unsafe if shared)
 
 > [!TIP]
 >
 > This is useful for editor build systems and for AI agents,
 > because test runs no longer commandeer your active editor window.
+
+You can also add the headless runner as build system:
+
+```json
+"build_systems":
+[
+  {
+    "name": "Test Package (Docker)",
+    "shell_cmd": "\"${packages}\\UnitTesting\\docker\\ut-run-tests.cmd\" .",
+    "working_dir": "$project_path",
+    "file_regex": "^\\s*File \"/root/\\.config/sublime-text/Packages/[^/]+/(.+)\", line ([0-9]+)",
+  },
+  {
+    "name": "Test Current File (Docker)",
+    "shell_cmd": "\"${packages}\\UnitTesting\\docker\\ut-run-tests.cmd\" . --file \"${file}\"",
+    "working_dir": "$project_path",
+    "file_regex": "^\\s*File \"/root/\\.config/sublime-text/Packages/[^/]+/(.+)\", line ([0-9]+)",
+  }
+]
+```
 
 
 ## GitHub Actions
@@ -540,23 +562,92 @@ see also [tests/test_defer.py](https://github.com/randy3k/UnitTesting-example/bl
 
 ### Asyncio testing
 
-Tests for `asyncio` are written using `IsolatedAsyncioTestCase` class.
+Tests for `asyncio` use `AsyncTestCase` or `AsyncViewTestCase` class.
+
+It auto-detects type of `setUp()`, `tearDown()`, and `test_..()` methods.
+Those can be synchronous methods or async coroutine functions.
+
+Asynchronous coroutine functions are executed in default event loop,
+provided by [sublime_aio][].
 
 
 ```py
 import asyncio
+import sublime
 
-from unittesting import IsolatedAsyncioTestCase
+from unittesting import AsyncTestCase
 
-async def a_coro():
-    return 1 + 1
 
-class MyAsyncTestCase(IsolatedAsyncioTestCase):
-    async def test_something(self):
-        result = await a_coro()
-        await asyncio.sleep(1)
-        self.assertEqual(result, 2)
+async def async_coroutine(view):
+
+    def run_in_mainthread():
+      view.run_command("select_all")
+      view.run_command("right_delete")
+      view.run_command("insert", {"characters": "Modified Content"})
+
+    sublime.set_timeout(run_in_mainthread, 10)
+    await asyncio.sleep(2.0)
+
+
+class MyAsyncTestCase(AsyncTestCase):
+
+    @classmethod
+    async def setUpClass(cls):
+        pass
+
+    @classmethod
+    async def tearDownClass(cls):
+        pass
+
+    async def setUp(self):
+        self.view = sublime.active_window().new_file()
+        self.view.set_scratch(True)
+        self.view.run_command("insert", {"characters": "Initial Content"})
+
+    async def tearDown(self):
+        self.view.close()
+
+    async def test_setup_completed(self):
+        self.assertEqual(
+          self.view.substr(sublime.Region(0, self.view.size())),
+          "Initial Content"
+        )
+
+    async def test_coroutine(self):
+        await async_coroutine(self.view)
+        self.assertEqual(
+          self.view.substr(sublime.Region(0, self.view.size())),
+          "Modified Content"
+        )
 ```
+
+To run coroutines in a custom event loop, override static `run_override()` method.
+
+```py
+import collections.abc
+import concurrent.futures
+
+import sublime_aio
+
+from unittesting import AsyncTestCase
+
+
+class MyAsyncTestCase(AsyncTestCase):
+
+    def run_coroutine(coro: collections.abc.Coroutine) -> cuncurrent.futures.Future:
+        return sublime_aio.run_coroutine(coro)
+```
+
+Note, asyncio event loops must not block Sublime Text's main thread.
+
+> [!WARNING]
+>
+> Do not use `unittest.IsolatedAsyncioTestCase` class,
+> as it spins up a blocking event loop in main thread,
+> which prevents any synchronous command from being executed
+> by Sublime Text.
+
+[sublime_aio]: https://github.com/packagecontrol/sublime_aio
 
 
 ## Helper TestCases
@@ -564,6 +655,7 @@ class MyAsyncTestCase(IsolatedAsyncioTestCase):
 UnitTesting provides some helper test case classes, 
 which perform common tasks such as overriding preferences, setting up views, etc.
 
+- AsyncViewTestCase
 - DeferrableViewTestCase
 - OverridePreferencesTestCase
 - TempDirectoryTestCase

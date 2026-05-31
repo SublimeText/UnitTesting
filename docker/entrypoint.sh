@@ -6,6 +6,7 @@ set -e
 
 PATH="$HOME/.local/bin:$PATH"
 BOOTSTRAP_MARKER="$HOME/.cache/unittesting/bootstrap.done"
+DEPENDENCY_MARKER_DIR="$HOME/.cache/unittesting/package-dependencies"
 
 ensure_git_identity() {
     # Align local container behavior with typical CI runners where git
@@ -49,6 +50,40 @@ ensure_ci_platform_compat() {
     fi
 }
 
+package_control_sync_required() {
+    if [ ! -f "${ST_PACKAGES_DIR%/*}/Installed Packages/Package Control.sublime-package" ]; then
+        return 0
+    fi
+
+    local dependency_fingerprint
+    dependency_fingerprint="$(package_dependency_fingerprint)"
+    if [ -z "$dependency_fingerprint" ]; then
+        return 1
+    fi
+
+    [ "$(cat "$DEPENDENCY_MARKER_DIR/$PACKAGE.sha256" 2>/dev/null || true)" != "$dependency_fingerprint" ]
+}
+
+package_dependency_fingerprint() {
+    local dependencies_file="$ST_PACKAGES_DIR/$PACKAGE/dependencies.json"
+    if [ ! -f "$dependencies_file" ]; then
+        return 0
+    fi
+
+    sha256sum "$dependencies_file" | awk '{ print $1 }'
+}
+
+write_package_dependency_marker() {
+    local dependency_fingerprint
+    dependency_fingerprint="$(package_dependency_fingerprint)"
+    if [ -z "$dependency_fingerprint" ]; then
+        return
+    fi
+
+    mkdir -p "$DEPENDENCY_MARKER_DIR"
+    printf '%s\n' "$dependency_fingerprint" > "$DEPENDENCY_MARKER_DIR/$PACKAGE.sha256"
+}
+
 sudo sh -e /etc/init.d/xvfb start
 ensure_git_identity
 ensure_ci_platform_compat
@@ -72,17 +107,29 @@ if [ -d "$UNITTESTING_SOURCE/sbin" ]; then
     fi
 fi
 
+NEEDS_PACKAGE_CONTROL_SYNC=false
 if [ ! -f "$BOOTSTRAP_MARKER" ]; then
     # Bootstrap from a neutral cwd to avoid Windows worktree .git indirection
     # paths breaking git commands inside the Linux container.
     (cd /tmp && /docker.sh bootstrap skip_package_copy)
+    NEEDS_PACKAGE_CONTROL_SYNC=true
+fi
+
+# Always refresh checked-out package into Packages/<PACKAGE> before syncing
+# Package Control libraries, so dependencies.json from the package under test
+# is visible to Package Control.
+/docker.sh copy_tested_package overwrite
+
+if package_control_sync_required; then
+    NEEDS_PACKAGE_CONTROL_SYNC=true
+fi
+
+if [ "$NEEDS_PACKAGE_CONTROL_SYNC" = true ]; then
     /docker.sh install_package_control
+    write_package_dependency_marker
     mkdir -p "$(dirname "$BOOTSTRAP_MARKER")"
     touch "$BOOTSTRAP_MARKER"
 fi
-
-# Always refresh checked-out package into Packages/<PACKAGE>
-/docker.sh copy_tested_package overwrite
 
 if [ "$#" -gt 0 ]; then
     /docker.sh "$@"

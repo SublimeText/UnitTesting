@@ -11,14 +11,18 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import os
 import shutil
 import subprocess
 import sys
+import tempfile
+import time
 from pathlib import Path
 
 
 DEFAULT_IMAGE = "unittesting-local"
 DEFAULT_CACHE_VOLUME = "unittesting-home"
+DEFAULT_LOCK_TIMEOUT = 3600
 DOCKER_CONTEXT_HASH_LABEL = "org.sublimetext.unittesting.context-hash"
 DOCKER_CONTEXT_INPUTS = (
     "Dockerfile",
@@ -43,8 +47,15 @@ def main(argv: list[str] | None = None) -> int:
             maybe_build_image(image, refresh=True)
 
         if args.cache_volume and args.refresh_cache:
-            reset_docker_volume(args.cache_volume)
-            ensure_docker_volume(args.cache_volume)
+            if should_lock_cache(args):
+                with CacheVolumeLock(args.cache_volume, args.lock_timeout):
+                    wait_for_cache_volume_idle(args.cache_volume, args.lock_timeout)
+                    remove_stale_runner_container(args.cache_volume)
+                    reset_docker_volume(args.cache_volume)
+                    ensure_docker_volume(args.cache_volume)
+            else:
+                reset_docker_volume(args.cache_volume)
+                ensure_docker_volume(args.cache_volume)
 
         print("Refresh complete.")
         return 0
@@ -72,12 +83,15 @@ def main(argv: list[str] | None = None) -> int:
     if args.cache_volume:
         ensure_docker_volume(args.cache_volume)
 
+    lock_enabled = should_lock_cache(args)
+    runner_name = docker_cache_runner_name(args.cache_volume) if lock_enabled else None
     command = build_docker_run_command(
         package_root=package_root,
         unit_testing_root=unit_testing_root,
         package_name=package_name,
         image=image,
         cache_volume=args.cache_volume,
+        container_name=runner_name,
         scheduler_delay_ms=args.scheduler_delay_ms,
         coverage=args.coverage,
         failfast=args.failfast,
@@ -96,10 +110,20 @@ def main(argv: list[str] | None = None) -> int:
         print("Image refresh: enabled")
     if args.cache_volume:
         print(f"Cache volume: {args.cache_volume}")
+        if lock_enabled:
+            print("Cache lock: enabled")
         if args.refresh_cache:
             print("Cache refresh: enabled")
     if tests_dir and pattern:
         print(f"Test target: {tests_dir}/{pattern}")
+
+    if lock_enabled:
+        with CacheVolumeLock(args.cache_volume, args.lock_timeout):
+            wait_for_cache_volume_idle(args.cache_volume, args.lock_timeout)
+            ensure_runner_container_name_available(args.cache_volume, args.lock_timeout)
+            return call_docker_run_with_name_retry(
+                command, args.cache_volume, args.lock_timeout
+            )
 
     return subprocess.call(command)
 
@@ -186,6 +210,20 @@ def parse_args(argv: list[str] | None) -> argparse.Namespace:
             "are re-installed."
         ),
     )
+    docker_group.add_argument(
+        "--lock-timeout",
+        type=float,
+        default=DEFAULT_LOCK_TIMEOUT,
+        help=(
+            "Seconds to wait for another runner using the same cache volume "
+            f"(default: {DEFAULT_LOCK_TIMEOUT})."
+        ),
+    )
+    docker_group.add_argument(
+        "--no-lock",
+        action="store_true",
+        help="Disable cache-volume serialization (unsafe for concurrent runs).",
+    )
 
     args = parser.parse_args(argv)
 
@@ -197,6 +235,9 @@ def parse_args(argv: list[str] | None) -> argparse.Namespace:
 
     if args.dry_run and (args.refresh or args.refresh_image or args.refresh_cache):
         parser.error("--dry-run cannot be combined with --refresh* options")
+
+    if args.lock_timeout < 0:
+        parser.error("--lock-timeout must be greater than or equal to 0")
 
     return args
 
@@ -342,6 +383,7 @@ def build_docker_run_command(
     package_name: str,
     image: str,
     cache_volume: str | None,
+    container_name: str | None,
     scheduler_delay_ms: int,
     coverage: bool,
     failfast: bool,
@@ -352,6 +394,9 @@ def build_docker_run_command(
     pattern: str | None,
 ) -> list[str]:
     command = ["docker", "run", "--rm"]
+    if container_name:
+        command.extend(["--name", container_name])
+
     if sys.stdin.isatty():
         command.append("-i")
     if sys.stdout.isatty():
@@ -391,6 +436,265 @@ def build_docker_run_command(
         command.extend(["--pattern", pattern])
 
     return command
+
+
+def should_lock_cache(args: argparse.Namespace) -> bool:
+    return bool(args.cache_volume and not args.no_lock)
+
+
+def call_docker_run_with_name_retry(
+    command: list[str], cache_volume: str, timeout: float
+) -> int:
+    deadline = time.monotonic() + timeout
+
+    while True:
+        returncode = subprocess.call(command)
+        if returncode != 125:
+            return returncode
+
+        # Docker returns 125 for daemon/CLI errors, including the atomic
+        # container-name conflict we use as a last line of defense if another
+        # launcher did not observe the host-side lock.
+        if docker_container_status(docker_cache_runner_name(cache_volume)) is None:
+            return returncode
+
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            return returncode
+
+        ensure_runner_container_name_available(cache_volume, remaining)
+
+
+def wait_for_cache_volume_idle(cache_volume: str, timeout: float) -> None:
+    deadline = time.monotonic() + timeout
+    next_notice = 0.0
+
+    while True:
+        container_names = docker_running_container_names_using_volume(cache_volume)
+        if not container_names:
+            return
+
+        now = time.monotonic()
+        if now >= deadline:
+            names = ", ".join(container_names)
+            raise SystemExit(
+                f"Timed out waiting for Docker volume '{cache_volume}' "
+                f"to become idle. Running containers: {names}"
+            )
+
+        if now >= next_notice:
+            names = ", ".join(container_names)
+            print(
+                f"Waiting for Docker volume '{cache_volume}' "
+                f"to become idle: {names}"
+            )
+            next_notice = now + 5
+
+        time.sleep(min(1, max(0, deadline - now)))
+
+
+def ensure_runner_container_name_available(cache_volume: str, timeout: float) -> None:
+    runner_name = docker_cache_runner_name(cache_volume)
+    deadline = time.monotonic() + timeout
+    next_notice = 0.0
+
+    while True:
+        status = docker_container_status(runner_name)
+        if status is None:
+            return
+
+        if status in ("created", "exited", "dead"):
+            remove_docker_container(runner_name)
+            return
+
+        now = time.monotonic()
+        if now >= deadline:
+            raise SystemExit(
+                f"Timed out waiting for Docker container '{runner_name}' "
+                f"to finish. Current status: {status}"
+            )
+
+        if now >= next_notice:
+            print(
+                f"Waiting for Docker container '{runner_name}' "
+                f"to finish. Current status: {status}"
+            )
+            next_notice = now + 5
+
+        time.sleep(min(1, max(0, deadline - now)))
+
+
+def remove_stale_runner_container(cache_volume: str) -> None:
+    runner_name = docker_cache_runner_name(cache_volume)
+    status = docker_container_status(runner_name)
+    if status in ("created", "exited", "dead"):
+        remove_docker_container(runner_name)
+
+
+def docker_cache_runner_name(cache_volume: str) -> str:
+    digest = hashlib.sha256(cache_volume.encode("utf-8")).hexdigest()[:16]
+    return f"unittesting-runner-{digest}"
+
+
+def docker_running_container_names_using_volume(cache_volume: str) -> list[str]:
+    result = subprocess.run(
+        [
+            "docker",
+            "ps",
+            "--filter",
+            f"volume={cache_volume}",
+            "--format",
+            "{{.Names}}",
+        ],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.DEVNULL,
+        text=True,
+    )
+    if result.returncode != 0:
+        return []
+
+    return [name for name in result.stdout.splitlines() if name]
+
+
+def docker_container_status(container_name: str) -> str | None:
+    result = subprocess.run(
+        [
+            "docker",
+            "container",
+            "inspect",
+            container_name,
+            "--format",
+            "{{.State.Status}}",
+        ],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.DEVNULL,
+        text=True,
+    )
+    if result.returncode != 0:
+        return None
+
+    return result.stdout.strip() or None
+
+
+def remove_docker_container(container_name: str) -> None:
+    run_checked(["docker", "container", "rm", container_name])
+
+
+class CacheVolumeLock:
+    def __init__(self, cache_volume: str, timeout: float) -> None:
+        self.cache_volume = cache_volume
+        self.timeout = timeout
+        self.path = cache_lock_file_path(cache_volume)
+        self.file = None
+
+    def __enter__(self) -> "CacheVolumeLock":
+        self.path.parent.mkdir(parents=True, exist_ok=True)
+        self.file = self.path.open("a+", encoding="utf-8")
+
+        deadline = time.monotonic() + self.timeout
+        next_notice = 0.0
+
+        while True:
+            if try_lock_file(self.file):
+                self.write_lock_info()
+                return self
+
+            now = time.monotonic()
+            if now >= deadline:
+                raise SystemExit(
+                    f"Timed out waiting for UnitTesting Docker cache lock: {self.path}"
+                )
+
+            if now >= next_notice:
+                print(
+                    f"Waiting for UnitTesting Docker cache lock for "
+                    f"volume '{self.cache_volume}'..."
+                )
+                next_notice = now + 5
+
+            time.sleep(min(1, max(0, deadline - now)))
+
+    def __exit__(self, exc_type, exc_value, traceback) -> None:
+        if self.file is None:
+            return
+
+        unlock_file(self.file)
+        self.file.close()
+        self.file = None
+
+    def write_lock_info(self) -> None:
+        assert self.file is not None
+        self.file.seek(0)
+        self.file.truncate()
+        self.file.write(f"volume={self.cache_volume}\n")
+        self.file.write(f"pid={os.getpid()}\n")
+        self.file.write(f"time={time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())}\n")
+        self.file.flush()
+
+
+def cache_lock_file_path(cache_volume: str) -> Path:
+    digest = hashlib.sha256(cache_volume.encode("utf-8")).hexdigest()[:16]
+    return Path(tempfile.gettempdir()) / "unittesting-docker-locks" / f"{digest}.lock"
+
+
+def try_lock_file(lock_file) -> bool:
+    if os.name == "nt":
+        return try_lock_file_windows(lock_file)
+
+    return try_lock_file_posix(lock_file)
+
+
+def unlock_file(lock_file) -> None:
+    if os.name == "nt":
+        unlock_file_windows(lock_file)
+    else:
+        unlock_file_posix(lock_file)
+
+
+def try_lock_file_windows(lock_file) -> bool:
+    import msvcrt
+
+    ensure_lock_byte(lock_file)
+    lock_file.seek(0)
+    try:
+        msvcrt.locking(lock_file.fileno(), msvcrt.LK_NBLCK, 1)
+    except OSError:
+        return False
+
+    return True
+
+
+def unlock_file_windows(lock_file) -> None:
+    import msvcrt
+
+    lock_file.seek(0)
+    msvcrt.locking(lock_file.fileno(), msvcrt.LK_UNLCK, 1)
+
+
+def try_lock_file_posix(lock_file) -> bool:
+    import fcntl
+
+    try:
+        fcntl.flock(lock_file.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except OSError:
+        return False
+
+    return True
+
+
+def unlock_file_posix(lock_file) -> None:
+    import fcntl
+
+    fcntl.flock(lock_file.fileno(), fcntl.LOCK_UN)
+
+
+def ensure_lock_byte(lock_file) -> None:
+    lock_file.seek(0, os.SEEK_END)
+    if lock_file.tell() != 0:
+        return
+
+    lock_file.write("\0")
+    lock_file.flush()
 
 
 def run_checked(command: list[str]) -> None:

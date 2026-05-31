@@ -1,8 +1,18 @@
+from unittesting import TestCase
 from unittesting import DeferrableViewTestCase
 from unittesting import expectedFailure
 
 
+class TestDefaultTestCase(TestCase):
+
+    def test_simple_assert(self):
+        self.assertTrue(True)
+
+
 class TestDeferrable(DeferrableViewTestCase):
+
+    def test_simple_assert(self):
+        self.assertTrue(True)
 
     def test_defer(self):
         self.setText("foo")

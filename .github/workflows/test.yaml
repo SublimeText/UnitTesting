@@ -12,16 +12,13 @@ on:
       - master
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/master' }}
+
 jobs:
-  cancel-previous-runs:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: styfle/cancel-workflow-action@0.12.1
-        with:
-          access_token: ${{ github.token }}
 
   test-both-actions-and-package:
-    needs: cancel-previous-runs
     strategy:
       fail-fast: false
       matrix:
@@ -29,7 +26,7 @@ jobs:
         os: ["ubuntu-latest", "macOS-latest", "windows-latest"]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: "./actions/setup"
         with:
           sublime-text-version: ${{ matrix.st-version }}
@@ -41,44 +38,41 @@ jobs:
           token: ${{secrets.CODECOV_TOKEN}}
 
   test-actions:  # with latest released unittesting
-    needs: cancel-previous-runs
     strategy:
       fail-fast: false
       matrix:
         os: ["ubuntu-latest", "macOS-latest", "windows-latest"]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: "./actions/setup"
         with:
           install-package: false
       - uses: "./actions/run-tests"
 
   test-package:  # with v1 actions
-    needs: cancel-previous-runs
     strategy:
       fail-fast: false
       matrix:
         os: ["ubuntu-latest", "macOS-latest", "windows-latest"]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: SublimeText/UnitTesting/actions/setup@v1
       - uses: SublimeText/UnitTesting/actions/run-tests@v1
 
   test-as-extra-package:
-    needs: cancel-previous-runs
     strategy:
       fail-fast: false
       matrix:
         os: ["ubuntu-latest", "windows-latest"]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           repository: randy3k/UnitTesting-example
           path: UnitTesting-example
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           path: UnitTesting
       - uses: "./UnitTesting/actions/setup"
