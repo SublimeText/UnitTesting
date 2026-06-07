@@ -2,7 +2,6 @@ UnitTesting
 ===========
 
 [![test](https://github.com/SublimeText/UnitTesting/actions/workflows/test.yaml/badge.svg)](https://github.com/SublimeText/UnitTesting/actions/workflows/test.yaml)
-[![codecov](https://codecov.io/gh/SublimeText/UnitTesting/branch/master/graph/badge.svg)](https://codecov.io/gh/SublimeText/UnitTesting)
 
 This is a unittest framework for Sublime Text.
 It runs unittest testcases on local machines and via Github Actions.
@@ -590,6 +589,8 @@ async def async_coroutine(view):
 
 
 class MyAsyncTestCase(AsyncTestCase):
+    timeout_ms = 4000
+    """Class wide coroutine timeout."""
 
     @classmethod
     async def setUpClass(cls):
@@ -613,7 +614,10 @@ class MyAsyncTestCase(AsyncTestCase):
           "Initial Content"
         )
 
-    async def test_coroutine(self):
+    async def test_coroutine(self, timeout_ms=10000):
+        """
+        A long running coroutine with custom timeout.
+        """
         await async_coroutine(self.view)
         self.assertEqual(
           self.view.substr(sublime.Region(0, self.view.size())),
