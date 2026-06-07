@@ -122,7 +122,8 @@ class UnitTestingTestCase(DeferrableTestCase):
 
 class TestUnitTesting(UnitTestingTestCase):
     fixtures = (
-        "_Success", "_Failure", "_Empty", "_Output", "_Deferred", "_Async", "_Asyncio"
+        "_Success", "_Failure", "_Empty", "_Output", "_Deferred", "_Async",
+        "_Asyncio_Success", "_Asyncio_Timeout"
     )
 
     @with_package("_Success")
@@ -154,9 +155,14 @@ class TestUnitTesting(UnitTestingTestCase):
         self.assertOk(txt)
 
     @skipIf(PY33, "not applicable in Python 3.3")
-    @with_package("_Asyncio")
-    def test_asyncio(self, txt):
+    @with_package("_Asyncio_Success")
+    def test_asyncio_success(self, txt):
         self.assertOk(txt)
+
+    @skipIf(PY33, "not applicable in Python 3.3")
+    @with_package("_Asyncio_Timeout")
+    def test_asyncio_timeout(self, txt):
+        self.assertRegexContains(txt, r'^ERROR')
 
 
 class TestSyntax(UnitTestingTestCase):

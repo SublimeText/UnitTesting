@@ -9,6 +9,7 @@ from unittest import TestCase
 from unittest.case import _Outcome
 from unittest.case import expectedFailure
 
+from .runner import DEFAULT_CONDITION_TIMEOUT
 from .runner import defer
 
 __all__ = [
@@ -21,6 +22,7 @@ __all__ = [
 
 
 class DeferrableTestCase(TestCase):
+    timeout_ms: int = DEFAULT_CONDITION_TIMEOUT
 
     def _callSetUp(self):
         return self._callMaybeCoro(self.setUp)
@@ -47,7 +49,7 @@ class DeferrableTestCase(TestCase):
         elif inspect.iscoroutine(coro):
             fut = cls.run_coroutine(coro)
 
-            def wait_until_complete():
+            def await_future():
                 if not fut.done() and not fut.cancelled():
                     return False
                 exception = fut.exception()
@@ -55,7 +57,16 @@ class DeferrableTestCase(TestCase):
                     raise exception from None
                 return True
 
-            yield wait_until_complete
+            if frame := coro.cr_frame:
+                # prefer optional timeout from test_... coroutine's arguments
+                timeout_ms = frame.f_locals.get("timeout_ms", cls.timeout_ms)
+            else:
+                timeout_ms = cls.timeout_ms
+            try:
+                yield {"condition": await_future, "timeout": timeout_ms}
+            except TimeoutError:
+                msg = f"Task not completed within {timeout_ms / 1000:.2f} seconds."
+                coro.throw(TimeoutError, msg)
 
     @staticmethod
     def run_coroutine(coro):
