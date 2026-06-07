@@ -2,7 +2,6 @@ UnitTesting
 ===========
 
 [![test](https://github.com/SublimeText/UnitTesting/actions/workflows/test.yaml/badge.svg)](https://github.com/SublimeText/UnitTesting/actions/workflows/test.yaml)
-[![codecov](https://codecov.io/gh/SublimeText/UnitTesting/branch/master/graph/badge.svg)](https://codecov.io/gh/SublimeText/UnitTesting)
 
 This is a unittest framework for Sublime Text.
 It runs unittest testcases on local machines and via Github Actions.
