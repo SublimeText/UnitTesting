@@ -99,7 +99,11 @@ fi
 if [ -d "$UNITTESTING_SOURCE/sbin" ]; then
     # Ensure UnitTesting comes from the local checkout running this script,
     # so first runs do not depend on tagged upstream releases.
-    (cd "$UNITTESTING_SOURCE" && PACKAGE=UnitTesting /docker.sh copy_tested_package overwrite)
+    (
+        cd "$UNITTESTING_SOURCE"
+        PACKAGE=UnitTesting UNITTESTING_IGNORE_MANIFEST= \
+            /docker.sh copy_tested_package overwrite
+    )
 
     # Normalize CRLF in shell scripts copied from Windows workspaces.
     if [ -d "$ST_PACKAGES_DIR/UnitTesting/sbin" ]; then

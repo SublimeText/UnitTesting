@@ -29,6 +29,7 @@ By default it:
 - runs UnitTesting through the same CI shell entrypoints
 - stores Sublime install/cache in docker volume `unittesting-home`
 - synchronizes only changed files into `Packages/<Package>` using `rsync`
+- excludes files ignored by Git, including repository-local and global rules
 
 ## Manual docker usage
 

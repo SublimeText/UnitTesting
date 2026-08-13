@@ -123,7 +123,12 @@ CopyTestedPackage() {
 
     if [ -n "$OverwriteExisting" ] && command -v rsync >/dev/null 2>&1; then
         echo "sync package into sublime package directory"
-        rsync -a --delete --exclude .git ./ "$STP/$PACKAGE/"
+        if [ -n "${UNITTESTING_IGNORE_MANIFEST:-}" ] && [ -f "$UNITTESTING_IGNORE_MANIFEST" ]; then
+            rsync -a --delete --delete-excluded --from0 --exclude .git \
+                --exclude-from="$UNITTESTING_IGNORE_MANIFEST" ./ "$STP/$PACKAGE/"
+        else
+            rsync -a --delete --exclude .git ./ "$STP/$PACKAGE/"
+        fi
         return
     fi
 
