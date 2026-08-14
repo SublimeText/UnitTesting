@@ -51,7 +51,8 @@ ut-run-tests . --file syntax_test_example
 ut-run-tests . --file Example.sublime-syntax
 ```
 
-`--pattern` and `--tests-dir` select unit tests only.
+`--pattern` and `--tests-dir` try every enabled category. Use the
+`--no-*` options to avoid running unrelated categories when desired.
 
 ## Fast reruns
 

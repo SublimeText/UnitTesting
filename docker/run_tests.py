@@ -280,9 +280,6 @@ def parse_args(argv: list[str] | None) -> argparse.Namespace:
     if args.file and any(category_options):
         parser.error("--file cannot be combined with --no-* test category options")
 
-    if args.no_unit_tests and (args.pattern or args.tests_dir):
-        parser.error("--pattern and --tests-dir require unit tests")
-
     if all(category_options):
         parser.error("all test categories are disabled")
 
@@ -438,9 +435,6 @@ def resolve_test_categories(
 ) -> tuple[str, ...]:
     if selected_file:
         return (test_category_for_file(selected_file),)
-
-    if args.pattern or args.tests_dir:
-        return (UNIT_TESTS,)
 
     disabled_categories = {
         UNIT_TESTS: args.no_unit_tests,

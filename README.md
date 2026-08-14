@@ -142,7 +142,7 @@ run compatibility checks.
 Useful options:
 
 - `--file tests/test_foo.py`
-- `--pattern test_foo.py --tests-dir tests/subdir` (unit tests only)
+- `--pattern test_foo.py --tests-dir tests/subdir`
 - `--no-unit-tests`
 - `--no-syntax-tests`
 - `--no-syntax-compatibility-checks`

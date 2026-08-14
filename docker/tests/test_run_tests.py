@@ -48,12 +48,27 @@ class TestCategoryTests(unittest.TestCase):
             (runner.UNIT_TESTS, runner.SYNTAX_COMPATIBILITY_CHECKS),
         )
 
-    def test_unit_discovery_options_select_unit_tests(self):
-        args = runner.parse_args(["--tests-dir", "specs", "--pattern", "spec*.py"])
+    def test_discovery_options_apply_to_every_category(self):
+        args = runner.parse_args(["--tests-dir", "specs", "--pattern", "spec*"])
 
         self.assertEqual(
             runner.resolve_test_categories(args, None),
-            (runner.UNIT_TESTS,),
+            runner.ALL_TEST_CATEGORIES,
+        )
+
+    def test_discovery_options_apply_to_enabled_categories(self):
+        args = runner.parse_args(
+            [
+                "--tests-dir",
+                "syntax/test",
+                "--no-unit-tests",
+                "--no-syntax-compatibility-checks",
+            ]
+        )
+
+        self.assertEqual(
+            runner.resolve_test_categories(args, None),
+            (runner.SYNTAX_TESTS,),
         )
 
     def test_infers_category_from_file(self):
