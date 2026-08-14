@@ -31,20 +31,6 @@ By default it:
 - synchronizes only changed files into `Packages/<Package>` using `rsync`
 - excludes files ignored by Git, including repository-local and global rules
 
-## Manual docker usage
-
-```sh
-# build from UnitTesting/docker
-docker build -t unittesting-local .
-
-# run from package root
-docker run --rm -it \
-  -e PACKAGE=$PACKAGE \
-  -v $PWD:/project \
-  -v unittesting-home:/root \
-  unittesting-local run_tests
-```
-
 ## Fast reruns
 
 The container entrypoint writes a marker in `/root/.cache/unittesting`.
@@ -121,7 +107,21 @@ Use `--color` to control ANSI colors in test output:
 ut-run-tests . --color always
 ```
 
-## Run a single test file
+## Manual docker usage
+
+```sh
+# build from UnitTesting/docker
+docker build -t unittesting-local .
+
+# run from package root
+docker run --rm -it \
+  -e PACKAGE=$PACKAGE \
+  -v $PWD:/project \
+  -v unittesting-home:/root \
+  unittesting-local run_tests
+```
+
+Run a single test file
 
 ```sh
 docker run --rm -it \
