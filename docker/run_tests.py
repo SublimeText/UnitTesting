@@ -235,6 +235,9 @@ def parse_args(argv: list[str] | None) -> argparse.Namespace:
     if args.file and args.pattern:
         parser.error("--file and --pattern are mutually exclusive")
 
+    if args.file and args.tests_dir:
+        parser.error("--file and --tests-dir are mutually exclusive")
+
     if args.refresh_cache and not args.cache_volume:
         parser.error("--refresh-cache requires a cache volume (omit --no-cache-volume)")
 
