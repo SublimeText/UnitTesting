@@ -20,8 +20,11 @@ class UnitTestingSyntaxCommand(BaseUnittestingCommand):
         failed_assertions = 0
 
         try:
-            tests = sublime.find_resources("syntax_test*")
-            tests = [t for t in tests if t.startswith("Packages/%s/" % package)]
+            tests = find_package_resources(
+                package,
+                kwargs.get("pattern", "syntax_test*"),
+                kwargs.get("tests_dir"),
+            )
 
             if not tests:
                 raise RuntimeError("No syntax_test files are found in %s!" % package)
@@ -66,8 +69,11 @@ class UnitTestingSyntaxCompatibilityCommand(BaseUnittestingCommand):
         stream = self.load_stream(package, settings)
 
         try:
-            syntaxes = sublime.find_resources("*.sublime-syntax")
-            syntaxes = [s for s in syntaxes if s.startswith("Packages/%s/" % package)]
+            syntaxes = find_package_resources(
+                package,
+                kwargs.get("pattern", "*.sublime-syntax"),
+                kwargs.get("tests_dir"),
+            )
 
             if not syntaxes:
                 raise RuntimeError("No sublime-syntax files found in %s!" % package)
@@ -109,3 +115,17 @@ class UnitTestingSyntaxCompatibilityCommand(BaseUnittestingCommand):
         stream.write("\n")
         stream.write(DONE_MESSAGE)
         stream.close()
+
+
+def find_package_resources(package, pattern, tests_dir=None):
+    resource_prefix = "Packages/%s/" % package
+    if tests_dir:
+        tests_dir = tests_dir.replace("\\", "/").strip("/")
+        if tests_dir != ".":
+            resource_prefix += tests_dir + "/"
+
+    return [
+        resource
+        for resource in sublime.find_resources(pattern)
+        if resource.startswith(resource_prefix)
+    ]

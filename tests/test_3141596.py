@@ -39,7 +39,8 @@ def cleanup_package(package):
 
 
 def with_package(package, output=None, syntax_test=False, syntax_compatibility=False,
-                 color_scheme_test=False, wait_timeout=5000):
+                 color_scheme_test=False, wait_timeout=5000, pattern=None,
+                 tests_dir=None):
     def wrapper(func):
         @wraps(func)
         def real_wrapper(self):
@@ -56,6 +57,10 @@ def with_package(package, output=None, syntax_test=False, syntax_compatibility=F
             yield AWAIT_WORKER
 
             kwargs = {"package": package}
+            if pattern is not None:
+                kwargs["pattern"] = pattern
+            if tests_dir is not None:
+                kwargs["tests_dir"] = tests_dir
             if outfile:
                 # Command kwargs have the highest precedence. Passing down
                 # 'None' is not what we want, the intention is to omit it
@@ -181,6 +186,14 @@ class TestSyntax(UnitTestingTestCase):
     def test_success_syntax(self, txt):
         self.assertOk(txt)
 
+    @with_package("_Syntax_Success", syntax_test=True, pattern="missing*")
+    def test_syntax_pattern(self, txt):
+        self.assertRegexContains(txt, r'^ERROR: No syntax_test')
+
+    @with_package("_Syntax_Success", syntax_test=True, tests_dir="missing")
+    def test_syntax_tests_dir(self, txt):
+        self.assertRegexContains(txt, r'^ERROR: No syntax_test')
+
     @with_package("_Syntax_Error", syntax_test=True)
     def test_error_syntax(self, txt):
         self.assertRegexContains(txt, r'^ERROR: No syntax_test')
@@ -192,6 +205,18 @@ class TestSyntax(UnitTestingTestCase):
     @with_package("_Syntax_Compat_Success", syntax_compatibility=True)
     def test_success_syntax_compatibility(self, txt):
         self.assertOk(txt)
+
+    @with_package(
+        "_Syntax_Compat_Success", syntax_compatibility=True, pattern="missing*"
+    )
+    def test_syntax_compatibility_pattern(self, txt):
+        self.assertRegexContains(txt, r'^ERROR: No sublime-syntax')
+
+    @with_package(
+        "_Syntax_Compat_Success", syntax_compatibility=True, tests_dir="missing"
+    )
+    def test_syntax_compatibility_tests_dir(self, txt):
+        self.assertRegexContains(txt, r'^ERROR: No sublime-syntax')
 
 
 def has_colorschemeunit():

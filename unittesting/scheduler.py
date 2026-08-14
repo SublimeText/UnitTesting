@@ -76,15 +76,25 @@ class Unit:
             )
         elif self.syntax_test:
             sublime.active_window().run_command(
-                "unit_testing_syntax", {"package": self.package, "output": self.output}
+                "unit_testing_syntax", self.syntax_testing_args()
             )
         elif self.syntax_compatibility:
             sublime.active_window().run_command(
-                "unit_testing_syntax_compatibility",
-                {"package": self.package, "output": self.output},
+                "unit_testing_syntax_compatibility", self.syntax_testing_args()
             )
         else:
             sublime.active_window().run_command("unit_testing", self.unit_testing_args())
+
+    def syntax_testing_args(self):
+        args = {"package": self.package, "output": self.output}
+        args.update(
+            {
+                key: self.unit_testing_options[key]
+                for key in ("pattern", "tests_dir")
+                if key in self.unit_testing_options
+            }
+        )
+        return args
 
     def unit_testing_args(self):
         args = {
