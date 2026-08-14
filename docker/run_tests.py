@@ -147,7 +147,11 @@ def parse_args(argv: list[str] | None) -> argparse.Namespace:
     )
 
     test_group = parser.add_argument_group("test options")
-    test_group.add_argument("--file", help="Run only tests from this file.")
+    test_group.add_argument(
+        "--file",
+        action="append",
+        help="Run only tests from this file (may be specified once).",
+    )
     test_group.add_argument("--pattern", help="Custom unittest discovery pattern.")
     test_group.add_argument("--tests-dir", help="Custom tests directory.")
     test_group.add_argument("--package-name", help="Override package name.")
@@ -231,6 +235,10 @@ def parse_args(argv: list[str] | None) -> argparse.Namespace:
     )
 
     args = parser.parse_args(argv)
+
+    if args.file and len(args.file) > 1:
+        parser.error("--file may only be specified once")
+    args.file = args.file[0] if args.file else None
 
     if args.file and args.pattern:
         parser.error("--file and --pattern are mutually exclusive")
