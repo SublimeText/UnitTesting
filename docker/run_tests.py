@@ -74,7 +74,7 @@ def main(argv: list[str] | None = None) -> int:
         return 2
 
     package_name = args.package_name or package_root.name
-    tests_dir, pattern = resolve_test_target(
+    tests_dir, pattern, selected_file = resolve_test_target(
         package_root, args.file, args.tests_dir, args.pattern
     )
 
@@ -85,7 +85,7 @@ def main(argv: list[str] | None = None) -> int:
 
     lock_enabled = should_lock_cache(args)
     runner_name = docker_cache_runner_name(args.cache_volume) if lock_enabled else None
-    ignore_manifest = make_git_ignore_manifest(package_root)
+    ignore_manifest = make_git_ignore_manifest(package_root, selected_file)
     with ignore_manifest:
         command = build_docker_run_command(
             package_root=package_root,
@@ -359,9 +359,9 @@ def resolve_test_target(
     test_file: str | None,
     tests_dir: str | None,
     pattern: str | None,
-) -> tuple[str | None, str | None]:
+) -> tuple[str | None, str | None, str | None]:
     if not test_file:
-        return tests_dir, pattern
+        return tests_dir, pattern, None
 
     file_path = Path(test_file)
     if not file_path.is_absolute():
@@ -379,7 +379,7 @@ def resolve_test_target(
     rel_parent = rel_file_path.parent.as_posix()
     resolved_tests_dir = rel_parent if rel_parent else "."
     resolved_pattern = rel_file_path.name
-    return resolved_tests_dir, resolved_pattern
+    return resolved_tests_dir, resolved_pattern, rel_file_path.as_posix()
 
 
 class GitIgnoreManifest:
@@ -404,7 +404,9 @@ class GitIgnoreManifest:
             self.path = None
 
 
-def make_git_ignore_manifest(package_root: Path) -> GitIgnoreManifest:
+def make_git_ignore_manifest(
+    package_root: Path, selected_file: str | None = None
+) -> GitIgnoreManifest:
     if not shutil.which("git"):
         return GitIgnoreManifest()
 
@@ -426,7 +428,36 @@ def make_git_ignore_manifest(package_root: Path) -> GitIgnoreManifest:
     if result.returncode != 0:
         return GitIgnoreManifest()
 
-    return GitIgnoreManifest(result.stdout)
+    return GitIgnoreManifest(make_rsync_ignore_filter(result.stdout, selected_file))
+
+
+def make_rsync_ignore_filter(paths: bytes, selected_file: str | None) -> bytes:
+    entries = [path for path in paths.split(b"\0") if path]
+    rules: list[bytes] = []
+
+    if selected_file:
+        selected_path = os.fsencode(selected_file)
+        ignored_directories = [
+            path
+            for path in entries
+            if path.endswith(b"/") and selected_path.startswith(path)
+        ]
+        if selected_path in entries or ignored_directories:
+            parts = selected_path.split(b"/")
+            # rsync uses the first matching rule and does not descend into an
+            # excluded directory. Include the selected file and its ancestors
+            # first...
+            rules.extend(
+                b"+ /" + b"/".join(parts[:i]) + b"/"
+                for i in range(1, len(parts))
+            )
+            rules.append(b"+ /" + selected_path)
+            # ... then exclude everything else under the ignored ancestor
+            # directories (`/***`).
+            rules.extend(b"- /" + path + b"***" for path in ignored_directories)
+
+    rules.extend(b"- /" + path for path in entries)
+    return b"\0".join(rules) + (b"\0" if rules else b"")
 
 
 def build_docker_run_command(
