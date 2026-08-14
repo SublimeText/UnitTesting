@@ -214,20 +214,22 @@ RunTestCategories() {
         return 2
     fi
 
-    local Status=0
+    local CategoryOptions=()
     if [ "$RunUnitTests" = true ]; then
-        echo "Run unit tests"
-        RunTests "$@" || Status=$?
+        CategoryOptions+=("--unit-test")
     fi
     if [ "$RunSyntaxTests" = true ]; then
-        echo "Run syntax tests"
-        RunTests --syntax-test --no-fail-if-no-resources "$@" || Status=$?
+        CategoryOptions+=("--syntax-test")
     fi
     if [ "$RunSyntaxCompatibilityChecks" = true ]; then
-        echo "Run syntax compatibility checks"
-        RunTests --syntax-compatibility --no-fail-if-no-resources "$@" || Status=$?
+        CategoryOptions+=("--syntax-compatibility")
     fi
-    return "$Status"
+    if [ "$RunSyntaxTests" = true ] || \
+            [ "$RunSyntaxCompatibilityChecks" = true ]; then
+        CategoryOptions+=("--no-fail-if-no-resources")
+    fi
+
+    RunTests "${CategoryOptions[@]}" "$@"
 }
 
 RunTests() {
