@@ -37,28 +37,29 @@ The container entrypoint writes a marker in `/root/.cache/unittesting`.
 With `-v unittesting-home:/root`, bootstrap/install runs once and later runs
 only refresh your package files and execute tests.
 
-## Serialized runs
+## Concurrent runs and races
 
 The shared cache volume contains the Sublime data directory, including
-`Packages`, `Lib`, UnitTesting schedules and test output files. Concurrent
-runs against the same volume are serialized by default to avoid races while
+`Packages`, `Lib`, UnitTesting schedules and test output files. *Concurrent
+runs against the same volume are serialized by default* to avoid races while
 copying packages, writing schedules and syncing Package Control libraries.
+This is a speed-versus-space trade-off: tests are likely to run quickly,
+keeping wait times low, and a shared volume uses less disk space than
+multiple volumes.
 
 Use `--lock-timeout SECONDS` to control how long a runner waits for the cache
 volume lock. Use `--no-lock` only if you know the selected cache volume is not
 shared by another runner.
 
-## Concurrent runs
-
-You can control concurrency by choosing how many cache volumes you use. The
-default single volume serializes all runs. A stable volume per package allows
-different packages to run concurrently while still keeping warm caches:
+You can increase concurrency by choosing how many cache volumes you use. For
+example, a stable volume per package allows different packages to run
+concurrently while still keeping warm caches:
 
 ```sh
 ut-run-tests . --cache-volume unittesting-home-gitsavvy
 ```
 
-To maximize concurrency, use a stable volume per checkout directory. For
+To *maximize* concurrency, use a stable volume per checkout directory. For
 example, in a POSIX shell:
 
 ```sh
