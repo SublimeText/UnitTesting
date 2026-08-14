@@ -26,10 +26,32 @@ By default it:
 
 - builds `unittesting-local` image from `./docker` if missing
 - mounts your repo as `/project`
+- runs Python unit tests, syntax tests and syntax compatibility checks
 - runs UnitTesting through the same CI shell entrypoints
 - stores Sublime install/cache in docker volume `unittesting-home`
 - synchronizes only changed files into `Packages/<Package>` using `rsync`
 - excludes files ignored by Git, including repository-local and global rules
+
+A category with no matching resources is reported and succeeds. Disable
+categories that are not needed with:
+
+```sh
+ut-run-tests . --no-unit-tests
+ut-run-tests . --no-syntax-tests
+ut-run-tests . --no-syntax-compatibility-checks
+```
+
+`--file` selects its category automatically. Python files run as unit tests,
+files whose names start with `syntax_test` run as syntax tests, and
+`.sublime-syntax` files run compatibility checks:
+
+```sh
+ut-run-tests . --file tests/test_example.py
+ut-run-tests . --file syntax_test_example
+ut-run-tests . --file Example.sublime-syntax
+```
+
+`--pattern` and `--tests-dir` select unit tests only.
 
 ## Fast reruns
 

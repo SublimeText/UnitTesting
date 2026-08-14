@@ -361,6 +361,12 @@ if __name__ == '__main__':
     parser.add_option('--coverage', action='store_true')
     parser.add_option('--pattern')
     parser.add_option('--tests-dir')
+    parser.add_option(
+        '--no-fail-if-no-resources',
+        action='store_false',
+        dest='fail_if_no_resources',
+        default=True,
+    )
     parser.add_option('--failfast', action='store_true')
     parser.add_option('--reload-package-on-testing', action='store_true')
     parser.add_option('--dry-run', action='store_true')
@@ -394,6 +400,9 @@ if __name__ == '__main__':
 
     if options.tests_dir:
         default_schedule_info['tests_dir'] = options.tests_dir
+
+    if not options.fail_if_no_resources:
+        default_schedule_info['fail_if_no_resources'] = False
 
     if options.failfast:
         default_schedule_info['failfast'] = True

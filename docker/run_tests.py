@@ -23,6 +23,14 @@ from pathlib import Path
 DEFAULT_IMAGE = "unittesting-local"
 DEFAULT_CACHE_VOLUME = "unittesting-home"
 DEFAULT_LOCK_TIMEOUT = 3600
+UNIT_TESTS = "unit-tests"
+SYNTAX_TESTS = "syntax-tests"
+SYNTAX_COMPATIBILITY_CHECKS = "syntax-compatibility-checks"
+ALL_TEST_CATEGORIES = (
+    UNIT_TESTS,
+    SYNTAX_TESTS,
+    SYNTAX_COMPATIBILITY_CHECKS,
+)
 DOCKER_CONTEXT_HASH_LABEL = "org.sublimetext.unittesting.context-hash"
 DOCKER_CONTEXT_INPUTS = (
     "Dockerfile",
@@ -77,6 +85,7 @@ def main(argv: list[str] | None = None) -> int:
     tests_dir, pattern, selected_file = resolve_test_target(
         package_root, args.file, args.tests_dir, args.pattern
     )
+    test_categories = resolve_test_categories(args, selected_file)
 
     maybe_build_image(image, refresh=False)
 
@@ -95,6 +104,7 @@ def main(argv: list[str] | None = None) -> int:
             cache_volume=args.cache_volume,
             container_name=runner_name,
             ignore_manifest=ignore_manifest,
+            test_categories=test_categories,
             scheduler_delay_ms=args.scheduler_delay_ms,
             coverage=args.coverage,
             failfast=args.failfast,
@@ -117,6 +127,7 @@ def main(argv: list[str] | None = None) -> int:
                 print("Cache lock: enabled")
             if args.refresh_cache:
                 print("Cache refresh: enabled")
+        print(f"Test categories: {', '.join(test_categories)}")
         if tests_dir and pattern:
             print(f"Test target: {tests_dir}/{pattern}")
         if ignore_manifest:
@@ -155,6 +166,21 @@ def parse_args(argv: list[str] | None) -> argparse.Namespace:
     test_group.add_argument("--pattern", help="Custom unittest discovery pattern.")
     test_group.add_argument("--tests-dir", help="Custom tests directory.")
     test_group.add_argument("--package-name", help="Override package name.")
+    test_group.add_argument(
+        "--no-unit-tests",
+        action="store_true",
+        help="Do not run Python unit tests.",
+    )
+    test_group.add_argument(
+        "--no-syntax-tests",
+        action="store_true",
+        help="Do not run syntax tests.",
+    )
+    test_group.add_argument(
+        "--no-syntax-compatibility-checks",
+        action="store_true",
+        help="Do not run syntax compatibility checks.",
+    )
     test_group.add_argument("--coverage", action="store_true", help="Enable coverage.")
     test_group.add_argument("--failfast", action="store_true", help="Stop on first failure.")
     test_group.add_argument(
@@ -245,6 +271,20 @@ def parse_args(argv: list[str] | None) -> argparse.Namespace:
 
     if args.file and args.tests_dir:
         parser.error("--file and --tests-dir are mutually exclusive")
+
+    category_options = (
+        args.no_unit_tests,
+        args.no_syntax_tests,
+        args.no_syntax_compatibility_checks,
+    )
+    if args.file and any(category_options):
+        parser.error("--file cannot be combined with --no-* test category options")
+
+    if args.no_unit_tests and (args.pattern or args.tests_dir):
+        parser.error("--pattern and --tests-dir require unit tests")
+
+    if all(category_options):
+        parser.error("all test categories are disabled")
 
     if args.refresh_cache and not args.cache_volume:
         parser.error("--refresh-cache requires a cache volume (omit --no-cache-volume)")
@@ -393,6 +433,38 @@ def resolve_test_target(
     return resolved_tests_dir, resolved_pattern, rel_file_path.as_posix()
 
 
+def resolve_test_categories(
+    args: argparse.Namespace, selected_file: str | None
+) -> tuple[str, ...]:
+    if selected_file:
+        return (test_category_for_file(selected_file),)
+
+    if args.pattern or args.tests_dir:
+        return (UNIT_TESTS,)
+
+    disabled_categories = {
+        UNIT_TESTS: args.no_unit_tests,
+        SYNTAX_TESTS: args.no_syntax_tests,
+        SYNTAX_COMPATIBILITY_CHECKS: args.no_syntax_compatibility_checks,
+    }
+    return tuple(
+        category
+        for category in ALL_TEST_CATEGORIES
+        if not disabled_categories[category]
+    )
+
+
+def test_category_for_file(test_file: str) -> str:
+    file_name = Path(test_file).name
+    if file_name.startswith("syntax_test"):
+        return SYNTAX_TESTS
+    if file_name.endswith(".sublime-syntax"):
+        return SYNTAX_COMPATIBILITY_CHECKS
+    if file_name.endswith(".py"):
+        return UNIT_TESTS
+    raise SystemExit(f"Error: unsupported test file type: {test_file}")
+
+
 class GitIgnoreManifest:
     def __init__(self, contents: bytes | None = None) -> None:
         self.path: Path | None = None
@@ -479,6 +551,7 @@ def build_docker_run_command(
     cache_volume: str | None,
     container_name: str | None,
     ignore_manifest: GitIgnoreManifest,
+    test_categories: tuple[str, ...],
     scheduler_delay_ms: int,
     coverage: bool,
     failfast: bool,
@@ -513,7 +586,9 @@ def build_docker_run_command(
         command.extend(["-v", f"{cache_volume}:/root"])
 
     command.append(image)
-    command.append("run_tests")
+    command.append("run_test_categories")
+    command.extend(f"--{category}" for category in test_categories)
+    command.append("--")
 
     if coverage:
         command.append("--coverage")

@@ -180,20 +180,72 @@ InstallPackageControl() {
     sh "$STP/UnitTesting/sbin/install_package_control.sh" "--st" "$SUBLIME_TEXT_VERSION"
 }
 
+RunTestCategories() {
+    local RunUnitTests=false
+    local RunSyntaxTests=false
+    local RunSyntaxCompatibilityChecks=false
+
+    while [ "$#" -gt 0 ]; do
+        case "$1" in
+            "--unit-tests")
+                RunUnitTests=true
+                ;;
+            "--syntax-tests")
+                RunSyntaxTests=true
+                ;;
+            "--syntax-compatibility-checks")
+                RunSyntaxCompatibilityChecks=true
+                ;;
+            "--")
+                shift
+                break
+                ;;
+            *)
+                echo "Unknown test category: $1" >&2
+                return 2
+                ;;
+        esac
+        shift
+    done
+
+    if [ "$RunUnitTests" = false ] && [ "$RunSyntaxTests" = false ] && \
+            [ "$RunSyntaxCompatibilityChecks" = false ]; then
+        echo "No test categories selected" >&2
+        return 2
+    fi
+
+    local Status=0
+    if [ "$RunUnitTests" = true ]; then
+        echo "Run unit tests"
+        RunTests "$@" || Status=$?
+    fi
+    if [ "$RunSyntaxTests" = true ]; then
+        echo "Run syntax tests"
+        RunTests --syntax-test --no-fail-if-no-resources "$@" || Status=$?
+    fi
+    if [ "$RunSyntaxCompatibilityChecks" = true ]; then
+        echo "Run syntax compatibility checks"
+        RunTests --syntax-compatibility --no-fail-if-no-resources "$@" || Status=$?
+    fi
+    return "$Status"
+}
+
 RunTests() {
     # if [ -n "$(echo "$@" | grep -e '--coverage\b')" ] && [ "$SUBLIME_TEXT_VERSION" -eq 4 ]; then
     #     echo "Coverage is not yet supported in Sublime Text 4"
     #     exit 1
     # fi
+    local Status=0
     if [ -z "$1" ]; then
-        python "$STP/UnitTesting/sbin/run_tests.py" "$PACKAGE"
+        python "$STP/UnitTesting/sbin/run_tests.py" "$PACKAGE" || Status=$?
     else
-        python "$STP/UnitTesting/sbin/run_tests.py" "$@" "$PACKAGE"
+        python "$STP/UnitTesting/sbin/run_tests.py" "$@" "$PACKAGE" || Status=$?
     fi
 
     pkill "[Ss]ubl" || true
     pkill 'plugin_host' || true
     sleep 1
+    return "$Status"
 }
 
 
@@ -221,6 +273,9 @@ case $COMMAND in
         ;;
     "run_tests")
         RunTests "$@"
+        ;;
+    "run_test_categories")
+        RunTestCategories "$@"
         ;;
     "run_syntax_tests")
         RunTests "--syntax-test" "$@"
