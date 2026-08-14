@@ -86,42 +86,42 @@ def main(argv: list[str] | None = None) -> int:
     lock_enabled = should_lock_cache(args)
     runner_name = docker_cache_runner_name(args.cache_volume) if lock_enabled else None
     ignore_manifest = make_git_ignore_manifest(package_root)
-    command = build_docker_run_command(
-        package_root=package_root,
-        unit_testing_root=unit_testing_root,
-        package_name=package_name,
-        image=image,
-        cache_volume=args.cache_volume,
-        container_name=runner_name,
-        ignore_manifest=ignore_manifest,
-        scheduler_delay_ms=args.scheduler_delay_ms,
-        coverage=args.coverage,
-        failfast=args.failfast,
-        reload_package_on_testing=args.reload_package_on_testing,
-        dry_run=args.dry_run,
-        color=args.color,
-        tests_dir=tests_dir,
-        pattern=pattern,
-    )
+    with ignore_manifest:
+        command = build_docker_run_command(
+            package_root=package_root,
+            unit_testing_root=unit_testing_root,
+            package_name=package_name,
+            image=image,
+            cache_volume=args.cache_volume,
+            container_name=runner_name,
+            ignore_manifest=ignore_manifest,
+            scheduler_delay_ms=args.scheduler_delay_ms,
+            coverage=args.coverage,
+            failfast=args.failfast,
+            reload_package_on_testing=args.reload_package_on_testing,
+            dry_run=args.dry_run,
+            color=args.color,
+            tests_dir=tests_dir,
+            pattern=pattern,
+        )
 
-    print(f"Package root: {package_root}")
-    print(f"Package name: {package_name}")
-    print(f"Docker image: {image}")
-    print(f"Scheduler delay: {args.scheduler_delay_ms}ms")
-    if args.refresh_image:
-        print("Image refresh: enabled")
-    if args.cache_volume:
-        print(f"Cache volume: {args.cache_volume}")
-        if lock_enabled:
-            print("Cache lock: enabled")
-        if args.refresh_cache:
-            print("Cache refresh: enabled")
-    if tests_dir and pattern:
-        print(f"Test target: {tests_dir}/{pattern}")
-    if ignore_manifest:
-        print("Package sync: Git-ignored files excluded")
+        print(f"Package root: {package_root}")
+        print(f"Package name: {package_name}")
+        print(f"Docker image: {image}")
+        print(f"Scheduler delay: {args.scheduler_delay_ms}ms")
+        if args.refresh_image:
+            print("Image refresh: enabled")
+        if args.cache_volume:
+            print(f"Cache volume: {args.cache_volume}")
+            if lock_enabled:
+                print("Cache lock: enabled")
+            if args.refresh_cache:
+                print("Cache refresh: enabled")
+        if tests_dir and pattern:
+            print(f"Test target: {tests_dir}/{pattern}")
+        if ignore_manifest:
+            print("Package sync: Git-ignored files excluded")
 
-    try:
         if lock_enabled:
             with CacheVolumeLock(args.cache_volume, args.lock_timeout):
                 wait_for_cache_volume_idle(args.cache_volume, args.lock_timeout)
@@ -131,9 +131,6 @@ def main(argv: list[str] | None = None) -> int:
                 )
 
         return subprocess.call(command)
-    finally:
-        if ignore_manifest:
-            ignore_manifest.unlink(missing_ok=True)
 
 
 def parse_args(argv: list[str] | None) -> argparse.Namespace:
@@ -385,9 +382,31 @@ def resolve_test_target(
     return resolved_tests_dir, resolved_pattern
 
 
-def make_git_ignore_manifest(package_root: Path) -> Path | None:
+class GitIgnoreManifest:
+    def __init__(self, contents: bytes | None = None) -> None:
+        self.path: Path | None = None
+        if contents is not None:
+            with tempfile.NamedTemporaryFile(
+                prefix="unittesting-ignore-", suffix=".files", delete=False
+            ) as manifest:
+                manifest.write(contents)
+                self.path = Path(manifest.name)
+
+    def __bool__(self) -> bool:
+        return self.path is not None
+
+    def __enter__(self) -> "GitIgnoreManifest":
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback) -> None:
+        if self.path:
+            self.path.unlink(missing_ok=True)
+            self.path = None
+
+
+def make_git_ignore_manifest(package_root: Path) -> GitIgnoreManifest:
     if not shutil.which("git"):
-        return None
+        return GitIgnoreManifest()
 
     result = subprocess.run(
         [
@@ -405,13 +424,9 @@ def make_git_ignore_manifest(package_root: Path) -> Path | None:
         stderr=subprocess.DEVNULL,
     )
     if result.returncode != 0:
-        return None
+        return GitIgnoreManifest()
 
-    with tempfile.NamedTemporaryFile(
-        prefix="unittesting-ignore-", suffix=".files", delete=False
-    ) as manifest:
-        manifest.write(result.stdout)
-        return Path(manifest.name)
+    return GitIgnoreManifest(result.stdout)
 
 
 def build_docker_run_command(
@@ -421,7 +436,7 @@ def build_docker_run_command(
     image: str,
     cache_volume: str | None,
     container_name: str | None,
-    ignore_manifest: Path | None,
+    ignore_manifest: GitIgnoreManifest,
     scheduler_delay_ms: int,
     coverage: bool,
     failfast: bool,
@@ -447,10 +462,10 @@ def build_docker_run_command(
     command.extend(["-v", f"{package_root}:/project"])
     command.extend(["-v", f"{unit_testing_root}:/unittesting"])
 
-    if ignore_manifest:
+    if ignore_manifest.path:
         manifest_target = "/tmp/unittesting-ignore.files"
         command.extend(["-e", f"UNITTESTING_IGNORE_MANIFEST={manifest_target}"])
-        command.extend(["-v", f"{ignore_manifest}:{manifest_target}:ro"])
+        command.extend(["-v", f"{ignore_manifest.path}:{manifest_target}:ro"])
 
     if cache_volume:
         command.extend(["-v", f"{cache_volume}:/root"])
