@@ -40,7 +40,7 @@ def cleanup_package(package):
 
 def with_package(package, output=None, syntax_test=False, syntax_compatibility=False,
                  color_scheme_test=False, wait_timeout=5000, pattern=None,
-                 tests_dir=None):
+                 tests_dir=None, fail_if_no_resources=None):
     def wrapper(func):
         @wraps(func)
         def real_wrapper(self):
@@ -61,6 +61,8 @@ def with_package(package, output=None, syntax_test=False, syntax_compatibility=F
                 kwargs["pattern"] = pattern
             if tests_dir is not None:
                 kwargs["tests_dir"] = tests_dir
+            if fail_if_no_resources is not None:
+                kwargs["fail_if_no_resources"] = fail_if_no_resources
             if outfile:
                 # Command kwargs have the highest precedence. Passing down
                 # 'None' is not what we want, the intention is to omit it
@@ -198,6 +200,12 @@ class TestSyntax(UnitTestingTestCase):
     def test_error_syntax(self, txt):
         self.assertRegexContains(txt, r'^ERROR: No syntax_test')
 
+    @with_package(
+        "_Syntax_Error", syntax_test=True, fail_if_no_resources=False
+    )
+    def test_empty_syntax_allowed(self, txt):
+        self.assertOk(txt)
+
     @with_package("_Syntax_Compat_Failure", syntax_compatibility=True)
     def test_fail_syntax_compatibility(self, txt):
         self.assertRegexContains(txt, r'^FAILED: 3 errors in 1 of 1 syntax$')
@@ -217,6 +225,14 @@ class TestSyntax(UnitTestingTestCase):
     )
     def test_syntax_compatibility_tests_dir(self, txt):
         self.assertRegexContains(txt, r'^ERROR: No sublime-syntax')
+
+    @with_package(
+        "_Syntax_Error",
+        syntax_compatibility=True,
+        fail_if_no_resources=False,
+    )
+    def test_empty_syntax_compatibility_allowed(self, txt):
+        self.assertOk(txt)
 
 
 def has_colorschemeunit():

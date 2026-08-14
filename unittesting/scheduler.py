@@ -42,6 +42,11 @@ class Schedule:
 
 
 class Unit:
+    SYNTAX_TESTING_OPTION_KEYS = (
+        "fail_if_no_resources",
+        "pattern",
+        "tests_dir",
+    )
     UNIT_TESTING_OPTION_KEYS = (
         "capture_console",
         "condition_timeout",
@@ -64,6 +69,9 @@ class Unit:
         self.syntax_compatibility = s.get("syntax_compatibility", False)
         self.color_scheme_test = s.get("color_scheme_test", False)
         self.coverage = s.get("coverage", False)
+        self.syntax_testing_options = {
+            key: s[key] for key in self.SYNTAX_TESTING_OPTION_KEYS if key in s
+        }
         self.unit_testing_options = {
             key: s[key] for key in self.UNIT_TESTING_OPTION_KEYS if key in s
         }
@@ -87,13 +95,7 @@ class Unit:
 
     def syntax_testing_args(self):
         args = {"package": self.package, "output": self.output}
-        args.update(
-            {
-                key: self.unit_testing_options[key]
-                for key in ("pattern", "tests_dir")
-                if key in self.unit_testing_options
-            }
-        )
+        args.update(self.syntax_testing_options)
         return args
 
     def unit_testing_args(self):

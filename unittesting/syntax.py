@@ -26,7 +26,7 @@ class UnitTestingSyntaxCommand(BaseUnittestingCommand):
                 kwargs.get("tests_dir"),
             )
 
-            if not tests:
+            if not tests and kwargs.get("fail_if_no_resources", True):
                 raise RuntimeError("No syntax_test files are found in %s!" % package)
             for t in tests:
                 assertions, test_output_lines = sublime_api.run_syntax_test(t)
@@ -36,7 +36,7 @@ class UnitTestingSyntaxCommand(BaseUnittestingCommand):
                     for line in test_output_lines:
                         stream.write(line + "\n")
 
-            file_noun = "files" if len(tests) > 1 else "file"
+            file_noun = "files" if len(tests) != 1 else "file"
             if failed_assertions > 0:
                 stream.write(
                     "FAILED: %d of %d assertions in %d %s failed\n"
@@ -75,7 +75,7 @@ class UnitTestingSyntaxCompatibilityCommand(BaseUnittestingCommand):
                 kwargs.get("tests_dir"),
             )
 
-            if not syntaxes:
+            if not syntaxes and kwargs.get("fail_if_no_resources", True):
                 raise RuntimeError("No sublime-syntax files found in %s!" % package)
 
             total_errors = 0
@@ -93,7 +93,7 @@ class UnitTestingSyntaxCompatibilityCommand(BaseUnittestingCommand):
                     total_failed_syntaxes += 1
 
             error_noun = "errors" if total_errors > 1 else "error"
-            syntax_noun = "syntaxes" if len(syntaxes) > 1 else "syntax"
+            syntax_noun = "syntaxes" if len(syntaxes) != 1 else "syntax"
             if total_errors:
                 stream.write(
                     "FAILED: %d %s in %d of %d %s\n"
