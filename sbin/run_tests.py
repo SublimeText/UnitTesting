@@ -26,6 +26,7 @@ UT_DIR_PATH = os.path.realpath(os.path.join(PACKAGES_DIR_PATH, 'UnitTesting'))
 UT_SBIN_PATH = os.path.realpath(os.path.join(PACKAGES_DIR_PATH, 'UnitTesting', 'sbin'))
 SCHEDULE_RUNNER_SOURCE = os.path.join(UT_SBIN_PATH, "run_scheduler.py")
 SCHEDULE_RUNNER_TARGET = os.path.join(UT_DIR_PATH, "zzz_run_scheduler.py")
+DONE_MESSAGE = "UnitTesting: Done.\n"
 RX_RESULT = re.compile(r'^(?P<result>OK|FAILED|ERROR)', re.MULTILINE)
 RX_DONE = re.compile(r'^UnitTesting: Done\.$', re.MULTILINE)
 RX_TEST_STATUS = re.compile(r'\.\.\. (ok|FAIL|ERROR|skipped)(\b.*)$')
@@ -56,7 +57,7 @@ def copy_file_if_not_exists(source, target):
         shutil.copyfile(source, target)
 
 
-def create_schedule(package, output_file, default_schedule):
+def create_schedules(package, named_schedules):
     schedule = []
 
     try:
@@ -65,16 +66,8 @@ def create_schedule(package, output_file, default_schedule):
     except Exception:
         pass
 
-    print('Schedule:')
-    for k, v in default_schedule.items():
-        print('  %s: %s' % (k, v))
-
-    for idx, item in enumerate(schedule):
-        if item.get('package') == package:
-            schedule[idx] = default_schedule
-            break
-    else:
-        schedule.append(default_schedule)
+    schedule = [item for item in schedule if item.get('package') != package]
+    schedule.extend(default_schedule for _, default_schedule in named_schedules)
 
     with open(SCHEDULE_FILE_PATH, 'w') as f:
         f.write(json.dumps(schedule, ensure_ascii=False, indent=True))
@@ -83,7 +76,6 @@ def create_schedule(package, output_file, default_schedule):
 def wait_for_output(path, schedule, timeout=10, poll_interval=0.2):
     start_time = time.time()
     last_dot = 0
-    needs_newline = False
 
     def check_has_timed_out():
         return time.time() - start_time > timeout
@@ -99,7 +91,6 @@ def wait_for_output(path, schedule, timeout=10, poll_interval=0.2):
         if now - last_dot >= 1:
             print(".", end="")
             sys.stdout.flush()
-            needs_newline = True
             last_dot = now
 
         if check_has_timed_out():
@@ -109,8 +100,7 @@ def wait_for_output(path, schedule, timeout=10, poll_interval=0.2):
 
         time.sleep(poll_interval)
     else:
-        if needs_newline:
-            print()
+        print()
 
 
 def start_sublime_text():
@@ -122,7 +112,7 @@ def kill_sublime_text():
     subprocess.Popen("pkill plugin_host || true", shell=True)
 
 
-def read_output(path, color='auto'):
+def read_output(path, color='auto', show_done=True):
     # todo: use notification instead of polling
     success = None
     use_color = should_use_color(color)
@@ -143,11 +133,12 @@ def read_output(path, color='auto'):
             result = f.read()
 
             if result:
+                display_result = result if show_done else result.replace(DONE_MESSAGE, "")
                 if use_color:
-                    rendered, pending = colorize_output_chunk(result, pending)
+                    rendered, pending = colorize_output_chunk(display_result, pending)
                     print(rendered, end="")
                 else:
-                    print(result, end="")
+                    print(display_result, end="")
                 sys.stdout.flush()
 
             # Keep checking while we don't have a definite result.
@@ -307,34 +298,34 @@ def detect_package_control_version():
     return str(version) if version else None
 
 
-def main(default_schedule_info, dry_run=False, color='auto'):
-    package_under_test = default_schedule_info['package']
+def main(named_schedules, dry_run=False, color='auto'):
+    package_under_test = named_schedules[0][1]['package']
     output_dir = os.path.join(UT_OUTPUT_DIR_PATH, package_under_test)
-    output_file = os.path.join(output_dir, "result")
     coverage_file = os.path.join(output_dir, "coverage")
-
-    default_schedule_info['output'] = output_file
+    output_files = configure_schedule_outputs(named_schedules, output_dir)
 
     print_runtime_metadata()
+    print_schedules(named_schedules)
 
     if dry_run:
         create_dir_if_not_exists(output_dir)
-        delete_file_if_exists(output_file)
+        delete_files(output_files)
         delete_file_if_exists(coverage_file)
-        create_schedule(package_under_test, output_file, default_schedule_info)
+        create_schedules(package_under_test, named_schedules)
         return
 
     for i in range(3):
         create_dir_if_not_exists(output_dir)
-        delete_file_if_exists(output_file)
+        delete_files(output_files)
         delete_file_if_exists(coverage_file)
-        create_schedule(package_under_test, output_file, default_schedule_info)
+        create_schedules(package_under_test, named_schedules)
         delete_file_if_exists(SCHEDULE_RUNNER_TARGET)
         copy_file_if_not_exists(SCHEDULE_RUNNER_SOURCE, SCHEDULE_RUNNER_TARGET)
         start_sublime_text()
         try:
-            print("Wait for tests output...", end="")
-            wait_for_output(output_file, SCHEDULE_RUNNER_TARGET)
+            for name, output_file in output_files:
+                print("Wait for %s output..." % name, end="")
+                wait_for_output(output_file, SCHEDULE_RUNNER_TARGET)
             break
         except ValueError:
             if i == 2:
@@ -343,24 +334,117 @@ def main(default_schedule_info, dry_run=False, color='auto'):
                       "is being written to the wrong file.")
                 delete_file_if_exists(SCHEDULE_RUNNER_TARGET)
                 sys.exit(1)
+            print("Retrying after Sublime Text did not produce test output.")
             kill_sublime_text()
             time.sleep(2)
 
-    print("Start to read output...")
-    if not read_output(output_file, color=color):
+    success = True
+    show_category_done = len(output_files) == 1
+    for name, output_file in output_files:
+        print("=== %s OUTPUT ===" % name.upper())
+        if not read_output(output_file, color=color, show_done=show_category_done):
+            success = False
+
+    if not show_category_done:
+        print(DONE_MESSAGE, end="")
+
+    if not success:
         sys.exit(1)
     restore_coverage_file(coverage_file, package_under_test)
     delete_file_if_exists(SCHEDULE_RUNNER_TARGET)
 
 
+def print_schedules(named_schedules):
+    for name, schedule in named_schedules:
+        heading = 'Schedule:' if len(named_schedules) == 1 else 'Schedule (%s):' % name
+        print(heading)
+        for key, value in schedule.items():
+            print('  %s: %s' % (key, value))
+
+
+def configure_schedule_outputs(named_schedules, output_dir):
+    output_files = []
+    for name, schedule in named_schedules:
+        output_name = (
+            "result"
+            if len(named_schedules) == 1
+            else "result-" + name.replace(" ", "-")
+        )
+        output_file = os.path.join(output_dir, output_name)
+        schedule['output'] = output_file
+        output_files.append((name, output_file))
+    return output_files
+
+
+def delete_files(named_files):
+    for _, path in named_files:
+        delete_file_if_exists(path)
+
+
+def build_named_schedules(options, package):
+    schedule_options = {
+        'package': package,
+        'coverage': options.coverage,
+        'reload_package_on_testing': bool(options.reload_package_on_testing),
+    }
+
+    if options.pattern:
+        schedule_options['pattern'] = options.pattern
+    if options.tests_dir:
+        schedule_options['tests_dir'] = options.tests_dir
+    if not options.fail_if_no_resources:
+        schedule_options['fail_if_no_resources'] = False
+    if options.failfast:
+        schedule_options['failfast'] = True
+
+    named_schedules = []
+    explicit_category = any(
+        (
+            options.unit_test,
+            options.syntax_test,
+            options.syntax_compatibility,
+            options.color_scheme_test,
+        )
+    )
+    if options.syntax_test:
+        named_schedules.append(
+            ('syntax tests', dict(schedule_options, syntax_test=True))
+        )
+    if options.syntax_compatibility:
+        named_schedules.append(
+            (
+                'syntax compatibility checks',
+                dict(schedule_options, syntax_compatibility=True),
+            )
+        )
+    if options.color_scheme_test:
+        named_schedules.append(
+            ('color scheme tests', dict(schedule_options, color_scheme_test=True))
+        )
+
+    # Unit tests may continue through deferred callbacks after their command
+    # returns, so keep them last to avoid overlapping another category.
+    if options.unit_test or not explicit_category:
+        named_schedules.append(('unit tests', schedule_options))
+
+    return named_schedules
+
+
 if __name__ == '__main__':
     parser = optparse.OptionParser()
+    parser.add_option('--unit-test', action='store_true')
     parser.add_option('--syntax-test', action='store_true')
     parser.add_option('--syntax-compatibility', action='store_true')
     parser.add_option('--color-scheme-test', action='store_true')
     parser.add_option('--coverage', action='store_true')
     parser.add_option('--pattern')
     parser.add_option('--tests-dir')
+    parser.add_option(
+        '--no-fail-if-no-resources',
+        action='store_false',
+        dest='fail_if_no_resources',
+        default=True,
+    )
     parser.add_option('--failfast', action='store_true')
     parser.add_option('--reload-package-on-testing', action='store_true')
     parser.add_option('--dry-run', action='store_true')
@@ -374,31 +458,6 @@ if __name__ == '__main__':
 
     options, remainder = parser.parse_args()
 
-    syntax_test = options.syntax_test
-    syntax_compatibility = options.syntax_compatibility
-    color_scheme_test = options.color_scheme_test
-    coverage = options.coverage
     package_under_test = remainder[0] if len(remainder) > 0 else "UnitTesting"
-
-    default_schedule_info = {
-        'package': package_under_test,
-        'syntax_test': syntax_test,
-        'syntax_compatibility': syntax_compatibility,
-        'color_scheme_test': color_scheme_test,
-        'coverage': coverage,
-        'reload_package_on_testing': False,
-    }
-
-    if options.pattern:
-        default_schedule_info['pattern'] = options.pattern
-
-    if options.tests_dir:
-        default_schedule_info['tests_dir'] = options.tests_dir
-
-    if options.failfast:
-        default_schedule_info['failfast'] = True
-
-    if options.reload_package_on_testing:
-        default_schedule_info['reload_package_on_testing'] = True
-
-    main(default_schedule_info, dry_run=options.dry_run, color=options.color)
+    named_schedules = build_named_schedules(options, package_under_test)
+    main(named_schedules, dry_run=options.dry_run, color=options.color)

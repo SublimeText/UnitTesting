@@ -123,7 +123,12 @@ CopyTestedPackage() {
 
     if [ -n "$OverwriteExisting" ] && command -v rsync >/dev/null 2>&1; then
         echo "sync package into sublime package directory"
-        rsync -a --delete --exclude .git ./ "$STP/$PACKAGE/"
+        if [ -n "${UNITTESTING_IGNORE_MANIFEST:-}" ] && [ -f "$UNITTESTING_IGNORE_MANIFEST" ]; then
+            rsync -a --delete --delete-excluded --from0 --exclude .git \
+                --exclude-from="$UNITTESTING_IGNORE_MANIFEST" ./ "$STP/$PACKAGE/"
+        else
+            rsync -a --delete --exclude .git ./ "$STP/$PACKAGE/"
+        fi
         return
     fi
 
@@ -175,20 +180,74 @@ InstallPackageControl() {
     sh "$STP/UnitTesting/sbin/install_package_control.sh" "--st" "$SUBLIME_TEXT_VERSION"
 }
 
+RunTestCategories() {
+    local RunUnitTests=false
+    local RunSyntaxTests=false
+    local RunSyntaxCompatibilityChecks=false
+
+    while [ "$#" -gt 0 ]; do
+        case "$1" in
+            "--unit-tests")
+                RunUnitTests=true
+                ;;
+            "--syntax-tests")
+                RunSyntaxTests=true
+                ;;
+            "--syntax-compatibility-checks")
+                RunSyntaxCompatibilityChecks=true
+                ;;
+            "--")
+                shift
+                break
+                ;;
+            *)
+                echo "Unknown test category: $1" >&2
+                return 2
+                ;;
+        esac
+        shift
+    done
+
+    if [ "$RunUnitTests" = false ] && [ "$RunSyntaxTests" = false ] && \
+            [ "$RunSyntaxCompatibilityChecks" = false ]; then
+        echo "No test categories selected" >&2
+        return 2
+    fi
+
+    local CategoryOptions=()
+    if [ "$RunUnitTests" = true ]; then
+        CategoryOptions+=("--unit-test")
+    fi
+    if [ "$RunSyntaxTests" = true ]; then
+        CategoryOptions+=("--syntax-test")
+    fi
+    if [ "$RunSyntaxCompatibilityChecks" = true ]; then
+        CategoryOptions+=("--syntax-compatibility")
+    fi
+    if [ "$RunSyntaxTests" = true ] || \
+            [ "$RunSyntaxCompatibilityChecks" = true ]; then
+        CategoryOptions+=("--no-fail-if-no-resources")
+    fi
+
+    RunTests "${CategoryOptions[@]}" "$@"
+}
+
 RunTests() {
     # if [ -n "$(echo "$@" | grep -e '--coverage\b')" ] && [ "$SUBLIME_TEXT_VERSION" -eq 4 ]; then
     #     echo "Coverage is not yet supported in Sublime Text 4"
     #     exit 1
     # fi
+    local Status=0
     if [ -z "$1" ]; then
-        python "$STP/UnitTesting/sbin/run_tests.py" "$PACKAGE"
+        python "$STP/UnitTesting/sbin/run_tests.py" "$PACKAGE" || Status=$?
     else
-        python "$STP/UnitTesting/sbin/run_tests.py" "$@" "$PACKAGE"
+        python "$STP/UnitTesting/sbin/run_tests.py" "$@" "$PACKAGE" || Status=$?
     fi
 
     pkill "[Ss]ubl" || true
     pkill 'plugin_host' || true
     sleep 1
+    return "$Status"
 }
 
 
@@ -216,6 +275,9 @@ case $COMMAND in
         ;;
     "run_tests")
         RunTests "$@"
+        ;;
+    "run_test_categories")
+        RunTestCategories "$@"
         ;;
     "run_syntax_tests")
         RunTests "--syntax-test" "$@"
