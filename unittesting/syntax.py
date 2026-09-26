@@ -86,7 +86,7 @@ class UnitTestingSyntaxCompatibilityCommand(BaseUnittestingCommand):
                 for location, _, message in results:
                     stream.write(
                         "%s:%d:%d: %s\n"
-                        % (syntax, location[0] + 1, location[0] + location[1], message)
+                        % (syntax, location[0] + 1, location[1] + 1, message)
                     )
                 if results:
                     total_errors += len(results)
