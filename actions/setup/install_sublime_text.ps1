@@ -9,6 +9,11 @@ param(
 
 $ErrorActionPreference = 'stop'
 
+# Sublime Text has no Windows arm64 build; x64 runs under emulation there.
+if (-not $Arch) {
+    $Arch = 'x64'
+}
+
 $private:MaxRetries = 20
 if ($Version -ge 4) {
     $private:SublimeTextUrl = "http://www.sublimetext.com/download_thanks"
