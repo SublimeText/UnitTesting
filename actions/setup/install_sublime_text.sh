@@ -28,10 +28,13 @@ if [ -z $SUBLIME_TEXT_VERSION ]; then
 fi
 
 if [ -z $SUBLIME_TEXT_ARCH ]; then
-    SUBLIME_TEXT_ARCH=x64
+    case "$(uname -m)" in
+        aarch64|arm64) SUBLIME_TEXT_ARCH=arm64 ;;
+        *) SUBLIME_TEXT_ARCH=x64 ;;
+    esac
 fi
 
-if [ $SUBLIME_TEXT_VERSION -ge 4 ] && [ "$SUBLIME_TEXT_ARCH" != "x64" ]; then
+if [ $SUBLIME_TEXT_VERSION -ge 4 ] && [ "$SUBLIME_TEXT_ARCH" != "x64" ] && [ "$SUBLIME_TEXT_ARCH" != "arm64" ]; then
     echo "wrong value of $SUBLIME_TEXT_ARCH for Sublime Text version $SUBLIME_TEXT_VERSION"
     exit 1
 fi
@@ -126,7 +129,7 @@ else
         echo "installing sublime text $SUBLIME_TEXT_VERSION"
         for i in {1..20}; do
             if [ $SUBLIME_TEXT_VERSION -ge 4 ]; then
-                URL=$(curl -s "$STWEB" | sed -n 's/.*href="\([^"]*_x64\.tar\.xz\)".*/\1/p')
+                URL=$(curl -s "$STWEB" | sed -n "s/.*href=\"\([^\"]*_${SUBLIME_TEXT_ARCH}\.tar\.xz\)\".*/\1/p")
             else
                 if [ "$SUBLIME_TEXT_ARCH" = "x64" ]; then
                     URL=$(curl -s "$STWEB" | sed -n 's/.*href="\([^"]*x64\.tar\.bz2\)".*/\1/p')

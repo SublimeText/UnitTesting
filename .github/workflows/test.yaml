@@ -24,6 +24,9 @@ jobs:
       matrix:
         st-version: [3, 4]
         os: ["ubuntu-latest", "macOS-latest", "windows-latest"]
+        include:
+          - st-version: 4
+            os: "ubuntu-26.04-arm"
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v6

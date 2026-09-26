@@ -23,6 +23,14 @@ from pathlib import Path
 DEFAULT_IMAGE = "unittesting-local"
 DEFAULT_CACHE_VOLUME = "unittesting-home"
 DEFAULT_LOCK_TIMEOUT = 3600
+UNIT_TESTS = "unit-tests"
+SYNTAX_TESTS = "syntax-tests"
+SYNTAX_COMPATIBILITY_CHECKS = "syntax-compatibility-checks"
+ALL_TEST_CATEGORIES = (
+    UNIT_TESTS,
+    SYNTAX_TESTS,
+    SYNTAX_COMPATIBILITY_CHECKS,
+)
 DOCKER_CONTEXT_HASH_LABEL = "org.sublimetext.unittesting.context-hash"
 DOCKER_CONTEXT_INPUTS = (
     "Dockerfile",
@@ -74,9 +82,10 @@ def main(argv: list[str] | None = None) -> int:
         return 2
 
     package_name = args.package_name or package_root.name
-    tests_dir, pattern = resolve_test_target(
+    tests_dir, pattern, selected_file = resolve_test_target(
         package_root, args.file, args.tests_dir, args.pattern
     )
+    test_categories = resolve_test_categories(args, selected_file)
 
     maybe_build_image(image, refresh=False)
 
@@ -85,47 +94,54 @@ def main(argv: list[str] | None = None) -> int:
 
     lock_enabled = should_lock_cache(args)
     runner_name = docker_cache_runner_name(args.cache_volume) if lock_enabled else None
-    command = build_docker_run_command(
-        package_root=package_root,
-        unit_testing_root=unit_testing_root,
-        package_name=package_name,
-        image=image,
-        cache_volume=args.cache_volume,
-        container_name=runner_name,
-        scheduler_delay_ms=args.scheduler_delay_ms,
-        coverage=args.coverage,
-        failfast=args.failfast,
-        reload_package_on_testing=args.reload_package_on_testing,
-        dry_run=args.dry_run,
-        color=args.color,
-        tests_dir=tests_dir,
-        pattern=pattern,
-    )
+    ignore_manifest = make_git_ignore_manifest(package_root, selected_file)
+    with ignore_manifest:
+        command = build_docker_run_command(
+            package_root=package_root,
+            unit_testing_root=unit_testing_root,
+            package_name=package_name,
+            image=image,
+            cache_volume=args.cache_volume,
+            container_name=runner_name,
+            ignore_manifest=ignore_manifest,
+            test_categories=test_categories,
+            scheduler_delay_ms=args.scheduler_delay_ms,
+            coverage=args.coverage,
+            failfast=args.failfast,
+            reload_package_on_testing=args.reload_package_on_testing,
+            dry_run=args.dry_run,
+            color=args.color,
+            tests_dir=tests_dir,
+            pattern=pattern,
+        )
 
-    print(f"Package root: {package_root}")
-    print(f"Package name: {package_name}")
-    print(f"Docker image: {image}")
-    print(f"Scheduler delay: {args.scheduler_delay_ms}ms")
-    if args.refresh_image:
-        print("Image refresh: enabled")
-    if args.cache_volume:
-        print(f"Cache volume: {args.cache_volume}")
+        print(f"Package root: {package_root}")
+        print(f"Package name: {package_name}")
+        print(f"Docker image: {image}")
+        print(f"Scheduler delay: {args.scheduler_delay_ms}ms")
+        if args.refresh_image:
+            print("Image refresh: enabled")
+        if args.cache_volume:
+            print(f"Cache volume: {args.cache_volume}")
+            if lock_enabled:
+                print("Cache lock: enabled")
+            if args.refresh_cache:
+                print("Cache refresh: enabled")
+        print(f"Test categories: {', '.join(test_categories)}")
+        if tests_dir and pattern:
+            print(f"Test target: {tests_dir}/{pattern}")
+        if ignore_manifest:
+            print("Package sync: Git-ignored files excluded")
+
         if lock_enabled:
-            print("Cache lock: enabled")
-        if args.refresh_cache:
-            print("Cache refresh: enabled")
-    if tests_dir and pattern:
-        print(f"Test target: {tests_dir}/{pattern}")
+            with CacheVolumeLock(args.cache_volume, args.lock_timeout):
+                wait_for_cache_volume_idle(args.cache_volume, args.lock_timeout)
+                ensure_runner_container_name_available(args.cache_volume, args.lock_timeout)
+                return call_docker_run_with_name_retry(
+                    command, args.cache_volume, args.lock_timeout
+                )
 
-    if lock_enabled:
-        with CacheVolumeLock(args.cache_volume, args.lock_timeout):
-            wait_for_cache_volume_idle(args.cache_volume, args.lock_timeout)
-            ensure_runner_container_name_available(args.cache_volume, args.lock_timeout)
-            return call_docker_run_with_name_retry(
-                command, args.cache_volume, args.lock_timeout
-            )
-
-    return subprocess.call(command)
+        return subprocess.call(command)
 
 
 def parse_args(argv: list[str] | None) -> argparse.Namespace:
@@ -142,10 +158,29 @@ def parse_args(argv: list[str] | None) -> argparse.Namespace:
     )
 
     test_group = parser.add_argument_group("test options")
-    test_group.add_argument("--file", help="Run only tests from this file.")
+    test_group.add_argument(
+        "--file",
+        action="append",
+        help="Run only tests from this file (may be specified once).",
+    )
     test_group.add_argument("--pattern", help="Custom unittest discovery pattern.")
     test_group.add_argument("--tests-dir", help="Custom tests directory.")
     test_group.add_argument("--package-name", help="Override package name.")
+    test_group.add_argument(
+        "--no-unit-tests",
+        action="store_true",
+        help="Do not run Python unit tests.",
+    )
+    test_group.add_argument(
+        "--no-syntax-tests",
+        action="store_true",
+        help="Do not run syntax tests.",
+    )
+    test_group.add_argument(
+        "--no-syntax-compatibility-checks",
+        action="store_true",
+        help="Do not run syntax compatibility checks.",
+    )
     test_group.add_argument("--coverage", action="store_true", help="Enable coverage.")
     test_group.add_argument("--failfast", action="store_true", help="Stop on first failure.")
     test_group.add_argument(
@@ -227,8 +262,26 @@ def parse_args(argv: list[str] | None) -> argparse.Namespace:
 
     args = parser.parse_args(argv)
 
+    if args.file and len(args.file) > 1:
+        parser.error("--file may only be specified once")
+    args.file = args.file[0] if args.file else None
+
     if args.file and args.pattern:
         parser.error("--file and --pattern are mutually exclusive")
+
+    if args.file and args.tests_dir:
+        parser.error("--file and --tests-dir are mutually exclusive")
+
+    category_options = (
+        args.no_unit_tests,
+        args.no_syntax_tests,
+        args.no_syntax_compatibility_checks,
+    )
+    if args.file and any(category_options):
+        parser.error("--file cannot be combined with --no-* test category options")
+
+    if all(category_options):
+        parser.error("all test categories are disabled")
 
     if args.refresh_cache and not args.cache_volume:
         parser.error("--refresh-cache requires a cache volume (omit --no-cache-volume)")
@@ -354,9 +407,9 @@ def resolve_test_target(
     test_file: str | None,
     tests_dir: str | None,
     pattern: str | None,
-) -> tuple[str | None, str | None]:
+) -> tuple[str | None, str | None, str | None]:
     if not test_file:
-        return tests_dir, pattern
+        return tests_dir, pattern, None
 
     file_path = Path(test_file)
     if not file_path.is_absolute():
@@ -374,7 +427,114 @@ def resolve_test_target(
     rel_parent = rel_file_path.parent.as_posix()
     resolved_tests_dir = rel_parent if rel_parent else "."
     resolved_pattern = rel_file_path.name
-    return resolved_tests_dir, resolved_pattern
+    return resolved_tests_dir, resolved_pattern, rel_file_path.as_posix()
+
+
+def resolve_test_categories(
+    args: argparse.Namespace, selected_file: str | None
+) -> tuple[str, ...]:
+    if selected_file:
+        return (test_category_for_file(selected_file),)
+
+    disabled_categories = {
+        UNIT_TESTS: args.no_unit_tests,
+        SYNTAX_TESTS: args.no_syntax_tests,
+        SYNTAX_COMPATIBILITY_CHECKS: args.no_syntax_compatibility_checks,
+    }
+    return tuple(
+        category
+        for category in ALL_TEST_CATEGORIES
+        if not disabled_categories[category]
+    )
+
+
+def test_category_for_file(test_file: str) -> str:
+    file_name = Path(test_file).name
+    if file_name.startswith("syntax_test"):
+        return SYNTAX_TESTS
+    if file_name.endswith(".sublime-syntax"):
+        return SYNTAX_COMPATIBILITY_CHECKS
+    if file_name.endswith(".py"):
+        return UNIT_TESTS
+    raise SystemExit(f"Error: unsupported test file type: {test_file}")
+
+
+class GitIgnoreManifest:
+    def __init__(self, contents: bytes | None = None) -> None:
+        self.path: Path | None = None
+        if contents is not None:
+            with tempfile.NamedTemporaryFile(
+                prefix="unittesting-ignore-", suffix=".files", delete=False
+            ) as manifest:
+                manifest.write(contents)
+                self.path = Path(manifest.name)
+
+    def __bool__(self) -> bool:
+        return self.path is not None
+
+    def __enter__(self) -> "GitIgnoreManifest":
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback) -> None:
+        if self.path:
+            self.path.unlink(missing_ok=True)
+            self.path = None
+
+
+def make_git_ignore_manifest(
+    package_root: Path, selected_file: str | None = None
+) -> GitIgnoreManifest:
+    if not shutil.which("git"):
+        return GitIgnoreManifest()
+
+    result = subprocess.run(
+        [
+            "git",
+            "-C",
+            str(package_root),
+            "ls-files",
+            "--others",
+            "--ignored",
+            "--exclude-standard",
+            "--directory",
+            "-z",
+        ],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.DEVNULL,
+    )
+    if result.returncode != 0:
+        return GitIgnoreManifest()
+
+    return GitIgnoreManifest(make_rsync_ignore_filter(result.stdout, selected_file))
+
+
+def make_rsync_ignore_filter(paths: bytes, selected_file: str | None) -> bytes:
+    entries = [path for path in paths.split(b"\0") if path]
+    rules: list[bytes] = []
+
+    if selected_file:
+        selected_path = os.fsencode(selected_file)
+        ignored_directories = [
+            path
+            for path in entries
+            if path.endswith(b"/") and selected_path.startswith(path)
+        ]
+        if selected_path in entries or ignored_directories:
+            parts = selected_path.split(b"/")
+            # rsync uses the first matching rule and does not descend into an
+            # excluded directory. Include the selected file and its ancestors
+            # first...
+            rules.extend(
+                b"+ /" + b"/".join(parts[:i]) + b"/"
+                for i in range(1, len(parts))
+            )
+            rules.append(b"+ /" + selected_path)
+            # ... then exclude everything else under the ignored ancestor
+            # directories (`/***`).
+            rules.extend(b"- /" + path + b"***" for path in ignored_directories)
+
+    rules.extend(b"- /" + path for path in entries)
+    return b"\0".join(rules) + (b"\0" if rules else b"")
 
 
 def build_docker_run_command(
@@ -384,6 +544,8 @@ def build_docker_run_command(
     image: str,
     cache_volume: str | None,
     container_name: str | None,
+    ignore_manifest: GitIgnoreManifest,
+    test_categories: tuple[str, ...],
     scheduler_delay_ms: int,
     coverage: bool,
     failfast: bool,
@@ -409,11 +571,18 @@ def build_docker_run_command(
     command.extend(["-v", f"{package_root}:/project"])
     command.extend(["-v", f"{unit_testing_root}:/unittesting"])
 
+    if ignore_manifest.path:
+        manifest_target = "/tmp/unittesting-ignore.files"
+        command.extend(["-e", f"UNITTESTING_IGNORE_MANIFEST={manifest_target}"])
+        command.extend(["-v", f"{ignore_manifest.path}:{manifest_target}:ro"])
+
     if cache_volume:
         command.extend(["-v", f"{cache_volume}:/root"])
 
     command.append(image)
-    command.append("run_tests")
+    command.append("run_test_categories")
+    command.extend(f"--{category}" for category in test_categories)
+    command.append("--")
 
     if coverage:
         command.append("--coverage")
