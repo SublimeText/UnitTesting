@@ -132,12 +132,20 @@ ut-run-tests .
 
 This launcher calls `docker/run_tests.py`, which runs tests in a Docker
 container (headless), streams output to stdout/stderr and keeps a cache
-volume so repeated runs are fast.
+volume so repeated runs are fast. By default it runs Python unit tests,
+syntax tests and syntax compatibility checks.
+
+`--file` chooses the runner from the selected file: Python files run as unit
+tests, `syntax_test*` files run as syntax tests, and `.sublime-syntax` files
+run compatibility checks.
 
 Useful options:
 
 - `--file tests/test_foo.py`
 - `--pattern test_foo.py --tests-dir tests/subdir`
+- `--no-unit-tests`
+- `--no-syntax-tests`
+- `--no-syntax-compatibility-checks`
 - `--coverage`
 - `--failfast`
 - `--reload-package-on-testing` (default: off)

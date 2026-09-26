@@ -20,10 +20,13 @@ class UnitTestingSyntaxCommand(BaseUnittestingCommand):
         failed_assertions = 0
 
         try:
-            tests = sublime.find_resources("syntax_test*")
-            tests = [t for t in tests if t.startswith("Packages/%s/" % package)]
+            tests = find_package_resources(
+                package,
+                kwargs.get("pattern", "syntax_test*"),
+                kwargs.get("tests_dir"),
+            )
 
-            if not tests:
+            if not tests and kwargs.get("fail_if_no_resources", True):
                 raise RuntimeError("No syntax_test files are found in %s!" % package)
             for t in tests:
                 assertions, test_output_lines = sublime_api.run_syntax_test(t)
@@ -33,7 +36,7 @@ class UnitTestingSyntaxCommand(BaseUnittestingCommand):
                     for line in test_output_lines:
                         stream.write(line + "\n")
 
-            file_noun = "files" if len(tests) > 1 else "file"
+            file_noun = "files" if len(tests) != 1 else "file"
             if failed_assertions > 0:
                 stream.write(
                     "FAILED: %d of %d assertions in %d %s failed\n"
@@ -66,10 +69,13 @@ class UnitTestingSyntaxCompatibilityCommand(BaseUnittestingCommand):
         stream = self.load_stream(package, settings)
 
         try:
-            syntaxes = sublime.find_resources("*.sublime-syntax")
-            syntaxes = [s for s in syntaxes if s.startswith("Packages/%s/" % package)]
+            syntaxes = find_package_resources(
+                package,
+                kwargs.get("pattern", "*.sublime-syntax"),
+                kwargs.get("tests_dir"),
+            )
 
-            if not syntaxes:
+            if not syntaxes and kwargs.get("fail_if_no_resources", True):
                 raise RuntimeError("No sublime-syntax files found in %s!" % package)
 
             total_errors = 0
@@ -87,7 +93,7 @@ class UnitTestingSyntaxCompatibilityCommand(BaseUnittestingCommand):
                     total_failed_syntaxes += 1
 
             error_noun = "errors" if total_errors > 1 else "error"
-            syntax_noun = "syntaxes" if len(syntaxes) > 1 else "syntax"
+            syntax_noun = "syntaxes" if len(syntaxes) != 1 else "syntax"
             if total_errors:
                 stream.write(
                     "FAILED: %d %s in %d of %d %s\n"
@@ -109,3 +115,17 @@ class UnitTestingSyntaxCompatibilityCommand(BaseUnittestingCommand):
         stream.write("\n")
         stream.write(DONE_MESSAGE)
         stream.close()
+
+
+def find_package_resources(package, pattern, tests_dir=None):
+    resource_prefix = "Packages/%s/" % package
+    if tests_dir:
+        tests_dir = tests_dir.replace("\\", "/").strip("/")
+        if tests_dir != ".":
+            resource_prefix += tests_dir + "/"
+
+    return [
+        resource
+        for resource in sublime.find_resources(pattern)
+        if resource.startswith(resource_prefix)
+    ]
