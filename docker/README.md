@@ -148,7 +148,11 @@ docker run --rm -it \
 Run a single test file
 
 ```sh
-ut-run-tests . --file tests/test_example.py
+docker run --rm -it \
+  -e PACKAGE=$PACKAGE \
+  -v $PWD:/project \
+  -v unittesting-home:/root \
+  unittesting-local run_tests --tests-dir tests --pattern test_example.py
 ```
 
 ## ARM hosts (Apple Silicon, arm64 Linux)
