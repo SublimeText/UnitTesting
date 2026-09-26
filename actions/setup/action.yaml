@@ -95,7 +95,17 @@ runs:
             exit 1
         esac
         echo "SUBLIME_TEXT_PACKAGES=$STP" >> $GITHUB_ENV
-        echo "SUBLIME_TEXT_ARCH=${{ inputs.sublime-text-arch }}" >> $GITHUB_ENV
+        ST_ARCH="${{ inputs.sublime-text-arch }}"
+        if [ -n "$ST_ARCH" ]; then
+          echo "Sublime Text architecture: $ST_ARCH (specified by input)"
+        else
+          case "${{ runner.arch }}" in
+            ARM64) ST_ARCH=arm64 ;;
+            *) ST_ARCH=x64 ;;
+          esac
+          echo "Sublime Text architecture: $ST_ARCH (autodetected from runner arch ${{ runner.arch }})"
+        fi
+        echo "SUBLIME_TEXT_ARCH=$ST_ARCH" >> $GITHUB_ENV
         echo "SUBLIME_TEXT_VERSION=${{ inputs.sublime-text-version }}" >> $GITHUB_ENV
       shell: bash
     - name: Setup Graphical User Interface
