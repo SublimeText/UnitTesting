@@ -1,6 +1,7 @@
 #!/bin/bash
 
 echo PACKAGE = $PACKAGE
+echo ARCHITECTURE = $(uname -m)
 
 set -e
 
@@ -84,6 +85,37 @@ write_package_dependency_marker() {
     printf '%s\n' "$dependency_fingerprint" > "$DEPENDENCY_MARKER_DIR/$PACKAGE.sha256"
 }
 
+ensure_sublime_text_arch_matches() {
+    # A cache volume created on a different architecture holds a Sublime Text
+    # binary that cannot run here, and the bootstrap marker skips reinstall.
+    local binary="$HOME/sublime_text/sublime_text"
+    [ -f "$binary" ] || return 0
+
+    local expected
+    case "$(uname -m)" in
+        x86_64) expected=3e ;;
+        aarch64) expected=b7 ;;
+        *) return 0 ;;
+    esac
+
+    # e_machine field of the ELF header (low byte, little-endian).
+    local actual
+    actual=$(od -An -tx1 -j18 -N1 "$binary" | tr -d ' \n')
+    if [ "$actual" != "$expected" ]; then
+        local found
+        case "$actual" in
+            3e) found=x86_64 ;;
+            b7) found=aarch64 ;;
+            *) found="unknown (ELF machine 0x$actual)" ;;
+        esac
+        echo "Error: the cache volume has a Sublime Text build for $found," >&2
+        echo "but this container runs on $(uname -m)." >&2
+        echo "Run ut-run-tests with --refresh-cache, or use a different cache volume." >&2
+        exit 1
+    fi
+}
+
+ensure_sublime_text_arch_matches
 sudo sh -e /etc/init.d/xvfb start
 ensure_git_identity
 ensure_ci_platform_compat
