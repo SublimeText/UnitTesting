@@ -9,9 +9,11 @@ inputs:
     required: true
     default: 4
   sublime-text-arch:
-    description: Sublime Text Version Arch. It could be x32 for Sublime Text 3.
-    required: true
-    default: x64
+    description: >-
+      Sublime Text build architecture: x64, arm64 (Linux, Sublime Text 4) or x32 (Sublime Text 3).
+      Detected from the runner if empty.
+    required: false
+    default: ''
   install-package:
     description: Whether to install the checked out package.
     required: true
