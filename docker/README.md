@@ -123,9 +123,13 @@ ut-run-tests . --color always
 ## Run a single test file
 
 ```sh
-docker run --rm -it \
-  -e PACKAGE=$PACKAGE \
-  -v $PWD:/project \
-  -v unittesting-home:/root \
-  unittesting-local run_tests --tests-dir tests --pattern test_example.py
+ut-run-tests . --file tests/test_example.py
 ```
+
+## ARM hosts (Apple Silicon, arm64 Linux)
+
+On an ARM host, the launcher builds and runs a native arm64 image. The
+container installs the arm64 build of Sublime Text 4.
+
+Runs under amd64 emulation (for example `DOCKER_DEFAULT_PLATFORM=linux/amd64`)
+are not supported.
