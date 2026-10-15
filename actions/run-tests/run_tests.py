@@ -58,7 +58,7 @@ def create_schedule(package, output_file, default_schedule):
     schedule = []
 
     try:
-        with open(SCHEDULE_FILE_PATH, "r") as f:
+        with open(SCHEDULE_FILE_PATH, "r", encoding="utf-8") as f:
             schedule = json.load(f)
     except Exception:
         pass
@@ -66,7 +66,7 @@ def create_schedule(package, output_file, default_schedule):
     if not any(s["package"] == package for s in schedule):
         schedule.append(default_schedule)
 
-    with open(SCHEDULE_FILE_PATH, "w") as f:
+    with open(SCHEDULE_FILE_PATH, "w", encoding="utf-8") as f:
         f.write(json.dumps(schedule, ensure_ascii=False, indent=True))
 
 
@@ -135,7 +135,9 @@ def read_output(path, timeout=5 * 60):
     lock = threading.Lock()
 
     def reader():
-        with open(path, "r") as f:
+        # The output is written as UTF-8. A read can end in the middle of a character, which is replaced until the
+        # incomplete line is read again.
+        with open(path, "r", encoding="utf-8", errors="replace") as f:
             while not done:
                 offset = f.tell()
                 line = f.readline()
@@ -149,7 +151,8 @@ def read_output(path, timeout=5 * 60):
                     time.sleep(0.2)
 
     # run the reader in thread to avoid blocking
-    t = threading.Thread(target=reader)
+    # A daemon thread, so that an error in the main thread doesn't leave the process hanging.
+    t = threading.Thread(target=reader, daemon=True)
     t.start()
     last_update_time = time.time()
 
@@ -193,10 +196,10 @@ def restore_coverage_report(report_file):
     source_path, name = os.path.split(report_file)
     dest_path = os.getcwd()
     dest_file = os.path.join(dest_path, name)
-    with open(report_file, "r") as f:
+    with open(report_file, "r", encoding="utf-8") as f:
         txt = f.read()
     txt = txt.replace(source_path, dest_path)
-    with open(dest_file, "w") as f:
+    with open(dest_file, "w", encoding="utf-8") as f:
         f.write(txt)
     print(f"UnitTesting: Restored {dest_file}")
 
@@ -235,7 +238,7 @@ def main(default_schedule_info):
 
                 # print errors recorded by ST
                 if os.path.isfile(log_file):
-                    with open(log_file) as f:
+                    with open(log_file, encoding="utf-8", errors="replace") as f:
                         print(f.read())
 
                 kill_sublime_text()
@@ -260,6 +263,9 @@ def main(default_schedule_info):
 
 
 if __name__ == "__main__":
+    # The tests output is UTF-8, while stdout uses the locale's encoding when it's a pipe, e.g. cp1252 on Windows.
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+
     parser = optparse.OptionParser()
     parser.add_option("--syntax-test", action="store_true")
     parser.add_option("--syntax-compatibility", action="store_true")
