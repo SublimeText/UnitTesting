@@ -55,6 +55,29 @@ if [ ! -f "$STP/User/Package Control.sublime-settings" ]; then
     echo '{"auto_upgrade": false, "ignore_vcs_packages": true, "remove_orphaned": false, "submit_usage": false }' > "$STP/User/Package Control.sublime-settings"
 fi
 
+# let Package Control install packages listed in `installed_packages` on startup
+if [ -n "$UNITTESTING_PC_PACKAGES" ]; then
+    echo Adding packages to be installed by Package Control:
+    printf '%s' "$UNITTESTING_PC_PACKAGES" | sed 's/^/  /'
+    python3 -B - "$STP/User/Package Control.sublime-settings" <<'EOF'
+import json
+import os
+import sys
+
+path = sys.argv[1]
+with open(path, encoding="utf-8") as f:
+    settings = json.load(f)
+names = settings.get("installed_packages", [])
+for name in os.environ["UNITTESTING_PC_PACKAGES"].splitlines():
+    name = name.strip()
+    if name and name not in names:
+        names.append(name)
+settings["installed_packages"] = names
+with open(path, "w", encoding="utf-8") as f:
+    json.dump(settings, f, indent=4)
+EOF
+fi
+
 PCH_PATH="$STP/0_install_package_control_helper"
 
 if [ ! -d "$PCH_PATH" ]; then

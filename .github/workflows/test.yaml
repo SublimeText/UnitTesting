@@ -80,3 +80,22 @@ jobs:
             SublimeText/UnitTesting
       - uses: "./UnitTesting/actions/run-tests"
       - uses: "./UnitTesting/actions/run-syntax-tests"
+
+  test-package-control-extra-packages:
+    strategy:
+      fail-fast: false
+      matrix:
+        st-version: [3, 4]
+        os: ["ubuntu-latest", "macOS-latest", "windows-latest"]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: "./actions/setup"
+        with:
+          sublime-text-version: ${{ matrix.st-version }}
+          extra-packages: |
+            A File Icon
+      - name: Check package installed by Package Control
+        run: test -f "${SUBLIME_TEXT_PACKAGES%/}/../Installed Packages/A File Icon.sublime-package"
+        shell: bash
+      - uses: "./actions/run-tests"

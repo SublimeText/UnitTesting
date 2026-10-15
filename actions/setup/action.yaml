@@ -48,6 +48,9 @@ inputs:
       or just `user/repo@ref` if the repo name is the same as the package name. `@ref` could
       be either a branch name, a tag name , or a prefix of tags e.g. `st3-` or simply left
       empty. If an exact match is not found, the latest tag is determined by semver x.y.z.
+      A line with just a package name (no `/`), e.g. `A File Icon`, installs the package via
+      Package Control, which picks the latest release compatible with the Sublime Text build.
+      This requires `install-package-control` to be enabled.
     required: false
   display:
     description: internal and experimental only
@@ -214,6 +217,7 @@ runs:
         fi
 
         # Install extra packages to to Packages/<Package>
+        PC_PACKAGES=""
         while read -r x; do
             if [[ "$x" =~ ^(.*):(.*)/([^@]*)@?(.*)$ ]]; then
                 PKG="${BASH_REMATCH[1]}"
@@ -225,11 +229,28 @@ runs:
                 USER="${BASH_REMATCH[1]}"
                 REPO="${BASH_REMATCH[2]}"
                 SHA="${BASH_REMATCH[3]}"
+            elif [ -n "$x" ]; then
+                # Plain package name, installed by Package Control
+                PC_PACKAGES+="$x"$'\n'
+                continue
             else
               continue
             fi
             InstallPackage "$PKG" "https://github.com/$USER/$REPO" "$SHA"
         done <<< "${{ inputs.extra-packages }}"
+
+        # Pass packages to be installed by Package Control to the next step
+        if [ -n "$PC_PACKAGES" ]; then
+            if [ "${{ inputs.install-package-control }}" != "true" ]; then
+                echo "::error::extra-packages lists packages to install via Package Control, but install-package-control is disabled."
+                exit 1
+            fi
+            {
+                echo "UNITTESTING_PC_PACKAGES<<UNITTESTING_PC_PACKAGES_EOF"
+                printf '%s' "$PC_PACKAGES"
+                echo "UNITTESTING_PC_PACKAGES_EOF"
+            } >> "$GITHUB_ENV"
+        fi
 
         # Install UnitTesting to Packages/UnitTesting if not yet exists
         if [ ! -d "$SUBLIME_TEXT_PACKAGES/UnitTesting" ]; then
