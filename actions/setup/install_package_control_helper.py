@@ -44,11 +44,47 @@ def plugin_loaded():
         Wait for Package Control to be loaded.
         """
         if "Package Control" in sys.modules:
-            sublime.set_timeout(check_libraries, 2000)
+            sublime.set_timeout(check_packages, 2000)
         else:
             sublime.set_timeout(check_package_control, 2000)
 
     num_retries = 0
+
+    def retry(callback):
+        """
+        Schedule another check, return False if out of retries.
+        """
+        nonlocal num_retries
+
+        if num_retries < 20:
+            num_retries += 1
+            sublime.set_timeout(callback, 2000)
+            return True
+
+        return False
+
+    def check_packages():
+        """
+        Wait for Package Control to install missing packages.
+
+        PC4 automatically installs packages listed in `installed_packages`
+        at startup, before installing missing libraries.
+        """
+        package_control = sys.modules["Package Control"].package_control
+        manager = package_control.package_manager.PackageManager()
+        settings = sublime.load_settings("Package Control.sublime-settings")
+        missing_packages = set(settings.get("installed_packages", [])) - manager.list_packages()
+        if not missing_packages:
+            check_libraries()
+            return
+
+        if retry(check_packages):
+            return
+
+        log.write("missing packages:" + "\n")
+        log.write("\n".join("- " + name for name in sorted(missing_packages)) + "\n")
+        touch("failed")
+        kill_subl(restart=False)
 
     def check_libraries():
         """
@@ -61,17 +97,13 @@ def plugin_loaded():
         manager = package_control.package_manager.PackageManager()
         missing_libraries = manager.find_missing_libraries()
         if missing_libraries:
-            nonlocal num_retries
-
-            if num_retries < 10:
-                num_retries += 1
-                sublime.set_timeout(check_libraries, 2000)
+            if retry(check_libraries):
                 return
 
             log.write("missing libraries:" + "\n")
             log.write(
                 "\n".join(
-                    "- {lib.name} for Python {lib.python_version}".format(lib)
+                    "- {lib.name} for Python {lib.python_version}".format(lib=lib)
                     for lib in sorted(missing_libraries)
                 )
                 + "\n"

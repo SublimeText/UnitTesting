@@ -336,6 +336,14 @@ jobs:
       - uses: codecov/codecov-action@v4
 ```
 
+`extra-packages` takes one package per line, in one of these forms:
+
+- `user/repo@ref` or `Package Name:user/repo@ref` clones the package from GitHub.
+  `@ref` is a branch, a tag or a tag prefix (e.g. `st3-`). Without it, the latest `x.y.z` tag is used.
+- `Package Name` (no `/`) lets Package Control install the package,
+  picking the latest release compatible with the Sublime Text build.
+  Requires `install-package-control: true` (the default).
+
 Check [this](https://github.com/randy3k/UnitTesting-example) for further examples.
 
 

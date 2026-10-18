@@ -26,6 +26,22 @@ if (-not (Test-Path $PC_SETTINGS)) {
     "{`"auto_upgrade`": false, `"ignore_vcs_packages`": true, `"remove_orphaned`": false, `"submit_usage`": false }" | Out-File -filepath $PC_SETTINGS -encoding utf8
 }
 
+# let Package Control install packages listed in `installed_packages` on startup
+if ($env:UNITTESTING_PC_PACKAGES) {
+    Write-Verbose "Adding packages to be installed by Package Control:"
+    $settings = Get-Content -Raw $PC_SETTINGS | ConvertFrom-Json
+    $names = @($settings.installed_packages | Where-Object { $_ })
+    foreach ($name in $env:UNITTESTING_PC_PACKAGES -split "`r?`n") {
+        $name = $name.Trim()
+        if ($name -and $names -notcontains $name) {
+            Write-Verbose "  $name"
+            $names += $name
+        }
+    }
+    $settings | Add-Member -NotePropertyName installed_packages -NotePropertyValue $names -Force
+    $settings | ConvertTo-Json | Out-File -filepath $PC_SETTINGS -encoding utf8
+}
+
 $PCH_PATH = "$STP\0_install_package_control_helper"
 New-Item -itemtype directory $PCH_PATH -force >$null
 
