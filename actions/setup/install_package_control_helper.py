@@ -74,6 +74,9 @@ def plugin_loaded():
         manager = package_control.package_manager.PackageManager()
         settings = sublime.load_settings("Package Control.sublime-settings")
         missing_packages = set(settings.get("installed_packages", [])) - manager.list_packages()
+        # Takes the lock that PC holds while re-enabling packages, so that
+        # `ignored_packages` is saved too once a package is no longer listed.
+        missing_packages |= package_control.package_disabler.PackageDisabler.in_process_packages()
         if not missing_packages:
             check_libraries()
             return
