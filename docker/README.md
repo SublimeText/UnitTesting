@@ -58,7 +58,9 @@ ut-run-tests . --file Example.sublime-syntax
 
 The container entrypoint writes a marker in `/root/.cache/unittesting`.
 With `-v unittesting-home:/root`, bootstrap/install runs once and later runs
-only refresh your package files and execute tests.
+only refresh your package files and execute tests. Each run removes the
+session that Sublime Text saved in the previous run, so that no views from
+earlier runs are open when the tests start.
 
 ## Concurrent runs and races
 
