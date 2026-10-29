@@ -115,6 +115,14 @@ ensure_sublime_text_arch_matches() {
     fi
 }
 
+clear_saved_session() {
+    # Sublime Text is killed after the tests, so the cache volume keeps the
+    # session that it last saved, with the views that tests had open then.
+    # Start without it, like a CI runner does, so that Sublime Text doesn't
+    # restore those views.
+    rm -f "${ST_PACKAGES_DIR%/*}/Local/"*.sublime_session
+}
+
 ensure_sublime_text_arch_matches
 sudo sh -e /etc/init.d/xvfb start
 ensure_git_identity
@@ -127,6 +135,7 @@ if [ "$SUBLIME_TEXT_VERSION" -ge 4 ]; then
 else
     ST_PACKAGES_DIR="$HOME/.config/sublime-text-$SUBLIME_TEXT_VERSION/Packages"
 fi
+clear_saved_session
 
 if [ -d "$UNITTESTING_SOURCE/sbin" ]; then
     # Ensure UnitTesting comes from the local checkout running this script,
