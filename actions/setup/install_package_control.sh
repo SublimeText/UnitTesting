@@ -59,7 +59,9 @@ fi
 if [ -n "$UNITTESTING_PC_PACKAGES" ]; then
     echo Adding packages to be installed by Package Control:
     printf '%s' "$UNITTESTING_PC_PACKAGES" | sed 's/^/  /'
-    python3 -B - "$STP/User/Package Control.sublime-settings" <<'EOF'
+    # -I keeps the current directory, usually the package checkout, off sys.path, so that its modules can't shadow the
+    # standard library, e.g. a `types.py` breaking `import json`.
+    python3 -I -B - "$STP/User/Package Control.sublime-settings" <<'EOF'
 import json
 import os
 import sys
